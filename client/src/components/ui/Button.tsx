@@ -23,13 +23,13 @@ export const Button = ({
 
   const variants = {
     primary:
-      'bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white shadow-md shadow-indigo-500/20 hover:shadow-indigo-500/30 border border-indigo-400/30 focus:ring-indigo-500',
+      'bg-gradient-to-r from-teal-600 to-teal-500 hover:from-teal-700 hover:to-teal-600 text-white shadow-md shadow-teal-500/20 hover:shadow-teal-500/30 border border-teal-400/30 focus:ring-teal-500 dark:from-teal-500 dark:to-teal-400 dark:text-slate-950 dark:font-semibold',
     secondary:
-      'bg-slate-100 text-slate-800 hover:bg-slate-200/80 focus:ring-slate-400 dark:bg-slate-800/80 dark:text-slate-100 dark:hover:bg-slate-700/80 border border-transparent dark:border-slate-700/50',
+      'bg-slate-100 text-slate-800 hover:bg-slate-200/80 focus:ring-slate-400 dark:bg-[#132428] dark:text-slate-200 dark:hover:bg-[#1b4d52] border border-transparent dark:border-[#183035]',
     outline:
-      'border border-slate-200/80 bg-white/80 dark:bg-slate-900/60 backdrop-blur-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-700 focus:ring-indigo-500 shadow-2xs',
+      'border border-slate-200/80 bg-white/80 dark:bg-[#0d1a1d] backdrop-blur-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-[#132428] hover:border-slate-300 dark:hover:border-[#2dd4bf]/40 focus:ring-teal-500 shadow-2xs',
     ghost:
-      'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 focus:ring-slate-400 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-100',
+      'text-slate-600 hover:bg-slate-100/70 hover:text-slate-900 focus:ring-slate-400 dark:text-slate-400 dark:hover:bg-[#132428] dark:hover:text-slate-100',
     danger:
       'bg-gradient-to-r from-rose-500 to-rose-600 text-white hover:from-rose-600 hover:to-rose-700 focus:ring-rose-500 shadow-md shadow-rose-500/20 border border-rose-400/30',
   };

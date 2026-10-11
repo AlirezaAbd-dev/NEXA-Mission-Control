@@ -3,27 +3,30 @@
 @theme {
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   
-  /* Brand accents */
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --color-primary-light: #e0e7ff;
-  
-  /* Surface neutrals */
+  /* NEXA Brand tokens: Deep Cyber Teal & Petrol */
+  --color-primary: #0d9488;
+  --color-primary-hover: #0f766e;
+  --color-primary-light: #ccfbf1;
+  --color-accent-teal: #2dd4bf;
+  --color-accent-gold: #c59b51;
+
+  /* NEXA Cyber Surfaces: light-dark adapted */
   --color-surface-50: #f8fafc;
   --color-surface-100: #f1f5f9;
   --color-surface-200: #e2e8f0;
   --color-surface-300: #cbd5e1;
-  --color-surface-700: #334155;
-  --color-surface-800: #1e293b;
-  --color-surface-900: #0f172a;
-  --color-surface-950: #020617;
+  
+  --color-surface-700: #1b4d52;
+  --color-surface-800: #132428;
+  --color-surface-900: #0d1a1d;
+  --color-surface-950: #070e10;
 
   /* Priority system */
   --color-priority-urgent: #ef4444;
   --color-priority-high: #f97316;
   --color-priority-medium: #eab308;
-  --color-priority-low: #3b82f6;
-  --color-priority-none: #94a3b8;
+  --color-priority-low: #0d9488;
+  --color-priority-none: #64748b;
 
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
@@ -37,7 +40,7 @@
   }
 
   .dark * {
-    border-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(24, 48, 53, 0.9);
   }
 
   body {
@@ -51,25 +54,25 @@
   }
 
   .dark body {
-    background-color: #090d16;
-    color: #f1f5f9;
+    background-color: #070e10;
+    color: #f8fafc;
   }
 }
 
-/* Glassmorphism and modern surface effects */
+/* NEXA Glassmorphism */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
 .dark .glass-panel {
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(13, 26, 29, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
-/* Sleek modern scrollbars */
+/* Sleek Cyber Scrollbars */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -85,7 +88,7 @@
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #183035;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -93,5 +96,5 @@
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #2dd4bf;
 }

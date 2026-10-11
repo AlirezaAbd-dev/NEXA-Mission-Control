@@ -9,18 +9,38 @@ export const RegisterPage = () => {
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [password, setPassword] = useState('');
+  const [formErrors, setFormErrors] = useState<{
+    email?: string;
+    username?: string;
+    password?: string;
+  }>({});
+
   const registerMutation = useRegister();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !username || !password) return;
+    const errors: { email?: string; username?: string; password?: string } = {};
+    if (!displayName.trim() && !username.trim()) errors.username = 'Username is required';
+    if (!username.trim()) errors.username = 'Username is required';
+    if (!email.trim()) errors.email = 'Email address is required';
+    if (!password) {
+      errors.password = 'Password is required';
+    } else if (password.length < 6) {
+      errors.password = 'Password must be at least 6 characters';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    setFormErrors({});
 
     try {
       await registerMutation.mutateAsync({
-        email,
-        username,
-        display_name: displayName || username,
+        email: email.trim(),
+        username: username.trim(),
+        display_name: displayName.trim() || username.trim(),
         password,
       });
       navigate('/');
@@ -30,21 +50,21 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-[#090d16] relative overflow-hidden">
+    <div className="min-h-screen w-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-[#070e10] relative overflow-hidden">
       {/* Decorative ambient gradient orbs */}
-      <div className="absolute top-1/4 -right-32 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 -right-32 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -left-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <Card className="w-full max-w-md shadow-2xl border-slate-200/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/90 backdrop-blur-md relative z-10">
+      <Card className="w-full max-w-md shadow-2xl border-slate-200/80 dark:border-[#183035] bg-white/95 dark:bg-[#0d1a1d] backdrop-blur-md relative z-10">
         <CardHeader className="text-center pb-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white flex items-center justify-center mx-auto mb-3 shadow-lg shadow-indigo-500/25 ring-4 ring-indigo-500/10">
-            <Rocket className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-600 to-teal-400 text-slate-950 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-teal-500/25 ring-4 ring-teal-500/10">
+            <Rocket className="w-6 h-6 text-slate-950" />
           </div>
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
-            Create an Account
+          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-teal-200 bg-clip-text text-transparent">
+            NEXA Mission Control
           </CardTitle>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
-            Join your workspace and start building high velocity products
+            Join your mission workspace and start building
           </p>
         </CardHeader>
 
@@ -69,8 +89,11 @@ export const RegisterPage = () => {
               label="Username"
               placeholder="alexw"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
+              error={formErrors.username}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                if (formErrors.username) setFormErrors((prev) => ({ ...prev, username: undefined }));
+              }}
             />
 
             <Input
@@ -79,8 +102,11 @@ export const RegisterPage = () => {
               label="Email Address"
               placeholder="alex@company.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              error={formErrors.email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (formErrors.email) setFormErrors((prev) => ({ ...prev, email: undefined }));
+              }}
             />
 
             <Input
@@ -89,8 +115,11 @@ export const RegisterPage = () => {
               label="Password"
               placeholder="At least 6 characters"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              error={formErrors.password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (formErrors.password) setFormErrors((prev) => ({ ...prev, password: undefined }));
+              }}
             />
 
             <Button
@@ -102,14 +131,14 @@ export const RegisterPage = () => {
               Get Started Free
             </Button>
 
-            <div className="flex items-center justify-center gap-1.5 pt-1 text-xs text-slate-400">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            <div className="flex items-center justify-center gap-1.5 pt-1 text-xs text-slate-400 dark:text-slate-500">
+              <ShieldCheck className="w-4 h-4 text-teal-500" />
               <span>Instant provisioning & workspace auto-setup</span>
             </div>
 
-            <div className="text-center pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="text-center pt-2 border-t border-slate-100 dark:border-[#183035]">
               <span className="text-xs text-slate-500">Already have an account? </span>
-              <Link to="/login" className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline">
+              <Link to="/login" className="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:underline">
                 Sign in
               </Link>
             </div>

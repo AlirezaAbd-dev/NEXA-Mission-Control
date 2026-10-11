@@ -27,3 +27,12 @@
    - `ref` is passed directly as a standard prop (no `forwardRef` needed).
    - Leverage React Compiler optimizations without cluttering code with manual `useCallback`/`useMemo` unless specifically required.
    - Clean TypeScript typings: strict mode, no `any`, explicit interfaces/types.
+
+6. **Custom Form & Field Error Handling**:
+   - Every form must display clear validation and API error feedback.
+   - Inputs and fields must support explicit error states, visual error highlights, and descriptive error messages rendered beneath the field.
+   - Server validation errors must be gracefully extracted and mapped to relevant form fields or visible alert banners.
+
+7. **Modal-Based Action Confirmations**:
+   - NEVER use native browser `confirm()`, `alert()`, or `prompt()` dialogs.
+   - Always use the custom `ConfirmModal` component (or customized UI Modal primitive) for any destructive, state-altering, or user-confirmed action.

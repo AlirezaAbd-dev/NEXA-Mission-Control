@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Calendar, Clock, Tag, UserCheck, Flag, Trash2 } from 'lucide-react';
 import { Select } from '@/components/ui/Select';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { useUpdateCard } from '@/hooks/card/useUpdateCard';
 import { useDeleteCard } from '@/hooks/card/useDeleteCard';
 import { useLabels } from '@/hooks/label/useLabels';
@@ -19,6 +20,7 @@ interface CardSidebarProps {
 }
 
 export const CardSidebar: React.FC<CardSidebarProps> = ({ card, columns = [], onClose }) => {
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { data: project } = useProject(card.project_id);
   const workspaceId = project?.workspace_id || '';
 
@@ -75,147 +77,162 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({ card, columns = [], on
     setCardAssignees.mutate({ cardId: card.id, userIds: newIds });
   };
 
-  const handleDelete = () => {
-    if (confirm('Are you sure you want to delete this card?')) {
-      deleteCard.mutate(card.id, {
-        onSuccess: () => onClose(),
-      });
-    }
+  const handleConfirmDelete = () => {
+    deleteCard.mutate(card.id, {
+      onSuccess: () => {
+        setIsDeleteModalOpen(false);
+        onClose();
+      },
+    });
   };
 
   return (
-    <div className="space-y-6">
-      {/* Status Column */}
-      {columns.length > 0 && (
+    <>
+      <div className="space-y-6">
+        {/* Status Column */}
+        {columns.length > 0 && (
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Status
+            </label>
+            <Select value={card.column_id} onChange={handleColumnChange}>
+              {columns.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+        )}
+
+        {/* Priority */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            Status
+          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <Flag className="w-3.5 h-3.5 text-teal-500" />
+            Priority
           </label>
-          <Select value={card.column_id} onChange={handleColumnChange}>
-            {columns.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
+          <Select value={card.priority} onChange={handlePriorityChange}>
+            <option value="urgent">Urgent</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+            <option value="no_priority">No Priority</option>
           </Select>
         </div>
-      )}
 
-      {/* Priority */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-          <Flag className="w-3.5 h-3.5" />
-          Priority
-        </label>
-        <Select value={card.priority} onChange={handlePriorityChange}>
-          <option value="urgent">Urgent</option>
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
-          <option value="no_priority">No Priority</option>
-        </Select>
-      </div>
+        {/* Assignees */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <UserCheck className="w-3.5 h-3.5 text-teal-500" />
+            Assignees
+          </label>
+          <div className="flex flex-wrap gap-1.5">
+            {members.map((member) => {
+              const isAssigned = card.assignees.some((a) => a.user_id === member.user_id);
+              return (
+                <button
+                  key={member.id}
+                  type="button"
+                  onClick={() => toggleAssignee(member.user_id)}
+                  className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
+                    isAssigned
+                      ? 'bg-teal-600 text-white border-teal-600 dark:bg-teal-500 dark:text-slate-950 font-semibold'
+                      : 'bg-slate-100 dark:bg-[#132428] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#183035] hover:border-teal-500/40'
+                  }`}
+                >
+                  {member.display_name || member.username}
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-      {/* Assignees */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-          <UserCheck className="w-3.5 h-3.5" />
-          Assignees
-        </label>
-        <div className="flex flex-wrap gap-1.5">
-          {members.map((member) => {
-            const isAssigned = card.assignees.some((a) => a.user_id === member.user_id);
-            return (
-              <button
-                key={member.id}
-                type="button"
-                onClick={() => toggleAssignee(member.user_id)}
-                className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
-                  isAssigned
-                    ? 'bg-indigo-600 text-white border-indigo-600'
-                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-400'
-                }`}
-              >
-                {member.display_name || member.username}
-              </button>
-            );
-          })}
+        {/* Labels */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <Tag className="w-3.5 h-3.5 text-teal-500" />
+            Labels
+          </label>
+          <div className="flex flex-wrap gap-1.5">
+            {workspaceLabels.map((lbl) => {
+              const hasLabel = card.labels.some((l) => l.id === lbl.id);
+              return (
+                <button
+                  key={lbl.id}
+                  type="button"
+                  onClick={() => toggleLabel(lbl.id)}
+                  className="text-xs px-2.5 py-1 rounded-full border transition-all flex items-center gap-1.5"
+                  style={{
+                    backgroundColor: hasLabel ? `${lbl.color}25` : 'transparent',
+                    borderColor: hasLabel ? lbl.color : 'var(--color-border, #183035)',
+                    color: hasLabel ? lbl.color : 'inherit',
+                  }}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: lbl.color }}
+                  />
+                  {lbl.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Due Date */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <Calendar className="w-3.5 h-3.5 text-teal-500" />
+            Due Date
+          </label>
+          <Input
+            type="date"
+            value={card.due_date ? card.due_date.slice(0, 10) : ''}
+            onChange={handleDueDateChange}
+          />
+        </div>
+
+        {/* Estimate Hours */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-teal-500" />
+            Estimated Hours
+          </label>
+          <Input
+            type="number"
+            step="0.5"
+            min="0"
+            value={card.estimated_hours ?? ''}
+            onChange={handleEstimatedHoursChange}
+            placeholder="e.g. 4.5"
+          />
+        </div>
+
+        <div className="pt-4 border-t border-slate-200 dark:border-[#183035]">
+          <Button
+            variant="danger"
+            size="sm"
+            className="w-full"
+            onClick={() => setIsDeleteModalOpen(true)}
+            isLoading={deleteCard.isPending}
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete Card
+          </Button>
         </div>
       </div>
 
-      {/* Labels */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-          <Tag className="w-3.5 h-3.5" />
-          Labels
-        </label>
-        <div className="flex flex-wrap gap-1.5">
-          {workspaceLabels.map((lbl) => {
-            const hasLabel = card.labels.some((l) => l.id === lbl.id);
-            return (
-              <button
-                key={lbl.id}
-                type="button"
-                onClick={() => toggleLabel(lbl.id)}
-                className="text-xs px-2.5 py-1 rounded-full border transition-all flex items-center gap-1.5"
-                style={{
-                  backgroundColor: hasLabel ? `${lbl.color}25` : 'transparent',
-                  borderColor: hasLabel ? lbl.color : 'var(--color-border, #cbd5e1)',
-                  color: hasLabel ? lbl.color : 'inherit',
-                }}
-              >
-                <span
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: lbl.color }}
-                />
-                {lbl.name}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Due Date */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-          <Calendar className="w-3.5 h-3.5" />
-          Due Date
-        </label>
-        <Input
-          type="date"
-          value={card.due_date ? card.due_date.slice(0, 10) : ''}
-          onChange={handleDueDateChange}
-        />
-      </div>
-
-      {/* Estimate Hours */}
-      <div className="space-y-1.5">
-        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-          <Clock className="w-3.5 h-3.5" />
-          Estimated Hours
-        </label>
-        <Input
-          type="number"
-          step="0.5"
-          min="0"
-          value={card.estimated_hours ?? ''}
-          onChange={handleEstimatedHoursChange}
-          placeholder="e.g. 4.5"
-        />
-      </div>
-
-      <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
-        <Button
-          variant="danger"
-          size="sm"
-          className="w-full"
-          onClick={handleDelete}
-          isLoading={deleteCard.isPending}
-        >
-          <Trash2 className="w-4 h-4 mr-2" />
-          Delete Card
-        </Button>
-      </div>
-    </div>
+      {/* Confirmation Modal replacing browser confirm alert */}
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title={`Delete task "${card.title}"?`}
+        description="Are you sure you want to permanently delete this task? This action cannot be undone."
+        confirmLabel="Delete Task"
+        isDestructive={true}
+        isLoading={deleteCard.isPending}
+      />
+    </>
   );
 };
