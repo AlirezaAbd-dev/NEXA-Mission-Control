@@ -11,6 +11,7 @@ export interface ModalProps {
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   className?: string;
   hideHeaderClose?: boolean;
+  closeButtonClassName?: string;
 }
 
 export const Modal = ({
@@ -22,6 +23,7 @@ export const Modal = ({
   size = 'md',
   className,
   hideHeaderClose = false,
+  closeButtonClassName,
 }: ModalProps) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -72,7 +74,10 @@ export const Modal = ({
           <button
             type="button"
             onClick={onClose}
-            className="absolute top-4 right-4 z-30 p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-[#132428] rounded-lg transition-colors cursor-pointer"
+            className={cn(
+              "absolute top-4 right-4 z-30 p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-[#132428] rounded-lg transition-colors cursor-pointer",
+              closeButtonClassName
+            )}
             aria-label="Close modal"
           >
             <X className="w-4 h-4" />

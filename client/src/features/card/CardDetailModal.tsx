@@ -14,6 +14,7 @@ import { useUiStore } from '@/stores/ui.store';
 export const CardDetailModal: React.FC = () => {
   const activeCardId = useUiStore((s) => s.activeCardId);
   const closeCardModal = useUiStore((s) => s.closeCardModal);
+  const [activeTab, setActiveTab] = React.useState<'comments' | 'activity'>('comments');
 
   const { data: card, isLoading } = useCard(activeCardId || '');
   const { data: board } = useBoard(card?.project_id || '');
@@ -24,18 +25,18 @@ export const CardDetailModal: React.FC = () => {
     <Modal
       isOpen={!!activeCardId}
       onClose={closeCardModal}
-      size="xl"
-      className="max-h-[90vh] flex flex-col p-0 overflow-hidden"
+      size="2xl"
+      className="max-h-[92vh] flex flex-col p-0 overflow-hidden"
     >
       {isLoading || !card ? (
-        <div className="p-8 text-center text-slate-500 animate-pulse">
+        <div className="p-12 text-center text-slate-500 animate-pulse">
           Loading card details...
         </div>
       ) : (
         <div className="flex flex-col h-full overflow-hidden">
           {/* Header */}
           <div className="p-6 pb-2">
-            <CardHeader card={card} onClose={closeCardModal} />
+            <CardHeader card={card} />
           </div>
 
           {/* Main Body */}
@@ -45,11 +46,51 @@ export const CardDetailModal: React.FC = () => {
               <CardDescription card={card} />
               <CardChecklists cardId={card.id} projectId={card.project_id} />
               <CardAttachments card={card} projectId={card.project_id} />
-              <CardComments cardId={card.id} projectId={card.project_id} />
+
+              {/* Tabs for Comments & Activity History */}
+              <div className="space-y-4 pt-2 border-t border-slate-100 dark:border-[#183035]">
+                <div className="flex items-center gap-4 border-b border-slate-200/80 dark:border-[#183035]">
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('comments')}
+                    className={`pb-2.5 text-xs font-semibold uppercase tracking-wider transition-colors relative cursor-pointer ${
+                      activeTab === 'comments'
+                        ? 'text-teal-600 dark:text-teal-400 font-bold'
+                        : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    Comments
+                    {activeTab === 'comments' && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-500 rounded-full" />
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('activity')}
+                    className={`pb-2.5 text-xs font-semibold uppercase tracking-wider transition-colors relative cursor-pointer ${
+                      activeTab === 'activity'
+                        ? 'text-teal-600 dark:text-teal-400 font-bold'
+                        : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'
+                    }`}
+                  >
+                    Audit History
+                    {activeTab === 'activity' && (
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-500 rounded-full" />
+                    )}
+                  </button>
+                </div>
+
+                {activeTab === 'comments' ? (
+                  <CardComments cardId={card.id} projectId={card.project_id} />
+                ) : (
+                  <CardActivityStream cardId={card.id} />
+                )}
+              </div>
             </div>
 
             {/* Right Column (1/3 width) */}
-            <div className="md:col-span-1 border-t md:border-t-0 md:border-l border-slate-200 dark:border-slate-800 md:pl-6 pt-4 md:pt-0">
+            <div className="md:col-span-1 border-t md:border-t-0 md:border-l border-slate-200 dark:border-[#183035] md:pl-6 pt-4 md:pt-0">
               <CardSidebar
                 card={card}
                 columns={board?.columns}

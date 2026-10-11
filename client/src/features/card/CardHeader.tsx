@@ -5,7 +5,7 @@ import type { Card } from '@/types';
 
 interface CardHeaderProps {
   card: Card;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 const COVER_COLORS = [
@@ -64,13 +64,13 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ card, onClose: _onClose 
       {/* Visual Cover Banner if Active */}
       {hasColorCover && (
         <div
-          className="h-14 -mx-6 -mt-6 mb-2 rounded-t-xl transition-all"
+          className="h-24 -mx-6 -mt-6 mb-3 rounded-t-xl transition-all shadow-inner relative"
           style={{ backgroundColor: card.cover_url! }}
         />
       )}
 
       {hasImageCover && (
-        <div className="h-36 -mx-6 -mt-6 mb-2 rounded-t-xl overflow-hidden bg-slate-100 dark:bg-[#070e10]">
+        <div className="h-44 -mx-6 -mt-6 mb-3 rounded-t-xl overflow-hidden bg-slate-100 dark:bg-[#070e10] relative">
           <img
             src={card.cover_url!}
             alt={card.title}
@@ -79,14 +79,14 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ card, onClose: _onClose 
         </div>
       )}
 
-      <div className="pb-3 border-b border-slate-200 dark:border-[#183035] pr-8">
+      <div className="pb-3 border-b border-slate-200/80 dark:border-[#183035] pr-10">
         <div className="flex items-center gap-2 mb-2 flex-wrap">
-          <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 dark:bg-[#132428] text-slate-500 dark:text-teal-400 uppercase">
+          <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#132428] text-slate-600 dark:text-teal-400 border border-slate-200/60 dark:border-[#183035] uppercase">
             CARD-{card.id.slice(0, 6)}
           </span>
 
           {card.archived_at && (
-            <span className="text-xs px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 font-medium">
+            <span className="text-[11px] px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-500 font-semibold border border-amber-500/20">
               Archived
             </span>
           )}
@@ -96,7 +96,7 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ card, onClose: _onClose 
             <button
               type="button"
               onClick={() => setShowColorPicker(!showColorPicker)}
-              className="text-xs px-2 py-0.5 rounded flex items-center gap-1 bg-slate-100 dark:bg-[#132428] text-slate-500 dark:text-slate-400 hover:text-teal-500 transition-colors cursor-pointer"
+              className="text-[11px] px-2.5 py-0.5 rounded-md flex items-center gap-1.5 bg-slate-100 dark:bg-[#132428] text-slate-600 dark:text-slate-300 hover:text-teal-500 border border-slate-200/60 dark:border-[#183035] transition-colors cursor-pointer font-medium"
               title="Change Cover Color"
             >
               <Palette className="w-3 h-3 text-teal-500" />
@@ -119,7 +119,7 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ card, onClose: _onClose 
                   <button
                     type="button"
                     onClick={() => handleSetColorCover('')}
-                    className="w-full text-center text-[10px] text-slate-400 hover:text-rose-500 pt-1 cursor-pointer"
+                    className="w-full text-center text-[10px] text-slate-400 hover:text-rose-500 pt-1 cursor-pointer font-medium"
                   >
                     Clear Cover
                   </button>
@@ -137,12 +137,12 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ card, onClose: _onClose 
             onBlur={handleTitleSubmit}
             onKeyDown={handleKeyDown}
             autoFocus
-            className="w-full text-xl font-bold bg-white dark:bg-[#091316] text-slate-900 dark:text-slate-100 border border-slate-300 dark:border-[#183035] rounded-lg px-2.5 py-1 outline-none focus:ring-2 focus:ring-teal-500"
+            className="w-full text-xl font-bold bg-white dark:bg-[#091316] text-slate-900 dark:text-slate-100 border border-teal-500/50 dark:border-teal-500/60 rounded-lg px-2.5 py-1 outline-none ring-2 ring-teal-500/20"
           />
         ) : (
           <h2
             onClick={() => setIsEditingTitle(true)}
-            className="text-xl font-bold text-slate-900 dark:text-slate-100 cursor-pointer hover:bg-slate-100 dark:hover:bg-[#132428] rounded px-1.5 py-0.5 -mx-1.5 transition-colors"
+            className="text-xl font-bold text-slate-900 dark:text-slate-100 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-[#132428] rounded-lg px-2 py-1 -mx-2 transition-colors tracking-tight"
           >
             {card.title}
           </h2>
