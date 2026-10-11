@@ -26,17 +26,18 @@ export const BoardFilters: React.FC = () => {
       </div>
 
       {/* Priority Selector */}
-      <div className="w-36">
+      <div className="w-40">
         <Select
           value={filterPriority}
-          onChange={(e) => setFilterPriority(e.target.value)}
-        >
-          <option value="all">All Priorities</option>
-          <option value="urgent">Urgent</option>
-          <option value="high">High</option>
-          <option value="medium">Medium</option>
-          <option value="low">Low</option>
-        </Select>
+          onChange={(val) => setFilterPriority(val)}
+          options={[
+            { label: 'All Priorities', value: 'all' },
+            { label: 'Urgent', value: 'urgent' },
+            { label: 'High', value: 'high' },
+            { label: 'Medium', value: 'medium' },
+            { label: 'Low', value: 'low' },
+          ]}
+        />
       </div>
 
       {/* Reset Filter Button */}

@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { useLogin } from '@/hooks/auth/useLogin';
 import { Input, Button, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
-import { Sparkles, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
+import { NexaLogo } from '@/components/common/NexaLogo';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -39,13 +40,13 @@ export const LoginPage = () => {
 
       <Card className="w-full max-w-md shadow-2xl border-slate-200/80 dark:border-[#183035] bg-white/95 dark:bg-[#0d1a1d] backdrop-blur-md relative z-10">
         <CardHeader className="text-center pb-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-600 to-teal-400 text-slate-950 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-teal-500/25 ring-4 ring-teal-500/10">
-            <Sparkles className="w-6 h-6 text-slate-950" />
+          <div className="flex justify-center mb-3">
+            <NexaLogo size={48} />
           </div>
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-white dark:to-teal-200 bg-clip-text text-transparent">
-            NEXA Mission Control
+          <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            NEXA <span className="text-teal-600 dark:text-teal-400">Mission Control</span>
           </CardTitle>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5">
+          <p className="text-xs text-slate-500 dark:text-slate-300 mt-1.5 font-medium">
             Sign in to direct your mission workspace
           </p>
         </CardHeader>

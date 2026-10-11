@@ -1,40 +1,41 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
+import { CustomSelect, type CustomSelectProps, type SelectOption } from './CustomSelect';
 
-export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  error?: string;
-  label?: string;
+export type { CustomSelectProps, SelectOption };
+export { CustomSelect };
+
+export interface SelectProps extends Omit<CustomSelectProps, 'onChange' | 'options'> {
+  onChange?: (value: string) => void;
+  options?: SelectOption[];
+  children?: React.ReactNode;
 }
 
-export const Select = ({
-  className,
-  error,
-  label,
-  id,
+export const Select: React.FC<SelectProps> = ({
+  options = [],
   children,
-  ref,
+  onChange = () => {},
   ...props
-}: SelectProps & { ref?: React.Ref<HTMLSelectElement> }) => {
+}) => {
+  // If children were passed as <option> elements, map them gracefully to options
+  const resolvedOptions = [...options];
+
+  if (children && resolvedOptions.length === 0) {
+    React.Children.forEach(children, (child) => {
+      if (React.isValidElement(child)) {
+        const p = child.props as Record<string, any>;
+        resolvedOptions.push({
+          value: String(p?.value ?? ''),
+          label: String(p?.children ?? p?.value ?? ''),
+        });
+      }
+    });
+  }
+
   return (
-    <div className="w-full space-y-1">
-      {label && (
-        <label htmlFor={id} className="block text-xs font-medium text-slate-700 dark:text-slate-300">
-          {label}
-        </label>
-      )}
-      <select
-        ref={ref}
-        id={id}
-        className={cn(
-          'w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-colors',
-          error && 'border-red-500',
-          className
-        )}
-        {...props}
-      >
-        {children}
-      </select>
-      {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
-    </div>
+    <CustomSelect
+      options={resolvedOptions}
+      onChange={onChange}
+      {...props}
+    />
   );
 };

@@ -3,6 +3,8 @@ import { Modal } from '@/components/ui/Modal';
 import { CardHeader } from './CardHeader';
 import { CardDescription } from './CardDescription';
 import { CardChecklists } from './CardChecklists';
+import { CardAttachments } from './CardAttachments';
+import { CardActivityStream } from './CardActivityStream';
 import { CardComments } from './CardComments';
 import { CardSidebar } from './CardSidebar';
 import { useCard } from '@/hooks/card/useCard';
@@ -42,6 +44,7 @@ export const CardDetailModal: React.FC = () => {
             <div className="md:col-span-2 space-y-6">
               <CardDescription card={card} />
               <CardChecklists cardId={card.id} projectId={card.project_id} />
+              <CardAttachments card={card} projectId={card.project_id} />
               <CardComments cardId={card.id} projectId={card.project_id} />
             </div>
 

@@ -10,6 +10,7 @@ export interface ModalProps {
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
   className?: string;
+  hideHeaderClose?: boolean;
 }
 
 export const Modal = ({
@@ -20,6 +21,7 @@ export const Modal = ({
   children,
   size = 'md',
   className,
+  hideHeaderClose = false,
 }: ModalProps) => {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -53,20 +55,32 @@ export const Modal = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
       />
 
       {/* Modal Dialog */}
       <div
         className={cn(
-          'relative w-full bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 z-10 animate-in zoom-in-95 duration-200',
+          'relative w-full bg-white dark:bg-[#0d1a1d] rounded-xl shadow-2xl border border-slate-200 dark:border-[#183035] p-6 z-10 animate-in zoom-in-95 duration-200',
           sizeClasses[size],
           className
         )}
       >
-        <div className="flex items-start justify-between pb-3">
-          <div>
+        {/* Floating Top-Right Close Button */}
+        {!hideHeaderClose && (
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute top-4 right-4 z-30 p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-[#132428] rounded-lg transition-colors cursor-pointer"
+            aria-label="Close modal"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+
+        {(title || description) && (
+          <div className="pb-3 pr-8">
             {title && (
               <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                 {title}
@@ -78,15 +92,9 @@ export const Modal = ({
               </p>
             )}
           </div>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+        )}
 
-        <div className="mt-2">{children}</div>
+        <div className="mt-1">{children}</div>
       </div>
     </div>
   );

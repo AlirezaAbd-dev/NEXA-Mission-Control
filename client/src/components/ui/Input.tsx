@@ -26,7 +26,7 @@ export const Input = ({
         ref={ref}
         id={id}
         className={cn(
-          'w-full px-3.5 py-2 text-sm rounded-xl border bg-white dark:bg-[#091316] border-slate-200 dark:border-[#183035] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/25 focus:border-teal-500 transition-all shadow-2xs',
+          'w-full px-3 py-2 text-sm rounded-lg border bg-white dark:bg-[#091316] border-slate-200 dark:border-[#183035] text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/25 focus:border-teal-500 transition-all shadow-2xs',
           error && 'border-rose-500 dark:border-rose-500 focus:ring-rose-500/20 focus:border-rose-500 bg-rose-500/5',
           className
         )}

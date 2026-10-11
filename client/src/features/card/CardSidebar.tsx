@@ -32,17 +32,17 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({ card, columns = [], on
   const { data: workspaceLabels = [] } = useLabels(workspaceId);
   const { data: members = [] } = useWorkspaceMembers(workspaceId);
 
-  const handlePriorityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handlePriorityChange = (val: string) => {
     updateCard.mutate({
       id: card.id,
-      priority: e.target.value,
+      priority: val,
     });
   };
 
-  const handleColumnChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleColumnChange = (val: string) => {
     updateCard.mutate({
       id: card.id,
-      column_id: e.target.value,
+      column_id: val,
     });
   };
 

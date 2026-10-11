@@ -8,8 +8,8 @@ import {
   TableProperties,
   Plus,
   Settings,
-  Sparkles,
 } from 'lucide-react';
+import { NexaLogo } from '@/components/common/NexaLogo';
 import { useUiStore } from '@/stores/ui.store';
 import { useWorkspaces } from '@/hooks/workspace/useWorkspaces';
 import { useProjects } from '@/hooks/project/useProjects';
@@ -89,9 +89,7 @@ export const Sidebar = () => {
         {/* Workspace selector / App branding */}
         <div className="p-4 border-b border-slate-100 dark:border-[#183035] flex items-center justify-between">
           <div className="flex items-center gap-2.5 truncate">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-teal-600 to-teal-400 text-slate-950 flex items-center justify-center font-bold text-sm shrink-0 shadow-sm shadow-teal-500/20 ring-2 ring-teal-500/20">
-              <Sparkles className="w-4 h-4 text-slate-950" />
-            </div>
+            <NexaLogo size={32} className="shrink-0" />
             <div className="truncate">
               <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate flex items-center gap-1.5">
                 <span>{currentWorkspace?.name || 'NEXA'}</span>
