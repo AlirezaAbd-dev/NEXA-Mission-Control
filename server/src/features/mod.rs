@@ -4,7 +4,9 @@ pub mod board;
 pub mod card;
 pub mod checklist;
 pub mod comment;
+pub mod custom_field;
 pub mod label;
+
 pub mod notification;
 pub mod project;
 pub mod search;

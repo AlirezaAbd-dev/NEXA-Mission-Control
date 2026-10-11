@@ -82,4 +82,72 @@ impl TimeLogRepository {
 
         Ok(())
     }
+
+    pub async fn get_active_timer(
+        pool: &SqlitePool,
+        card_id: &str,
+        user_id: &str,
+    ) -> Result<Option<crate::features::time_log::dto::ActiveTimerResponse>, AppError> {
+        let row = sqlx::query_as::<_, (String, String, String, String, Option<String>)>(
+            "SELECT id, card_id, user_id, started_at, description FROM active_timers WHERE card_id = ?1 AND user_id = ?2"
+        )
+        .bind(card_id)
+        .bind(user_id)
+        .fetch_optional(pool)
+        .await?;
+
+        Ok(row.map(|(id, card_id, user_id, started_at, description)| {
+            crate::features::time_log::dto::ActiveTimerResponse {
+                id,
+                card_id,
+                user_id,
+                started_at,
+                description,
+            }
+        }))
+    }
+
+    pub async fn start_timer(
+        pool: &SqlitePool,
+        id: &str,
+        card_id: &str,
+        user_id: &str,
+        started_at: &str,
+        description: Option<&str>,
+    ) -> Result<crate::features::time_log::dto::ActiveTimerResponse, AppError> {
+        // Remove existing active timer if any for this user/card
+        sqlx::query("DELETE FROM active_timers WHERE card_id = ?1 AND user_id = ?2")
+            .bind(card_id)
+            .bind(user_id)
+            .execute(pool)
+            .await?;
+
+        sqlx::query(
+            "INSERT INTO active_timers (id, card_id, user_id, started_at, description) VALUES (?1, ?2, ?3, ?4, ?5)"
+        )
+        .bind(id)
+        .bind(card_id)
+        .bind(user_id)
+        .bind(started_at)
+        .bind(description)
+        .execute(pool)
+        .await?;
+
+        Ok(crate::features::time_log::dto::ActiveTimerResponse {
+            id: id.to_string(),
+            card_id: card_id.to_string(),
+            user_id: user_id.to_string(),
+            started_at: started_at.to_string(),
+            description: description.map(|s| s.to_string()),
+        })
+    }
+
+    pub async fn delete_active_timer(pool: &SqlitePool, card_id: &str, user_id: &str) -> Result<(), AppError> {
+        sqlx::query("DELETE FROM active_timers WHERE card_id = ?1 AND user_id = ?2")
+            .bind(card_id)
+            .bind(user_id)
+            .execute(pool)
+            .await?;
+        Ok(())
+    }
 }

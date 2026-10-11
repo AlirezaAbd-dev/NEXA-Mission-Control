@@ -20,3 +20,24 @@ pub struct TimeLogResponse {
     pub description: Option<String>,
     pub created_at: String,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct StartTimerRequest {
+    pub card_id: String,
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct StopTimerRequest {
+    pub card_id: String,
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct ActiveTimerResponse {
+    pub id: String,
+    pub card_id: String,
+    pub user_id: String,
+    pub started_at: String,
+    pub description: Option<String>,
+}

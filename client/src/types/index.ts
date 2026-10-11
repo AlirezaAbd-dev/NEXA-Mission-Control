@@ -97,9 +97,63 @@ export interface Card {
   checklist_total: number;
   checklist_completed: number;
   comments_count: number;
+  is_template?: boolean;
+  story_points?: number | null;
+  watchers_count?: number;
+  is_watched?: boolean;
+  votes_count?: number;
+  has_voted?: boolean;
   created_at: string;
   updated_at: string;
 }
+
+export interface CardWatcher {
+  card_id: string;
+  user_id: string;
+  display_name: string;
+  avatar_url?: string | null;
+  created_at: string;
+}
+
+export interface CardLink {
+  id: string;
+  source_card_id: string;
+  target_card_id: string;
+  target_card_title: string;
+  link_type: 'blocks' | 'blocked_by' | 'relates_to' | string;
+  created_at: string;
+}
+
+export interface ActiveTimer {
+  id: string;
+  card_id: string;
+  user_id: string;
+  started_at: string;
+  description?: string | null;
+}
+
+export interface CustomFieldDefinition {
+  id: string;
+  project_id: string;
+  name: string;
+  field_type: 'text' | 'number' | 'currency' | 'dropdown' | 'checkbox' | 'date' | string;
+  options: string[];
+  position: number;
+  created_at: string;
+}
+
+export interface CustomFieldValue {
+  id: string;
+  card_id: string;
+  field_id: string;
+  field_name: string;
+  field_type: string;
+  options: string[];
+  value_text?: string | null;
+  value_number?: number | null;
+  updated_at: string;
+}
+
 
 export interface CommentReaction {
   emoji: string;

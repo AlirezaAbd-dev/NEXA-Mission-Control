@@ -113,3 +113,59 @@ pub async fn set_labels(
     let card = CardService::set_labels(&state, &id, &auth.id, payload.label_ids).await?;
     Ok(Json(card))
 }
+
+pub async fn toggle_watcher(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Path(id): Path<String>,
+) -> Result<Json<CardResponse>, AppError> {
+    let card = CardService::toggle_watcher(&state, &id, &auth.id).await?;
+    Ok(Json(card))
+}
+
+pub async fn list_watchers(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Path(id): Path<String>,
+) -> Result<Json<Vec<crate::features::card::dto::CardWatcherResponse>>, AppError> {
+    let watchers = CardService::list_watchers(&state, &id, &auth.id).await?;
+    Ok(Json(watchers))
+}
+
+pub async fn toggle_vote(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Path(id): Path<String>,
+) -> Result<Json<CardResponse>, AppError> {
+    let card = CardService::toggle_vote(&state, &id, &auth.id).await?;
+    Ok(Json(card))
+}
+
+
+pub async fn add_link(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Path(id): Path<String>,
+    Json(payload): Json<crate::features::card::dto::CreateCardLinkRequest>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    CardService::add_link(&state, &id, &auth.id, payload).await?;
+    Ok(Json(serde_json::json!({ "success": true })))
+}
+
+pub async fn remove_link(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Path((id, link_id)): Path<(String, String)>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    CardService::remove_link(&state, &id, &link_id, &auth.id).await?;
+    Ok(Json(serde_json::json!({ "success": true })))
+}
+
+pub async fn list_links(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Path(id): Path<String>,
+) -> Result<Json<Vec<crate::features::card::dto::CardLinkResponse>>, AppError> {
+    let links = CardService::list_links(&state, &id, &auth.id).await?;
+    Ok(Json(links))
+}

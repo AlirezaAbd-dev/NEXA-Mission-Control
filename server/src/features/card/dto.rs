@@ -13,6 +13,8 @@ pub struct CreateCardRequest {
     pub due_date: Option<String>,
     pub start_date: Option<String>,
     pub estimated_hours: Option<f64>,
+    pub is_template: Option<bool>,
+    pub story_points: Option<f64>,
     pub assignee_ids: Option<Vec<String>>,
     pub label_ids: Option<Vec<String>>,
 }
@@ -28,6 +30,8 @@ pub struct UpdateCardRequest {
     pub start_date: Option<String>,
     pub estimated_hours: Option<f64>,
     pub cover_url: Option<String>,
+    pub is_template: Option<bool>,
+    pub story_points: Option<f64>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -66,13 +70,42 @@ pub struct CardResponse {
     pub estimated_hours: Option<f64>,
     pub cover_url: Option<String>,
     pub archived_at: Option<String>,
+    pub is_template: bool,
+    pub story_points: Option<f64>,
     pub assignees: Vec<CardAssigneeResponse>,
     pub labels: Vec<CardLabelResponse>,
     pub checklist_total: i64,
     pub checklist_completed: i64,
     pub comments_count: i64,
+    pub watchers_count: i64,
+    pub is_watched: bool,
+    pub votes_count: i64,
+    pub has_voted: bool,
     pub created_at: String,
     pub updated_at: String,
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct CardWatcherResponse {
+    pub user_id: String,
+    pub username: String,
+    pub display_name: String,
+    pub avatar_url: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Validate)]
+pub struct CreateCardLinkRequest {
+    pub target_card_id: String,
+    pub link_type: String, // 'blocks', 'blocked_by', 'relates_to', 'duplicates'
+}
+
+#[derive(Debug, Serialize, Clone)]
+pub struct CardLinkResponse {
+    pub id: String,
+    pub source_card_id: String,
+    pub target_card_id: String,
+    pub target_card_title: String,
+    pub link_type: String,
 }
 
 #[derive(Debug, Deserialize)]

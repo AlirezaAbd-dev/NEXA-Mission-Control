@@ -10,7 +10,7 @@ use crate::{
 pub struct CardRepository;
 
 impl CardRepository {
-    pub async fn list(pool: &SqlitePool, query: &ListCardsQuery) -> Result<Vec<CardResponse>, AppError> {
+    pub async fn list(pool: &SqlitePool, query: &ListCardsQuery, user_id: Option<&str>) -> Result<Vec<CardResponse>, AppError> {
         let is_archived = query.archived.unwrap_or(false);
 
         // Fetch basic cards matching project_id and filters
@@ -18,7 +18,7 @@ impl CardRepository {
             r#"
             SELECT id, project_id, column_id, title, description, priority, position,
                    creator_id, due_date, start_date, estimated_hours, cover_url,
-                   archived_at, created_at, updated_at
+                   archived_at, is_template, story_points, created_at, updated_at
             FROM cards
             WHERE project_id = ?1
             "#,
@@ -112,6 +112,54 @@ impl CardRepository {
             .await?
             .0;
 
+            // Watchers count
+            let watchers_count = sqlx::query_as::<_, (i64,)>(
+                "SELECT COUNT(*) FROM card_watchers WHERE card_id = ?1"
+            )
+            .bind(&c.id)
+            .fetch_one(pool)
+            .await
+            .map(|r| r.0)
+            .unwrap_or(0);
+
+            // Votes count
+            let votes_count = sqlx::query_as::<_, (i64,)>(
+                "SELECT COUNT(*) FROM card_votes WHERE card_id = ?1"
+            )
+            .bind(&c.id)
+            .fetch_one(pool)
+            .await
+            .map(|r| r.0)
+            .unwrap_or(0);
+
+            let is_watched = if let Some(uid) = user_id {
+                sqlx::query_as::<_, (i64,)>(
+                    "SELECT COUNT(*) FROM card_watchers WHERE card_id = ?1 AND user_id = ?2"
+                )
+                .bind(&c.id)
+                .bind(uid)
+                .fetch_one(pool)
+                .await
+                .map(|r| r.0 > 0)
+                .unwrap_or(false)
+            } else {
+                false
+            };
+
+            let has_voted = if let Some(uid) = user_id {
+                sqlx::query_as::<_, (i64,)>(
+                    "SELECT COUNT(*) FROM card_votes WHERE card_id = ?1 AND user_id = ?2"
+                )
+                .bind(&c.id)
+                .bind(uid)
+                .fetch_one(pool)
+                .await
+                .map(|r| r.0 > 0)
+                .unwrap_or(false)
+            } else {
+                false
+            };
+
             results.push(CardResponse {
                 id: c.id,
                 project_id: c.project_id,
@@ -126,14 +174,21 @@ impl CardRepository {
                 estimated_hours: c.estimated_hours,
                 cover_url: c.cover_url,
                 archived_at: c.archived_at,
+                is_template: c.is_template == 1,
+                story_points: c.story_points,
                 assignees,
                 labels,
                 checklist_total: checklist_stats.0,
                 checklist_completed: checklist_stats.1,
                 comments_count,
+                watchers_count,
+                is_watched,
+                votes_count,
+                has_voted,
                 created_at: c.created_at,
                 updated_at: c.updated_at,
             });
+
         }
 
         Ok(results)
@@ -144,7 +199,7 @@ impl CardRepository {
             r#"
             SELECT id, project_id, column_id, title, description, priority, position,
                    creator_id, due_date, start_date, estimated_hours, cover_url,
-                   archived_at, created_at, updated_at
+                   archived_at, is_template, story_points, created_at, updated_at
             FROM cards
             WHERE id = ?1
             "#
@@ -156,7 +211,7 @@ impl CardRepository {
         Ok(card)
     }
 
-    pub async fn get_card_response(pool: &SqlitePool, id: &str) -> Result<Option<CardResponse>, AppError> {
+    pub async fn get_card_response(pool: &SqlitePool, id: &str, user_id: Option<&str>) -> Result<Option<CardResponse>, AppError> {
         let c = match Self::find_by_id(pool, id).await? {
             Some(card) => card,
             None => return Ok(None),
@@ -217,6 +272,52 @@ impl CardRepository {
         .await?
         .0;
 
+        let watchers_count = sqlx::query_as::<_, (i64,)>(
+            "SELECT COUNT(*) FROM card_watchers WHERE card_id = ?1"
+        )
+        .bind(&c.id)
+        .fetch_one(pool)
+        .await
+        .map(|r| r.0)
+        .unwrap_or(0);
+
+        let votes_count = sqlx::query_as::<_, (i64,)>(
+            "SELECT COUNT(*) FROM card_votes WHERE card_id = ?1"
+        )
+        .bind(&c.id)
+        .fetch_one(pool)
+        .await
+        .map(|r| r.0)
+        .unwrap_or(0);
+
+        let is_watched = if let Some(uid) = user_id {
+            sqlx::query_as::<_, (i64,)>(
+                "SELECT COUNT(*) FROM card_watchers WHERE card_id = ?1 AND user_id = ?2"
+            )
+            .bind(&c.id)
+            .bind(uid)
+            .fetch_one(pool)
+            .await
+            .map(|r| r.0 > 0)
+            .unwrap_or(false)
+        } else {
+            false
+        };
+
+        let has_voted = if let Some(uid) = user_id {
+            sqlx::query_as::<_, (i64,)>(
+                "SELECT COUNT(*) FROM card_votes WHERE card_id = ?1 AND user_id = ?2"
+            )
+            .bind(&c.id)
+            .bind(uid)
+            .fetch_one(pool)
+            .await
+            .map(|r| r.0 > 0)
+            .unwrap_or(false)
+        } else {
+            false
+        };
+
         Ok(Some(CardResponse {
             id: c.id,
             project_id: c.project_id,
@@ -231,15 +332,22 @@ impl CardRepository {
             estimated_hours: c.estimated_hours,
             cover_url: c.cover_url,
             archived_at: c.archived_at,
+            is_template: c.is_template == 1,
+            story_points: c.story_points,
             assignees,
             labels,
             checklist_total: checklist_stats.0,
             checklist_completed: checklist_stats.1,
             comments_count,
+            watchers_count,
+            is_watched,
+            votes_count,
+            has_voted,
             created_at: c.created_at,
             updated_at: c.updated_at,
         }))
     }
+
 
     pub async fn create(
         pool: &SqlitePool,
@@ -254,13 +362,16 @@ impl CardRepository {
         due_date: Option<&str>,
         start_date: Option<&str>,
         estimated_hours: Option<f64>,
+        is_template: bool,
+        story_points: Option<f64>,
         now: &str,
     ) -> Result<Card, AppError> {
+        let tmpl_val = if is_template { 1 } else { 0 };
         sqlx::query(
             r#"
             INSERT INTO cards (id, project_id, column_id, title, description, priority, position,
-                               creator_id, due_date, start_date, estimated_hours, created_at, updated_at)
-            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?12)
+                               creator_id, due_date, start_date, estimated_hours, is_template, story_points, created_at, updated_at)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?14)
             "#
         )
         .bind(id)
@@ -274,6 +385,8 @@ impl CardRepository {
         .bind(due_date)
         .bind(start_date)
         .bind(estimated_hours)
+        .bind(tmpl_val)
+        .bind(story_points)
         .bind(now)
         .execute(pool)
         .await?;
@@ -297,6 +410,8 @@ impl CardRepository {
         start_date: Option<Option<&str>>,
         estimated_hours: Option<Option<f64>>,
         cover_url: Option<Option<&str>>,
+        is_template: Option<bool>,
+        story_points: Option<Option<f64>>,
         now: &str,
     ) -> Result<Card, AppError> {
         let current = Self::find_by_id(pool, id)
@@ -327,13 +442,23 @@ impl CardRepository {
             Some(opt) => opt,
             None => current.cover_url.as_deref(),
         };
+        let new_tmpl = match is_template {
+            Some(true) => 1,
+            Some(false) => 0,
+            None => current.is_template,
+        };
+        let new_pts = match story_points {
+            Some(opt) => opt,
+            None => current.story_points,
+        };
 
         sqlx::query(
             r#"
             UPDATE cards
             SET title = ?1, description = ?2, priority = ?3, column_id = ?4, position = ?5,
-                due_date = ?6, start_date = ?7, estimated_hours = ?8, cover_url = ?9, updated_at = ?10
-            WHERE id = ?11
+                due_date = ?6, start_date = ?7, estimated_hours = ?8, cover_url = ?9,
+                is_template = ?10, story_points = ?11, updated_at = ?12
+            WHERE id = ?13
             "#
         )
         .bind(new_title)
@@ -345,6 +470,8 @@ impl CardRepository {
         .bind(new_start)
         .bind(new_est)
         .bind(new_cover)
+        .bind(new_tmpl)
+        .bind(new_pts)
         .bind(now)
         .bind(id)
         .execute(pool)
@@ -426,5 +553,129 @@ impl CardRepository {
         }
 
         Ok(())
+    }
+
+    pub async fn toggle_watcher(pool: &SqlitePool, card_id: &str, user_id: &str, now: &str) -> Result<bool, AppError> {
+        let exists = sqlx::query_as::<_, (i64,)>(
+            "SELECT COUNT(*) FROM card_watchers WHERE card_id = ?1 AND user_id = ?2"
+        )
+        .bind(card_id)
+        .bind(user_id)
+        .fetch_one(pool)
+        .await?
+        .0 > 0;
+
+        if exists {
+            sqlx::query("DELETE FROM card_watchers WHERE card_id = ?1 AND user_id = ?2")
+                .bind(card_id)
+                .bind(user_id)
+                .execute(pool)
+                .await?;
+            Ok(false)
+        } else {
+            sqlx::query("INSERT INTO card_watchers (card_id, user_id, created_at) VALUES (?1, ?2, ?3)")
+                .bind(card_id)
+                .bind(user_id)
+                .bind(now)
+                .execute(pool)
+                .await?;
+            Ok(true)
+        }
+    }
+
+    pub async fn list_watchers(pool: &SqlitePool, card_id: &str) -> Result<Vec<crate::features::card::dto::CardWatcherResponse>, AppError> {
+        let watchers = sqlx::query_as::<_, (String, String, String, Option<String>)>(
+            r#"
+            SELECT u.id, u.username, u.display_name, u.avatar_url
+            FROM card_watchers cw
+            INNER JOIN users u ON cw.user_id = u.id
+            WHERE cw.card_id = ?1
+            "#
+        )
+        .bind(card_id)
+        .fetch_all(pool)
+        .await?
+        .into_iter()
+        .map(|(user_id, username, display_name, avatar_url)| crate::features::card::dto::CardWatcherResponse {
+            user_id,
+            username,
+            display_name,
+            avatar_url,
+        })
+        .collect();
+
+        Ok(watchers)
+    }
+
+    pub async fn toggle_vote(pool: &SqlitePool, card_id: &str, user_id: &str, now: &str) -> Result<bool, AppError> {
+        let exists = sqlx::query_as::<_, (i64,)>(
+            "SELECT COUNT(*) FROM card_votes WHERE card_id = ?1 AND user_id = ?2"
+        )
+        .bind(card_id)
+        .bind(user_id)
+        .fetch_one(pool)
+        .await?
+        .0 > 0;
+
+        if exists {
+            sqlx::query("DELETE FROM card_votes WHERE card_id = ?1 AND user_id = ?2")
+                .bind(card_id)
+                .bind(user_id)
+                .execute(pool)
+                .await?;
+            Ok(false)
+        } else {
+            sqlx::query("INSERT INTO card_votes (card_id, user_id, created_at) VALUES (?1, ?2, ?3)")
+                .bind(card_id)
+                .bind(user_id)
+                .bind(now)
+                .execute(pool)
+                .await?;
+            Ok(true)
+        }
+    }
+
+    pub async fn add_link(pool: &SqlitePool, id: &str, source_card_id: &str, target_card_id: &str, link_type: &str) -> Result<(), AppError> {
+        sqlx::query("INSERT INTO card_links (id, source_card_id, target_card_id, link_type) VALUES (?1, ?2, ?3, ?4)")
+            .bind(id)
+            .bind(source_card_id)
+            .bind(target_card_id)
+            .bind(link_type)
+            .execute(pool)
+            .await?;
+        Ok(())
+    }
+
+    pub async fn remove_link(pool: &SqlitePool, link_id: &str) -> Result<(), AppError> {
+        sqlx::query("DELETE FROM card_links WHERE id = ?1")
+            .bind(link_id)
+            .execute(pool)
+            .await?;
+        Ok(())
+    }
+
+    pub async fn list_links(pool: &SqlitePool, card_id: &str) -> Result<Vec<crate::features::card::dto::CardLinkResponse>, AppError> {
+        let links = sqlx::query_as::<_, (String, String, String, String, String)>(
+            r#"
+            SELECT cl.id, cl.source_card_id, cl.target_card_id, c.title, cl.link_type
+            FROM card_links cl
+            INNER JOIN cards c ON cl.target_card_id = c.id
+            WHERE cl.source_card_id = ?1
+            "#
+        )
+        .bind(card_id)
+        .fetch_all(pool)
+        .await?
+        .into_iter()
+        .map(|(id, source_card_id, target_card_id, target_card_title, link_type)| crate::features::card::dto::CardLinkResponse {
+            id,
+            source_card_id,
+            target_card_id,
+            target_card_title,
+            link_type,
+        })
+        .collect();
+
+        Ok(links)
     }
 }

@@ -35,7 +35,9 @@ pub fn create_router(state: AppState) -> Router {
         .nest("/labels", features::label::router())
         .nest("/sprints", features::sprint::router())
         .nest("/time-logs", features::time_log::router())
+        .nest("/custom-fields", features::custom_field::routes::router())
         .nest("/activities", features::activity::router())
+
         .nest("/notifications", features::notification::router())
         .nest("/search", features::search::router())
         .nest("/upload", features::upload::router());

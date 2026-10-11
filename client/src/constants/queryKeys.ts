@@ -19,6 +19,8 @@ export const QUERY_KEYS = {
     byProject: (projectId: string) => ['cards', 'project', projectId] as const,
     byBoard: (boardId: string) => ['cards', 'board', boardId] as const,
     detail: (id: string) => ['cards', id] as const,
+    watchers: (id: string) => ['cards', id, 'watchers'] as const,
+    links: (id: string) => ['cards', id, 'links'] as const,
   },
   comments: {
     byCard: (cardId: string) => ['comments', 'card', cardId] as const,
@@ -34,11 +36,17 @@ export const QUERY_KEYS = {
   },
   timeLogs: {
     byCard: (cardId: string) => ['timeLogs', 'card', cardId] as const,
+    activeTimer: (cardId: string) => ['timeLogs', 'activeTimer', cardId] as const,
+  },
+  customFields: {
+    definitions: (projectId: string) => ['customFields', 'definitions', projectId] as const,
+    values: (cardId: string) => ['customFields', 'values', cardId] as const,
   },
   activities: {
     byWorkspace: (workspaceId: string) => ['activities', 'workspace', workspaceId] as const,
     byCard: (cardId: string) => ['activities', 'card', cardId] as const,
   },
+
   notifications: {
     all: ['notifications'] as const,
   },

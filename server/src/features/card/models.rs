@@ -15,6 +15,8 @@ pub struct Card {
     pub estimated_hours: Option<f64>,
     pub cover_url: Option<String>,
     pub archived_at: Option<String>,
+    pub is_template: i64,
+    pub story_points: Option<f64>,
     pub created_at: String,
     pub updated_at: String,
 }

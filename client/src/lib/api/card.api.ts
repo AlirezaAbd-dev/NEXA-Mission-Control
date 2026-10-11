@@ -32,6 +32,8 @@ export const cardApi = {
     due_date?: string;
     start_date?: string;
     estimated_hours?: number;
+    story_points?: number;
+    is_template?: boolean;
     assignee_ids?: string[];
     label_ids?: string[];
   }): Promise<Card> => {
@@ -51,6 +53,8 @@ export const cardApi = {
       start_date?: string;
       estimated_hours?: number;
       cover_url?: string;
+      story_points?: number | null;
+      is_template?: boolean;
     }
   ): Promise<Card> => {
     const res = await apiClient.put<Card>(`/cards/${id}`, data);
@@ -78,4 +82,34 @@ export const cardApi = {
     const res = await apiClient.put<Card>(`/cards/${id}/labels`, { label_ids: labelIds });
     return res.data;
   },
+
+  toggleWatch: async (id: string): Promise<Card> => {
+    const res = await apiClient.post<Card>(`/cards/${id}/watch`);
+    return res.data;
+  },
+
+  listWatchers: async (id: string): Promise<import('@/types').CardWatcher[]> => {
+    const res = await apiClient.get<import('@/types').CardWatcher[]>(`/cards/${id}/watch`);
+    return res.data;
+  },
+
+  toggleVote: async (id: string): Promise<Card> => {
+    const res = await apiClient.post<Card>(`/cards/${id}/vote`);
+    return res.data;
+  },
+
+  listLinks: async (id: string): Promise<import('@/types').CardLink[]> => {
+    const res = await apiClient.get<import('@/types').CardLink[]>(`/cards/${id}/links`);
+    return res.data;
+  },
+
+  addLink: async (id: string, target_card_id: string, link_type: string): Promise<import('@/types').CardLink> => {
+    const res = await apiClient.post<import('@/types').CardLink>(`/cards/${id}/links`, { target_card_id, link_type });
+    return res.data;
+  },
+
+  removeLink: async (id: string, linkId: string): Promise<void> => {
+    await apiClient.delete(`/cards/${id}/links/${linkId}`);
+  },
 };
+

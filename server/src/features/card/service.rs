@@ -27,7 +27,7 @@ impl CardService {
             .await?
             .ok_or_else(|| AppError::Forbidden("You do not have access to this project".to_string()))?;
 
-        CardRepository::list(&state.pool, &query).await
+        CardRepository::list(&state.pool, &query, Some(user_id)).await
     }
 
     pub async fn get_by_id(state: &AppState, id: &str, user_id: &str) -> Result<CardResponse, AppError> {
@@ -43,9 +43,10 @@ impl CardService {
             .await?
             .ok_or_else(|| AppError::Forbidden("You do not have access to this card".to_string()))?;
 
-        CardRepository::get_card_response(&state.pool, id)
+        CardRepository::get_card_response(&state.pool, id, Some(user_id))
             .await?
             .ok_or_else(|| AppError::NotFound("Card not found".to_string()))
+
     }
 
     pub async fn create(
@@ -81,6 +82,8 @@ impl CardService {
             req.due_date.as_deref(),
             req.start_date.as_deref(),
             req.estimated_hours,
+            req.is_template.unwrap_or(false),
+            req.story_points,
             &now,
         )
         .await?;
@@ -107,7 +110,7 @@ impl CardService {
         .execute(&state.pool)
         .await;
 
-        CardRepository::get_card_response(&state.pool, &id)
+        CardRepository::get_card_response(&state.pool, &id, Some(user_id))
             .await?
             .ok_or_else(|| AppError::Internal("Failed to retrieve created card".to_string()))
     }
@@ -146,14 +149,17 @@ impl CardService {
             req.start_date.as_deref().map(Some),
             req.estimated_hours.map(Some),
             req.cover_url.as_deref().map(Some),
+            req.is_template,
+            req.story_points.map(Some),
             &now,
         )
         .await?;
 
-        CardRepository::get_card_response(&state.pool, id)
+        CardRepository::get_card_response(&state.pool, id, Some(user_id))
             .await?
             .ok_or_else(|| AppError::Internal("Failed to retrieve updated card".to_string()))
     }
+
 
     pub async fn move_card(
         state: &AppState,
@@ -230,7 +236,7 @@ impl CardService {
 
         CardRepository::set_assignees(&state.pool, id, &assignee_ids).await?;
 
-        CardRepository::get_card_response(&state.pool, id)
+        CardRepository::get_card_response(&state.pool, id, Some(user_id))
             .await?
             .ok_or_else(|| AppError::Internal("Failed to retrieve updated card".to_string()))
     }
@@ -255,8 +261,117 @@ impl CardService {
 
         CardRepository::set_labels(&state.pool, id, &label_ids).await?;
 
-        CardRepository::get_card_response(&state.pool, id)
+        CardRepository::get_card_response(&state.pool, id, Some(user_id))
             .await?
             .ok_or_else(|| AppError::Internal("Failed to retrieve updated card".to_string()))
+    }
+
+    pub async fn toggle_watcher(state: &AppState, id: &str, user_id: &str) -> Result<CardResponse, AppError> {
+        let card = CardRepository::find_by_id(&state.pool, id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("Card not found".to_string()))?;
+
+        let project = ProjectRepository::find_by_id(&state.pool, &card.project_id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("Project not found".to_string()))?;
+
+        let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
+            .await?
+            .ok_or_else(|| AppError::Forbidden("You do not have access to this card".to_string()))?;
+
+        let now = Utc::now().to_rfc3339();
+        let _ = CardRepository::toggle_watcher(&state.pool, id, user_id, &now).await?;
+
+        CardRepository::get_card_response(&state.pool, id, Some(user_id))
+            .await?
+            .ok_or_else(|| AppError::Internal("Failed to retrieve updated card".to_string()))
+    }
+
+    pub async fn list_watchers(state: &AppState, id: &str, user_id: &str) -> Result<Vec<crate::features::card::dto::CardWatcherResponse>, AppError> {
+        let card = CardRepository::find_by_id(&state.pool, id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("Card not found".to_string()))?;
+
+        let project = ProjectRepository::find_by_id(&state.pool, &card.project_id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("Project not found".to_string()))?;
+
+        let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
+            .await?
+            .ok_or_else(|| AppError::Forbidden("You do not have access to this card".to_string()))?;
+
+        CardRepository::list_watchers(&state.pool, id).await
+    }
+
+    pub async fn toggle_vote(state: &AppState, id: &str, user_id: &str) -> Result<CardResponse, AppError> {
+        let card = CardRepository::find_by_id(&state.pool, id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("Card not found".to_string()))?;
+
+        let project = ProjectRepository::find_by_id(&state.pool, &card.project_id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("Project not found".to_string()))?;
+
+        let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
+            .await?
+            .ok_or_else(|| AppError::Forbidden("You do not have access to this card".to_string()))?;
+
+        let now = Utc::now().to_rfc3339();
+        let _ = CardRepository::toggle_vote(&state.pool, id, user_id, &now).await?;
+
+        CardRepository::get_card_response(&state.pool, id, Some(user_id))
+            .await?
+            .ok_or_else(|| AppError::Internal("Failed to retrieve updated card".to_string()))
+    }
+
+
+
+    pub async fn add_link(state: &AppState, id: &str, user_id: &str, req: crate::features::card::dto::CreateCardLinkRequest) -> Result<(), AppError> {
+        let card = CardRepository::find_by_id(&state.pool, id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("Card not found".to_string()))?;
+
+        let project = ProjectRepository::find_by_id(&state.pool, &card.project_id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("Project not found".to_string()))?;
+
+        let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
+            .await?
+            .ok_or_else(|| AppError::Forbidden("You do not have access to this card".to_string()))?;
+
+        let link_id = Uuid::now_v7().to_string();
+        CardRepository::add_link(&state.pool, &link_id, id, &req.target_card_id, &req.link_type).await
+    }
+
+    pub async fn remove_link(state: &AppState, id: &str, link_id: &str, user_id: &str) -> Result<(), AppError> {
+        let card = CardRepository::find_by_id(&state.pool, id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("Card not found".to_string()))?;
+
+        let project = ProjectRepository::find_by_id(&state.pool, &card.project_id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("Project not found".to_string()))?;
+
+        let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
+            .await?
+            .ok_or_else(|| AppError::Forbidden("You do not have access to this card".to_string()))?;
+
+        CardRepository::remove_link(&state.pool, link_id).await
+    }
+
+    pub async fn list_links(state: &AppState, id: &str, user_id: &str) -> Result<Vec<crate::features::card::dto::CardLinkResponse>, AppError> {
+        let card = CardRepository::find_by_id(&state.pool, id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("Card not found".to_string()))?;
+
+        let project = ProjectRepository::find_by_id(&state.pool, &card.project_id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("Project not found".to_string()))?;
+
+        let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
+            .await?
+            .ok_or_else(|| AppError::Forbidden("You do not have access to this card".to_string()))?;
+
+        CardRepository::list_links(&state.pool, id).await
     }
 }

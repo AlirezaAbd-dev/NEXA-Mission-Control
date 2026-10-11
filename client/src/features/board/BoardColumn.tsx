@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Plus, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Plus, MoreHorizontal, Trash2, FileText } from 'lucide-react';
 import { CardItem } from './CardItem';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Dropdown } from '@/components/ui/Dropdown';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
 import { useCreateCard } from '@/hooks/card/useCreateCard';
+import { useCards } from '@/hooks/card/useCards';
 import { useDeleteColumn } from '@/hooks/board/useDeleteColumn';
 import type { BoardColumn as IBoardColumn, Card } from '@/types';
 
@@ -25,6 +26,28 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({ column, cards, project
 
   const createCard = useCreateCard(projectId);
   const deleteColumn = useDeleteColumn(projectId);
+  const { data: allProjectCards = [] } = useCards({ project_id: projectId });
+  const templates = allProjectCards.filter((c) => c.is_template);
+
+  const handleCreateFromTemplate = (template: Card) => {
+    createCard.mutate(
+      {
+        column_id: column.id,
+        title: `${template.title} (Copy)`,
+        description: template.description || undefined,
+        priority: template.priority,
+        estimated_hours: template.estimated_hours || undefined,
+        story_points: template.story_points || undefined,
+        label_ids: template.labels.map((l) => l.id),
+      },
+      {
+        onSuccess: () => {
+          setIsAddingCard(false);
+        },
+      }
+    );
+  };
+
 
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
@@ -152,7 +175,30 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({ column, cards, project
                   Cancel
                 </Button>
               </div>
+
+              {templates.length > 0 && (
+                <div className="pt-2 border-t border-slate-100 dark:border-[#183035] space-y-1">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                    <FileText className="w-3 h-3 text-teal-500" />
+                    Use Template:
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {templates.map((tmpl) => (
+                      <button
+                        key={tmpl.id}
+                        type="button"
+                        onClick={() => handleCreateFromTemplate(tmpl)}
+                        className="text-[11px] px-2 py-0.5 rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/25 hover:bg-teal-500/20 transition-colors truncate max-w-[180px] cursor-pointer"
+                        title={tmpl.title}
+                      >
+                        {tmpl.title}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </form>
+
           ) : (
             <button
               onClick={() => {

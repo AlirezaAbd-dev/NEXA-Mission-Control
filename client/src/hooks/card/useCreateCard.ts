@@ -15,9 +15,12 @@ export const useCreateCard = (projectId: string) => {
       due_date?: string;
       start_date?: string;
       estimated_hours?: number;
+      story_points?: number;
+      is_template?: boolean;
       assignee_ids?: string[];
       label_ids?: string[];
     }) => cardApi.create({ ...data, project_id: projectId }),
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.cards.byProject(projectId) });
     },

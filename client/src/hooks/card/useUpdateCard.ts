@@ -17,7 +17,10 @@ export const useUpdateCard = (projectId: string) => {
       start_date?: string;
       estimated_hours?: number;
       cover_url?: string;
+      story_points?: number | null;
+      is_template?: boolean;
     }) => cardApi.update(data.id, data),
+
     onSuccess: (card) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.cards.byProject(projectId) });
       queryClient.setQueryData(QUERY_KEYS.cards.detail(card.id), card);

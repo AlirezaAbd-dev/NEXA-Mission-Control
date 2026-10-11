@@ -44,3 +44,31 @@ pub async fn delete(
     TimeLogService::delete(&state, &id, &auth.id).await?;
     Ok(Json(serde_json::json!({ "success": true })))
 }
+
+pub async fn get_active_timer(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Query(query): Query<ListTimeLogsQuery>,
+) -> Result<Json<Option<crate::features::time_log::dto::ActiveTimerResponse>>, AppError> {
+    let timer = TimeLogService::get_active_timer(&state, &query.card_id, &auth.id).await?;
+    Ok(Json(timer))
+}
+
+pub async fn start_timer(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Json(payload): Json<crate::features::time_log::dto::StartTimerRequest>,
+) -> Result<Json<crate::features::time_log::dto::ActiveTimerResponse>, AppError> {
+    let timer = TimeLogService::start_timer(&state, &auth.id, payload).await?;
+    Ok(Json(timer))
+}
+
+pub async fn stop_timer(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Json(payload): Json<crate::features::time_log::dto::StopTimerRequest>,
+) -> Result<Json<Option<TimeLogResponse>>, AppError> {
+    let log = TimeLogService::stop_timer(&state, &auth.id, payload).await?;
+    Ok(Json(log))
+}
+

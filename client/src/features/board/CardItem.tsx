@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { MessageSquare, CheckSquare } from 'lucide-react';
+import { MessageSquare, CheckSquare, Hash, ThumbsUp, Eye, FileText } from 'lucide-react';
 import { PriorityBadge } from '@/components/common/PriorityBadge';
 import { LabelBadge } from '@/components/common/LabelBadge';
 import { UserAvatar } from '@/components/common/UserAvatar';
@@ -68,14 +68,20 @@ export const CardItem: React.FC<CardItemProps> = ({ card }) => {
       )}
 
       <div className="p-3 space-y-2">
-        {/* Labels */}
-        {card.labels && card.labels.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {card.labels.map((lbl) => (
+        {/* Labels & Template Indicator */}
+        <div className="flex flex-wrap items-center gap-1">
+          {card.is_template && (
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/30 flex items-center gap-1">
+              <FileText className="w-2.5 h-2.5" />
+              Template
+            </span>
+          )}
+          {card.labels && card.labels.length > 0 && (
+            card.labels.map((lbl) => (
               <LabelBadge key={lbl.id} name={lbl.name} color={lbl.color} />
-            ))}
-          </div>
-        )}
+            ))
+          )}
+        </div>
 
         {/* Title */}
         <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-snug">
@@ -86,6 +92,14 @@ export const CardItem: React.FC<CardItemProps> = ({ card }) => {
         <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-[#183035]">
           <div className="flex items-center gap-1.5 text-slate-400 text-xs flex-wrap">
             <PriorityBadge priority={card.priority} />
+
+            {/* Story Points */}
+            {card.story_points !== undefined && card.story_points !== null && (
+              <span className="flex items-center gap-0.5 text-[11px] px-1.5 py-0.5 rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold border border-teal-500/20">
+                <Hash className="w-3 h-3" />
+                {card.story_points}
+              </span>
+            )}
 
             {card.due_date && (
               <DueDateBadge
@@ -107,7 +121,21 @@ export const CardItem: React.FC<CardItemProps> = ({ card }) => {
                 {card.comments_count}
               </span>
             )}
+
+            {(card.votes_count ?? 0) > 0 && (
+              <span className="flex items-center gap-1 text-[11px] text-amber-500 font-medium">
+                <ThumbsUp className="w-3 h-3 fill-current" />
+                {card.votes_count}
+              </span>
+            )}
+
+            {card.is_watched && (
+              <span title="You are watching this card" className="text-teal-500">
+                <Eye className="w-3 h-3" />
+              </span>
+            )}
           </div>
+
 
           {/* Assignees */}
           {card.assignees && card.assignees.length > 0 && (

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, Tag, UserCheck, Flag, Trash2 } from 'lucide-react';
+import { Calendar, Clock, Tag, UserCheck, Flag, Trash2, Hash, FileText } from 'lucide-react';
 import { Select } from '@/components/ui/Select';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { ConfirmModal } from '@/components/common/ConfirmModal';
+import { CardTimer } from './CardTimer';
+import { CardCustomFields } from './CardCustomFields';
 import { useUpdateCard } from '@/hooks/card/useUpdateCard';
 import { useDeleteCard } from '@/hooks/card/useDeleteCard';
 import { useLabels } from '@/hooks/label/useLabels';
@@ -61,6 +63,21 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({ card, columns = [], on
     });
   };
 
+  const handleStoryPointsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.target.value);
+    updateCard.mutate({
+      id: card.id,
+      story_points: isNaN(val) ? null : val,
+    });
+  };
+
+  const handleToggleTemplate = () => {
+    updateCard.mutate({
+      id: card.id,
+      is_template: !card.is_template,
+    });
+  };
+
   const toggleLabel = (labelId: string) => {
     const currentIds = card.labels.map((l) => l.id);
     const newIds = currentIds.includes(labelId)
@@ -88,7 +105,10 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({ card, columns = [], on
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-5">
+        {/* Live Stopwatch & Time Tracking Widget */}
+        <CardTimer cardId={card.id} />
+
         {/* Status Column */}
         {columns.length > 0 && (
           <div className="space-y-1.5">
@@ -120,6 +140,69 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({ card, columns = [], on
           </Select>
         </div>
 
+        {/* Story Points & Estimation */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <Hash className="w-3.5 h-3.5 text-teal-500" />
+              Points
+            </label>
+            <Input
+              type="number"
+              step="1"
+              min="0"
+              value={card.story_points ?? ''}
+              onChange={handleStoryPointsChange}
+              placeholder="e.g. 5"
+              className="text-xs h-8"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-teal-500" />
+              Est. Hours
+            </label>
+            <Input
+              type="number"
+              step="0.5"
+              min="0"
+              value={card.estimated_hours ?? ''}
+              onChange={handleEstimatedHoursChange}
+              placeholder="e.g. 4.5"
+              className="text-xs h-8"
+            />
+          </div>
+        </div>
+
+        {/* Template Toggle */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <FileText className="w-3.5 h-3.5 text-teal-500" />
+            Template
+          </label>
+          <button
+            type="button"
+            onClick={handleToggleTemplate}
+            className={`w-full text-xs p-2 rounded-lg border font-medium flex items-center justify-between transition-all cursor-pointer ${
+              card.is_template
+                ? 'bg-teal-500/10 border-teal-500/40 text-teal-600 dark:text-teal-400 font-semibold'
+                : 'bg-slate-50 dark:bg-[#0d1a1d] border-slate-200 dark:border-[#183035] text-slate-600 dark:text-slate-300 hover:border-teal-500/30'
+            }`}
+          >
+            <span>Mark as Reusable Template</span>
+            <span
+              className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${
+                card.is_template
+                  ? 'bg-teal-500 border-teal-500 text-slate-950 font-bold'
+                  : 'border-slate-300 dark:border-slate-600'
+              }`}
+            >
+              {card.is_template ? '✓' : ''}
+            </span>
+          </button>
+        </div>
+
         {/* Assignees */}
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
@@ -134,7 +217,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({ card, columns = [], on
                   key={member.id}
                   type="button"
                   onClick={() => toggleAssignee(member.user_id)}
-                  className={`text-xs px-2.5 py-1 rounded-full border transition-all ${
+                  className={`text-xs px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
                     isAssigned
                       ? 'bg-teal-600 text-white border-teal-600 dark:bg-teal-500 dark:text-slate-950 font-semibold'
                       : 'bg-slate-100 dark:bg-[#132428] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#183035] hover:border-teal-500/40'
@@ -161,7 +244,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({ card, columns = [], on
                   key={lbl.id}
                   type="button"
                   onClick={() => toggleLabel(lbl.id)}
-                  className="text-xs px-2.5 py-1 rounded-full border transition-all flex items-center gap-1.5"
+                  className="text-xs px-2.5 py-1 rounded-full border transition-all flex items-center gap-1.5 cursor-pointer"
                   style={{
                     backgroundColor: hasLabel ? `${lbl.color}25` : 'transparent',
                     borderColor: hasLabel ? lbl.color : 'var(--color-border, #183035)',
@@ -192,21 +275,8 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({ card, columns = [], on
           />
         </div>
 
-        {/* Estimate Hours */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-teal-500" />
-            Estimated Hours
-          </label>
-          <Input
-            type="number"
-            step="0.5"
-            min="0"
-            value={card.estimated_hours ?? ''}
-            onChange={handleEstimatedHoursChange}
-            placeholder="e.g. 4.5"
-          />
-        </div>
+        {/* Custom Fields System */}
+        <CardCustomFields card={card} />
 
         <div className="pt-4 border-t border-slate-200 dark:border-[#183035]">
           <Button

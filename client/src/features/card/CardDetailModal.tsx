@@ -4,6 +4,7 @@ import { CardHeader } from './CardHeader';
 import { CardDescription } from './CardDescription';
 import { CardChecklists } from './CardChecklists';
 import { CardAttachments } from './CardAttachments';
+import { CardDependencies } from './CardDependencies';
 import { CardActivityStream } from './CardActivityStream';
 import { CardComments } from './CardComments';
 import { CardSidebar } from './CardSidebar';
@@ -46,6 +47,7 @@ export const CardDetailModal: React.FC = () => {
               <CardDescription card={card} />
               <CardChecklists cardId={card.id} projectId={card.project_id} />
               <CardAttachments card={card} projectId={card.project_id} />
+              <CardDependencies card={card} />
 
               {/* Tabs for Comments & Activity History */}
               <div className="space-y-4 pt-2 border-t border-slate-100 dark:border-[#183035]">

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Palette } from 'lucide-react';
+import { Palette, FileText } from 'lucide-react';
 import { useUpdateCard } from '@/hooks/card/useUpdateCard';
+import { CardWatchers } from './CardWatchers';
+import { CardVoteButton } from './CardVoteButton';
 import type { Card } from '@/types';
 
 interface CardHeaderProps {
@@ -80,54 +82,70 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ card, onClose: _onClose 
       )}
 
       <div className="pb-3 border-b border-slate-200/80 dark:border-[#183035] pr-10">
-        <div className="flex items-center gap-2 mb-2 flex-wrap">
-          <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#132428] text-slate-600 dark:text-teal-400 border border-slate-200/60 dark:border-[#183035] uppercase">
-            CARD-{card.id.slice(0, 6)}
-          </span>
-
-          {card.archived_at && (
-            <span className="text-[11px] px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-500 font-semibold border border-amber-500/20">
-              Archived
+        <div className="flex items-center gap-2 mb-2 flex-wrap justify-between">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#132428] text-slate-600 dark:text-teal-400 border border-slate-200/60 dark:border-[#183035] uppercase">
+              CARD-{card.id.slice(0, 6)}
             </span>
-          )}
 
-          {/* Quick Cover Palette Button */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setShowColorPicker(!showColorPicker)}
-              className="text-[11px] px-2.5 py-0.5 rounded-md flex items-center gap-1.5 bg-slate-100 dark:bg-[#132428] text-slate-600 dark:text-slate-300 hover:text-teal-500 border border-slate-200/60 dark:border-[#183035] transition-colors cursor-pointer font-medium"
-              title="Change Cover Color"
-            >
-              <Palette className="w-3 h-3 text-teal-500" />
-              <span>Cover</span>
-            </button>
-
-            {showColorPicker && (
-              <div className="absolute z-50 left-0 mt-1 p-2 bg-white dark:bg-[#0d1a1d] border border-slate-200 dark:border-[#183035] rounded-xl shadow-xl flex gap-1.5 flex-wrap w-44 animate-in fade-in zoom-in-95 duration-100">
-                {COVER_COLORS.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => handleSetColorCover(c)}
-                    className="w-6 h-6 rounded-md transition-transform hover:scale-110 border border-black/10 cursor-pointer"
-                    style={{ backgroundColor: c }}
-                    title={c}
-                  />
-                ))}
-                {card.cover_url && (
-                  <button
-                    type="button"
-                    onClick={() => handleSetColorCover('')}
-                    className="w-full text-center text-[10px] text-slate-400 hover:text-rose-500 pt-1 cursor-pointer font-medium"
-                  >
-                    Clear Cover
-                  </button>
-                )}
-              </div>
+            {card.is_template && (
+              <span className="text-[11px] px-2 py-0.5 rounded-md bg-teal-500/10 text-teal-500 font-semibold border border-teal-500/20 flex items-center gap-1">
+                <FileText className="w-3 h-3" />
+                Template
+              </span>
             )}
+
+            {card.archived_at && (
+              <span className="text-[11px] px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-500 font-semibold border border-amber-500/20">
+                Archived
+              </span>
+            )}
+
+            {/* Quick Cover Palette Button */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setShowColorPicker(!showColorPicker)}
+                className="text-[11px] px-2.5 py-0.5 rounded-md flex items-center gap-1.5 bg-slate-100 dark:bg-[#132428] text-slate-600 dark:text-slate-300 hover:text-teal-500 border border-slate-200/60 dark:border-[#183035] transition-colors cursor-pointer font-medium"
+                title="Change Cover Color"
+              >
+                <Palette className="w-3 h-3 text-teal-500" />
+                <span>Cover</span>
+              </button>
+
+              {showColorPicker && (
+                <div className="absolute z-50 left-0 mt-1 p-2 bg-white dark:bg-[#0d1a1d] border border-slate-200 dark:border-[#183035] rounded-xl shadow-xl flex gap-1.5 flex-wrap w-44 animate-in fade-in zoom-in-95 duration-100">
+                  {COVER_COLORS.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => handleSetColorCover(c)}
+                      className="w-6 h-6 rounded-md transition-transform hover:scale-110 border border-black/10 cursor-pointer"
+                      style={{ backgroundColor: c }}
+                      title={c}
+                    />
+                  ))}
+                  {card.cover_url && (
+                    <button
+                      type="button"
+                      onClick={() => handleSetColorCover('')}
+                      className="w-full text-center text-[10px] text-slate-400 hover:text-rose-500 pt-1 cursor-pointer font-medium"
+                    >
+                      Clear Cover
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Productivity actions: Watchers & Votes */}
+          <div className="flex items-center gap-2">
+            <CardWatchers card={card} />
+            <CardVoteButton card={card} />
           </div>
         </div>
+
 
         {isEditingTitle ? (
           <input
