@@ -8,5 +8,5 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/", get(handler::list))
         .route("/read-all", post(handler::mark_all_read))
-        .route("/:id/read", post(handler::mark_read))
+        .route("/{id}/read", post(handler::mark_read))
 }
