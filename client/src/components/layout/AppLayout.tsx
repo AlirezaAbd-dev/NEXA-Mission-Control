@@ -15,9 +15,9 @@ export const AppLayout = () => {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 dark:bg-slate-950">
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 dark:bg-[#090d16] text-slate-900 dark:text-slate-100">
       <Sidebar />
-      <div className="flex flex-col flex-1 h-screen overflow-hidden min-w-0">
+      <div className="flex flex-col flex-1 h-screen overflow-hidden min-w-0 bg-slate-50/50 dark:bg-[#090d16]/50">
         <TopBar />
         <main className="flex-1 overflow-auto">
           <Outlet />
