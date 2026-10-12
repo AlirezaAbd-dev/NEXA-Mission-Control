@@ -102,7 +102,7 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
         >
           {hasDescription ? (
             <div
-              className="prose prose-sm dark:prose-invert max-w-none text-sm break-words leading-relaxed overflow-x-auto"
+              className="prose prose-sm dark:prose-invert tiptap-content max-w-none text-sm break-words leading-relaxed overflow-x-auto"
               dangerouslySetInnerHTML={{ __html: card.description! }}
             />
           ) : (

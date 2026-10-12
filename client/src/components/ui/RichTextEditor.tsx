@@ -146,6 +146,9 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       }
     },
     editorProps: {
+      attributes: {
+        class: "tiptap-content focus:outline-none min-h-[160px]",
+      },
       handleDrop: (view, event, _slice, moved) => {
         if (!moved && event.dataTransfer && event.dataTransfer.files?.length > 0) {
           const file = event.dataTransfer.files[0];
