@@ -1,4 +1,5 @@
 import {
+  ServiceDeskPage,
   IntakePage,
   WorkspaceWorkPage,
   LoginPage,
@@ -34,6 +35,7 @@ export const router = createBrowserRouter([
     element: <AppLayout />,
     children: [
       { path: "w/:workspaceId/work", element: <WorkspaceWorkPage /> },
+      { path: "p/:projectId/service-desk", element: <ServiceDeskPage /> },
       { path: "p/:projectId/automation", element: <AutomationPage /> },
       { path: "p/:projectId/insights", element: <InsightsPage /> },
       { path: "p/:projectId/governance", element: <GovernancePage /> },

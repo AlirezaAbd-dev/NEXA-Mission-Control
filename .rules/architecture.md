@@ -1,4 +1,4 @@
-# TaskFlow System Architecture & SOLID Principles
+# Mission Control System Architecture & SOLID Principles
 
 ## 1. Global Architectural Principles
 

@@ -194,6 +194,21 @@ pub async fn bulk(
     if r.action == "assign" {
         ops::require_member(&state.pool, project, r.value.as_deref().unwrap_or("")).await?;
     }
+    for card in &r.card_ids {
+        let capability = match r.action.as_str() {
+            "move" => "move",
+            "archive" | "restore" => "archive",
+            _ => "edit",
+        };
+        crate::features::productivity::policy::enforce_pool(
+            &state.pool,
+            user,
+            project,
+            Some(card),
+            capability,
+        )
+        .await?;
+    }
     let mut tx = state.pool.begin().await?;
     for card in &r.card_ids {
         if !ops::card_in_project(&mut tx, project, card).await? {
@@ -209,7 +224,15 @@ pub async fn bulk(
             )
             .await?;
         }
+        let before =
+            crate::features::activity::audit_repository::task_snapshot_connection(&mut tx, card)
+                .await?
+                .unwrap_or(Value::Null);
         ops::bulk_update(&mut tx, card, &r).await?;
+        let after =
+            crate::features::activity::audit_repository::task_snapshot_connection(&mut tx, card)
+                .await?
+                .unwrap_or(Value::Null);
         crate::features::productivity::repository::status_connection(&mut tx, card).await?;
         repo::audit(
             &mut tx,
@@ -217,7 +240,7 @@ pub async fn bulk(
             Some(card),
             Some(user),
             "bulk_action",
-            json!({"action":r.action,"value":r.value}),
+            json!({"action":r.action,"value":r.value,"task_title":after.get("title"),"changes":crate::features::activity::audit_repository::changes(&before,&after)}),
         )
         .await?;
     }

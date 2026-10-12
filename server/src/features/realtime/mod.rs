@@ -1,4 +1,5 @@
-mod repository;
+pub mod bridge;
+pub mod repository;
 mod service;
 use crate::{error::AppError, state::AppState};
 use axum::{
@@ -8,7 +9,7 @@ use axum::{
     routing::get,
     Router,
 };
-#[derive(Clone, serde::Serialize)]
+#[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct Change {
     pub project_id: Option<String>,
     pub user_id: Option<String>,

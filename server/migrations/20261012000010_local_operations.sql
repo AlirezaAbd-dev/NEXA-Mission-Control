@@ -1,0 +1,24 @@
+CREATE TABLE custom_roles(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,name TEXT NOT NULL,permissions TEXT NOT NULL,UNIQUE(project_id,name));
+CREATE INDEX idx_roles_project ON custom_roles(project_id);
+CREATE TABLE custom_role_members(project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,role_id TEXT NOT NULL REFERENCES custom_roles(id) ON DELETE CASCADE,PRIMARY KEY(project_id,user_id));
+CREATE INDEX idx_role_members_role ON custom_role_members(role_id);
+CREATE INDEX idx_role_members_user ON custom_role_members(user_id);
+CREATE TABLE task_permissions(card_id TEXT NOT NULL REFERENCES cards(id) ON DELETE CASCADE,user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,permissions TEXT NOT NULL,PRIMARY KEY(card_id,user_id));
+CREATE INDEX idx_task_permissions_user ON task_permissions(user_id);
+CREATE TABLE desk_settings(project_id TEXT PRIMARY KEY REFERENCES projects(id) ON DELETE CASCADE,response_hours INTEGER NOT NULL DEFAULT 24,resolution_hours INTEGER NOT NULL DEFAULT 72);
+CREATE TABLE desk_tickets(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,requester_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,card_id TEXT REFERENCES cards(id) ON DELETE SET NULL,assignee_id TEXT REFERENCES users(id) ON DELETE SET NULL,title TEXT NOT NULL,description TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'new',priority TEXT NOT NULL DEFAULT 'medium',created_at TEXT NOT NULL,updated_at TEXT NOT NULL,response_due_at TEXT NOT NULL,resolution_due_at TEXT NOT NULL,responded_at TEXT,resolved_at TEXT);
+CREATE INDEX idx_desk_tickets_project ON desk_tickets(project_id,status,updated_at);
+CREATE INDEX idx_desk_tickets_requester ON desk_tickets(requester_id);
+CREATE INDEX idx_desk_tickets_card ON desk_tickets(card_id);
+CREATE INDEX idx_desk_tickets_assignee ON desk_tickets(assignee_id);
+CREATE TABLE desk_messages(id TEXT PRIMARY KEY,ticket_id TEXT NOT NULL REFERENCES desk_tickets(id) ON DELETE CASCADE,user_id TEXT REFERENCES users(id) ON DELETE SET NULL,body TEXT NOT NULL,internal INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL);
+CREATE INDEX idx_desk_messages_ticket ON desk_messages(ticket_id,created_at);
+CREATE INDEX idx_desk_messages_user ON desk_messages(user_id);
+CREATE TABLE desk_articles(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,title TEXT NOT NULL,body TEXT NOT NULL,published INTEGER NOT NULL DEFAULT 0,updated_at TEXT NOT NULL);
+CREATE INDEX idx_desk_articles_project ON desk_articles(project_id,published);
+CREATE TABLE local_plugins(id TEXT PRIMARY KEY,project_id TEXT NOT NULL REFERENCES projects(id) ON DELETE CASCADE,name TEXT NOT NULL,version TEXT NOT NULL,manifest TEXT NOT NULL,enabled INTEGER NOT NULL DEFAULT 1,created_at TEXT NOT NULL);
+CREATE INDEX idx_local_plugins_project ON local_plugins(project_id);
+CREATE TABLE realtime_outbox(id INTEGER PRIMARY KEY AUTOINCREMENT,origin TEXT NOT NULL,payload TEXT NOT NULL,created_at INTEGER NOT NULL);
+CREATE INDEX idx_realtime_outbox_created ON realtime_outbox(created_at);
+
+CREATE TABLE worker_leases(name TEXT PRIMARY KEY,owner TEXT NOT NULL,expires_at INTEGER NOT NULL);

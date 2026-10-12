@@ -27,7 +27,7 @@ pub fn initialize_key(cfg: &crate::config::Config) -> Result<(), AppError> {
         .trim_start_matches("sqlite:")
         .split('?')
         .next()
-        .unwrap_or("data/taskflow.db");
+        .unwrap_or("data/mission-control.db");
     let path = std::path::Path::new(db_path)
         .parent()
         .unwrap_or_else(|| std::path::Path::new("data"))

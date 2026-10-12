@@ -43,6 +43,7 @@ export function useRealtime() {
                 "workspaces",
                 "projects",
                 "productivity",
+                "localops",
               ].includes(root)
             );
           },

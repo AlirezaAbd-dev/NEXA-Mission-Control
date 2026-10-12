@@ -1,3 +1,7 @@
+import { RoleManager } from "@/features/localops/RoleManager";
+import { TaskPermissionManager } from "@/features/localops/TaskPermissionManager";
+import { LocalPlugins } from "@/features/localops/LocalPlugins";
+import { DeskSettings } from "@/features/localops/DeskSettings";
 import { ProjectMembers } from "@/features/productivity/ProjectMembers";
 import { ProjectPrivacy } from "@/features/productivity/ProjectPrivacy";
 import { ProjectProcessSettings } from "@/features/productivity/ProjectProcessSettings";
@@ -36,6 +40,10 @@ export function GovernancePage() {
       <ProjectProcessSettings projectId={projectId} />
       <BoardTemplates projectId={projectId} />
       <MemberPermissions projectId={projectId} />
+      <RoleManager projectId={projectId} />
+      <TaskPermissionManager projectId={projectId} />
+      <DeskSettings projectId={projectId} />
+      <LocalPlugins projectId={projectId} />
       <AuditLog projectId={projectId} />
     </div>
   );

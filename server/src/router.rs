@@ -24,7 +24,8 @@ pub fn create_router(state: AppState) -> Router {
         .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE, header::ACCEPT]);
 
     let api_v1 = Router::new()
-        .route("/health", get(|| async { Json(serde_json::json!({ "status": "ok", "app": "TaskFlow" })) }))
+        .route("/health", get(|| async { Json(serde_json::json!({ "status": "ok", "app": "Mission Control" })) }))
+        .nest("/localops",features::localops::router())
         .nest("/productivity",features::productivity::router())
         .nest("/realtime", features::realtime::router())
         .nest("/enterprise", features::enterprise::router())

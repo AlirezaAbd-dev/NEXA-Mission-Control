@@ -39,10 +39,55 @@ pub async fn execute(
     event: &str,
     actor: Option<&str>,
 ) -> Result<(), AppError> {
+    if let Some(enabled) = sqlx::query_scalar::<_, i64>(
+        "SELECT enabled FROM local_plugins WHERE id=? AND project_id=?",
+    )
+    .bind(&r.id)
+    .bind(p)
+    .fetch_optional(pool)
+    .await?
+    {
+        if enabled == 0 {
+            return Err(AppError::Forbidden("Plugin is disabled".into()));
+        }
+        if let Some(user) = actor {
+            let role = super::repository::role(pool, p, user).await?;
+            if !matches!(role.as_deref(), Some("owner" | "admin")) {
+                return Err(AppError::Forbidden(
+                    "Only administrators can run plugins".into(),
+                ));
+            }
+        }
+    }
     let config: Value = serde_json::from_str(&r.trigger_config_json)
         .map_err(|_| AppError::Validation("Invalid trigger configuration".into()))?;
     let action: Value = serde_json::from_str(&r.action_config_json)
         .map_err(|_| AppError::Validation("Invalid action configuration".into()))?;
+    if matches!(event, "manual" | "local_plugin") {
+        if let Some(user) = actor {
+            let mut kinds = vec![r.action_type.as_str()];
+            if let Some(steps) = action.get("steps").and_then(Value::as_array) {
+                for step in steps {
+                    kinds.push(step["type"].as_str().unwrap_or(""));
+                }
+            }
+            for kind in kinds {
+                let capability = match kind {
+                    "move_card" => "move",
+                    "archive_card" => "archive",
+                    _ => "edit",
+                };
+                crate::features::productivity::policy::enforce_pool(
+                    pool,
+                    user,
+                    p,
+                    Some(card),
+                    capability,
+                )
+                .await?;
+            }
+        }
+    }
     let mut tx = pool.begin().await?;
     let row:Option<(String,String,Option<String>,Option<String>,Option<String>)>=sqlx::query_as("SELECT column_id,updated_at,due_date,sla_due_at,sla_response_due_at FROM cards WHERE id=? AND project_id=? AND archived_at IS NULL").bind(card).bind(p).fetch_optional(&mut *tx).await?;
     let Some((column, updated, due, sla, response)) = row else {
@@ -97,6 +142,10 @@ pub async fn execute(
     if inserted == 0 {
         return Ok(());
     }
+    let before =
+        crate::features::activity::audit_repository::task_snapshot_connection(&mut tx, card)
+            .await?
+            .unwrap_or(Value::Null);
     let mut actions = vec![(
         r.action_type.as_str(),
         action.get("value").and_then(Value::as_str).unwrap_or(""),
@@ -182,13 +231,17 @@ pub async fn execute(
         }
     }
     crate::features::productivity::repository::status_connection(&mut tx, card).await?;
+    let after =
+        crate::features::activity::audit_repository::task_snapshot_connection(&mut tx, card)
+            .await?
+            .unwrap_or(Value::Null);
     super::repository::audit(
         &mut tx,
         p,
         Some(card),
         actor,
         "automation_executed",
-        json!({"rule_id":r.id,"action":r.action_type}),
+        json!({"rule_id":r.id,"action":r.action_type,"task_title":after.get("title"),"changes":crate::features::activity::audit_repository::changes(&before,&after)}),
     )
     .await?;
     tx.commit().await?;

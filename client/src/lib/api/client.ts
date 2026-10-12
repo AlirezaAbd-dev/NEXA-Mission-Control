@@ -1,14 +1,15 @@
-import axios from 'axios';
+import "@/lib/brandStorage";
+import axios from "axios";
 
 export const apiClient = axios.create({
-  baseURL: '/api/v1',
+  baseURL: "/api/v1",
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('taskflow_token');
+  const token = localStorage.getItem("mission_control_token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -20,13 +21,16 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // If unauthorized, remove token and let app redirect to login
-      localStorage.removeItem('taskflow_token');
-      if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
-        window.location.href = '/login';
+      localStorage.removeItem("mission_control_token");
+      if (
+        window.location.pathname !== "/login" &&
+        window.location.pathname !== "/register"
+      ) {
+        window.location.href = "/login";
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;

@@ -1220,6 +1220,36 @@ dependencies = [
 ]
 
 [[package]]
+name = "mission-control-server"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "argon2",
+ "axum",
+ "base64",
+ "chrono",
+ "dotenvy",
+ "hmac",
+ "jsonwebtoken",
+ "rand_core 0.6.4",
+ "reqwest",
+ "ring",
+ "serde",
+ "serde_json",
+ "sha1",
+ "sha2",
+ "sqlx",
+ "thiserror 1.0.69",
+ "tokio",
+ "tower",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+ "validator",
+]
+
+[[package]]
 name = "multer"
 version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2273,36 +2303,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.119",
-]
-
-[[package]]
-name = "taskflow-server"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "argon2",
- "axum",
- "base64",
- "chrono",
- "dotenvy",
- "hmac",
- "jsonwebtoken",
- "rand_core 0.6.4",
- "reqwest",
- "ring",
- "serde",
- "serde_json",
- "sha1",
- "sha2",
- "sqlx",
- "thiserror 1.0.69",
- "tokio",
- "tower",
- "tower-http",
- "tracing",
- "tracing-subscriber",
- "uuid",
- "validator",
 ]
 
 [[package]]

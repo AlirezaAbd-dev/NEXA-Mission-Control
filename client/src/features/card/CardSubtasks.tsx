@@ -28,7 +28,7 @@ export function CardSubtasks({ card }: { card: Card }) {
       {children.map((c) => (
         <Button
           key={c.id}
-          size="sm"
+          size="md"
           variant="ghost"
           className="w-full justify-start"
           onClick={() => open(c.id)}
@@ -37,7 +37,7 @@ export function CardSubtasks({ card }: { card: Card }) {
         </Button>
       ))}
       <form
-        className="flex gap-2"
+        className="flex items-center gap-2"
         onSubmit={async (e) => {
           e.preventDefault();
           try {
@@ -67,7 +67,7 @@ export function CardSubtasks({ card }: { card: Card }) {
         />
         <Button
           type="submit"
-          size="sm"
+          size="md"
           isLoading={create.isPending || link.isPending}
         >
           Add

@@ -24,6 +24,8 @@ export interface ModalProps {
   children: React.ReactNode;
   size?: "sm" | "md" | "lg" | "xl" | "2xl";
   className?: string;
+  header?: React.ReactNode;
+  contentClassName?: string;
   hideHeaderClose?: boolean;
   closeButtonClassName?: string;
 }
@@ -36,6 +38,8 @@ export const Modal = ({
   children,
   size = "md",
   className,
+  header,
+  contentClassName,
   hideHeaderClose = false,
   closeButtonClassName,
 }: ModalProps) => {
@@ -79,6 +83,7 @@ export const Modal = ({
         closeRef.current();
       }
       if (e.key === "Tab") {
+        if ((e.target as Element).closest("[data-floating-overlay]")) return;
         const items = focusable(),
           first = items[0],
           last = items.at(-1);
@@ -150,6 +155,7 @@ export const Modal = ({
           className,
         )}
       >
+        {header && <div className="relative z-20 shrink-0">{header}</div>}
         {/* Floating Top-Right Close Button */}
         {!hideHeaderClose && (
           <button
@@ -180,7 +186,12 @@ export const Modal = ({
           </div>
         )}
 
-        <div className="min-h-0 flex-auto overflow-y-auto overflow-x-hidden overscroll-contain p-5 sm:p-6">
+        <div
+          className={cn(
+            "min-h-0 flex-auto overflow-y-auto overflow-x-hidden overscroll-contain p-5 sm:p-6",
+            contentClassName,
+          )}
+        >
           {children}
         </div>
       </div>

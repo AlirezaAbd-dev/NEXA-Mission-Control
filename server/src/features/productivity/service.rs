@@ -231,8 +231,17 @@ pub async fn settings(
             ));
         }
     }
-    super::policy::enforce(s, u, p, "edit").await?;
+    super::policy::enforce_pool(&s.pool, u, p, Some(c), "edit").await?;
+    let before = crate::features::activity::audit_repository::task_snapshot(&s.pool, c)
+        .await?
+        .unwrap_or(Value::Null);
     repo::settings(&s.pool, c, &r).await?;
+    let after = crate::features::activity::audit_repository::task_snapshot(&s.pool, c)
+        .await?
+        .unwrap_or(Value::Null);
+    let mut conn = s.pool.acquire().await?;
+    crate::features::enterprise::repository::audit(&mut conn,p,Some(c),Some(u),"updated_process_settings",json!({"task_title":after.get("title"),"changes":crate::features::activity::audit_repository::changes(&before,&after)})).await?;
+    drop(conn);
     s.publish(Some(p), Some(u), "changed");
     Ok(json!({"success":true}))
 }

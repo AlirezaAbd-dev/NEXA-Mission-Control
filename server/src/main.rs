@@ -18,14 +18,14 @@ async fn main() -> anyhow::Result<()> {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "taskflow_server=debug,tower_http=debug,axum=trace".into()),
+                .unwrap_or_else(|_| "mission_control_server=debug,tower_http=debug,axum=trace".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
 
-    let cfg = config::Config::from_env();
+    let cfg = config::Config::from_env()?;
     features::auth::mfa_service::initialize_key(&cfg)?;
-    tracing::info!("Starting TaskFlow server on port {}", cfg.port);
+    tracing::info!("Starting Mission Control server on port {}", cfg.port);
 
     // Initialize database pool and apply migrations
     let pool = db::init_db(&cfg.database_url).await?;
@@ -34,13 +34,30 @@ async fn main() -> anyhow::Result<()> {
     let app_state = state::AppState::new(pool, cfg.clone());
 
     db::demo::seed(&app_state).await?;
+    features::realtime::bridge::start(app_state.clone()).await?;
     let background_state = app_state.clone();
     tokio::spawn(async move {
         let mut interval = tokio::time::interval(std::time::Duration::from_secs(60));
         loop {
             interval.tick().await;
-            if let Err(error)=features::productivity::scheduled::run(&background_state).await{tracing::error!("Recurring tasks and reminders failed: {error}");}
-            if let Err(error) = features::enterprise::automation::scheduled(&background_state).await {
+            match features::realtime::repository::worker_lease(
+                &background_state.pool,
+                &background_state.instance_id,
+            )
+            .await
+            {
+                Ok(true) => {}
+                Ok(false) => continue,
+                Err(e) => {
+                    tracing::warn!("Worker lease failed: {e}");
+                    continue;
+                }
+            }
+            if let Err(error) = features::productivity::scheduled::run(&background_state).await {
+                tracing::error!("Recurring tasks and reminders failed: {error}");
+            }
+            if let Err(error) = features::enterprise::automation::scheduled(&background_state).await
+            {
                 tracing::error!("Scheduled maintenance failed: {}", error);
             }
         }
@@ -48,8 +65,8 @@ async fn main() -> anyhow::Result<()> {
     // Build router
     let app = router::create_router(app_state);
 
-    let host=std::env::var("HOST").unwrap_or_else(|_|"127.0.0.1".into());
-    let addr:SocketAddr=format!("{host}:{}",cfg.port).parse()?;
+    let host = std::env::var("HOST").unwrap_or_else(|_| "127.0.0.1".into());
+    let addr: SocketAddr = format!("{host}:{}", cfg.port).parse()?;
     tracing::info!("Server listening on http://{}", addr);
 
     let listener = tokio::net::TcpListener::bind(addr).await?;

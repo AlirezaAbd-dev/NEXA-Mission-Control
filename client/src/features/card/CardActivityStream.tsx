@@ -1,3 +1,9 @@
+import { AuditEventDetails } from "@/components/common/AuditEventDetails";
+import {
+  auditPayload,
+  auditSummary,
+} from "@/components/common/auditPresentation";
+import { apiError } from "@/lib/apiError";
 import React from "react";
 import { History, ArrowRight, PlusCircle, Clock } from "lucide-react";
 import { UserAvatar } from "@/components/common/UserAvatar";
@@ -11,23 +17,7 @@ interface CardActivityStreamProps {
 export const CardActivityStream: React.FC<CardActivityStreamProps> = ({
   cardId,
 }) => {
-  const { data: activities = [], isLoading } = useCardActivities(cardId);
-
-  const getActionDescription = (
-    action: string,
-    payload: Record<string, unknown>,
-  ) => {
-    switch (action) {
-      case "created_card":
-        return "created this card";
-      case "moved_card":
-        return `moved card to ${payload?.to_column || "another list"}`;
-      case "updated_card":
-        return "updated card properties";
-      default:
-        return action.replace("_", " ");
-    }
-  };
+  const { data: activities = [], isLoading, error } = useCardActivities(cardId);
 
   const getActionIcon = (action: string) => {
     switch (action) {
@@ -47,6 +37,11 @@ export const CardActivityStream: React.FC<CardActivityStreamProps> = ({
         <span>Audit Trail & Activity</span>
       </div>
 
+      {error && (
+        <p role="alert" className="text-xs text-danger">
+          {apiError(error)}
+        </p>
+      )}
       {isLoading ? (
         <div className="text-xs text-slate-400 animate-pulse">
           Loading activity log...
@@ -63,7 +58,7 @@ export const CardActivityStream: React.FC<CardActivityStreamProps> = ({
               className="flex items-start gap-2.5 text-xs text-slate-600 dark:text-slate-300"
             >
               <UserAvatar
-                displayName={act.actor_name}
+                displayName={act.actor_name || "System"}
                 avatarUrl={act.actor_avatar}
                 size="xs"
                 className="mt-0.5"
@@ -71,14 +66,24 @@ export const CardActivityStream: React.FC<CardActivityStreamProps> = ({
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <span className="font-semibold text-slate-900 dark:text-slate-100">
-                    {act.actor_name}
+                    {act.actor_name || "System"}
                   </span>
                   {getActionIcon(act.action)}
-                  <span>{getActionDescription(act.action, act.payload)}</span>
-                  <span className="text-[11px] text-slate-400 ms-auto">
-                    {formatRelativeTime(act.created_at)}
+                  <span>
+                    {auditSummary(act.action, auditPayload(act.payload))}
                   </span>
+                  <time
+                    dateTime={act.created_at}
+                    title={new Date(act.created_at).toLocaleString()}
+                    className="text-[11px] text-muted-foreground ms-auto"
+                  >
+                    {formatRelativeTime(act.created_at)}
+                  </time>
                 </div>
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  {new Date(act.created_at).toLocaleString()}
+                </p>
+                <AuditEventDetails payload={auditPayload(act.payload)} />
               </div>
             </div>
           ))}

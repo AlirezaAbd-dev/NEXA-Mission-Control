@@ -1,17 +1,20 @@
+use crate::{
+    error::AppError,
+    extractors::auth::AuthUser,
+    features::checklist::{
+        dto::{
+            ChecklistItemResponse, ChecklistResponse, CreateChecklistItemRequest,
+            CreateChecklistRequest, UpdateChecklistItemRequest, UpdateChecklistRequest,
+        },
+        service::ChecklistService,
+    },
+    state::AppState,
+};
 use axum::{
     extract::{Path, Query, State},
     Json,
 };
 use serde::Deserialize;
-use crate::{
-    error::AppError,
-    extractors::auth::AuthUser,
-    features::checklist::{
-        dto::{ChecklistItemResponse, ChecklistResponse, CreateChecklistItemRequest, CreateChecklistRequest, UpdateChecklistItemRequest},
-        service::ChecklistService,
-    },
-    state::AppState,
-};
 
 #[derive(Debug, Deserialize)]
 pub struct ListChecklistsQuery {
@@ -72,4 +75,15 @@ pub async fn delete_item(
 ) -> Result<Json<serde_json::Value>, AppError> {
     ChecklistService::delete_item(&state, &item_id, &auth.id).await?;
     Ok(Json(serde_json::json!({ "success": true })))
+}
+
+pub async fn update_checklist(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Path(id): Path<String>,
+    Json(payload): Json<UpdateChecklistRequest>,
+) -> Result<Json<ChecklistResponse>, AppError> {
+    Ok(Json(
+        ChecklistService::update_checklist(&state, &id, &auth.id, payload).await?,
+    ))
 }

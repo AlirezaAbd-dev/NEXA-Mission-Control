@@ -33,8 +33,36 @@ The expanded local run passed 31 backend tests, 6 frontend tests and 31 live HTT
 
 See [FEATURE_EXPANSION.md](FEATURE_EXPANSION.md) for the new WebSocket transport, private Inbox, focus-time Planner, workspace calendar/portfolio timeline, team capacity, work types, workflow gates, revision-bound approvals, recurrence/reminders, ordered automation, shared task mirrors, Boolean search, flow reports, workspace templates, request forms, member permissions, native TOTP and desktop notifications. Signed provider events now populate a task development panel.
 
-These features extend the application; they do not imply full Jira/Trello or Marketplace parity. External calendar/drive synchronization, AI, a plugin SDK/marketplace, arbitrary custom roles, individual-card access lists and separate native apps remain outside this implementation.
+These features extend the application; they do not imply full Jira/Trello or Marketplace parity. External calendar/drive synchronization, AI, a general plugin SDK/marketplace, individual-card visibility lists and separate native apps remain outside this implementation. Custom task-action roles are included in the local operations extension below.
 
 Expansion validation: 31 backend tests, 6 frontend tests, 31 live HTTP/WebSocket checks, TypeScript/lint and production builds passed. A title edit was verified in a second browser session without reloading. The latest local mutation-to-WebSocket benchmark measured 13.3 ms median and 40.7 ms maximum across eight edits; this is local delivery timing, not a production latency guarantee.
 
 NEXA visual verification: reused frontend color tokens, locally hosted Manrope/Vazirmatn fonts, Input/tooltip/checkbox implementations and aligned primitive styling. Removed legacy blue accents and dark slate surfaces. Shared portal dialogs constrain content to the dynamic viewport; scrolling reached the last task action. Fresh browser loads showed no console errors.
+
+## Credential-free local operations
+
+The new local operations extension implements custom action roles, per-task action rules, a signed-in service desk with private staff notes and linked tasks, published/draft knowledge articles, elapsed-hour SLAs, a declarative local plugin catalog, same-host multi-process WebSocket forwarding and a maintenance lease. New totals: 36 backend tests, 8 frontend tests and 12 additional live acceptance checks. See [LOCAL_OPERATIONS.md](LOCAL_OPERATIONS.md). Full task visibility ACLs, multi-host scaling, external-provider features and complete Jira Service Management parity are not claimed. Native apps were excluded by the user.
+
+## Detailed audit history
+
+Task history and project audit now present readable field-by-field previous/new values, actor names, exact timestamps and expandable event metadata. Safe task snapshots include statuses, assignments, labels, scheduling, estimates, checklists, files and process settings; private comment content and credentials are excluded. Bulk changes and automations capture changes inside their transactions. Generic request snapshots describe the task state around the successful request. Older events retain their originally recorded metadata; past values are not reconstructed. Validation totals: 38 backend tests, 10 frontend tests, TypeScript/lint, production build and a live field/status change check passed.
+
+## Task modal UI/UX refinement
+
+The task modal now has a full-width compact cover and fixed header, an always-visible close control, a wider desktop layout with independently scrollable details/properties panes, and a Details/Properties switch below the desktop breakpoint. Checklist metadata uses separate labeled rows. Workflow/template/custom-field settings are grouped in a disclosure. Title editing supports Enter/Escape with focus restoration; custom selects support arrow navigation and Escape closes the menu first. Browser checks covered 1280×900 and 390×844 layouts, zero horizontal overflow, scrolling, mobile pane switching and keyboard cancellation. TypeScript, lint and production builds passed.
+
+### Checklist editing and removal
+
+Checklist titles and item titles now have explicit edit controls. Both checklist and item deletion require a named confirmation; checklist deletion removes its items. Renames validate trimmed title lengths, preserve task edit permissions, and appear in audit history. Verified through the running UI and disposable local API data, including persisted renames and cascade deletion. Validation: 39 backend tests, 10 frontend tests, TypeScript, lint, and production build pass.
+
+### Discoverable task removal
+
+The task modal header now exposes Remove task on desktop and mobile, with confirmation, pending protection and API error feedback. Removal archives the task and closes the modal; active views and archive caches refresh. Restorable removal retains task data. The archive endpoint now consistently checks archive permission for removal and restoration. Verified UI removal on disposable data, API archive and restore, 40 backend tests, 10 frontend tests, TypeScript, lint and production build.
+
+### Shared NEXA controls and Mission Control branding
+
+Adapted the frontend date-picker design with Gregorian dates, local date-only parsing, date-time selection, date bounds, viewport-aware positioning and keyboard dismissal. Date and date-time Input fields across the app use this control. Dropdown menus, regular selections and searchable selections use the frontend NEXA primitives through compatibility wrappers; keyboard navigation works inside task modals. Existing NEXA inputs, checkboxes, buttons and tooltips remain shared in appearance and behavior.
+
+Active product labels, seed content, API health, logs, Rust package/binary and browser storage now use Mission Control. The upgrade migration renames existing welcome text. Browser storage is migrated so sessions and themes survive. New database configuration uses mission-control.db; startup recognizes an existing legacy database rather than creating an empty app. Historical SQL migration checksums are preserved. Rich text editor work is deferred at the user's request; no editor dependencies or partial editor files are included.
+
+Validation: 40 backend tests, 13 frontend tests, TypeScript, lint, production build, live calendar/dropdown dismissal and local date persistence checks.

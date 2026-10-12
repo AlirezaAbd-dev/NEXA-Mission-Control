@@ -74,4 +74,8 @@ export const QUERY_KEYS = {
   search: {
     query: (q: string) => ["search", q] as const,
   },
+  localops: {
+    resource: (project: string, path: string) =>
+      ["localops", project, path] as const,
+  },
 } as const;

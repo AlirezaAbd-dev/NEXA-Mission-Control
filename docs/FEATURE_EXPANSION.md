@@ -48,7 +48,7 @@ Supported fields: `priority`, `status` (column category or name), `project` (ide
 - Unauthorized connections close after five seconds. Authenticated connections revalidate tokens every 25 seconds and check project access before delivering project events. Connection capacity is bounded at 256 sockets per process.
 - Events contain identifiers and invalidation signals, not task contents or restricted comments. The browser batches invalidations for 50 ms, refetches active queries, and preserves optimistic local drag operations.
 - Reconnection uses exponential backoff and jitter, capped at about 15 seconds. A reconnect/lagged channel triggers a resync from the API. Permission changes reset cached queries.
-- This is a single-process broadcast hub. Running multiple Rust replicas requires a shared event bus; that distributed deployment is not implemented.
+- Same-host API processes now share identifiers through a bounded SQLite outbox. See [LOCAL_OPERATIONS.md](LOCAL_OPERATIONS.md) for the event bridge, worker lease and deployment limits. Multi-host distribution is not implemented.
 
 ## Authenticator storage and backup
 
@@ -69,3 +69,7 @@ JSON exports include the new project metadata but omit form tokens, authenticati
 Mission Control uses the same light/dark brand and surface tokens as `frontend/src/app/globals.css`. The frontend Input, tooltip and checkbox implementations are ported locally; compatibility adapters retain existing Mission Control call sites. Button, badge, card and textarea styling follows the frontend components. Brand chrome uses teal/petrol; task labels and cover colors remain configurable.
 
 Dialogs render in a body portal, stay within the dynamic viewport and provide a bounded, overscroll-contained content area. Task details use that shared scroll area, avoiding clipped nested flex containers. Browser verification covered scrolling to the last task field and a remote task title update while both detail dialogs remained open.
+
+## Local operations extension
+
+Custom action roles, per-task action restrictions, a signed-in service desk, knowledge base and local declarative plugins are now implemented. See [LOCAL_OPERATIONS.md](LOCAL_OPERATIONS.md) for exact scope, setup and verification. Native applications were excluded at the user’s request.

@@ -4,7 +4,17 @@ use validator::Validate;
 #[derive(Debug, Deserialize, Validate)]
 pub struct CreateChecklistRequest {
     pub card_id: String,
-    #[validate(length(min = 1, max = 100, message = "Checklist title must be 1-100 characters"))]
+    #[validate(length(
+        min = 1,
+        max = 100,
+        message = "Checklist title must be 1-100 characters"
+    ))]
+    pub title: String,
+}
+
+#[derive(Debug, Deserialize, Validate)]
+pub struct UpdateChecklistRequest {
+    #[validate(length(min = 1, max = 100))]
     pub title: String,
 }
 
@@ -20,9 +30,9 @@ pub struct CreateChecklistItemRequest {
 pub struct UpdateChecklistItemRequest {
     pub title: Option<String>,
     pub is_done: Option<bool>,
-    #[serde(default,deserialize_with="nullable_string")]
+    #[serde(default, deserialize_with = "nullable_string")]
     pub assignee_id: Option<Option<String>>,
-    #[serde(default,deserialize_with="nullable_string")]
+    #[serde(default, deserialize_with = "nullable_string")]
     pub due_date: Option<Option<String>>,
 }
 
@@ -48,4 +58,8 @@ pub struct ChecklistResponse {
     pub created_at: String,
 }
 
-fn nullable_string<'de,D:serde::Deserializer<'de>>(d:D)->Result<Option<Option<String>>,D::Error>{Ok(Some(Option::<String>::deserialize(d)?))}
+fn nullable_string<'de, D: serde::Deserializer<'de>>(
+    d: D,
+) -> Result<Option<Option<String>>, D::Error> {
+    Ok(Some(Option::<String>::deserialize(d)?))
+}

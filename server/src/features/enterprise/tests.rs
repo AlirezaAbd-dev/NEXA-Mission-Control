@@ -720,3 +720,766 @@ async fn private_project_membership_changes_access_and_assignability() {
         .await
         .is_err());
 }
+
+fn local_input(v: serde_json::Value) -> crate::features::localops::dto::Input {
+    serde_json::from_value(v).unwrap()
+}
+#[tokio::test]
+async fn custom_roles_task_rules_and_bulk_do_not_bypass_permissions() {
+    use crate::features::{localops::service as local, productivity::policy};
+    let s = fixture().await;
+    let role = local::save(
+        &s,
+        "owner",
+        "p",
+        "roles",
+        local_input(json!({"name":"Contributor","permissions":["edit","comment","move"]})),
+    )
+    .await
+    .unwrap()["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    local::save(
+        &s,
+        "owner",
+        "p",
+        "role-members",
+        local_input(json!({"user_id":"member","role_id":role})),
+    )
+    .await
+    .unwrap();
+    assert!(
+        policy::enforce_pool(&s.pool, "member", "p", Some("c1"), "edit")
+            .await
+            .is_ok()
+    );
+    assert!(
+        policy::enforce_pool(&s.pool, "member", "p", Some("c1"), "archive")
+            .await
+            .is_err()
+    );
+    local::save(
+        &s,
+        "owner",
+        "p",
+        "task-permissions",
+        local_input(json!({"user_id":"member","card_id":"c1","permissions":["comment"]})),
+    )
+    .await
+    .unwrap();
+    assert!(
+        policy::enforce_pool(&s.pool, "member", "p", Some("c1"), "edit")
+            .await
+            .is_err()
+    );
+    assert!(
+        policy::enforce_pool(&s.pool, "member", "p", Some("c1"), "comment")
+            .await
+            .is_ok()
+    );
+    assert!(
+        policy::enforce_pool(&s.pool, "owner", "p", Some("c1"), "archive")
+            .await
+            .is_ok()
+    );
+    let request: BulkRequest = serde_json::from_value(
+        json!({"card_ids":["c2","c1"],"action":"priority","value":"urgent"}),
+    )
+    .unwrap();
+    assert!(service::bulk(&s, "member", "p", request).await.is_err());
+    assert_eq!(
+        sqlx::query_scalar::<_, String>("SELECT priority FROM cards WHERE id='c2'")
+            .fetch_one(&s.pool)
+            .await
+            .unwrap(),
+        "medium"
+    );
+    local::save(
+        &s,
+        "owner",
+        "p",
+        "role-members",
+        local_input(json!({"user_id":"viewer","role_id":role})),
+    )
+    .await
+    .unwrap();
+    assert!(
+        policy::enforce_pool(&s.pool, "viewer", "p", Some("c2"), "edit")
+            .await
+            .is_err()
+    );
+    local::remove(&s, "owner", "p", "task-permissions", "c1:member")
+        .await
+        .unwrap();
+    assert!(
+        policy::enforce_pool(&s.pool, "member", "p", Some("c1"), "edit")
+            .await
+            .is_ok()
+    );
+    assert!(local::save(
+        &s,
+        "member",
+        "p",
+        "roles",
+        local_input(json!({"name":"Elevated","permissions":["edit"]}))
+    )
+    .await
+    .is_err());
+    assert!(local::save(
+        &s,
+        "owner",
+        "p",
+        "roles",
+        local_input(json!({"name":"Bad","permissions":["admin"]}))
+    )
+    .await
+    .is_err());
+}
+#[tokio::test]
+async fn service_desk_requester_isolation_internal_notes_and_sla() {
+    use crate::features::localops::service as local;
+    let s = fixture().await;
+    local::save(
+        &s,
+        "owner",
+        "p",
+        "desk-settings",
+        local_input(json!({"response_hours":1,"resolution_hours":4})),
+    )
+    .await
+    .unwrap();
+    let ticket = local::save(
+        &s,
+        "viewer",
+        "p",
+        "tickets",
+        local_input(json!({"title":"Cannot open task","body":"Please help","priority":"high"})),
+    )
+    .await
+    .unwrap()["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    assert_eq!(
+        local::list(&s, "member", "p", "tickets")
+            .await
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .len(),
+        0
+    );
+    assert!(local::messages(&s, "member", "p", &ticket).await.is_err());
+    assert!(local::message(
+        &s,
+        "viewer",
+        "p",
+        &ticket,
+        local_input(json!({"body":"Unauthorized staff note","internal":true}))
+    )
+    .await
+    .is_err());
+    local::message(
+        &s,
+        "owner",
+        "p",
+        &ticket,
+        local_input(json!({"body":"Private agent note","internal":true})),
+    )
+    .await
+    .unwrap();
+    assert_eq!(
+        local::messages(&s, "viewer", "p", &ticket)
+            .await
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .len(),
+        0
+    );
+    assert!(local::list(&s, "owner", "p", "tickets").await.unwrap()[0]["responded_at"].is_null());
+    local::message(
+        &s,
+        "owner",
+        "p",
+        &ticket,
+        local_input(json!({"body":"We are investigating"})),
+    )
+    .await
+    .unwrap();
+    assert_eq!(
+        local::messages(&s, "viewer", "p", &ticket)
+            .await
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .len(),
+        1
+    );
+    assert!(local::list(&s, "owner", "p", "tickets").await.unwrap()[0]["responded_at"].is_string());
+    assert!(local::save(
+        &s,
+        "viewer",
+        "p",
+        "tickets",
+        local_input(json!({"id":ticket,"status":"resolved"}))
+    )
+    .await
+    .is_err());
+    local::save(
+        &s,
+        "owner",
+        "p",
+        "tickets",
+        local_input(json!({"id":ticket,"status":"resolved"})),
+    )
+    .await
+    .unwrap();
+    assert!(local::list(&s, "owner", "p", "tickets").await.unwrap()[0]["resolved_at"].is_string());
+    let role = local::save(
+        &s,
+        "owner",
+        "p",
+        "roles",
+        local_input(json!({"name":"Support agent","permissions":["desk_agent"]})),
+    )
+    .await
+    .unwrap()["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    local::save(
+        &s,
+        "owner",
+        "p",
+        "role-members",
+        local_input(json!({"user_id":"member","role_id":role})),
+    )
+    .await
+    .unwrap();
+    assert!(local::staff(&s, "member", "p").await.unwrap());
+    assert_eq!(
+        local::list(&s, "owner", "p", "agents")
+            .await
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .len(),
+        2
+    );
+    assert_eq!(
+        local::messages(&s, "member", "p", &ticket)
+            .await
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .len(),
+        2
+    );
+    assert!(local::list(&s, "other", "p", "tickets").await.is_err());
+}
+#[tokio::test]
+async fn knowledge_base_drafts_and_local_plugins_are_scoped() {
+    use crate::features::localops::service as local;
+    let s = fixture().await;
+    local::save(
+        &s,
+        "owner",
+        "p",
+        "articles",
+        local_input(json!({"title":"Private draft","body":"Internal draft","published":false})),
+    )
+    .await
+    .unwrap();
+    local::save(
+        &s,
+        "owner",
+        "p",
+        "articles",
+        local_input(json!({"title":"Published guide","body":"Useful answer","published":true})),
+    )
+    .await
+    .unwrap();
+    assert_eq!(
+        local::list(&s, "viewer", "p", "articles")
+            .await
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .len(),
+        1
+    );
+    assert_eq!(
+        local::list(&s, "owner", "p", "articles")
+            .await
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .len(),
+        2
+    );
+    assert!(local::validate_manifest(&json!({"schema":1,"name":"Bad","version":"1","script":"fetch('https://external')","actions":[{"type":"set_priority","value":"urgent"}]})).is_err());
+    let manifest = json!({"schema":1,"name":"Escalate","version":"1.0","actions":[{"type":"set_priority","value":"urgent"}]});
+    let plugin = local::save(
+        &s,
+        "owner",
+        "p",
+        "plugins",
+        local_input(json!({"manifest":manifest})),
+    )
+    .await
+    .unwrap()["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    assert!(local::run(
+        &s,
+        "member",
+        "p",
+        &plugin,
+        local_input(json!({"card_id":"c1"}))
+    )
+    .await
+    .is_err());
+    local::run(
+        &s,
+        "owner",
+        "p",
+        &plugin,
+        local_input(json!({"card_id":"c1"})),
+    )
+    .await
+    .unwrap();
+    assert_eq!(
+        sqlx::query_scalar::<_, String>("SELECT priority FROM cards WHERE id='c1'")
+            .fetch_one(&s.pool)
+            .await
+            .unwrap(),
+        "urgent"
+    );
+    local::save(
+        &s,
+        "owner",
+        "p",
+        "plugins",
+        local_input(json!({"id":plugin,"manifest":manifest,"enabled":false})),
+    )
+    .await
+    .unwrap();
+    assert!(local::run(
+        &s,
+        "owner",
+        "p",
+        &plugin,
+        local_input(json!({"card_id":"c1"}))
+    )
+    .await
+    .is_err());
+    local::remove(&s, "owner", "p", "plugins", &plugin)
+        .await
+        .unwrap();
+    assert!(
+        crate::features::enterprise::automation_repository::rule(&s.pool, "p", &plugin)
+            .await
+            .unwrap()
+            .is_none()
+    );
+}
+#[tokio::test]
+async fn shared_event_bridge_and_worker_lease_coordinate_instances() {
+    use crate::features::realtime::{bridge, repository as events};
+    let s = fixture().await;
+    let other = AppState::new(s.pool.clone(), (*s.config).clone());
+    bridge::start(other.clone()).await.unwrap();
+    let mut incoming = other.changes.subscribe();
+    s.publish(Some("p"), None, "changed");
+    let change = tokio::time::timeout(std::time::Duration::from_secs(3), incoming.recv())
+        .await
+        .unwrap()
+        .unwrap();
+    assert_eq!(change.project_id.as_deref(), Some("p"));
+    assert_eq!(change.kind, "changed");
+    assert!(events::worker_lease(&s.pool, &s.instance_id).await.unwrap());
+    assert!(!events::worker_lease(&s.pool, &other.instance_id)
+        .await
+        .unwrap());
+    sqlx::query("UPDATE worker_leases SET expires_at=unixepoch()-1")
+        .execute(&s.pool)
+        .await
+        .unwrap();
+    assert!(events::worker_lease(&s.pool, &other.instance_id)
+        .await
+        .unwrap());
+}
+
+#[tokio::test]
+async fn task_override_http_routes_and_linked_task_conversion_are_enforced() {
+    use crate::features::localops::service as local;
+    use axum::{body::Body, http::Request};
+    use tower::ServiceExt;
+    let s = fixture().await;
+    local::save(
+        &s,
+        "owner",
+        "p",
+        "task-permissions",
+        local_input(json!({"user_id":"member","card_id":"c1","permissions":["comment"]})),
+    )
+    .await
+    .unwrap();
+    let claims = crate::extractors::auth::Claims {
+        sub: "member".into(),
+        email: "member@test.local".into(),
+        role: "member".into(),
+        exp: (chrono::Utc::now().timestamp() + 60) as usize,
+    };
+    let token = jsonwebtoken::encode(
+        &jsonwebtoken::Header::default(),
+        &claims,
+        &jsonwebtoken::EncodingKey::from_secret(b"test"),
+    )
+    .unwrap();
+    let app = crate::router::create_router(s.clone());
+    for (uri, body) in [
+        ("/api/v1/cards/c1", json!({"title":"Blocked"})),
+        ("/api/v1/enterprise/projects/p/cards/c1/metadata", json!({})),
+        (
+            "/api/v1/productivity/projects/p/cards/c1/settings",
+            json!({"repeat_days":7}),
+        ),
+    ] {
+        let req = Request::builder()
+            .method("PUT")
+            .uri(uri)
+            .header("authorization", format!("Bearer {token}"))
+            .header("content-type", "application/json")
+            .body(Body::from(body.to_string()))
+            .unwrap();
+        assert_eq!(
+            app.clone().oneshot(req).await.unwrap().status(),
+            403,
+            "{uri}"
+        );
+    }
+    let ticket = local::save(
+        &s,
+        "viewer",
+        "p",
+        "tickets",
+        local_input(json!({"title":"Convert request","body":"Context"})),
+    )
+    .await
+    .unwrap()["id"]
+        .as_str()
+        .unwrap()
+        .to_owned();
+    assert!(local::convert(
+        &s,
+        "viewer",
+        "p",
+        &ticket,
+        local_input(json!({"column_id":"todo"}))
+    )
+    .await
+    .is_err());
+    let one = local::convert(
+        &s,
+        "owner",
+        "p",
+        &ticket,
+        local_input(json!({"column_id":"todo"})),
+    )
+    .await
+    .unwrap();
+    let two = local::convert(
+        &s,
+        "owner",
+        "p",
+        &ticket,
+        local_input(json!({"column_id":"todo"})),
+    )
+    .await
+    .unwrap();
+    assert_eq!(one, two);
+    assert_eq!(
+        sqlx::query_scalar::<_, i64>("SELECT count(*) FROM cards WHERE title='Convert request'")
+            .fetch_one(&s.pool)
+            .await
+            .unwrap(),
+        1
+    );
+}
+
+#[tokio::test]
+async fn audit_snapshots_record_named_changes_without_internal_comments() {
+    use crate::features::activity::audit_repository as audit;
+    let s = fixture().await;
+    let before = audit::task_snapshot(&s.pool, "c1").await.unwrap().unwrap();
+    sqlx::query(
+        "UPDATE cards SET title='Renamed task',priority='high',column_id='done' WHERE id='c1'",
+    )
+    .execute(&s.pool)
+    .await
+    .unwrap();
+    sqlx::query("INSERT INTO comments(id,card_id,author_id,body,is_internal,created_at) VALUES('internal-audit','c1','owner','Private staff discussion',1,'now')").execute(&s.pool).await.unwrap();
+    let after = audit::task_snapshot(&s.pool, "c1").await.unwrap().unwrap();
+    let changes = audit::changes(&before, &after);
+    assert_eq!(changes["title"]["before"], "c1");
+    assert_eq!(changes["title"]["after"], "Renamed task");
+    assert_eq!(changes["status"]["before"], "todo");
+    assert_eq!(changes["status"]["after"], "done");
+    assert_eq!(changes["priority"]["after"], "high");
+    assert!(changes.get("public_comments").is_none());
+    assert!(!after.to_string().contains("Private staff discussion"));
+    assert!(audit::changes(&after, &after)
+        .as_object()
+        .unwrap()
+        .is_empty());
+}
+#[tokio::test]
+async fn successful_task_edit_exposes_structured_audit_changes_through_http() {
+    use axum::{body::Body, http::Request};
+    use tower::ServiceExt;
+    let s = fixture().await;
+    let claims = crate::extractors::auth::Claims {
+        sub: "owner".into(),
+        email: "owner@test.local".into(),
+        role: "member".into(),
+        exp: (chrono::Utc::now().timestamp() + 60) as usize,
+    };
+    let token = jsonwebtoken::encode(
+        &jsonwebtoken::Header::default(),
+        &claims,
+        &jsonwebtoken::EncodingKey::from_secret(b"test"),
+    )
+    .unwrap();
+    let req = Request::builder()
+        .method("PUT")
+        .uri("/api/v1/cards/c1")
+        .header("authorization", format!("Bearer {token}"))
+        .header("content-type", "application/json")
+        .body(Body::from(
+            r#"{"title":"Audited rename","priority":"high"}"#,
+        ))
+        .unwrap();
+    assert_eq!(
+        crate::router::create_router(s.clone())
+            .oneshot(req)
+            .await
+            .unwrap()
+            .status(),
+        200
+    );
+    let payload:String=sqlx::query_scalar("SELECT payload FROM activities WHERE card_id='c1' AND action='api_mutation' ORDER BY created_at DESC LIMIT 1").fetch_one(&s.pool).await.unwrap();
+    let value: serde_json::Value = serde_json::from_str(&payload).unwrap();
+    assert_eq!(value["changes"]["title"]["before"], "c1");
+    assert_eq!(value["changes"]["title"]["after"], "Audited rename");
+    assert_eq!(value["changes"]["priority"]["before"], "medium");
+}
+
+#[tokio::test]
+async fn checklist_edit_delete_http_validation_permissions_and_cascade() {
+    use axum::{body::Body, http::Request};
+    use tower::ServiceExt;
+    let s = fixture().await;
+    sqlx::query("INSERT INTO checklists(id,card_id,title,position,created_at) VALUES('list','c1','Original',1,'now')").execute(&s.pool).await.unwrap();
+    sqlx::query("INSERT INTO checklist_items(id,checklist_id,title,is_done,position,created_at) VALUES('item','list','Original item',0,1,'now')").execute(&s.pool).await.unwrap();
+    let app = crate::router::create_router(s.clone());
+    for (user, method, path, body, expected) in [
+        (
+            "viewer",
+            "PUT",
+            "/checklists/list",
+            r#"{"title":"Blocked"}"#,
+            403,
+        ),
+        ("other", "DELETE", "/checklists/list", "{}", 403),
+        ("viewer", "DELETE", "/checklists/items/item", "{}", 403),
+        (
+            "owner",
+            "PUT",
+            "/checklists/list",
+            r#"{"title":"   "}"#,
+            400,
+        ),
+        (
+            "owner",
+            "PUT",
+            "/checklists/items/item",
+            r#"{"title":""}"#,
+            400,
+        ),
+        (
+            "owner",
+            "PUT",
+            "/checklists/list",
+            r#"{"title":" Renamed "}"#,
+            200,
+        ),
+        (
+            "owner",
+            "PUT",
+            "/checklists/items/item",
+            r#"{"title":"Edited item"}"#,
+            200,
+        ),
+        ("owner", "DELETE", "/checklists/items/item", "{}", 200),
+    ] {
+        let claims = crate::extractors::auth::Claims {
+            sub: user.into(),
+            email: format!("{user}@test.local"),
+            role: "member".into(),
+            exp: (chrono::Utc::now().timestamp() + 60) as usize,
+        };
+        let token = jsonwebtoken::encode(
+            &jsonwebtoken::Header::default(),
+            &claims,
+            &jsonwebtoken::EncodingKey::from_secret(b"test"),
+        )
+        .unwrap();
+        let response = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method(method)
+                    .uri(format!("/api/v1{path}"))
+                    .header("authorization", format!("Bearer {token}"))
+                    .header("content-type", "application/json")
+                    .body(Body::from(body))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(
+            response.status().as_u16(),
+            expected,
+            "{user} {method} {path}"
+        );
+    }
+    let title: String = sqlx::query_scalar("SELECT title FROM checklists WHERE id='list'")
+        .fetch_one(&s.pool)
+        .await
+        .unwrap();
+    assert_eq!(title, "Renamed");
+    let count: i64 = sqlx::query_scalar("SELECT count(*) FROM checklist_items WHERE id='item'")
+        .fetch_one(&s.pool)
+        .await
+        .unwrap();
+    assert_eq!(count, 0);
+    sqlx::query("INSERT INTO checklist_items(id,checklist_id,title,is_done,position,created_at) VALUES('cascade','list','Cascade item',0,1,'now')").execute(&s.pool).await.unwrap();
+    crate::features::checklist::repository::ChecklistRepository::delete_checklist(&s.pool, "list")
+        .await
+        .unwrap();
+    let count: i64 =
+        sqlx::query_scalar("SELECT count(*) FROM checklist_items WHERE checklist_id='list'")
+            .fetch_one(&s.pool)
+            .await
+            .unwrap();
+    assert_eq!(count, 0);
+}
+
+#[tokio::test]
+async fn task_removal_and_restore_use_archive_permission_and_preserve_data() {
+    use axum::{body::Body, http::Request};
+    use tower::ServiceExt;
+    let s = fixture().await;
+    crate::features::productivity::repository::set_permissions(
+        &s.pool,
+        "p",
+        &vec!["archive".into()],
+    )
+    .await
+    .unwrap();
+    let app = crate::router::create_router(s.clone());
+    for (user, method, path, body, expected, archived) in [
+        ("viewer", "DELETE", "/cards/c1", "{}", 403, false),
+        ("member", "DELETE", "/cards/c1", "{}", 200, true),
+        (
+            "member",
+            "POST",
+            "/cards/c1/archive",
+            r#"{"archive":false}"#,
+            200,
+            false,
+        ),
+        (
+            "member",
+            "POST",
+            "/cards/c1/archive",
+            r#"{"archive":true}"#,
+            200,
+            true,
+        ),
+    ] {
+        let claims = crate::extractors::auth::Claims {
+            sub: user.into(),
+            email: format!("{user}@test.local"),
+            role: "member".into(),
+            exp: (chrono::Utc::now().timestamp() + 60) as usize,
+        };
+        let token = jsonwebtoken::encode(
+            &jsonwebtoken::Header::default(),
+            &claims,
+            &jsonwebtoken::EncodingKey::from_secret(b"test"),
+        )
+        .unwrap();
+        let response = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method(method)
+                    .uri(format!("/api/v1{path}"))
+                    .header("authorization", format!("Bearer {token}"))
+                    .header("content-type", "application/json")
+                    .body(Body::from(body))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(
+            response.status().as_u16(),
+            expected,
+            "{user} {method} {path}"
+        );
+        let flag: bool =
+            sqlx::query_scalar("SELECT archived_at IS NOT NULL FROM cards WHERE id='c1'")
+                .fetch_one(&s.pool)
+                .await
+                .unwrap();
+        assert_eq!(flag, archived);
+    }
+    let title: String = sqlx::query_scalar("SELECT title FROM cards WHERE id='c1'")
+        .fetch_one(&s.pool)
+        .await
+        .unwrap();
+    assert_eq!(title, "c1");
+    crate::features::productivity::repository::set_permissions(&s.pool, "p", &vec!["edit".into()])
+        .await
+        .unwrap();
+    let claims = crate::extractors::auth::Claims {
+        sub: "member".into(),
+        email: "member@test.local".into(),
+        role: "member".into(),
+        exp: (chrono::Utc::now().timestamp() + 60) as usize,
+    };
+    let token = jsonwebtoken::encode(
+        &jsonwebtoken::Header::default(),
+        &claims,
+        &jsonwebtoken::EncodingKey::from_secret(b"test"),
+    )
+    .unwrap();
+    let response = app
+        .oneshot(
+            Request::builder()
+                .method("POST")
+                .uri("/api/v1/cards/c1/archive")
+                .header("authorization", format!("Bearer {token}"))
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"archive":false}"#))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), 403);
+}

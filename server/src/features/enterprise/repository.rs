@@ -30,7 +30,7 @@ pub async fn list(
     let query=match resource {
  "epics"=>"SELECT e.*,COUNT(c.id) AS total,COALESCE(SUM(CASE WHEN col.type='done' THEN 1 ELSE 0 END),0) AS done FROM epics e LEFT JOIN cards c ON c.epic_id=e.id AND c.archived_at IS NULL LEFT JOIN columns col ON col.id=c.column_id WHERE e.project_id=? GROUP BY e.id ORDER BY e.created_at",
  "releases"=>"SELECT r.*,COUNT(c.id) AS total,COALESCE(SUM(CASE WHEN col.type='done' THEN 1 ELSE 0 END),0) AS done FROM releases r LEFT JOIN cards c ON c.release_id=r.id AND c.archived_at IS NULL LEFT JOIN columns col ON col.id=c.column_id WHERE r.project_id=? GROUP BY r.id ORDER BY r.created_at",
- "rules"=>"SELECT r.*,(SELECT COUNT(*) FROM automation_runs WHERE rule_id=r.id) AS runs FROM automation_rules r WHERE project_id=? ORDER BY created_at",
+ "rules"=>"SELECT r.*,(SELECT COUNT(*) FROM automation_runs WHERE rule_id=r.id) AS runs FROM automation_rules r WHERE project_id=? AND NOT EXISTS(SELECT 1 FROM local_plugins lp WHERE lp.id=r.id) ORDER BY created_at",
  "views"=>"SELECT * FROM saved_views WHERE project_id=? AND user_id=? ORDER BY created_at",
  "documents"=>"SELECT * FROM document_links WHERE project_id=? ORDER BY created_at",
  "integrations"=>"SELECT id,project_id,kind,name,created_at FROM project_integrations WHERE project_id=? ORDER BY created_at",

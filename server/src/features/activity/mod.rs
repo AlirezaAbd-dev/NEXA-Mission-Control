@@ -6,3 +6,5 @@ pub mod routes;
 pub mod service;
 
 pub use routes::router;
+
+pub mod audit_repository;

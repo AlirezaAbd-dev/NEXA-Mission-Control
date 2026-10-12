@@ -6,15 +6,34 @@ pub async fn enforce(
     project: &str,
     capability: &str,
 ) -> Result<(), AppError> {
-    let role = crate::features::enterprise::repository::role(&s.pool, project, user)
+    enforce_pool(&s.pool, user, project, None, capability).await
+}
+pub async fn enforce_pool(
+    pool: &sqlx::SqlitePool,
+    user: &str,
+    project: &str,
+    card: Option<&str>,
+    capability: &str,
+) -> Result<(), AppError> {
+    let role = crate::features::enterprise::repository::role(pool, project, user)
         .await?
         .ok_or_else(|| AppError::Forbidden("Project access denied".into()))?;
     if matches!(role.as_str(), "owner" | "admin") {
         return Ok(());
     }
-    if role == "viewer" || !super::repository::capability(&s.pool, project, capability).await? {
+    if role == "viewer" || !super::repository::capability(pool, project, capability).await? {
         return Err(AppError::Forbidden(format!(
             "Your project role cannot {capability} tasks"
+        )));
+    }
+    let permissions =
+        crate::features::localops::repository::permissions(pool, project, user, card).await?;
+    if permissions
+        .iter()
+        .any(|set| !set.iter().any(|v| v == capability))
+    {
+        return Err(AppError::Forbidden(format!(
+            "Your custom role or task rule cannot {capability} this task"
         )));
     }
     Ok(())

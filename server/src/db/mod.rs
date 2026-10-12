@@ -9,7 +9,7 @@ pub async fn init_db(database_url: &str) -> anyhow::Result<SqlitePool> {
         .trim_start_matches("sqlite:")
         .split('?')
         .next()
-        .unwrap_or("data/taskflow.db");
+        .unwrap_or("data/mission-control.db");
 
     let path = Path::new(db_path_str);
     if let Some(parent) = path.parent() {

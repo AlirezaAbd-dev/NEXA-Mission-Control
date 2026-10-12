@@ -40,3 +40,6 @@ lerna-debug.log*
 *.db-wal
 server/data/
 server/uploads/
+
+# Local recovery archives
+backups/

@@ -1,5 +1,5 @@
 [package]
-name = "taskflow-server"
+name = "mission-control-server"
 version = "0.1.0"
 edition = "2021"
 

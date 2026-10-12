@@ -21,6 +21,7 @@ pub async fn guard(
         || suffix.starts_with("integrations/")
         || suffix.starts_with("realtime/")
         || suffix.starts_with("productivity/")
+        || suffix.starts_with("localops/")
     {
         return Ok(next.run(request).await);
     }
@@ -142,6 +143,9 @@ pub async fn guard(
     }
     if suffix.starts_with("enterprise/projects/") {
         audit_project = segments.get(2).map(|id| id.to_string());
+        if segments.get(3) == Some(&"cards") {
+            audit_card = segments.get(4).map(|id| id.to_string());
+        }
     }
     if write
         && (suffix.starts_with("cards")
@@ -163,7 +167,8 @@ pub async fn guard(
                 || payload.get("action").and_then(Value::as_str) == Some("move")
             {
                 "move"
-            } else if (suffix.starts_with("cards") && parts.method == Method::DELETE)
+            } else if (suffix.starts_with("cards")
+                && (parts.method == Method::DELETE || suffix.ends_with("/archive")))
                 || payload.get("action").and_then(Value::as_str) == Some("archive")
             {
                 "archive"
@@ -172,13 +177,45 @@ pub async fn guard(
             } else {
                 "edit"
             };
-            crate::features::productivity::policy::enforce(&state, &auth.id, project, capability)
-                .await?;
+            crate::features::productivity::policy::enforce_pool(
+                &state.pool,
+                &auth.id,
+                project,
+                audit_card.as_deref(),
+                capability,
+            )
+            .await?;
         }
     }
+    let audit_method = parts.method.to_string();
+    let before = if write {
+        if let Some(card) = &audit_card {
+            crate::features::activity::audit_repository::task_snapshot(&state.pool, card).await?
+        } else {
+            None
+        }
+    } else {
+        None
+    };
     let response = next.run(Request::from_parts(parts, body)).await;
-    if write && response.status().is_success() {
+    if write
+        && response.status().is_success()
+        && !(suffix == "cards" && audit_method == "POST")
+        && !suffix.ends_with("/bulk")
+        && !(suffix.contains("/rules/") && suffix.ends_with("/run"))
+    {
         if let Some(project) = &audit_project {
+            let after = if let Some(card) = &audit_card {
+                crate::features::activity::audit_repository::task_snapshot(&state.pool, card)
+                    .await?
+            } else {
+                None
+            };
+            let changes = crate::features::activity::audit_repository::changes(
+                before.as_ref().unwrap_or(&Value::Null),
+                after.as_ref().unwrap_or(&Value::Null),
+            );
+            let detail = serde_json::json!({"route":suffix,"method":audit_method,"task_title":after.as_ref().or(before.as_ref()).and_then(|v|v.get("title")),"changes":changes});
             let mut connection = state.pool.acquire().await?;
             super::repository::audit(
                 &mut connection,
@@ -186,7 +223,7 @@ pub async fn guard(
                 audit_card.as_deref(),
                 Some(&auth.id),
                 "api_mutation",
-                serde_json::json!({"route":suffix}),
+                detail,
             )
             .await?;
         }

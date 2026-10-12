@@ -1,3 +1,8 @@
+import { AuditEventDetails } from "@/components/common/AuditEventDetails";
+import {
+  auditPayload,
+  auditSummary,
+} from "@/components/common/auditPresentation";
 import { useEnterpriseResource } from "@/hooks/enterprise/useEnterpriseResource";
 import type { AuditEntry } from "@/types/enterprise";
 import { apiError } from "@/lib/apiError";
@@ -21,17 +26,18 @@ export function AuditLog({ projectId }: { projectId: string }) {
             className="border-b border-slate-100 dark:border-[#183035] pb-3"
           >
             <p className="text-xs font-medium">
-              {e.actor_name || "System"} · {e.action.replaceAll("_", " ")}
+              {e.actor_name || "System"} ·{" "}
+              {auditSummary(e.action, auditPayload(e.payload))}
             </p>
             <p className="text-xs text-slate-500 mt-1">
               {new Date(e.created_at).toLocaleString()}
             </p>
-            <details className="text-xs text-slate-500">
-              <summary>Event details</summary>
-              <pre className="whitespace-pre-wrap break-all mt-2">
-                {e.payload}
-              </pre>
-            </details>
+            {!!auditPayload(e.payload).task_title && (
+              <p className="mt-1 text-xs font-semibold text-primary">
+                {String(auditPayload(e.payload).task_title)}
+              </p>
+            )}
+            <AuditEventDetails payload={auditPayload(e.payload)} />
           </div>
         ))}
         {entries.length === 0 && !error && (

@@ -1,4 +1,3 @@
-use sqlx::SqlitePool;
 use crate::{
     error::AppError,
     features::checklist::{
@@ -6,11 +5,15 @@ use crate::{
         models::{Checklist, ChecklistItem},
     },
 };
+use sqlx::SqlitePool;
 
 pub struct ChecklistRepository;
 
 impl ChecklistRepository {
-    pub async fn list_by_card(pool: &SqlitePool, card_id: &str) -> Result<Vec<ChecklistResponse>, AppError> {
+    pub async fn list_by_card(
+        pool: &SqlitePool,
+        card_id: &str,
+    ) -> Result<Vec<ChecklistResponse>, AppError> {
         let checklists = sqlx::query_as::<_, Checklist>(
             "SELECT id, card_id, title, position, created_at FROM checklists WHERE card_id = ?1 ORDER BY position ASC"
         )
@@ -27,7 +30,7 @@ impl ChecklistRepository {
                 FROM checklist_items
                 WHERE checklist_id = ?1
                 ORDER BY position ASC
-                "#
+                "#,
             )
             .bind(&ch.id)
             .fetch_all(pool)
@@ -78,13 +81,31 @@ impl ChecklistRepository {
         .await?;
 
         let ch = sqlx::query_as::<_, Checklist>(
-            "SELECT id, card_id, title, position, created_at FROM checklists WHERE id = ?1"
+            "SELECT id, card_id, title, position, created_at FROM checklists WHERE id = ?1",
         )
         .bind(id)
         .fetch_one(pool)
         .await?;
 
         Ok(ch)
+    }
+
+    pub async fn rename_checklist(
+        pool: &SqlitePool,
+        id: &str,
+        title: &str,
+    ) -> Result<String, AppError> {
+        let card_id: String = sqlx::query_scalar("SELECT card_id FROM checklists WHERE id = ?")
+            .bind(id)
+            .fetch_optional(pool)
+            .await?
+            .ok_or_else(|| AppError::NotFound("Checklist not found".into()))?;
+        sqlx::query("UPDATE checklists SET title = ? WHERE id = ?")
+            .bind(title)
+            .bind(id)
+            .execute(pool)
+            .await?;
+        Ok(card_id)
     }
 
     pub async fn delete_checklist(pool: &SqlitePool, id: &str) -> Result<(), AppError> {
@@ -149,7 +170,9 @@ impl ChecklistRepository {
         .ok_or_else(|| AppError::NotFound("Checklist item not found".to_string()))?;
 
         let new_title = title.unwrap_or(&current.title);
-        let new_done = is_done.map(|d| if d { 1 } else { 0 }).unwrap_or(current.is_done);
+        let new_done = is_done
+            .map(|d| if d { 1 } else { 0 })
+            .unwrap_or(current.is_done);
         let new_assignee = match assignee_id {
             Some(opt) => opt,
             None => current.assignee_id.as_deref(),

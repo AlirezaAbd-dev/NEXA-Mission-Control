@@ -1,3 +1,4 @@
+import "@/lib/brandStorage";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
@@ -16,7 +17,7 @@ export function SsoCallback() {
   useEffect(() => {
     window.history.replaceState(null, "", "/sso/callback");
     if (!token) return;
-    localStorage.setItem("taskflow_token", token);
+    localStorage.setItem("mission_control_token", token);
     authApi
       .getMe()
       .then((user) => {

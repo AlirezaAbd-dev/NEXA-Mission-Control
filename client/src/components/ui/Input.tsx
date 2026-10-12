@@ -9,6 +9,7 @@ import {
 } from "react";
 import { Eye, EyeOff, ChevronUp, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DatePicker } from "./DatePicker";
 import { HintTooltip } from "@/components/ui/tooltip";
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -90,6 +91,26 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     const hasTrailing = Boolean(isPassword || trailingAddon || isNumber);
     const containerDir = props.dir ?? (isPassword ? "ltr" : undefined);
 
+    if (type === "date" || type === "datetime-local")
+      return (
+        <DatePicker
+          id={inputId}
+          label={label}
+          value={String(props.value || "")}
+          onChange={(e) =>
+            props.onChange?.(e as React.ChangeEvent<HTMLInputElement>)
+          }
+          type={type === "date" ? "date" : "datetime-local"}
+          disabled={props.disabled}
+          required={props.required}
+          min={props.min === undefined ? undefined : String(props.min)}
+          max={props.max === undefined ? undefined : String(props.max)}
+          error={error}
+          className={className}
+          ariaLabel={props["aria-label"]}
+          placeholder={props.placeholder}
+        />
+      );
     return (
       <div className="flex flex-col gap-1.5 w-full">
         {label && (

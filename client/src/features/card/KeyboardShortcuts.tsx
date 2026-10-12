@@ -1,3 +1,4 @@
+import { flushSync } from "react-dom";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { useProject } from "@/hooks/project/useProject";
 import { useProjectMembers } from "@/hooks/productivity/useProjectMembers";
@@ -60,15 +61,16 @@ export function KeyboardShortcuts() {
       }
       if (e.key === "d") {
         e.preventDefault();
-        const input = document.querySelector<HTMLInputElement>(
-          '[data-shortcut="due"] input',
+        flushSync(() =>
+          document
+            .querySelector<HTMLButtonElement>("[data-task-properties]")
+            ?.click(),
         );
-        input?.focus();
-        try {
-          input?.showPicker();
-        } catch {
-          /* Focus remains available when the browser cannot open its picker. */
-        }
+        const trigger = document.querySelector<HTMLButtonElement>(
+          '[data-shortcut="due"] [data-date-trigger]',
+        );
+        trigger?.focus();
+        trigger?.click();
       }
     };
     window.addEventListener("keydown", handle);

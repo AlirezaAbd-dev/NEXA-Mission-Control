@@ -11,7 +11,7 @@ fi
 export HOST=127.0.0.1 PORT=8000
 export MISSION_CONTROL_DEMO="${MISSION_CONTROL_DEMO:-1}"
 export JWT_SECRET="${JWT_SECRET:-$(python3 -c 'import secrets;print(secrets.token_hex(32))')}"
-(cd server && exec ./target/debug/taskflow-server) &
+(cd server && exec ./target/debug/mission-control-server) &
 mission_api_pid=$!
 (cd client && exec node node_modules/vite/bin/vite.js --host 127.0.0.1) &
 mission_client_pid=$!

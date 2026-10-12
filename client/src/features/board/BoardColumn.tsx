@@ -167,13 +167,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
 
             <Dropdown
               trigger={
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="w-7 h-7 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
-                >
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
+                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
               }
               items={[
                 {

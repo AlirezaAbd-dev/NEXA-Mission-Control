@@ -1,23 +1,19 @@
 import { CardEnterpriseFields } from "./CardEnterpriseFields";
-import React, { useState } from "react";
+import React from "react";
 import {
   Calendar,
   Clock,
   Tag,
   UserCheck,
   Flag,
-  Trash2,
   Hash,
   FileText,
 } from "lucide-react";
 import { Select } from "@/components/ui/Select";
 import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
-import { ConfirmModal } from "@/components/common/ConfirmModal";
 import { CardTimer } from "./CardTimer";
 import { CardCustomFields } from "./CardCustomFields";
 import { useUpdateCard } from "@/hooks/card/useUpdateCard";
-import { useDeleteCard } from "@/hooks/card/useDeleteCard";
 import { useLabels } from "@/hooks/label/useLabels";
 import { useSetCardLabels } from "@/hooks/card/useSetCardLabels";
 import { useProjectMembers } from "@/hooks/productivity/useProjectMembers";
@@ -28,20 +24,16 @@ import type { Card, BoardColumn } from "@/types";
 interface CardSidebarProps {
   card: Card;
   columns?: BoardColumn[];
-  onClose: () => void;
 }
 
 export const CardSidebar: React.FC<CardSidebarProps> = ({
   card,
   columns = [],
-  onClose,
 }) => {
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { data: project } = useProject(card.project_id);
   const workspaceId = project?.workspace_id || "";
 
   const updateCard = useUpdateCard(card.project_id);
-  const deleteCard = useDeleteCard(card.project_id);
   const setCardLabels = useSetCardLabels(card.project_id);
   const setCardAssignees = useSetCardAssignees(card.project_id);
 
@@ -110,28 +102,20 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
     setCardAssignees.mutate({ cardId: card.id, userIds: newIds });
   };
 
-  const handleConfirmDelete = () => {
-    deleteCard.mutate(card.id, {
-      onSuccess: () => {
-        setIsDeleteModalOpen(false);
-        onClose();
-      },
-    });
-  };
-
   return (
     <>
       <div className="space-y-5">
-        {/* Live Stopwatch & Time Tracking Widget */}
-        <CardTimer cardId={card.id} />
-
         {/* Status Column */}
         {columns.length > 0 && (
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider">
               Status
             </label>
-            <Select value={card.column_id} onChange={handleColumnChange}>
+            <Select
+              ariaLabel="Status"
+              value={card.column_id}
+              onChange={handleColumnChange}
+            >
               {columns.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -143,11 +127,15 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
 
         {/* Priority */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+          <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
             <Flag className="w-3.5 h-3.5 text-teal-500" />
             Priority
           </label>
-          <Select value={card.priority} onChange={handlePriorityChange}>
+          <Select
+            ariaLabel="Priority"
+            value={card.priority}
+            onChange={handlePriorityChange}
+          >
             <option value="urgent">Urgent</option>
             <option value="high">High</option>
             <option value="medium">Medium</option>
@@ -159,69 +147,43 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         {/* Story Points & Estimation */}
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
               <Hash className="w-3.5 h-3.5 text-teal-500" />
               Points
             </label>
             <Input
               type="number"
+              aria-label="Story points"
               step="1"
               min="0"
               value={card.story_points ?? ""}
               onChange={handleStoryPointsChange}
               placeholder="e.g. 5"
-              className="text-xs h-8"
+              className="text-sm"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+            <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-teal-500" />
               Est. Hours
             </label>
             <Input
               type="number"
+              aria-label="Estimated hours"
               step="0.5"
               min="0"
               value={card.estimated_hours ?? ""}
               onChange={handleEstimatedHoursChange}
               placeholder="e.g. 4.5"
-              className="text-xs h-8"
+              className="text-sm"
             />
           </div>
         </div>
 
-        {/* Template Toggle */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-            <FileText className="w-3.5 h-3.5 text-teal-500" />
-            Template
-          </label>
-          <button
-            type="button"
-            onClick={handleToggleTemplate}
-            className={`w-full text-xs p-2 rounded-lg border font-medium flex items-center justify-between transition-all cursor-pointer ${
-              card.is_template
-                ? "bg-teal-500/10 border-teal-500/40 text-teal-600 dark:text-teal-400 font-semibold"
-                : "bg-slate-50 dark:bg-[#0d1a1d] border-slate-200 dark:border-[#183035] text-slate-600 dark:text-slate-300 hover:border-teal-500/30"
-            }`}
-          >
-            <span>Mark as Reusable Template</span>
-            <span
-              className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${
-                card.is_template
-                  ? "bg-teal-500 border-teal-500 text-slate-950 font-bold"
-                  : "border-slate-300 dark:border-border"
-              }`}
-            >
-              {card.is_template ? "✓" : ""}
-            </span>
-          </button>
-        </div>
-
         {/* Assignees */}
         <div data-shortcut="assignees" className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+          <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
             <UserCheck className="w-3.5 h-3.5 text-teal-500" />
             Assignees
           </label>
@@ -234,6 +196,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
                 <button
                   key={member.id}
                   type="button"
+                  aria-pressed={isAssigned}
                   onClick={() => toggleAssignee(member.user_id)}
                   className={`text-xs px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
                     isAssigned
@@ -250,10 +213,15 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
 
         {/* Labels */}
         <div data-shortcut="labels" className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+          <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
             <Tag className="w-3.5 h-3.5 text-teal-500" />
             Labels
           </label>
+          {workspaceLabels.length === 0 && (
+            <p className="text-xs text-muted-foreground">
+              No labels configured.
+            </p>
+          )}
           <div className="flex flex-wrap gap-1.5">
             {workspaceLabels.map((lbl) => {
               const hasLabel = card.labels.some((l) => l.id === lbl.id);
@@ -285,7 +253,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-500 uppercase">
+          <label className="text-xs font-semibold text-secondary-foreground uppercase">
             Start date
           </label>
           <Input
@@ -299,46 +267,59 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         </div>
         {/* Due Date */}
         <div data-shortcut="due" className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+          <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
             <Calendar className="w-3.5 h-3.5 text-teal-500" />
             Due Date
           </label>
           <Input
+            aria-label="Due date"
             type="date"
             value={card.due_date ? card.due_date.slice(0, 10) : ""}
             onChange={handleDueDateChange}
           />
         </div>
 
-        {/* Custom Fields System */}
-        <CardEnterpriseFields card={card} />
-        <CardCustomFields card={card} />
+        <CardTimer cardId={card.id} />
 
-        <div className="pt-4 border-t border-slate-200 dark:border-[#183035]">
-          <Button
-            variant="danger"
-            size="sm"
-            className="w-full"
-            onClick={() => setIsDeleteModalOpen(true)}
-            isLoading={deleteCard.isPending}
-          >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Archive Card
-          </Button>
-        </div>
+        <details className="rounded-xl border border-border p-3">
+          <summary className="cursor-pointer text-sm font-semibold text-foreground">
+            Workflow & advanced settings
+          </summary>
+          <div className="space-y-4 pt-4">
+            {/* Template Toggle */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-teal-500" />
+                Template
+              </label>
+              <button
+                type="button"
+                onClick={handleToggleTemplate}
+                className={`w-full text-xs p-2 rounded-lg border font-medium flex items-center justify-between transition-all cursor-pointer ${
+                  card.is_template
+                    ? "bg-teal-500/10 border-teal-500/40 text-teal-600 dark:text-teal-400 font-semibold"
+                    : "bg-slate-50 dark:bg-[#0d1a1d] border-slate-200 dark:border-[#183035] text-slate-600 dark:text-slate-300 hover:border-teal-500/30"
+                }`}
+              >
+                <span>Mark as Reusable Template</span>
+                <span
+                  className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${
+                    card.is_template
+                      ? "bg-teal-500 border-teal-500 text-slate-950 font-bold"
+                      : "border-slate-300 dark:border-border"
+                  }`}
+                >
+                  {card.is_template ? "✓" : ""}
+                </span>
+              </button>
+            </div>
+
+            {/* Custom Fields System */}
+            <CardEnterpriseFields card={card} />
+            <CardCustomFields card={card} />
+          </div>
+        </details>
       </div>
-
-      {/* Confirmation Modal replacing browser confirm alert */}
-      <ConfirmModal
-        isOpen={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleConfirmDelete}
-        title={`Archive task "${card.title}"?`}
-        description="The task will move to the archive. You can restore it from Project settings."
-        confirmLabel="Archive Task"
-        isDestructive={true}
-        isLoading={deleteCard.isPending}
-      />
     </>
   );
 };

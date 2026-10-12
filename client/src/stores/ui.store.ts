@@ -1,3 +1,4 @@
+import "@/lib/brandStorage";
 import { create } from "zustand";
 
 interface UiStore {
@@ -21,7 +22,7 @@ export const useUiStore = create<UiStore>((set) => ({
   setMutationError: (mutationError) => set({ mutationError }),
   sidebarOpen: true,
   theme:
-    (localStorage.getItem("taskflow_theme") as "light" | "dark") ||
+    (localStorage.getItem("mission_control_theme") as "light" | "dark") ||
     (document.documentElement.classList.contains("dark") ? "dark" : "light"),
   commandPaletteOpen: false,
   activeCardId: new URLSearchParams(window.location.search).get("card"),
@@ -32,7 +33,7 @@ export const useUiStore = create<UiStore>((set) => ({
   toggleTheme: () =>
     set((state) => {
       const nextTheme = state.theme === "light" ? "dark" : "light";
-      localStorage.setItem("taskflow_theme", nextTheme);
+      localStorage.setItem("mission_control_theme", nextTheme);
       if (nextTheme === "dark") {
         document.documentElement.classList.add("dark");
       } else {
@@ -42,7 +43,7 @@ export const useUiStore = create<UiStore>((set) => ({
     }),
 
   setTheme: (theme) => {
-    localStorage.setItem("taskflow_theme", theme);
+    localStorage.setItem("mission_control_theme", theme);
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
     } else {

@@ -81,3 +81,7 @@ docker compose up -d --build
 The Compose ports bind to localhost. Put your existing HTTPS reverse proxy in front of the client for public deployment. The client container proxies API and upload traffic to the server container; the API health check is `/api/v1/health`. Demo accounts are not seeded by Compose. Docker builds may need the same registry access as local builds.
 
 Back up the SQLite database with its online backup API (or stop the server before copying the database), plus uploads and server configuration. Do not copy only a live `.db` file while WAL writes are active. Preserve `JWT_SECRET`, the authenticator encryption key (`data/local-mfa.key` or `MFA_ENCRYPTION_KEY`), provider configuration, and identity mappings when restoring. JSON exports contain board data; they do not include provider secrets, password hashes, or attachment file bytes and do not replace a full server backup.
+
+Local service desk, custom roles, task action rules, plugins, multi-process events and recovery: [Local operations guide](docs/LOCAL_OPERATIONS.md).
+
+The date and date-time controls use the same NEXA calendar design as the CRM frontend, with the Gregorian calendar in Mission Control. Existing installations keep their database and browser sessions during the branding upgrade. Rich text editing is deferred.

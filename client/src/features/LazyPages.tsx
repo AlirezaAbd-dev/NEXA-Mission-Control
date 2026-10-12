@@ -65,3 +65,9 @@ export const IntakePage = lazy(() =>
     default: m.IntakePage,
   })),
 );
+
+export const ServiceDeskPage = lazy(() =>
+  import("@/features/localops/ServiceDeskPage").then((m) => ({
+    default: m.ServiceDeskPage,
+  })),
+);

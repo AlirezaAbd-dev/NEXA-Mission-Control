@@ -9,7 +9,7 @@ use crate::{
         checklist::{
             dto::{
                 ChecklistItemResponse, ChecklistResponse, CreateChecklistItemRequest,
-                CreateChecklistRequest, UpdateChecklistItemRequest,
+                CreateChecklistRequest, UpdateChecklistItemRequest, UpdateChecklistRequest,
             },
             repository::ChecklistRepository,
         },
@@ -89,6 +89,23 @@ impl ChecklistService {
         })
     }
 
+    pub async fn update_checklist(
+        state: &AppState,
+        id: &str,
+        _user_id: &str,
+        mut req: UpdateChecklistRequest,
+    ) -> Result<ChecklistResponse, AppError> {
+        req.title = req.title.trim().to_owned();
+        req.validate()
+            .map_err(|e| AppError::Validation(e.to_string()))?;
+        let card_id = ChecklistRepository::rename_checklist(&state.pool, id, &req.title).await?;
+        ChecklistRepository::list_by_card(&state.pool, &card_id)
+            .await?
+            .into_iter()
+            .find(|list| list.id == id)
+            .ok_or_else(|| AppError::NotFound("Checklist not found".into()))
+    }
+
     pub async fn delete_checklist(
         state: &AppState,
         id: &str,
@@ -139,6 +156,14 @@ impl ChecklistService {
         _user_id: &str,
         req: UpdateChecklistItemRequest,
     ) -> Result<ChecklistItemResponse, AppError> {
+        if let Some(title) = &req.title {
+            let length = title.trim().chars().count();
+            if length == 0 || length > 255 {
+                return Err(AppError::Validation(
+                    "Item title must be 1-255 characters".into(),
+                ));
+            }
+        }
         let previous_context =
             crate::features::enterprise::operations::checklist_context(&state.pool, item_id)
                 .await?;

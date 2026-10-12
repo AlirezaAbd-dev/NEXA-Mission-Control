@@ -9,7 +9,12 @@ import { useChecklists } from "@/hooks/checklist/useChecklists";
 import { useCreateChecklist } from "@/hooks/checklist/useCreateChecklist";
 import { useCreateChecklistItem } from "@/hooks/checklist/useCreateChecklistItem";
 import { useUpdateChecklistItem } from "@/hooks/checklist/useUpdateChecklistItem";
-import type { ChecklistItem } from "@/types";
+import type { Checklist, ChecklistItem } from "@/types";
+
+import { ChecklistActions } from "./ChecklistActions";
+import { useUpdateChecklist } from "@/hooks/checklist/useUpdateChecklist";
+import { useDeleteChecklist } from "@/hooks/checklist/useDeleteChecklist";
+import { useDeleteChecklistItem } from "@/hooks/checklist/useDeleteChecklistItem";
 
 interface CardChecklistsProps {
   cardId: string;
@@ -56,22 +61,17 @@ export const CardChecklists: React.FC<CardChecklistsProps> = ({
             key={list.id}
             className="space-y-3 p-3 rounded-lg border border-slate-200 dark:border-border bg-white dark:bg-card"
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CheckSquare className="w-4 h-4 text-teal-500" />
-                <span className="font-semibold text-sm text-slate-900 dark:text-slate-100">
-                  {list.title}
-                </span>
-              </div>
-              <span className="text-xs text-slate-400 font-mono">
-                {progress}%
-              </span>
-            </div>
+            <ChecklistHeader
+              list={list}
+              cardId={cardId}
+              projectId={projectId}
+              progress={progress}
+            />
 
             {/* Progress bar */}
             <div className="w-full h-1.5 bg-slate-100 dark:bg-muted rounded-full overflow-hidden">
               <div
-                className="h-full bg-teal-500 transition-all duration-300 rounded-full"
+                className="h-full bg-primary transition-all duration-300 rounded-full"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -130,10 +130,43 @@ export const CardChecklists: React.FC<CardChecklistsProps> = ({
           onClick={() => setIsAddingChecklist(true)}
           className="w-full border-dashed"
         >
-          <Plus className="w-4 h-4 mr-1.5" />
+          <Plus className="w-4 h-4 me-1.5" />
           Add Checklist
         </Button>
       )}
+    </div>
+  );
+};
+
+const ChecklistHeader = ({
+  list,
+  cardId,
+  projectId,
+  progress,
+}: {
+  list: Checklist;
+  cardId: string;
+  projectId: string;
+  progress: number;
+}) => {
+  const update = useUpdateChecklist(cardId, projectId);
+  const remove = useDeleteChecklist(cardId, projectId);
+  return (
+    <div className="flex items-center gap-2 min-w-0">
+      <CheckSquare className="w-4 h-4 text-primary shrink-0" />
+      <h3 className="font-semibold text-sm min-w-0 flex-1 break-words">
+        {list.title}
+      </h3>
+      <span className="text-xs text-muted-foreground font-mono shrink-0">
+        {progress}%
+      </span>
+      <ChecklistActions
+        kind="checklist"
+        title={list.title}
+        maxLength={100}
+        onSave={(title) => update.mutateAsync({ id: list.id, title })}
+        onDelete={() => remove.mutateAsync(list.id)}
+      />
     </div>
   );
 };
@@ -150,6 +183,7 @@ const ChecklistItemRow: React.FC<ChecklistItemRowProps> = ({
   item,
 }) => {
   const updateItem = useUpdateChecklistItem(cardId, projectId);
+  const deleteItem = useDeleteChecklistItem(cardId, projectId);
   const { data: members = [] } = useProjectMembers(projectId);
 
   const handleToggle = () => {
@@ -160,42 +194,63 @@ const ChecklistItemRow: React.FC<ChecklistItemRowProps> = ({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2.5 py-1 px-1 rounded hover:bg-slate-50 dark:hover:bg-muted/40 transition-colors group">
-      <Checkbox checked={item.is_done} onChange={handleToggle} />
-      <span
-        onClick={handleToggle}
-        className={`text-sm cursor-pointer select-none flex-1 ${
-          item.is_done
-            ? "line-through text-slate-400"
-            : "text-slate-900 dark:text-slate-100"
-        }`}
-      >
-        {item.title}
-      </span>
-      <div className="w-32">
-        <Input
-          type="date"
-          aria-label={`Due date for ${item.title}`}
-          value={item.due_date?.slice(0, 10) || ""}
-          onChange={(e) =>
-            updateItem.mutate({
-              itemId: item.id,
-              due_date: e.target.value || null,
-            })
+    <div className="grid grid-cols-[20px_minmax(0,1fr)] gap-x-3 gap-y-2 p-2 rounded-xl hover:bg-muted/40 transition-colors group">
+      <Checkbox
+        aria-label={"Complete " + item.title}
+        disabled={updateItem.isPending}
+        checked={item.is_done}
+        onChange={handleToggle}
+      />
+      <div className="flex items-start gap-2 min-w-0">
+        <span
+          className={
+            "text-sm min-w-0 flex-1 break-words py-1 " +
+            (item.is_done
+              ? "line-through text-muted-foreground"
+              : "text-foreground")
+          }
+        >
+          {item.title}
+        </span>
+        <ChecklistActions
+          kind="item"
+          title={item.title}
+          maxLength={255}
+          onSave={(title) => updateItem.mutateAsync({ itemId: item.id, title })}
+          onDelete={() => deleteItem.mutateAsync(item.id)}
+        />
+      </div>
+      <div className="col-start-2 grid grid-cols-1 sm:grid-cols-2 gap-2 min-w-0">
+        <div className="min-w-0">
+          <Input
+            type="date"
+            label="Due date"
+            aria-label={`Due date for ${item.title}`}
+            value={item.due_date?.slice(0, 10) || ""}
+            onChange={(e) =>
+              updateItem.mutate({
+                itemId: item.id,
+                due_date: e.target.value || null,
+              })
+            }
+          />
+        </div>
+        <CustomSelect
+          label="Assignee"
+          className="min-w-0"
+          value={item.assignee_id || ""}
+          options={[
+            { value: "", label: "Unassigned" },
+            ...members.map((m) => ({
+              value: m.user_id,
+              label: m.display_name,
+            })),
+          ]}
+          onChange={(id) =>
+            updateItem.mutate({ itemId: item.id, assignee_id: id || null })
           }
         />
       </div>
-      <CustomSelect
-        className="w-36"
-        value={item.assignee_id || ""}
-        options={[
-          { value: "", label: "Unassigned" },
-          ...members.map((m) => ({ value: m.user_id, label: m.display_name })),
-        ]}
-        onChange={(id) =>
-          updateItem.mutate({ itemId: item.id, assignee_id: id || null })
-        }
-      />
     </div>
   );
 };

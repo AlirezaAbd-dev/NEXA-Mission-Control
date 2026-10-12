@@ -9,3 +9,6 @@ export * from "./Badge";
 export * from "./Avatar";
 export * from "./Select";
 export * from "./Checkbox";
+
+export * from "./DatePicker";
+export * from "./SearchableSelect";

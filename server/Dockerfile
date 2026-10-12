@@ -19,14 +19,14 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y ca-certificates libssl3 sqlite3 curl && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app/target/release/taskflow-server /app/taskflow-server
+COPY --from=builder /app/target/release/mission-control-server /app/mission-control-server
 COPY --from=builder /app/migrations /app/migrations
 
 ENV PORT=8000
 ENV HOST=0.0.0.0
-ENV DATABASE_URL=sqlite:///data/taskflow.db?mode=rwc
+ENV DATABASE_URL=sqlite:///data/mission-control.db?mode=rwc
 ENV UPLOAD_DIR=/uploads
 
 EXPOSE 8000
 
-CMD ["/app/taskflow-server"]
+CMD ["/app/mission-control-server"]

@@ -1,6 +1,7 @@
 import { CardSubtasks } from "./CardSubtasks";
 import React from "react";
 import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/Button";
 import { CardHeader } from "./CardHeader";
 import { CardDescription } from "./CardDescription";
 import { CardChecklists } from "./CardChecklists";
@@ -20,6 +21,7 @@ export const CardDetailModal: React.FC = () => {
     "comments",
   );
 
+  const [pane, setPane] = React.useState<"details" | "properties">("details");
   const { data: card, isLoading } = useCard(activeCardId || "");
   const { data: board } = useBoard(card?.project_id || "");
 
@@ -30,23 +32,54 @@ export const CardDetailModal: React.FC = () => {
       isOpen={!!activeCardId}
       onClose={closeCardModal}
       size="2xl"
-      className="max-h-[calc(100dvh-2rem)]"
+      className="max-w-6xl h-[min(880px,calc(100dvh-2rem))] md:bg-card md:backdrop-blur-none"
+      hideHeaderClose={!!card}
+      header={
+        card ? <CardHeader card={card} onClose={closeCardModal} /> : undefined
+      }
+      contentClassName="p-0 sm:p-0 flex flex-col overflow-hidden"
     >
       {isLoading || !card ? (
         <div className="p-12 text-center text-slate-500 animate-pulse">
           Loading card details...
         </div>
       ) : (
-        <div className="flex flex-col min-w-0">
-          {/* Header */}
-          <div className="pb-2 pe-8">
-            <CardHeader card={card} />
+        <div className="flex flex-col flex-1 min-w-0 min-h-0">
+          <div
+            role="group"
+            aria-label="Task sections"
+            className="flex gap-1 border-b border-border bg-muted/20 px-4 py-2 lg:hidden"
+          >
+            <Button
+              variant={pane === "details" ? "secondary" : "ghost"}
+              size="sm"
+              aria-pressed={pane === "details"}
+              onClick={() => setPane("details")}
+            >
+              Details & activity
+            </Button>
+            <Button
+              data-task-properties
+              variant={pane === "properties" ? "secondary" : "ghost"}
+              size="sm"
+              aria-pressed={pane === "properties"}
+              onClick={() => setPane("properties")}
+            >
+              Properties
+            </Button>
           </div>
 
           {/* Main Body */}
-          <div className="py-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px]">
             {/* Left Column (2/3 width) */}
-            <div className="md:col-span-2 space-y-6">
+            <div
+              role="region"
+              aria-label="Task details and activity"
+              className={
+                "min-w-0 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-6 lg:block " +
+                (pane === "details" ? "block" : "hidden")
+              }
+            >
               <CardDescription card={card} />
               <CardSubtasks card={card} />
               <CardChecklists cardId={card.id} projectId={card.project_id} />
@@ -96,13 +129,15 @@ export const CardDetailModal: React.FC = () => {
             </div>
 
             {/* Right Column (1/3 width) */}
-            <div className="md:col-span-1 border-t md:border-t-0 md:border-l border-slate-200 dark:border-[#183035] md:pl-6 pt-4 md:pt-0">
-              <CardSidebar
-                card={card}
-                columns={board?.columns}
-                onClose={closeCardModal}
-              />
-            </div>
+            <aside
+              aria-label="Task properties"
+              className={
+                "min-w-0 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-5 bg-muted/20 lg:border-s border-border lg:block " +
+                (pane === "properties" ? "block" : "hidden")
+              }
+            >
+              <CardSidebar card={card} columns={board?.columns} />
+            </aside>
           </div>
         </div>
       )}

@@ -1,176 +1,213 @@
-import React, { useState } from "react";
-import { Palette, FileText } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Palette, FileText, Pencil, X, Check } from "lucide-react";
+import { Button, Input } from "@/components/ui";
 import { useUpdateCard } from "@/hooks/card/useUpdateCard";
+import { CardRemoveButton } from "./CardRemoveButton";
 import { CardWatchers } from "./CardWatchers";
 import { CardVoteButton } from "./CardVoteButton";
 import type { Card } from "@/types";
-
 interface CardHeaderProps {
   card: Card;
   onClose?: () => void;
 }
-
-const COVER_COLORS = [
-  "#0d9488", // Teal
-  "#2dd4bf", // Cyan
-  "#3b82f6", // Blue
-  "#8b5cf6", // Violet
-  "#ec4899", // Pink
-  "#ef4444", // Red
-  "#f97316", // Orange
-  "#eab308", // Amber
-  "#10b981", // Emerald
-  "#64748b", // Slate
+const colors = [
+  ["#0d9488", "Teal"],
+  ["#2dd4bf", "Mint"],
+  ["#3b82f6", "Blue"],
+  ["#8b5cf6", "Violet"],
+  ["#ec4899", "Pink"],
+  ["#ef4444", "Red"],
+  ["#f97316", "Orange"],
+  ["#eab308", "Amber"],
+  ["#10b981", "Emerald"],
+  ["#64748b", "Slate"],
 ];
-
-export const CardHeader: React.FC<CardHeaderProps> = ({
-  card,
-  onClose: _onClose,
-}) => {
-  const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [title, setTitle] = useState(card.title);
-  const [showColorPicker, setShowColorPicker] = useState(false);
-  const updateCard = useUpdateCard(card.project_id);
-
-  const handleTitleSubmit = () => {
-    setIsEditingTitle(false);
-    if (title.trim() && title !== card.title) {
-      updateCard.mutate({
-        id: card.id,
-        title: title.trim(),
-      });
-    } else {
-      setTitle(card.title);
+export function CardHeader({ card, onClose }: CardHeaderProps) {
+  const [editing, setEditing] = useState(false),
+    [title, setTitle] = useState(card.title),
+    [palette, setPalette] = useState(false);
+  const titleControl = useRef<HTMLButtonElement>(null);
+  const picker = useRef<HTMLDivElement>(null),
+    cancel = useRef(false),
+    update = useUpdateCard(card.project_id);
+  useEffect(() => {
+    if (!palette) return;
+    const close = (event: PointerEvent) => {
+      if (!picker.current?.contains(event.target as Node)) setPalette(false);
+    };
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
+  }, [palette]);
+  const commit = () => {
+    setEditing(false);
+    if (cancel.current) {
+      cancel.current = false;
+      return;
     }
+    if (title.trim() && title.trim() !== card.title)
+      update.mutate({ id: card.id, title: title.trim() });
+    else setTitle(card.title);
   };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleTitleSubmit();
-    } else if (e.key === "Escape") {
-      setTitle(card.title);
-      setIsEditingTitle(false);
-    }
-  };
-
-  const handleSetColorCover = (color: string) => {
-    updateCard.mutate({
-      id: card.id,
-      cover_url: card.cover_url === color ? "" : color,
-    });
-    setShowColorPicker(false);
-  };
-
-  const hasColorCover = card.cover_url && card.cover_url.startsWith("#");
-  const hasImageCover = card.cover_url && !card.cover_url.startsWith("#");
-
+  const hasCover = !!card.cover_url;
   return (
-    <div className="space-y-3">
-      {/* Visual Cover Banner if Active */}
-      {hasColorCover && (
+    <header className="relative border-b border-border bg-card">
+      {hasCover && (
         <div
-          className="h-24 -mx-6 -mt-6 mb-3 rounded-t-xl transition-all shadow-inner relative"
-          style={{ backgroundColor: card.cover_url! }}
-        />
-      )}
-
-      {hasImageCover && (
-        <div className="h-44 -mx-6 -mt-6 mb-3 rounded-t-xl overflow-hidden bg-slate-100 dark:bg-[#070e10] relative">
-          <img
-            src={card.cover_url!}
-            alt={card.title}
-            className="w-full h-full object-cover"
-          />
+          className="h-16 sm:h-20 w-full overflow-hidden"
+          style={
+            card.cover_url?.startsWith("#")
+              ? { backgroundColor: card.cover_url }
+              : undefined
+          }
+        >
+          {!card.cover_url?.startsWith("#") && (
+            <img
+              src={card.cover_url!}
+              alt=""
+              className="h-full w-full object-cover"
+            />
+          )}
         </div>
       )}
-
-      <div className="pb-3 border-b border-slate-200/80 dark:border-[#183035] pr-10">
-        <div className="flex items-center gap-2 mb-2 flex-wrap justify-between">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#132428] text-slate-600 dark:text-teal-400 border border-slate-200/60 dark:border-[#183035] uppercase">
-              CARD-{card.id.slice(0, 6)}
+      {onClose && (
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Close modal"
+          title="Close (Esc)"
+          onClick={onClose}
+          className="absolute top-3 end-3 z-30 h-9 w-9 rounded-xl border border-border bg-card/95 text-foreground shadow-sm hover:bg-muted"
+        >
+          <X size={17} />
+        </Button>
+      )}
+      <div
+        className={
+          "p-4 sm:px-6 sm:py-4 space-y-3 " + (!hasCover ? "pe-16 sm:pe-16" : "")
+        }
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center flex-wrap gap-2">
+            <span className="rounded-lg bg-primary/10 px-2 py-1 text-[11px] font-mono font-semibold text-primary">
+              CARD-{card.id.slice(-6).toUpperCase()}
             </span>
-
             {card.is_template && (
-              <span className="text-[11px] px-2 py-0.5 rounded-md bg-teal-500/10 text-teal-500 font-semibold border border-teal-500/20 flex items-center gap-1">
-                <FileText className="w-3 h-3" />
+              <span className="text-xs flex items-center gap-1 text-primary">
+                <FileText size={12} />
                 Template
               </span>
             )}
-
             {card.archived_at && (
-              <span className="text-[11px] px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-500 font-semibold border border-amber-500/20">
-                Archived
-              </span>
+              <span className="text-xs text-warning">Archived</span>
             )}
-
-            {/* Quick Cover Palette Button */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setShowColorPicker(!showColorPicker)}
-                className="text-[11px] px-2.5 py-0.5 rounded-md flex items-center gap-1.5 bg-slate-100 dark:bg-[#132428] text-slate-600 dark:text-slate-300 hover:text-teal-500 border border-slate-200/60 dark:border-[#183035] transition-colors cursor-pointer font-medium"
-                title="Change Cover Color"
+            <div
+              ref={picker}
+              className="relative"
+              onKeyDown={(e) => {
+                if (e.key === "Escape" && palette) {
+                  e.stopPropagation();
+                  setPalette(false);
+                }
+              }}
+            >
+              <Button
+                size="sm"
+                variant="ghost"
+                aria-expanded={palette}
+                aria-label="Choose task cover"
+                onClick={() => setPalette((v) => !v)}
+                className="h-7 px-2 text-xs text-muted-foreground"
               >
-                <Palette className="w-3 h-3 text-teal-500" />
-                <span>Cover</span>
-              </button>
-
-              {showColorPicker && (
-                <div className="absolute z-50 left-0 mt-1 p-2 bg-white dark:bg-[#0d1a1d] border border-slate-200 dark:border-[#183035] rounded-xl shadow-xl flex gap-1.5 flex-wrap w-44 animate-in fade-in zoom-in-95 duration-100">
-                  {COVER_COLORS.map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => handleSetColorCover(c)}
-                      className="w-6 h-6 rounded-md transition-transform hover:scale-110 border border-black/10 cursor-pointer"
-                      style={{ backgroundColor: c }}
-                      title={c}
-                    />
-                  ))}
-                  {card.cover_url && (
-                    <button
-                      type="button"
-                      onClick={() => handleSetColorCover("")}
-                      className="w-full text-center text-[10px] text-slate-400 hover:text-rose-500 pt-1 cursor-pointer font-medium"
+                <Palette size={13} />
+                Cover
+              </Button>
+              {palette && (
+                <div className="absolute start-0 top-full mt-2 z-40 w-60 rounded-2xl border border-border bg-card text-foreground p-3 shadow-xl">
+                  <p className="text-xs font-semibold mb-3">Cover color</p>
+                  <div className="grid grid-cols-5 gap-2">
+                    {colors.map(([color, name]) => (
+                      <Button
+                        key={color}
+                        size="icon"
+                        aria-label={name + " cover"}
+                        aria-pressed={card.cover_url === color}
+                        title={name}
+                        onClick={() => {
+                          update.mutate({ id: card.id, cover_url: color });
+                          setPalette(false);
+                        }}
+                        className="h-8 w-8 rounded-lg border border-black/10 text-white"
+                        style={{ backgroundColor: color }}
+                      >
+                        {card.cover_url === color && <Check size={16} />}
+                      </Button>
+                    ))}
+                  </div>
+                  {hasCover && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="mt-3 w-full"
+                      onClick={() => {
+                        update.mutate({ id: card.id, cover_url: "" });
+                        setPalette(false);
+                      }}
                     >
-                      Clear Cover
-                    </button>
+                      Remove cover
+                    </Button>
                   )}
                 </div>
               )}
             </div>
           </div>
-
-          {/* Productivity actions: Watchers & Votes */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <CardWatchers card={card} />
             <CardVoteButton card={card} />
+            <CardRemoveButton card={card} onRemoved={onClose} />
           </div>
         </div>
-
-        {isEditingTitle ? (
-          <input
-            type="text"
+        {editing ? (
+          <Input
+            aria-label="Task title"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={handleTitleSubmit}
-            onKeyDown={handleKeyDown}
+            maxLength={255}
             autoFocus
-            className="w-full text-xl font-bold bg-white dark:bg-[#091316] text-slate-900 dark:text-slate-100 border border-teal-500/50 dark:border-teal-500/60 rounded-lg px-2.5 py-1 outline-none ring-2 ring-teal-500/20"
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                e.currentTarget.blur();
+                requestAnimationFrame(() => titleControl.current?.focus());
+              } else if (e.key === "Escape") {
+                e.stopPropagation();
+                cancel.current = true;
+                e.currentTarget.blur();
+                requestAnimationFrame(() => titleControl.current?.focus());
+              }
+            }}
+            className="font-semibold"
           />
         ) : (
-          <h2
-            onClick={() => {
-              setTitle(card.title);
-              setIsEditingTitle(true);
-            }}
-            className="text-xl font-bold text-slate-900 dark:text-slate-100 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-[#132428] rounded-lg px-2 py-1 -mx-2 transition-colors tracking-tight"
-          >
-            {card.title}
+          <h2 className="min-w-0">
+            <Button
+              ref={titleControl}
+              variant="ghost"
+              disabled={update.isPending}
+              onClick={() => {
+                cancel.current = false;
+                setTitle(card.title);
+                setEditing(true);
+              }}
+              title="Edit task title"
+              className="h-auto min-h-9 w-full justify-start px-0 hover:bg-transparent gap-2 text-start text-lg sm:text-xl font-bold whitespace-normal leading-snug"
+            >
+              <span className="min-w-0 break-words">{card.title}</span>
+              <Pencil size={14} className="shrink-0 text-muted-foreground" />
+            </Button>
           </h2>
         )}
       </div>
-    </div>
+    </header>
   );
-};
+}

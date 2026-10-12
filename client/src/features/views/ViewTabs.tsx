@@ -17,6 +17,7 @@ const tabs = [
   { key: "backlog", title: "Backlog", icon: Layers },
   { key: "insights", title: "Insights", icon: ChartNoAxesCombined },
   { key: "automation", title: "Automation", icon: Zap },
+  { key: "service-desk", title: "Service desk", icon: Layers },
   { key: "governance", title: "Project settings", icon: Shield },
 ];
 export function ViewTabs({ projectId }: { projectId: string }) {

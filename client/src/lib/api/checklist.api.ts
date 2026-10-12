@@ -1,14 +1,27 @@
-import { apiClient } from './client';
-import type { Checklist, ChecklistItem } from '@/types';
+import { apiClient } from "./client";
+import type { Checklist, ChecklistItem } from "@/types";
 
 export const checklistApi = {
   listByCard: async (cardId: string): Promise<Checklist[]> => {
-    const res = await apiClient.get<Checklist[]>('/checklists', { params: { card_id: cardId } });
+    const res = await apiClient.get<Checklist[]>("/checklists", {
+      params: { card_id: cardId },
+    });
     return res.data;
   },
 
-  createChecklist: async (cardId: string, title: string): Promise<Checklist> => {
-    const res = await apiClient.post<Checklist>('/checklists', { card_id: cardId, title });
+  createChecklist: async (
+    cardId: string,
+    title: string,
+  ): Promise<Checklist> => {
+    const res = await apiClient.post<Checklist>("/checklists", {
+      card_id: cardId,
+      title,
+    });
+    return res.data;
+  },
+
+  updateChecklist: async (id: string, title: string): Promise<Checklist> => {
+    const res = await apiClient.put<Checklist>("/checklists/" + id, { title });
     return res.data;
   },
 
@@ -16,16 +29,30 @@ export const checklistApi = {
     await apiClient.delete(`/checklists/${id}`);
   },
 
-  createItem: async (checklistId: string, data: { title: string; assignee_id?: string; due_date?: string }): Promise<ChecklistItem> => {
-    const res = await apiClient.post<ChecklistItem>(`/checklists/${checklistId}/items`, data);
+  createItem: async (
+    checklistId: string,
+    data: { title: string; assignee_id?: string; due_date?: string },
+  ): Promise<ChecklistItem> => {
+    const res = await apiClient.post<ChecklistItem>(
+      `/checklists/${checklistId}/items`,
+      data,
+    );
     return res.data;
   },
 
   updateItem: async (
     itemId: string,
-    data: { title?: string; is_done?: boolean; assignee_id?: string | null; due_date?: string | null }
+    data: {
+      title?: string;
+      is_done?: boolean;
+      assignee_id?: string | null;
+      due_date?: string | null;
+    },
   ): Promise<ChecklistItem> => {
-    const res = await apiClient.put<ChecklistItem>(`/checklists/items/${itemId}`, data);
+    const res = await apiClient.put<ChecklistItem>(
+      `/checklists/items/${itemId}`,
+      data,
+    );
     return res.data;
   },
 

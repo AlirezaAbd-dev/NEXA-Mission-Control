@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
-import apiClient from '@/lib/api/client';
-import { QUERY_KEYS } from '@/constants/queryKeys';
+import { useQuery } from "@tanstack/react-query";
+import apiClient from "@/lib/api/client";
+import { QUERY_KEYS } from "@/constants/queryKeys";
 
 export interface Activity {
   id: string;
@@ -11,7 +11,7 @@ export interface Activity {
   actor_name: string;
   actor_avatar?: string | null;
   action: string;
-  payload: any;
+  payload: Record<string, unknown>;
   created_at: string;
 }
 
@@ -19,7 +19,7 @@ export const useCardActivities = (cardId: string) => {
   return useQuery<Activity[]>({
     queryKey: QUERY_KEYS.activities.byCard(cardId),
     queryFn: async () => {
-      const res = await apiClient.get<Activity[]>('/activities', {
+      const res = await apiClient.get<Activity[]>("/activities", {
         params: { card_id: cardId },
       });
       return res.data;
