@@ -1,9 +1,9 @@
-import { Markdown } from "@/components/common/Markdown";
 import React, { useState } from "react";
-import { AlignLeft, Check, X } from "lucide-react";
+import { AlignLeft, Check, X, Edit3 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Textarea } from "@/components/ui/Textarea";
+import { RichTextEditor } from "@/components/ui/RichTextEditor";
 import { useUpdateCard } from "@/hooks/card/useUpdateCard";
+import { useUploadAttachment } from "@/hooks/enterprise/useUploadAttachment";
 import type { Card } from "@/types";
 
 interface CardDescriptionProps {
@@ -14,6 +14,7 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [description, setDescription] = useState(card.description || "");
   const updateCard = useUpdateCard(card.project_id);
+  const uploadAttachment = useUploadAttachment(card.project_id, card.id);
 
   const handleSave = () => {
     updateCard.mutate(
@@ -32,28 +33,51 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
     setIsEditing(false);
   };
 
+  const handleImageUpload = async (file: File): Promise<string> => {
+    const attachment = await uploadAttachment.mutateAsync(file);
+    return attachment.file_path;
+  };
+
+  const hasDescription = Boolean(card.description && card.description.trim());
+
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-        <AlignLeft className="w-4 h-4 text-slate-400" />
-        <span>Description</span>
+    <div className="space-y-2.5">
+      <div className="flex items-center justify-between text-sm font-semibold text-slate-900 dark:text-slate-100">
+        <div className="flex items-center gap-2">
+          <AlignLeft className="w-4 h-4 text-teal-500" />
+          <span>Description</span>
+        </div>
+        {!isEditing && hasDescription && (
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              setDescription(card.description || "");
+              setIsEditing(true);
+            }}
+            className="h-7 text-xs text-muted-foreground hover:text-foreground"
+          >
+            <Edit3 className="w-3.5 h-3.5 mr-1 text-teal-500" />
+            Edit
+          </Button>
+        )}
       </div>
 
       {isEditing ? (
-        <div className="space-y-2">
-          <Textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Add a more detailed description..."
-            rows={4}
-            className="w-full resize-none"
-            autoFocus
+        <div className="space-y-2.5">
+          <RichTextEditor
+            content={description}
+            onChange={(val) => setDescription(val)}
+            onImageUpload={handleImageUpload}
+            placeholder="Add rich description, paste or drop images, checklists, code, tables..."
+            minHeight="220px"
           />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 pt-1">
             <Button
               size="sm"
               onClick={handleSave}
               isLoading={updateCard.isPending}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-xs"
             >
               <Check className="w-4 h-4 mr-1" />
               Save
@@ -70,19 +94,25 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
             setDescription(card.description || "");
             setIsEditing(true);
           }}
-          className={`p-3 rounded-lg border border-transparent hover:border-slate-200 dark:hover:border-border cursor-pointer transition-colors text-sm ${
-            card.description
-              ? "text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-card/50 whitespace-pre-wrap"
-              : "text-slate-400 bg-slate-50/50 dark:bg-card/30 hover:bg-slate-100 dark:hover:bg-muted/50 italic"
+          className={`group relative p-4 rounded-2xl border transition-all duration-200 cursor-pointer ${
+            hasDescription
+              ? "border-border/60 bg-card/60 dark:bg-card/40 hover:border-primary/50 hover:bg-card text-foreground"
+              : "border-dashed border-border/80 bg-muted/20 dark:bg-card/20 hover:border-primary/60 hover:bg-muted/40 text-muted-foreground italic text-sm"
           }`}
         >
-          {card.description ? (
-            <Markdown text={card.description} />
+          {hasDescription ? (
+            <div
+              className="prose prose-sm dark:prose-invert max-w-none text-sm break-words leading-relaxed overflow-x-auto"
+              dangerouslySetInnerHTML={{ __html: card.description! }}
+            />
           ) : (
-            "Add a detailed description…"
+            <div className="flex items-center gap-2 py-1 text-muted-foreground">
+              <span>Add a rich description, paste images, tables, checklists…</span>
+            </div>
           )}
         </div>
       )}
     </div>
   );
 };
+
