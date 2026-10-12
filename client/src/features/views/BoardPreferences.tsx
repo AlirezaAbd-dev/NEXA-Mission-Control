@@ -46,14 +46,21 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
         }))}
       />
       <CustomSelect
-        className="w-28 sm:w-32"
+        className="w-32 sm:w-36"
         size="sm"
         value={pref.background || "petrol"}
         onChange={(background) => save.mutate({ ...pref, background })}
-        options={["petrol", "teal", "sunset", "neutral"].map((value) => ({
-          value,
-          label: value,
-        }))}
+        options={[
+          { value: "petrol", label: "Petrol Dark" },
+          { value: "teal", label: "Teal Glow" },
+          { value: "ocean", label: "Ocean Blue" },
+          { value: "emerald", label: "Emerald Green" },
+          { value: "sunset", label: "Sunset Twilight" },
+          { value: "midnight", label: "Midnight Indigo" },
+          { value: "purple", label: "Deep Purple" },
+          { value: "slate", label: "Modern Slate" },
+          { value: "neutral", label: "Neutral Minimal" },
+        ]}
       />
       <CustomSelect
         className="w-32 sm:w-36"
