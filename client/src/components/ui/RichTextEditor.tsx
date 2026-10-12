@@ -214,19 +214,74 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   };
 
+  const [linkText, setLinkText] = useState("");
+  const [linkRange, setLinkRange] = useState<{ from: number; to: number } | null>(null);
+
+  const handleOpenLinkModal = () => {
+    if (!editor) return;
+    const { from, to } = editor.state.selection;
+    const selectedText = editor.state.doc.textBetween(from, to, " ");
+    const prevUrl = editor.getAttributes("link").href || "";
+    setLinkRange({ from, to });
+    setLinkText(selectedText);
+    setLinkUrl(prevUrl);
+    setLinkModalOpen(true);
+  };
+
   const handleAddLink = () => {
     if (!editor) return;
-    if (!linkUrl) {
+    if (!linkUrl.trim()) {
       editor.chain().focus().extendMarkRange("link").unsetLink().run();
       setLinkModalOpen(false);
       return;
     }
+
     const href = linkUrl.startsWith("http://") || linkUrl.startsWith("https://")
-      ? linkUrl
-      : `https://${linkUrl}`;
-    editor.chain().focus().extendMarkRange("link").setLink({ href }).run();
+      ? linkUrl.trim()
+      : `https://${linkUrl.trim()}`;
+
+    // If custom text was specified and we have a selection range, insert text with link
+    if (linkText.trim()) {
+      if (linkRange && linkRange.from !== linkRange.to) {
+        editor
+          .chain()
+          .focus()
+          .setTextSelection({ from: linkRange.from, to: linkRange.to })
+          .insertContent({
+            type: "text",
+            text: linkText,
+            marks: [{ type: "link", attrs: { href } }],
+          })
+          .run();
+      } else {
+        // No prior selection: insert at current cursor
+        editor
+          .chain()
+          .focus()
+          .insertContent({
+            type: "text",
+            text: linkText,
+            marks: [{ type: "link", attrs: { href } }],
+          })
+          .run();
+      }
+    } else {
+      editor.chain().focus().extendMarkRange("link").setLink({ href }).run();
+    }
+
     setLinkModalOpen(false);
     setLinkUrl("");
+    setLinkText("");
+    setLinkRange(null);
+  };
+
+  const handleRemoveLink = () => {
+    if (!editor) return;
+    editor.chain().focus().extendMarkRange("link").unsetLink().run();
+    setLinkModalOpen(false);
+    setLinkUrl("");
+    setLinkText("");
+    setLinkRange(null);
   };
 
   if (!editor) return null;
@@ -478,20 +533,17 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           <div className="flex items-center gap-0.5 border-r border-border/60 dark:border-white/10 pe-1.5 me-0.5">
             <button
               type="button"
-              title="Add Link"
-              onClick={() => {
-                const prev = editor.getAttributes("link").href;
-                setLinkUrl(prev || "");
-                setLinkModalOpen(true);
-              }}
+              title="Add or Edit Link (Ctrl+K)"
+              onClick={handleOpenLinkModal}
               className={cn(
-                "rounded-lg p-1.5 transition-colors cursor-pointer",
+                "rounded-lg p-1.5 transition-colors cursor-pointer flex items-center gap-1",
                 editor.isActive("link")
-                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  ? "bg-primary text-primary-foreground shadow-2xs font-semibold"
                   : "text-muted-foreground hover:bg-muted dark:hover:bg-white/10 hover:text-foreground",
               )}
             >
               <Link2 className="h-3.5 w-3.5" />
+              <span className="text-[11px] hidden sm:inline">Link</span>
             </button>
 
             <button
@@ -534,39 +586,95 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         </div>
       )}
 
-      {/* Quick link popover modal */}
+      {/* Advanced Link Popover Dialog */}
       {linkModalOpen && (
-        <div className="p-2 border-b border-border/80 bg-muted/60 dark:bg-black/40 flex items-center gap-2 text-xs">
-          <input
-            type="url"
-            placeholder="https://example.com"
-            value={linkUrl}
-            onChange={(e) => setLinkUrl(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleAddLink();
-              } else if (e.key === "Escape") {
-                setLinkModalOpen(false);
-              }
-            }}
-            className="flex-1 rounded-lg border border-border px-2 py-1 text-xs bg-background text-foreground outline-none focus:border-primary"
-            autoFocus
-          />
-          <button
-            type="button"
-            onClick={handleAddLink}
-            className="rounded-lg px-2.5 py-1 bg-primary text-primary-foreground font-semibold cursor-pointer"
-          >
-            Apply
-          </button>
-          <button
-            type="button"
-            onClick={() => setLinkModalOpen(false)}
-            className="rounded-lg px-2 py-1 text-muted-foreground hover:text-foreground cursor-pointer"
-          >
-            Cancel
-          </button>
+        <div className="p-3 border-b border-border/80 bg-muted/70 dark:bg-black/50 space-y-2 text-xs backdrop-blur-md animate-in fade-in duration-150">
+          <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground">
+            <span className="flex items-center gap-1 text-primary">
+              <Link2 className="h-3 w-3" />
+              Insert / Edit Link
+            </span>
+            <span className="text-[10px] text-muted-foreground/80 font-normal">
+              Press Enter to save · Esc to close
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <label className="text-[10px] font-semibold text-muted-foreground uppercase">
+                Display Text
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Click here, Documentation, Figma"
+                value={linkText}
+                onChange={(e) => setLinkText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddLink();
+                  } else if (e.key === "Escape") {
+                    setLinkModalOpen(false);
+                  }
+                }}
+                className="w-full rounded-xl border border-border/80 bg-background px-2.5 py-1.5 text-xs text-foreground outline-none focus:border-primary shadow-2xs"
+                autoFocus={!linkText}
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-semibold text-muted-foreground uppercase">
+                Link URL
+              </label>
+              <input
+                type="url"
+                placeholder="https://example.com/page"
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddLink();
+                  } else if (e.key === "Escape") {
+                    setLinkModalOpen(false);
+                  }
+                }}
+                className="w-full rounded-xl border border-border/80 bg-background px-2.5 py-1.5 text-xs text-foreground outline-none focus:border-primary shadow-2xs"
+                autoFocus={Boolean(linkText)}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between pt-1">
+            {editor.isActive("link") ? (
+              <button
+                type="button"
+                onClick={handleRemoveLink}
+                className="text-[11px] text-rose-500 hover:underline font-semibold cursor-pointer"
+              >
+                Remove Link
+              </button>
+            ) : (
+              <span />
+            )}
+
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setLinkModalOpen(false)}
+                className="rounded-lg px-2.5 py-1 text-muted-foreground hover:text-foreground cursor-pointer text-xs"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleAddLink}
+                className="rounded-lg px-3 py-1 bg-primary text-primary-foreground font-semibold cursor-pointer shadow-xs text-xs"
+              >
+                Save Link
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
