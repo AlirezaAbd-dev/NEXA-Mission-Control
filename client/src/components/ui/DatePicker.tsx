@@ -8,7 +8,6 @@ import {
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CustomSelect } from "./CustomSelect";
 import {
   calendarValue,
   parseCalendarValue,
@@ -31,6 +30,7 @@ export interface DatePickerProps {
   triggerClassName?: string;
   ariaLabel?: string;
 }
+
 const EN_MONTH_NAMES = [
   "January",
   "February",
@@ -45,6 +45,7 @@ const EN_MONTH_NAMES = [
   "November",
   "December",
 ];
+
 const weekdays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 const pad2 = (n: number) => String(n).padStart(2, "0");
 const formatNumber = (
@@ -53,6 +54,7 @@ const formatNumber = (
   options?: Intl.NumberFormatOptions,
 ) => new Intl.NumberFormat("en-US", options).format(n);
 const numberLocale = "en-US";
+
 const translations: Record<string, string> = {
   "common.selectDate": "Select date",
   "common.selectDateTime": "Select date and time",
@@ -61,27 +63,7 @@ const translations: Record<string, string> = {
   "common.today": "Today",
   "common.done": "Done",
 };
-const t = (key: string, _fallback: string) => translations[key] || key;
-function CalendarSelect({
-  value,
-  options,
-  onChange,
-  ariaLabel,
-}: {
-  value: number;
-  options: { value: number; label: string }[];
-  onChange: (value: string) => void;
-  ariaLabel: string;
-}) {
-  return (
-    <CustomSelect
-      value={String(value)}
-      options={options.map((o) => ({ ...o, value: String(o.value) }))}
-      onChange={onChange}
-      ariaLabel={ariaLabel}
-    />
-  );
-}
+const t = (key: string, fallback: string) => translations[key] || fallback;
 
 // Adapted from frontend/src/components/ui/date-picker.tsx; Gregorian only.
 export function DatePicker({
@@ -143,10 +125,10 @@ export function DatePicker({
       const rect = containerRef.current?.getBoundingClientRect();
       if (!rect) return;
       const height = Math.min(
-          type === "datetime-local" ? 440 : 360,
+          type === "datetime-local" ? 460 : 360,
           window.innerHeight - 24,
         ),
-        width = Math.min(320, window.innerWidth - 24);
+        width = Math.min(336, window.innerWidth - 24);
       const isUp =
         rect.bottom + height + 8 > window.innerHeight && rect.top > height;
       setCoords({
@@ -383,7 +365,7 @@ export function DatePicker({
               position: "fixed",
               top: coords.top,
               left: coords.left,
-              width: Math.min(320, window.innerWidth - 24),
+              width: Math.min(336, window.innerWidth - 24),
               zIndex: 9999,
             }}
           >
@@ -474,38 +456,102 @@ export function DatePicker({
               {/* Time Picker Section (if datetime-local) */}
               {type === "datetime-local" && (
                 <div className="mt-3.5 border-t border-border/60 dark:border-white/10 pt-3">
-                  <div className="flex items-center justify-between gap-2 text-xs">
-                    <div className="flex items-center gap-1.5 font-bold text-muted-foreground">
-                      <Clock className="h-4 w-4 text-primary" />
-                      <span>{t("common.selectTime", "ساعت")}</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 font-bold text-xs text-muted-foreground">
+                      <Clock className="h-3.5 w-3.5 text-primary" />
+                      <span>{t("common.selectTime", "Time")}</span>
                     </div>
-                    <div className="flex items-center gap-1.5" dir="ltr">
-                      <CalendarSelect
-                        value={selectedHours}
 
-                        ariaLabel="Hour"
-                        options={Array.from({ length: 24 }).map((_, h) => ({
-                          value: h,
-                          label: pad2(h),
-                        }))}
-                        onChange={(val) =>
-                          handleTimeChange(Number(val), selectedMinutes)
-                        }
+                    {/* Numeric HH : MM Direct Input Controls */}
+                    <div className="flex items-center gap-1 rounded-xl border border-border/70 bg-background/80 dark:border-white/10 dark:bg-black/30 px-2 py-1 shadow-inner" dir="ltr">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        aria-label="Hour (00-23)"
+                        maxLength={2}
+                        value={pad2(selectedHours)}
+                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "");
+                          if (val === "") {
+                            handleTimeChange(0, selectedMinutes);
+                            return;
+                          }
+                          const num = Math.min(23, Math.max(0, parseInt(val, 10)));
+                          handleTimeChange(num, selectedMinutes);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "ArrowUp") {
+                            e.preventDefault();
+                            handleTimeChange((selectedHours + 1) % 24, selectedMinutes);
+                          } else if (e.key === "ArrowDown") {
+                            e.preventDefault();
+                            handleTimeChange((selectedHours + 23) % 24, selectedMinutes);
+                          }
+                        }}
+                        className="w-6 text-center font-mono text-xs font-bold text-foreground bg-transparent outline-none focus:text-primary transition-colors cursor-text"
                       />
-                      <span className="font-bold text-muted-foreground">:</span>
-                      <CalendarSelect
-                        value={selectedMinutes}
-
-                        ariaLabel="Minute"
-                        options={Array.from({ length: 12 }).map((_, m) => ({
-                          value: m * 5,
-                          label: pad2(m * 5),
-                        }))}
-                        onChange={(val) =>
-                          handleTimeChange(selectedHours, Number(val))
-                        }
+                      <span className="font-bold text-muted-foreground/60 select-none text-xs">:</span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        aria-label="Minute (00-59)"
+                        maxLength={2}
+                        value={pad2(selectedMinutes)}
+                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "");
+                          if (val === "") {
+                            handleTimeChange(selectedHours, 0);
+                            return;
+                          }
+                          const num = Math.min(59, Math.max(0, parseInt(val, 10)));
+                          handleTimeChange(selectedHours, num);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "ArrowUp") {
+                            e.preventDefault();
+                            handleTimeChange(selectedHours, (selectedMinutes + 1) % 60);
+                          } else if (e.key === "ArrowDown") {
+                            e.preventDefault();
+                            handleTimeChange(selectedHours, (selectedMinutes + 59) % 60);
+                          }
+                        }}
+                        className="w-6 text-center font-mono text-xs font-bold text-foreground bg-transparent outline-none focus:text-primary transition-colors cursor-text"
                       />
                     </div>
+                  </div>
+
+                  {/* Fast Quick-Select Presets */}
+                  <div className="mt-2.5 flex items-center justify-between gap-1 overflow-x-auto pb-0.5" dir="ltr">
+                    {[
+                      { label: "Now", getH: () => new Date().getHours(), getM: () => new Date().getMinutes() },
+                      { label: "09:00", getH: () => 9, getM: () => 0 },
+                      { label: "12:00", getH: () => 12, getM: () => 0 },
+                      { label: "17:00", getH: () => 17, getM: () => 0 },
+                      { label: "23:59", getH: () => 23, getM: () => 59 },
+                    ].map((preset) => {
+                      const h = preset.getH();
+                      const m = preset.getM();
+                      const isActive = selectedHours === h && selectedMinutes === m;
+                      return (
+                        <button
+                          key={preset.label}
+                          type="button"
+                          onClick={() => handleTimeChange(h, m)}
+                          className={cn(
+                            "flex-1 rounded-lg px-1.5 py-1 text-[11px] font-semibold transition-all cursor-pointer whitespace-nowrap text-center",
+                            isActive
+                              ? "bg-primary text-primary-foreground font-bold shadow-xs"
+                              : "bg-muted/60 text-muted-foreground hover:bg-muted dark:bg-white/5 dark:hover:bg-white/10 hover:text-foreground",
+                          )}
+                        >
+                          {preset.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -523,16 +569,16 @@ export function DatePicker({
                       type === "datetime-local",
                     )
                   }
-                  className="text-primary hover:underline hover:text-primary/80 font-bold transition-colors cursor-pointer"
+                  className="rounded-lg px-2.5 py-1 text-primary hover:bg-primary/10 hover:text-primary font-bold transition-colors cursor-pointer"
                 >
-                  {t("common.today", "امروز")}
+                  {t("common.today", "Today")}
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                  className="rounded-lg px-3 py-1 bg-primary/15 text-primary hover:bg-primary hover:text-primary-foreground font-bold transition-all cursor-pointer"
                 >
-                  {t("common.done", "بستن")}
+                  {t("common.done", "Done")}
                 </button>
               </div>
             </div>
