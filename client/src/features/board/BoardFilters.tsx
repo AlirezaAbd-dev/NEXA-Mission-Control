@@ -36,9 +36,9 @@ export const BoardFilters: React.FC = () => {
     !!selectedLabel;
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 w-full lg:w-auto">
       {/* Search Input */}
-      <div className="w-56 md:w-64">
+      <div className="w-full sm:w-48 md:w-56">
         <Input
           placeholder="Filter cards..."
           value={searchQuery}
@@ -47,10 +47,11 @@ export const BoardFilters: React.FC = () => {
       </div>
 
       {/* Priority Selector */}
-      <div className="w-40">
+      <div className="w-[calc(50%-0.25rem)] sm:w-36">
         <Select
           value={filterPriority}
           onChange={(val) => setFilterPriority(val)}
+          size="sm"
           options={[
             { label: "All Priorities", value: "all" },
             { label: "Urgent", value: "urgent" },
@@ -61,11 +62,12 @@ export const BoardFilters: React.FC = () => {
         />
       </div>
 
-      <div className="w-40">
+      <div className="w-[calc(50%-0.25rem)] sm:w-36">
         <Select
           placeholder="All assignees"
           value={selectedAssignee || ""}
           onChange={(v) => setAssignee(v || null)}
+          size="sm"
           options={[
             { value: "", label: "All assignees" },
             ...assignees.map((a) => ({
@@ -75,24 +77,27 @@ export const BoardFilters: React.FC = () => {
           ]}
         />
       </div>
-      <div className="w-40">
+
+      <div className="w-[calc(50%-0.25rem)] sm:w-36">
         <Select
           placeholder="All labels"
           value={selectedLabel || ""}
           onChange={(v) => setLabel(v || null)}
+          size="sm"
           options={[
             { value: "", label: "All labels" },
             ...labels.map((l) => ({ value: l.id, label: l.name })),
           ]}
         />
       </div>
+
       {/* Reset Filter Button */}
       {hasActiveFilters && (
         <Button
           size="sm"
           variant="ghost"
           onClick={resetFilters}
-          className="text-xs text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 h-8 px-2"
+          className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 h-8.5 px-2.5"
         >
           <X className="w-3.5 h-3.5 mr-1" />
           Clear

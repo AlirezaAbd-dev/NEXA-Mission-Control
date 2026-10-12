@@ -17,7 +17,7 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
     [name, setName] = useState(""),
     [error, setError] = useState("");
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       <Button
         variant="outline"
         size="sm"
@@ -28,6 +28,7 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
             { onError: (e) => setError(apiError(e)) },
           )
         }
+        className="h-8.5 px-2.5"
       >
         <Star
           size={14}
@@ -35,7 +36,8 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
         />
       </Button>
       <CustomSelect
-        className="w-44"
+        className="w-36 sm:w-40"
+        size="sm"
         value={pref.grouping || "none"}
         onChange={(grouping) => save.mutate({ ...pref, grouping })}
         options={["none", "priority", "assignee", "epic"].map((value) => ({
@@ -44,7 +46,8 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
         }))}
       />
       <CustomSelect
-        className="w-36"
+        className="w-28 sm:w-32"
+        size="sm"
         value={pref.background || "petrol"}
         onChange={(background) => save.mutate({ ...pref, background })}
         options={["petrol", "teal", "sunset", "neutral"].map((value) => ({
@@ -53,7 +56,8 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
         }))}
       />
       <CustomSelect
-        className="w-44"
+        className="w-32 sm:w-36"
+        size="sm"
         placeholder="Saved views"
         options={views.map((v) => ({ value: v.id, label: v.name }))}
         onChange={(id) => {

@@ -116,14 +116,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-xs sm:text-sm font-bold text-foreground/90 tracking-tight text-start inline-flex items-center gap-1.5"
+            className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 tracking-tight text-start inline-flex items-center gap-1.5"
           >
             <span>
               {typeof label === "string" ? label.replace(/\s*\*$/, "") : label}
             </span>
             {props.required && (
               <span
-                className="text-danger font-bold text-xs"
+                className="text-rose-500 font-bold text-xs"
                 aria-hidden="true"
               >
                 *
@@ -136,15 +136,15 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           dir={containerDir}
           className={cn(
             "group relative flex items-center w-full h-11 rounded-xl sm:rounded-2xl border transition-all duration-200 shadow-2xs overflow-hidden",
-            "border-border/80 bg-card/80 text-foreground focus-within:border-primary focus-within:bg-card focus-within:ring-4 focus-within:ring-primary/15",
-            "dark:border-white/10 dark:bg-black/35 dark:text-foreground dark:shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)] dark:hover:border-white/20 dark:focus-within:border-primary/80 dark:focus-within:bg-black/50 dark:focus-within:ring-4 dark:focus-within:ring-primary/20",
-            props.disabled && "cursor-not-allowed opacity-50 bg-muted/40",
+            "border-slate-200/90 bg-white text-slate-900 hover:border-slate-300 focus-within:border-teal-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-teal-600/10",
+            "dark:border-white/10 dark:bg-black/35 dark:text-slate-100 dark:shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)] dark:hover:border-white/20 dark:focus-within:border-teal-400 dark:focus-within:bg-black/50 dark:focus-within:ring-4 dark:focus-within:ring-teal-500/20",
+            props.disabled && "cursor-not-allowed opacity-50 bg-slate-100 dark:bg-muted/40",
             error &&
-              "border-danger focus-within:border-danger focus-within:ring-danger/20 dark:border-danger dark:focus-within:border-danger dark:focus-within:ring-danger/30",
+              "border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-500/15 dark:border-rose-500 dark:focus-within:border-rose-500 dark:focus-within:ring-rose-500/25",
           )}
         >
           {Icon && (
-            <div className="ps-4 pe-2 text-muted-foreground/80 group-focus-within:text-primary transition-colors flex items-center justify-center shrink-0 pointer-events-none">
+            <div className="ps-4 pe-2 text-slate-400 group-focus-within:text-teal-600 dark:text-muted-foreground/80 dark:group-focus-within:text-teal-400 transition-colors flex items-center justify-center shrink-0 pointer-events-none">
               <Icon className="h-4.5 w-4.5" />
             </div>
           )}
@@ -158,7 +158,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             type={inputType}
             id={inputId}
             className={cn(
-              "h-full w-full flex-1 bg-transparent text-sm sm:text-base font-normal outline-none border-0 ring-0 focus:ring-0 focus:outline-none text-foreground placeholder:text-muted-foreground/60 dark:placeholder:text-white/30",
+              "h-full w-full flex-1 bg-transparent text-sm sm:text-base font-normal outline-none border-0 ring-0 focus:ring-0 focus:outline-none text-slate-900 placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-white/30",
               hasLeading ? "ps-1.5" : "ps-4",
               hasTrailing ? "pe-1.5" : "pe-4",
               isPassword && "text-left",

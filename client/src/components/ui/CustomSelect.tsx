@@ -19,6 +19,7 @@ export interface CustomSelectProps {
   disabled?: boolean;
   className?: string;
   id?: string;
+  size?: "default" | "sm";
 }
 export function CustomSelect({
   options,
@@ -32,6 +33,7 @@ export function CustomSelect({
   disabled,
   className,
   id,
+  size,
 }: CustomSelectProps) {
   if (searchable)
     return (
@@ -64,6 +66,8 @@ export function CustomSelect({
       disabled={disabled}
       className={className}
       aria-label={ariaLabel || label || placeholder}
+      size={size}
     />
   );
 }
+

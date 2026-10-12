@@ -277,7 +277,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
               </Button>
             )}
             {!collapsed.includes(lane.id) && (
-              <div className="flex gap-4 overflow-x-auto pb-4 items-start select-none">
+              <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 items-start select-none scroll-smooth snap-x snap-mandatory sm:snap-none scrollbar-thin scrollbar-sidebar">
                 {board.columns.map((column) => {
                   const colCards = lane.cards
                     .filter((c) => c.column_id === column.id)
@@ -297,11 +297,11 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 {lane.id === lanes[0].id && (
                   <>
                     {/* Add Column Box */}
-                    <div className="w-72 md:w-80 shrink-0">
+                    <div className="w-[84vw] max-w-xs sm:w-72 md:w-80 shrink-0 snap-center sm:snap-align-none">
                       {isAddingColumn ? (
                         <form
                           onSubmit={handleAddColumn}
-                          className="p-3 bg-slate-100/70 dark:bg-card/40 border border-slate-200 dark:border-border rounded-xl space-y-2"
+                          className="p-3 bg-white dark:bg-[#0d1a1d] border border-slate-200/90 dark:border-[#183035] rounded-2xl shadow-sm space-y-2"
                         >
                           <Input
                             value={newColumnName}

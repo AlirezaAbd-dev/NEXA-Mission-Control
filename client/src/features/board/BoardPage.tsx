@@ -43,10 +43,10 @@ export const BoardPage: React.FC = () => {
   }
 
   return (
-    <div className="h-full flex flex-col p-6 space-y-4 overflow-hidden">
+    <div className="h-full flex flex-col p-3 sm:p-5 md:p-6 space-y-3 sm:space-y-4 overflow-hidden min-w-0">
       <ViewTabs projectId={projectId} />
       {/* Top action bar: Filters */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 sm:gap-3 pb-1 shrink-0">
         <BoardFilters />
         <BoardPreferences projectId={projectId} />
       </div>

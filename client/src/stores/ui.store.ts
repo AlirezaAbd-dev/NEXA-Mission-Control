@@ -36,8 +36,12 @@ export const useUiStore = create<UiStore>((set) => ({
       localStorage.setItem("mission_control_theme", nextTheme);
       if (nextTheme === "dark") {
         document.documentElement.classList.add("dark");
+        document.documentElement.classList.remove("light");
+        document.documentElement.style.colorScheme = "dark";
       } else {
         document.documentElement.classList.remove("dark");
+        document.documentElement.classList.add("light");
+        document.documentElement.style.colorScheme = "light";
       }
       return { theme: nextTheme };
     }),
@@ -46,8 +50,12 @@ export const useUiStore = create<UiStore>((set) => ({
     localStorage.setItem("mission_control_theme", theme);
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
+      document.documentElement.classList.remove("light");
+      document.documentElement.style.colorScheme = "dark";
     } else {
       document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+      document.documentElement.style.colorScheme = "light";
     }
     set({ theme });
   },

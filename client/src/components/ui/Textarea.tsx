@@ -29,7 +29,9 @@ export const Textarea = ({
         ref={ref}
         id={id}
         className={cn(
-          "min-h-24 w-full rounded-xl sm:rounded-2xl border px-3.5 sm:px-4 py-3 text-sm sm:text-base font-normal outline-none transition-all duration-200 shadow-2xs border-border/80 bg-card/80 text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:bg-card focus:ring-4 focus:ring-primary/15 dark:border-white/10 dark:bg-black/35 dark:focus:bg-black/50 dark:focus:ring-primary/20",
+          "min-h-24 w-full rounded-xl sm:rounded-2xl border px-3.5 sm:px-4 py-3 text-sm sm:text-base font-normal outline-none transition-all duration-200 shadow-2xs",
+          "border-slate-200/90 bg-white text-slate-900 placeholder:text-slate-400 hover:border-slate-300 focus:border-teal-600 focus:bg-white focus:ring-4 focus:ring-teal-600/10",
+          "dark:border-white/10 dark:bg-black/35 dark:text-slate-100 dark:placeholder:text-white/30 dark:focus:border-teal-400 dark:focus:bg-black/50 dark:focus:ring-teal-500/20",
           error &&
             "border-rose-500 dark:border-rose-500 focus:ring-rose-500/20 focus:border-rose-500 bg-rose-500/5",
           className,

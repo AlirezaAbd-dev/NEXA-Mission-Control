@@ -24,18 +24,22 @@ export function ViewTabs({ projectId }: { projectId: string }) {
   return (
     <nav
       aria-label="Project views"
-      className="flex flex-wrap gap-1 border-b border-slate-200 dark:border-[#183035] pb-3"
+      className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-200/80 dark:border-[#183035] scrollbar-none shrink-0"
     >
       {tabs.map(({ key, title, icon: Icon }) => (
         <NavLink
           key={key}
           to={`/p/${projectId}/${key}`}
           className={({ isActive }) =>
-            `flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${isActive ? "bg-teal-500/15 text-teal-600 dark:text-teal-400" : "text-slate-500 hover:bg-slate-100 dark:hover:bg-[#132428]"}`
+            `flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-semibold shrink-0 transition-all ${
+              isActive
+                ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/25 shadow-2xs"
+                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-[#132428]"
+            }`
           }
         >
-          <Icon size={15} />
-          {title}
+          <Icon size={14} className="shrink-0" />
+          <span className="whitespace-nowrap">{title}</span>
         </NavLink>
       ))}
     </nav>

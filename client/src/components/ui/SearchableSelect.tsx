@@ -276,15 +276,15 @@ export function SearchableSelect({
           onClick={() => !disabled && setIsOpen(!isOpen)}
           className={cn(
             "flex h-11 w-full items-center justify-between gap-2 rounded-xl sm:rounded-2xl border px-3.5 sm:px-4 text-sm sm:text-base font-normal outline-none transition-all duration-200 shadow-2xs cursor-pointer",
-            "border-border/80 bg-card/80 text-foreground hover:border-primary/40 focus-visible:border-primary focus-visible:bg-card focus-visible:ring-4 focus-visible:ring-primary/15",
-            "dark:border-white/10 dark:bg-black/35 dark:text-foreground dark:shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)] dark:hover:border-white/20 dark:focus-visible:border-primary/80 dark:focus-visible:bg-black/50 dark:focus-visible:ring-4 dark:focus-visible:ring-primary/20",
-            "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-muted/40",
-            !selectedOption && "text-muted-foreground/60 dark:text-white/30",
+            "border-slate-200/90 bg-white text-slate-900 hover:border-slate-300 focus-visible:border-teal-600 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-teal-600/15",
+            "dark:border-[#183035] dark:bg-[#070e10]/60 dark:text-slate-100 dark:shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)] dark:hover:border-teal-500/30 dark:focus-visible:border-teal-400 dark:focus-visible:bg-[#0a1518] dark:focus-visible:ring-4 dark:focus-visible:ring-teal-500/20",
+            "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-muted/40",
+            !selectedOption && "text-slate-400 dark:text-white/30",
             error &&
-              "border-danger focus-visible:border-danger focus-visible:ring-danger/20 dark:border-danger dark:focus-visible:border-danger dark:focus-visible:ring-danger/30",
+              "border-rose-500 focus-visible:border-rose-500 focus-visible:ring-rose-500/20 dark:border-rose-500 dark:focus-visible:border-rose-500 dark:focus-visible:ring-rose-500/30",
           )}
         >
-          <span className="min-w-0 truncate text-start font-medium text-foreground">
+          <span className="min-w-0 truncate text-start font-medium text-slate-900 dark:text-slate-100">
             {selectedOption
               ? selectedOption.label
               : placeholder || "Select an option…"}
@@ -299,7 +299,7 @@ export function SearchableSelect({
                   e.key === "Enter" &&
                   handleClear(e as unknown as React.MouseEvent)
                 }
-                className="rounded-md p-0.5 text-muted-foreground/60 hover:bg-muted hover:text-foreground transition-colors"
+                className="rounded-md p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-muted-foreground/60 dark:hover:bg-muted dark:hover:text-foreground transition-colors"
                 aria-label={"Clear"}
               >
                 <X className="size-3.5" />
@@ -307,7 +307,7 @@ export function SearchableSelect({
             )}
             <ChevronDown
               className={cn(
-                "size-4 shrink-0 text-muted-foreground transition-transform duration-200",
+                "size-4 shrink-0 text-slate-400 dark:text-muted-foreground transition-transform duration-200",
                 isOpen && "rotate-180",
               )}
               aria-hidden
@@ -329,14 +329,14 @@ export function SearchableSelect({
               id={listId}
               role="listbox"
               aria-labelledby={triggerId}
-              className="max-h-72 w-full overflow-hidden rounded-2xl border border-border/80 bg-card/95 backdrop-blur-2xl p-1.5 shadow-2xl shadow-primary/10 dark:border-white/12 dark:bg-[#06181b]/98 dark:shadow-[0_16px_40px_rgba(0,0,0,0.7)] animate-in fade-in-50 zoom-in-95"
+              className="max-h-72 w-full overflow-hidden rounded-2xl border border-slate-200/90 bg-white/98 text-slate-900 p-1.5 shadow-2xl shadow-slate-900/10 dark:border-white/12 dark:bg-[#06181b]/98 dark:text-slate-100 dark:shadow-[0_16px_40px_rgba(0,0,0,0.7)] animate-in fade-in-50 zoom-in-95"
             >
               {/* Search Input */}
-              <div className="relative mb-1.5 border-b border-border/60 dark:border-white/10 pb-1.5 px-1 pt-1">
+              <div className="relative mb-1.5 border-b border-slate-100 dark:border-white/10 pb-1.5 px-1 pt-1">
                 {loading ? (
-                  <Loader2 className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 size-4 text-primary animate-spin" />
+                  <Loader2 className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 size-4 text-teal-600 dark:text-primary animate-spin" />
                 ) : (
-                  <Search className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground/70" />
+                  <Search className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 dark:text-muted-foreground/70" />
                 )}
                 <input
                   ref={searchInputRef}
@@ -345,19 +345,19 @@ export function SearchableSelect({
                   onChange={(e) => setSearch(e.target.value)}
                   aria-label="Search options"
                   placeholder={searchPlaceholder || "Search…"}
-                  className="h-9 w-full rounded-xl border border-border/60 bg-muted/30 ps-8 pe-3 text-xs sm:text-sm text-foreground outline-none placeholder:text-muted-foreground/60 focus:border-primary focus:bg-background transition-colors"
+                  className="h-9 w-full rounded-xl border border-slate-200/80 bg-slate-50/70 text-slate-900 ps-8 pe-3 text-xs sm:text-sm outline-none placeholder:text-slate-400 focus:border-teal-600 focus:bg-white dark:border-border/60 dark:bg-muted/30 dark:text-slate-100 dark:placeholder:text-muted-foreground/60 transition-colors"
                 />
               </div>
 
               {/* Options List */}
               <ul className="max-h-52 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-sidebar">
                 {loading && currentOptions.length === 0 ? (
-                  <li className="flex items-center justify-center gap-2 py-5 text-xs sm:text-sm text-muted-foreground">
-                    <Loader2 className="size-4 animate-spin text-primary" />
+                  <li className="flex items-center justify-center gap-2 py-5 text-xs sm:text-sm text-slate-400 dark:text-muted-foreground">
+                    <Loader2 className="size-4 animate-spin text-teal-600 dark:text-primary" />
                     <span>{"Loading…"}</span>
                   </li>
                 ) : currentOptions.length === 0 ? (
-                  <li className="py-4 text-center text-xs sm:text-sm text-muted-foreground">
+                  <li className="py-4 text-center text-xs sm:text-sm text-slate-400 dark:text-muted-foreground">
                     {emptyMessage || "No results"}
                   </li>
                 ) : (
@@ -372,8 +372,8 @@ export function SearchableSelect({
                         className={cn(
                           "flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-start text-xs sm:text-sm transition-all duration-150 cursor-pointer",
                           value === opt.value
-                            ? "bg-primary/12 font-bold text-primary dark:bg-primary/20 dark:text-primary"
-                            : "text-foreground hover:bg-muted/70 dark:hover:bg-white/8",
+                            ? "bg-teal-50 font-bold text-teal-700 dark:bg-teal-500/20 dark:text-teal-300"
+                            : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-white/8 dark:hover:text-white",
                           opt.disabled && "cursor-not-allowed opacity-50",
                         )}
                       >
