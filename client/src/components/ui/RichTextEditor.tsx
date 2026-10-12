@@ -12,6 +12,12 @@ import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
 import { TaskList } from "@tiptap/extension-task-list";
 import { TaskItem } from "@tiptap/extension-task-item";
+import { TextAlign } from "@tiptap/extension-text-align";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { Color } from "@tiptap/extension-color";
+import { Subscript } from "@tiptap/extension-subscript";
+import { Superscript } from "@tiptap/extension-superscript";
+import { Typography } from "@tiptap/extension-typography";
 
 import {
   Bold,
@@ -34,8 +40,17 @@ import {
   Undo2,
   Redo2,
   Minus,
-  Sparkles,
   Upload,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Subscript as SubIcon,
+  Superscript as SuperIcon,
+  Palette,
+  Eraser,
+  Copy,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -48,6 +63,18 @@ export interface RichTextEditorProps {
   minHeight?: string;
   className?: string;
 }
+
+const COLOR_PALETTE = [
+  { label: "Default", color: "inherit" },
+  { label: "Teal (Brand)", color: "#0d9488" },
+  { label: "Cyan", color: "#06b6d4" },
+  { label: "Blue", color: "#3b82f6" },
+  { label: "Indigo", color: "#6366f1" },
+  { label: "Purple", color: "#a855f7" },
+  { label: "Rose", color: "#f43f5e" },
+  { label: "Amber", color: "#f59e0b" },
+  { label: "Emerald", color: "#10b981" },
+];
 
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   content,
@@ -62,6 +89,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [linkModalOpen, setLinkModalOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
+  const [linkText, setLinkText] = useState("");
+  const [linkRange, setLinkRange] = useState<{ from: number; to: number } | null>(null);
+  const [colorMenuOpen, setColorMenuOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const editor = useEditor({
     editable,
@@ -77,7 +108,15 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           },
         },
       }),
+      TextStyle,
+      Color,
       Underline,
+      Subscript,
+      Superscript,
+      Typography,
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+      }),
       Highlight.configure({
         multicolor: false,
         HTMLAttributes: {
@@ -138,7 +177,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     content: content || "",
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
-      // If editor is empty or just has empty paragraph, return empty string
       if (editor.isEmpty) {
         onChange("");
       } else {
@@ -214,9 +252,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     }
   };
 
-  const [linkText, setLinkText] = useState("");
-  const [linkRange, setLinkRange] = useState<{ from: number; to: number } | null>(null);
-
   const handleOpenLinkModal = () => {
     if (!editor) return;
     const { from, to } = editor.state.selection;
@@ -236,11 +271,11 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       return;
     }
 
-    const href = linkUrl.startsWith("http://") || linkUrl.startsWith("https://")
-      ? linkUrl.trim()
-      : `https://${linkUrl.trim()}`;
+    const href =
+      linkUrl.startsWith("http://") || linkUrl.startsWith("https://")
+        ? linkUrl.trim()
+        : `https://${linkUrl.trim()}`;
 
-    // If custom text was specified and we have a selection range, insert text with link
     if (linkText.trim()) {
       if (linkRange && linkRange.from !== linkRange.to) {
         editor
@@ -254,7 +289,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           })
           .run();
       } else {
-        // No prior selection: insert at current cursor
         editor
           .chain()
           .focus()
@@ -284,7 +318,23 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     setLinkRange(null);
   };
 
+  const handleCopyText = async () => {
+    if (!editor) return;
+    const text = editor.getText();
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   if (!editor) return null;
+
+  // Character and Word counter
+  const charCount = editor.storage.characterCount
+    ? editor.storage.characterCount.characters()
+    : editor.getText().length;
+  const wordCount = editor.getText().trim()
+    ? editor.getText().trim().split(/\s+/).length
+    : 0;
 
   return (
     <div
@@ -352,7 +402,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
           </div>
 
-          {/* Formatting: Bold, Italic, Underline, Strike, Code, Highlight */}
+          {/* Formatting: Bold, Italic, Underline, Strike, Code, Sub, Super, Highlight */}
           <div className="flex items-center gap-0.5 border-r border-border/60 dark:border-white/10 pe-1.5 me-0.5">
             <button
               type="button"
@@ -408,6 +458,32 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
+              title="Subscript"
+              onClick={() => editor.chain().focus().toggleSubscript().run()}
+              className={cn(
+                "rounded-lg p-1.5 transition-colors cursor-pointer",
+                editor.isActive("subscript")
+                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  : "text-muted-foreground hover:bg-muted dark:hover:bg-white/10 hover:text-foreground",
+              )}
+            >
+              <SubIcon className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              title="Superscript"
+              onClick={() => editor.chain().focus().toggleSuperscript().run()}
+              className={cn(
+                "rounded-lg p-1.5 transition-colors cursor-pointer",
+                editor.isActive("superscript")
+                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  : "text-muted-foreground hover:bg-muted dark:hover:bg-white/10 hover:text-foreground",
+              )}
+            >
+              <SuperIcon className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
               title="Inline Code"
               onClick={() => editor.chain().focus().toggleCode().run()}
               className={cn(
@@ -431,6 +507,108 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               )}
             >
               <Highlighter className="h-3.5 w-3.5" />
+            </button>
+
+            {/* Text Color Picker */}
+            <div className="relative">
+              <button
+                type="button"
+                title="Text Color"
+                onClick={() => setColorMenuOpen(!colorMenuOpen)}
+                className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted dark:hover:bg-white/10 hover:text-foreground transition-colors cursor-pointer"
+              >
+                <Palette className="h-3.5 w-3.5" />
+              </button>
+              {colorMenuOpen && (
+                <div className="absolute top-full start-0 mt-1.5 p-2 bg-popover border border-border rounded-xl shadow-xl z-30 flex items-center gap-1.5 backdrop-blur-xl">
+                  {COLOR_PALETTE.map((col) => (
+                    <button
+                      key={col.label}
+                      type="button"
+                      title={col.label}
+                      onClick={() => {
+                        if (col.color === "inherit") {
+                          editor.chain().focus().unsetColor().run();
+                        } else {
+                          editor.chain().focus().setColor(col.color).run();
+                        }
+                        setColorMenuOpen(false);
+                      }}
+                      className="h-5 w-5 rounded-full border border-black/10 dark:border-white/20 transition-transform hover:scale-125 cursor-pointer shadow-xs"
+                      style={{
+                        backgroundColor:
+                          col.color === "inherit" ? "#94a3b8" : col.color,
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Clear Formatting */}
+            <button
+              type="button"
+              title="Clear Formatting"
+              onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}
+              className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted dark:hover:bg-white/10 hover:text-foreground transition-colors cursor-pointer"
+            >
+              <Eraser className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          {/* Alignment: Left, Center, Right, Justify */}
+          <div className="flex items-center gap-0.5 border-r border-border/60 dark:border-white/10 pe-1.5 me-0.5">
+            <button
+              type="button"
+              title="Align Left"
+              onClick={() => editor.chain().focus().setTextAlign("left").run()}
+              className={cn(
+                "rounded-lg p-1.5 transition-colors cursor-pointer",
+                editor.isActive({ textAlign: "left" })
+                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  : "text-muted-foreground hover:bg-muted dark:hover:bg-white/10 hover:text-foreground",
+              )}
+            >
+              <AlignLeft className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              title="Align Center"
+              onClick={() => editor.chain().focus().setTextAlign("center").run()}
+              className={cn(
+                "rounded-lg p-1.5 transition-colors cursor-pointer",
+                editor.isActive({ textAlign: "center" })
+                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  : "text-muted-foreground hover:bg-muted dark:hover:bg-white/10 hover:text-foreground",
+              )}
+            >
+              <AlignCenter className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              title="Align Right"
+              onClick={() => editor.chain().focus().setTextAlign("right").run()}
+              className={cn(
+                "rounded-lg p-1.5 transition-colors cursor-pointer",
+                editor.isActive({ textAlign: "right" })
+                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  : "text-muted-foreground hover:bg-muted dark:hover:bg-white/10 hover:text-foreground",
+              )}
+            >
+              <AlignRight className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              title="Justify"
+              onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+              className={cn(
+                "rounded-lg p-1.5 transition-colors cursor-pointer",
+                editor.isActive({ textAlign: "justify" })
+                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  : "text-muted-foreground hover:bg-muted dark:hover:bg-white/10 hover:text-foreground",
+              )}
+            >
+              <AlignJustify className="h-3.5 w-3.5" />
             </button>
           </div>
 
@@ -732,6 +910,32 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </button>
         </div>
       )}
+
+      {/* Status Bar / Word & Character Count */}
+      <div className="flex items-center justify-between border-t border-border/60 bg-muted/20 dark:border-white/5 px-3 py-1.5 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-3">
+          <span>{wordCount} words</span>
+          <span>{charCount} characters</span>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleCopyText}
+          className="flex items-center gap-1 hover:text-foreground transition-colors cursor-pointer"
+        >
+          {copied ? (
+            <>
+              <Check className="h-3 w-3 text-emerald-500" />
+              <span className="text-emerald-500 font-semibold">Copied!</span>
+            </>
+          ) : (
+            <>
+              <Copy className="h-3 w-3" />
+              <span>Copy text</span>
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 };
