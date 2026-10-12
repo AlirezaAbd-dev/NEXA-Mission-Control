@@ -234,12 +234,6 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
               })),
             ]
           : [{ id: "all", name: "All tasks", cards: filteredCards }];
-  const backgrounds: Record<string, string> = {
-    petrol: "",
-    teal: "bg-teal-500/5",
-    sunset: "bg-amber-500/5",
-    neutral: "bg-slate-500/5",
-  };
   return (
     <DndContext
       sensors={sensors}
@@ -247,23 +241,29 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div
-        className={`flex-1 overflow-auto rounded-xl ${backgrounds[preferences.background || "petrol"] || ""}`}
-      >
+      <div className="flex-1 min-h-0 h-full overflow-hidden flex flex-col">
         {notice && (
           <p
             role="status"
-            className="p-3 text-sm text-amber-600 dark:text-amber-400"
+            className="p-2.5 text-xs text-amber-600 dark:text-amber-400 shrink-0"
           >
             {notice}
           </p>
         )}
         {lanes.map((lane) => (
-          <section key={lane.id} className="mb-5">
+          <section
+            key={lane.id}
+            className={
+              grouping === "none"
+                ? "flex-1 min-h-0 h-full flex flex-col"
+                : "mb-5 shrink-0"
+            }
+          >
             {grouping !== "none" && (
               <Button
                 variant="ghost"
-                className="mb-2"
+                size="sm"
+                className="mb-2 shrink-0 self-start"
                 onClick={() =>
                   setCollapsed((ids) =>
                     ids.includes(lane.id)
@@ -277,7 +277,13 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
               </Button>
             )}
             {!collapsed.includes(lane.id) && (
-              <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 items-start select-none scroll-smooth snap-x snap-mandatory sm:snap-none scrollbar-thin scrollbar-sidebar">
+              <div
+                className={`flex gap-3 sm:gap-4 overflow-x-auto pb-2 select-none scroll-smooth snap-x snap-mandatory sm:snap-none ${
+                  grouping === "none"
+                    ? "flex-1 min-h-0 h-full items-stretch"
+                    : "items-start"
+                }`}
+              >
                 {board.columns.map((column) => {
                   const colCards = lane.cards
                     .filter((c) => c.column_id === column.id)
@@ -297,7 +303,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 {lane.id === lanes[0].id && (
                   <>
                     {/* Add Column Box */}
-                    <div className="w-[84vw] max-w-xs sm:w-72 md:w-80 shrink-0 snap-center sm:snap-align-none">
+                    <div className="w-[84vw] max-w-xs sm:w-72 md:w-80 shrink-0 snap-center sm:snap-align-none self-start">
                       {isAddingColumn ? (
                         <form
                           onSubmit={handleAddColumn}
