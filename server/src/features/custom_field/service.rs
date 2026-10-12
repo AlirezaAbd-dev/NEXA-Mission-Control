@@ -139,6 +139,7 @@ impl CustomFieldService {
             .await?
             .ok_or_else(|| AppError::Forbidden("You do not have access to this card".to_string()))?;
 
+        crate::features::enterprise::operations::validate_field(&state.pool,&project.id,&req.field_id).await?;
         let id = Uuid::now_v7().to_string();
         let now = Utc::now().to_rfc3339();
 

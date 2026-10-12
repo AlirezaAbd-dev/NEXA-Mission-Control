@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { AlignLeft, Check, X } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Textarea } from '@/components/ui/Textarea';
-import { useUpdateCard } from '@/hooks/card/useUpdateCard';
-import type { Card } from '@/types';
+import { Markdown } from "@/components/common/Markdown";
+import React, { useState } from "react";
+import { AlignLeft, Check, X } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Textarea } from "@/components/ui/Textarea";
+import { useUpdateCard } from "@/hooks/card/useUpdateCard";
+import type { Card } from "@/types";
 
 interface CardDescriptionProps {
   card: Card;
@@ -11,23 +12,23 @@ interface CardDescriptionProps {
 
 export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [description, setDescription] = useState(card.description || '');
+  const [description, setDescription] = useState(card.description || "");
   const updateCard = useUpdateCard(card.project_id);
 
   const handleSave = () => {
     updateCard.mutate(
       {
         id: card.id,
-        description: description.trim() || undefined,
+        description: description.trim(),
       },
       {
         onSuccess: () => setIsEditing(false),
-      }
+      },
     );
   };
 
   const handleCancel = () => {
-    setDescription(card.description || '');
+    setDescription(card.description || "");
     setIsEditing(false);
   };
 
@@ -49,7 +50,11 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
             autoFocus
           />
           <div className="flex items-center gap-2">
-            <Button size="sm" onClick={handleSave} isLoading={updateCard.isPending}>
+            <Button
+              size="sm"
+              onClick={handleSave}
+              isLoading={updateCard.isPending}
+            >
               <Check className="w-4 h-4 mr-1" />
               Save
             </Button>
@@ -61,14 +66,21 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
         </div>
       ) : (
         <div
-          onClick={() => setIsEditing(true)}
-          className={`p-3 rounded-lg border border-transparent hover:border-slate-200 dark:hover:border-slate-800 cursor-pointer transition-colors text-sm ${
+          onClick={() => {
+            setDescription(card.description || "");
+            setIsEditing(true);
+          }}
+          className={`p-3 rounded-lg border border-transparent hover:border-slate-200 dark:hover:border-border cursor-pointer transition-colors text-sm ${
             card.description
-              ? 'text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-900/50 whitespace-pre-wrap'
-              : 'text-slate-400 bg-slate-50/50 dark:bg-slate-900/30 hover:bg-slate-100 dark:hover:bg-slate-800/50 italic'
+              ? "text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-card/50 whitespace-pre-wrap"
+              : "text-slate-400 bg-slate-50/50 dark:bg-card/30 hover:bg-slate-100 dark:hover:bg-muted/50 italic"
           }`}
         >
-          {card.description || 'Add a detailed description...'}
+          {card.description ? (
+            <Markdown text={card.description} />
+          ) : (
+            "Add a detailed description…"
+          )}
         </div>
       )}
     </div>

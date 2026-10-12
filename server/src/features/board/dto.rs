@@ -27,6 +27,7 @@ pub struct CreateColumnRequest {
     pub name: String,
     pub type_: Option<String>,
     pub position: Option<f64>,
+    #[validate(range(min=0,max=1000))]
     pub wip_limit: Option<i64>,
 }
 
@@ -36,6 +37,7 @@ pub struct UpdateColumnRequest {
     pub name: Option<String>,
     pub type_: Option<String>,
     pub position: Option<f64>,
+    #[validate(range(min=0,max=1000))]
     pub wip_limit: Option<i64>,
 }
 

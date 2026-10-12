@@ -28,7 +28,9 @@ impl ProjectService {
             .ok_or_else(|| AppError::Forbidden("You do not have access to this workspace".to_string()))?;
 
         let projects = ProjectRepository::list_by_workspace(&state.pool, workspace_id).await?;
-        Ok(projects.into_iter().map(Self::to_response).collect())
+        let mut visible=Vec::new();
+        for project in projects {if crate::features::enterprise::service::authorize(state,user_id,&project.id,false,false).await.is_ok(){visible.push(Self::to_response(project));}}
+        Ok(visible)
     }
 
     pub async fn get_by_id(state: &AppState, id: &str, user_id: &str) -> Result<ProjectResponse, AppError> {
@@ -49,6 +51,7 @@ impl ProjectService {
         req: CreateProjectRequest,
     ) -> Result<ProjectResponse, AppError> {
         req.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+        if req.visibility.as_deref().is_some_and(|v|!matches!(v,"public"|"private")){return Err(AppError::Validation("Visibility must be public or private".into()));}
 
         let role = WorkspaceRepository::get_user_role(&state.pool, &req.workspace_id, user_id)
             .await?
@@ -131,6 +134,7 @@ impl ProjectService {
         req: UpdateProjectRequest,
     ) -> Result<ProjectResponse, AppError> {
         req.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+        if req.visibility.as_deref().is_some_and(|v|!matches!(v,"public"|"private")){return Err(AppError::Validation("Visibility must be public or private".into()));}
 
         let current = ProjectRepository::find_by_id(&state.pool, id)
             .await?

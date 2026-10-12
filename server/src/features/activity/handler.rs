@@ -1,7 +1,3 @@
-use axum::{
-    extract::{Query, State},
-    Json,
-};
 use crate::{
     error::AppError,
     extractors::auth::AuthUser,
@@ -11,12 +7,16 @@ use crate::{
     },
     state::AppState,
 };
+use axum::{
+    extract::{Query, State},
+    Json,
+};
 
 pub async fn list(
     State(state): State<AppState>,
-    _auth: AuthUser,
+    auth: AuthUser,
     Query(query): Query<ListActivitiesQuery>,
 ) -> Result<Json<Vec<ActivityResponse>>, AppError> {
-    let activities = ActivityService::list(&state, query).await?;
+    let activities = ActivityService::list(&state, &auth.id, query).await?;
     Ok(Json(activities))
 }

@@ -254,7 +254,7 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
                       className={`w-4 h-4 rounded border flex items-center justify-center ${
                         current?.text === 'true'
                           ? 'bg-teal-500 border-teal-500 text-slate-950'
-                          : 'border-slate-300 dark:border-slate-600'
+                          : 'border-slate-300 dark:border-border'
                       }`}
                     >
                       {current?.text === 'true' && <Check className="w-3 h-3 stroke-[3]" />}

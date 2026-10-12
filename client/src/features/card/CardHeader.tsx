@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { Palette, FileText } from 'lucide-react';
-import { useUpdateCard } from '@/hooks/card/useUpdateCard';
-import { CardWatchers } from './CardWatchers';
-import { CardVoteButton } from './CardVoteButton';
-import type { Card } from '@/types';
+import React, { useState } from "react";
+import { Palette, FileText } from "lucide-react";
+import { useUpdateCard } from "@/hooks/card/useUpdateCard";
+import { CardWatchers } from "./CardWatchers";
+import { CardVoteButton } from "./CardVoteButton";
+import type { Card } from "@/types";
 
 interface CardHeaderProps {
   card: Card;
@@ -11,19 +11,22 @@ interface CardHeaderProps {
 }
 
 const COVER_COLORS = [
-  '#0d9488', // Teal
-  '#2dd4bf', // Cyan
-  '#3b82f6', // Blue
-  '#8b5cf6', // Violet
-  '#ec4899', // Pink
-  '#ef4444', // Red
-  '#f97316', // Orange
-  '#eab308', // Amber
-  '#10b981', // Emerald
-  '#64748b', // Slate
+  "#0d9488", // Teal
+  "#2dd4bf", // Cyan
+  "#3b82f6", // Blue
+  "#8b5cf6", // Violet
+  "#ec4899", // Pink
+  "#ef4444", // Red
+  "#f97316", // Orange
+  "#eab308", // Amber
+  "#10b981", // Emerald
+  "#64748b", // Slate
 ];
 
-export const CardHeader: React.FC<CardHeaderProps> = ({ card, onClose: _onClose }) => {
+export const CardHeader: React.FC<CardHeaderProps> = ({
+  card,
+  onClose: _onClose,
+}) => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(card.title);
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -42,9 +45,9 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ card, onClose: _onClose 
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleTitleSubmit();
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       setTitle(card.title);
       setIsEditingTitle(false);
     }
@@ -53,13 +56,13 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ card, onClose: _onClose 
   const handleSetColorCover = (color: string) => {
     updateCard.mutate({
       id: card.id,
-      cover_url: card.cover_url === color ? '' : color,
+      cover_url: card.cover_url === color ? "" : color,
     });
     setShowColorPicker(false);
   };
 
-  const hasColorCover = card.cover_url && card.cover_url.startsWith('#');
-  const hasImageCover = card.cover_url && !card.cover_url.startsWith('#');
+  const hasColorCover = card.cover_url && card.cover_url.startsWith("#");
+  const hasImageCover = card.cover_url && !card.cover_url.startsWith("#");
 
   return (
     <div className="space-y-3">
@@ -128,7 +131,7 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ card, onClose: _onClose 
                   {card.cover_url && (
                     <button
                       type="button"
-                      onClick={() => handleSetColorCover('')}
+                      onClick={() => handleSetColorCover("")}
                       className="w-full text-center text-[10px] text-slate-400 hover:text-rose-500 pt-1 cursor-pointer font-medium"
                     >
                       Clear Cover
@@ -146,7 +149,6 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ card, onClose: _onClose 
           </div>
         </div>
 
-
         {isEditingTitle ? (
           <input
             type="text"
@@ -159,7 +161,10 @@ export const CardHeader: React.FC<CardHeaderProps> = ({ card, onClose: _onClose 
           />
         ) : (
           <h2
-            onClick={() => setIsEditingTitle(true)}
+            onClick={() => {
+              setTitle(card.title);
+              setIsEditingTitle(true);
+            }}
             className="text-xl font-bold text-slate-900 dark:text-slate-100 cursor-pointer hover:bg-slate-100/70 dark:hover:bg-[#132428] rounded-lg px-2 py-1 -mx-2 transition-colors tracking-tight"
           >
             {card.title}

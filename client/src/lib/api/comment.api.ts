@@ -1,19 +1,31 @@
-import { apiClient } from './client';
-import type { CardComment } from '@/types';
+import { apiClient } from "./client";
+import type { CardComment } from "@/types";
 
 export const commentApi = {
   listByCard: async (cardId: string): Promise<CardComment[]> => {
-    const res = await apiClient.get<CardComment[]>('/comments', { params: { card_id: cardId } });
+    const res = await apiClient.get<CardComment[]>("/comments", {
+      params: { card_id: cardId },
+    });
     return res.data;
   },
 
-  create: async (cardId: string, body: string): Promise<CardComment> => {
-    const res = await apiClient.post<CardComment>('/comments', { card_id: cardId, body });
+  create: async (
+    cardId: string,
+    body: string,
+    is_internal = false,
+  ): Promise<CardComment> => {
+    const res = await apiClient.post<CardComment>("/comments", {
+      card_id: cardId,
+      body,
+      is_internal,
+    });
     return res.data;
   },
 
   update: async (commentId: string, body: string): Promise<CardComment> => {
-    const res = await apiClient.put<CardComment>(`/comments/${commentId}`, { body });
+    const res = await apiClient.put<CardComment>(`/comments/${commentId}`, {
+      body,
+    });
     return res.data;
   },
 

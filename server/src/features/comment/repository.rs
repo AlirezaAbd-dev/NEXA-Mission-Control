@@ -50,6 +50,7 @@ impl CommentRepository {
                 .collect();
 
             results.push(CommentResponse {
+                is_internal: false,
                 id,
                 card_id,
                 author_id,

@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
-import { useRegister } from '@/hooks/auth/useRegister';
-import { Input, Button, Card, CardHeader, CardTitle, CardContent } from '@/components/ui';
-import { ShieldCheck } from 'lucide-react';
-import { NexaLogo } from '@/components/common/NexaLogo';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router";
+import { useRegister } from "@/hooks/auth/useRegister";
+import {
+  Input,
+  Button,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/components/ui";
+import { ShieldCheck } from "lucide-react";
+import { NexaLogo } from "@/components/common/NexaLogo";
 
 export const RegisterPage = () => {
-  const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');
-  const [displayName, setDisplayName] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [password, setPassword] = useState("");
   const [formErrors, setFormErrors] = useState<{
     email?: string;
     username?: string;
@@ -22,13 +29,14 @@ export const RegisterPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errors: { email?: string; username?: string; password?: string } = {};
-    if (!displayName.trim() && !username.trim()) errors.username = 'Username is required';
-    if (!username.trim()) errors.username = 'Username is required';
-    if (!email.trim()) errors.email = 'Email address is required';
+    if (!displayName.trim() && !username.trim())
+      errors.username = "Username is required";
+    if (!username.trim()) errors.username = "Username is required";
+    if (!email.trim()) errors.email = "Email address is required";
     if (!password) {
-      errors.password = 'Password is required';
+      errors.password = "Password is required";
     } else if (password.length < 6) {
-      errors.password = 'Password must be at least 6 characters';
+      errors.password = "Password must be at least 6 characters";
     }
 
     if (Object.keys(errors).length > 0) {
@@ -44,7 +52,7 @@ export const RegisterPage = () => {
         display_name: displayName.trim() || username.trim(),
         password,
       });
-      navigate('/');
+      navigate("/");
     } catch {
       // Error is handled in mutation
     }
@@ -54,7 +62,7 @@ export const RegisterPage = () => {
     <div className="min-h-screen w-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-[#070e10] relative overflow-hidden">
       {/* Decorative ambient gradient orbs */}
       <div className="absolute top-1/4 -right-32 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -left-32 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -left-32 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <Card className="w-full max-w-md shadow-2xl border-slate-200/80 dark:border-[#183035] bg-white/95 dark:bg-[#0d1a1d] backdrop-blur-md relative z-10">
         <CardHeader className="text-center pb-2">
@@ -62,7 +70,10 @@ export const RegisterPage = () => {
             <NexaLogo size={48} />
           </div>
           <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-            NEXA <span className="text-teal-600 dark:text-teal-400">Mission Control</span>
+            NEXA{" "}
+            <span className="text-teal-600 dark:text-teal-400">
+              Mission Control
+            </span>
           </CardTitle>
           <p className="text-xs text-slate-500 dark:text-slate-300 mt-1.5 font-medium">
             Join your mission workspace and start building
@@ -73,7 +84,8 @@ export const RegisterPage = () => {
           <form onSubmit={handleSubmit} className="space-y-3.5">
             {registerMutation.isError && (
               <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-600 dark:text-rose-400 font-medium">
-                {(registerMutation.error as any)?.response?.data?.error?.message || 'Registration failed'}
+                {(registerMutation.error as any)?.response?.data?.error
+                  ?.message || "Registration failed"}
               </div>
             )}
 
@@ -93,7 +105,8 @@ export const RegisterPage = () => {
               error={formErrors.username}
               onChange={(e) => {
                 setUsername(e.target.value);
-                if (formErrors.username) setFormErrors((prev) => ({ ...prev, username: undefined }));
+                if (formErrors.username)
+                  setFormErrors((prev) => ({ ...prev, username: undefined }));
               }}
             />
 
@@ -106,7 +119,8 @@ export const RegisterPage = () => {
               error={formErrors.email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                if (formErrors.email) setFormErrors((prev) => ({ ...prev, email: undefined }));
+                if (formErrors.email)
+                  setFormErrors((prev) => ({ ...prev, email: undefined }));
               }}
             />
 
@@ -119,7 +133,8 @@ export const RegisterPage = () => {
               error={formErrors.password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                if (formErrors.password) setFormErrors((prev) => ({ ...prev, password: undefined }));
+                if (formErrors.password)
+                  setFormErrors((prev) => ({ ...prev, password: undefined }));
               }}
             />
 
@@ -138,8 +153,13 @@ export const RegisterPage = () => {
             </div>
 
             <div className="text-center pt-2 border-t border-slate-100 dark:border-[#183035]">
-              <span className="text-xs text-slate-500">Already have an account? </span>
-              <Link to="/login" className="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:underline">
+              <span className="text-xs text-slate-500">
+                Already have an account?{" "}
+              </span>
+              <Link
+                to="/login"
+                className="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:underline"
+              >
                 Sign in
               </Link>
             </div>

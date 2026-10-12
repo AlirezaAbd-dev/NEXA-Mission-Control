@@ -84,7 +84,7 @@ export interface Card {
   column_id: string;
   title: string;
   description?: string | null;
-  priority: 'urgent' | 'high' | 'medium' | 'low' | 'no_priority' | string;
+  priority: "urgent" | "high" | "medium" | "low" | "no_priority" | string;
   position: number;
   creator_id?: string | null;
   due_date?: string | null;
@@ -120,7 +120,7 @@ export interface CardLink {
   source_card_id: string;
   target_card_id: string;
   target_card_title: string;
-  link_type: 'blocks' | 'blocked_by' | 'relates_to' | string;
+  link_type: "blocks" | "blocked_by" | "relates_to" | string;
   created_at: string;
 }
 
@@ -136,7 +136,8 @@ export interface CustomFieldDefinition {
   id: string;
   project_id: string;
   name: string;
-  field_type: 'text' | 'number' | 'currency' | 'dropdown' | 'checkbox' | 'date' | string;
+  field_type:
+    "text" | "number" | "currency" | "dropdown" | "checkbox" | "date" | string;
   options: string[];
   position: number;
   created_at: string;
@@ -154,7 +155,6 @@ export interface CustomFieldValue {
   updated_at: string;
 }
 
-
 export interface CommentReaction {
   emoji: string;
   count: number;
@@ -162,6 +162,7 @@ export interface CommentReaction {
 }
 
 export interface CardComment {
+  is_internal?: boolean;
   id: string;
   card_id: string;
   author_id?: string | null;
@@ -208,7 +209,7 @@ export interface Sprint {
   goal?: string | null;
   start_date?: string | null;
   end_date?: string | null;
-  status: 'planned' | 'active' | 'completed' | string;
+  status: "planned" | "active" | "completed" | string;
   card_ids: string[];
   created_at: string;
 }
@@ -229,7 +230,7 @@ export interface Notification {
   user_id: string;
   type_: string;
   read_at?: string | null;
-  payload: Record<string, any>;
+  payload: Record<string, unknown>;
   created_at: string;
 }
 
@@ -241,3 +242,13 @@ export interface SearchResultItem {
   description?: string | null;
   priority: string;
 }
+
+export type {
+  EnterpriseResource,
+  ResourceInput,
+  CardMetadata,
+  SprintSnapshot,
+  AuditEntry,
+  PersonalToken,
+  BoardPreferences,
+} from "./enterprise";

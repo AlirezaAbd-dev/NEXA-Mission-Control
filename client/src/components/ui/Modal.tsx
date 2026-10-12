@@ -1,6 +1,20 @@
-import React, { useEffect } from 'react';
-import { cn } from '@/lib/utils';
-import { X } from 'lucide-react';
+import React, { useEffect, useId, useRef, useSyncExternalStore } from "react";
+import { cn } from "@/lib/utils";
+import { X } from "lucide-react";
+import { createPortal } from "react-dom";
+
+const modalStack: string[] = [];
+const listeners = new Set<() => void>();
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+function notifyStack() {
+  for (const listener of listeners) listener();
+}
+let previousBodyOverflow = "";
 
 export interface ModalProps {
   isOpen: boolean;
@@ -8,7 +22,7 @@ export interface ModalProps {
   title?: string;
   description?: string;
   children: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  size?: "sm" | "md" | "lg" | "xl" | "2xl";
   className?: string;
   hideHeaderClose?: boolean;
   closeButtonClassName?: string;
@@ -20,41 +34,103 @@ export const Modal = ({
   title,
   description,
   children,
-  size = 'md',
+  size = "md",
   className,
   hideHeaderClose = false,
   closeButtonClassName,
 }: ModalProps) => {
+  const modalId = useId();
+  const stackPosition = useSyncExternalStore(
+    subscribe,
+    () => modalStack.indexOf(modalId),
+    () => -1,
+  );
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
+    closeRef.current = onClose;
+  }, [onClose]);
+  useEffect(() => {
+    if (!isOpen) return;
+    const previousFocus =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    if (modalStack.length === 0)
+      previousBodyOverflow = document.body.style.overflow;
+    modalStack.push(modalId);
+    notifyStack();
+    document.body.style.overflow = "hidden";
+    const focusable = () =>
+      Array.from(
+        dialogRef.current?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]),input:not([disabled]),textarea:not([disabled]),a[href],[tabindex="0"]',
+        ) || [],
+      ).filter((e) => e.getClientRects().length > 0);
+    const frame = requestAnimationFrame(() => {
+      if (modalStack.at(-1) === modalId)
+        (focusable()[0] || dialogRef.current)?.focus();
+    });
+    const handler = (e: KeyboardEvent) => {
+      if (modalStack.at(-1) !== modalId) return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        closeRef.current();
+      }
+      if (e.key === "Tab") {
+        const items = focusable(),
+          first = items[0],
+          last = items.at(-1);
+        if (!first) {
+          e.preventDefault();
+          return;
+        }
+        if (
+          e.shiftKey &&
+          (document.activeElement === first ||
+            !dialogRef.current?.contains(document.activeElement))
+        ) {
+          e.preventDefault();
+          last?.focus();
+        } else if (
+          !e.shiftKey &&
+          (document.activeElement === last ||
+            !dialogRef.current?.contains(document.activeElement))
+        ) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     };
-
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      window.addEventListener('keydown', handleKeyDown);
-    }
-
+    document.addEventListener("keydown", handler);
     return () => {
-      document.body.style.overflow = 'unset';
-      window.removeEventListener('keydown', handleKeyDown);
+      cancelAnimationFrame(frame);
+      document.removeEventListener("keydown", handler);
+      const index = modalStack.indexOf(modalId);
+      if (index >= 0) modalStack.splice(index, 1);
+      notifyStack();
+      if (modalStack.length === 0)
+        document.body.style.overflow = previousBodyOverflow;
+      if (previousFocus?.isConnected) previousFocus.focus();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, modalId]);
 
   if (!isOpen) return null;
 
   const sizeClasses = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-    xl: 'max-w-xl',
-    '2xl': 'max-w-3xl',
+    sm: "max-w-sm",
+    md: "max-w-md",
+    lg: "max-w-lg",
+    xl: "max-w-xl",
+    "2xl": "max-w-3xl",
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+  return createPortal(
+    <div
+      style={{ zIndex: 50 + Math.max(0, stackPosition) * 10 }}
+      className="fixed inset-0 flex items-center justify-center p-3 sm:p-5 overflow-hidden"
+    >
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
@@ -63,10 +139,15 @@ export const Modal = ({
 
       {/* Modal Dialog */}
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title || "Task details"}
+        tabIndex={-1}
         className={cn(
-          'relative w-full bg-white dark:bg-[#0d1a1d] rounded-xl shadow-2xl border border-slate-200 dark:border-[#183035] p-6 z-10 animate-in zoom-in-95 duration-200',
+          "relative z-10 w-full min-w-0 max-h-[calc(100dvh-2rem)] flex flex-col overflow-hidden rounded-3xl border border-border/80 bg-card md:bg-card/95 md:backdrop-blur-2xl shadow-2xl shadow-black/25 animate-in zoom-in-95 duration-200",
           sizeClasses[size],
-          className
+          className,
         )}
       >
         {/* Floating Top-Right Close Button */}
@@ -75,8 +156,8 @@ export const Modal = ({
             type="button"
             onClick={onClose}
             className={cn(
-              "absolute top-4 right-4 z-30 p-2 text-slate-400 hover:text-slate-700 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-[#132428] rounded-lg transition-colors cursor-pointer",
-              closeButtonClassName
+              "absolute top-4 end-4 z-30 flex h-9 w-9 items-center justify-center rounded-xl border border-border/80 bg-card/80 dark:border-white/10 dark:bg-black/50 text-muted-foreground hover:bg-muted hover:text-foreground transition-all cursor-pointer focus:ring-2 focus:ring-primary/40",
+              closeButtonClassName,
             )}
             aria-label="Close modal"
           >
@@ -85,7 +166,7 @@ export const Modal = ({
         )}
 
         {(title || description) && (
-          <div className="pb-3 pr-8">
+          <div className="shrink-0 border-b border-border/70 bg-muted/30 px-6 py-4 pe-16">
             {title && (
               <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                 {title}
@@ -99,8 +180,11 @@ export const Modal = ({
           </div>
         )}
 
-        <div className="mt-1">{children}</div>
+        <div className="min-h-0 flex-auto overflow-y-auto overflow-x-hidden overscroll-contain p-5 sm:p-6">
+          {children}
+        </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };

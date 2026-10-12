@@ -1,10 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { customFieldApi } from '@/lib/api/customField.api';
-import { QUERY_KEYS } from '@/constants/queryKeys';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { customFieldApi } from "@/lib/api/customField.api";
+import { QUERY_KEYS } from "@/constants/queryKeys";
 
 export const useCustomFieldDefinitions = (projectId?: string | null) => {
   return useQuery({
-    queryKey: QUERY_KEYS.customFields.definitions(projectId || ''),
+    queryKey: QUERY_KEYS.customFields.definitions(projectId || ""),
     queryFn: () => customFieldApi.listDefinitions(projectId!),
     enabled: !!projectId,
   });
@@ -33,7 +33,7 @@ export const useDeleteCustomFieldDefinition = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, projectId }: { id: string; projectId: string }) =>
+    mutationFn: ({ id }: { id: string; projectId: string }) =>
       customFieldApi.deleteDefinition(id),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
@@ -45,7 +45,7 @@ export const useDeleteCustomFieldDefinition = () => {
 
 export const useCustomFieldValues = (cardId?: string | null) => {
   return useQuery({
-    queryKey: QUERY_KEYS.customFields.values(cardId || ''),
+    queryKey: QUERY_KEYS.customFields.values(cardId || ""),
     queryFn: () => customFieldApi.listValues(cardId!),
     enabled: !!cardId,
   });
@@ -62,7 +62,10 @@ export const useSetCustomFieldValue = () => {
       value_number?: number | null;
     }) => customFieldApi.setValue(data),
     onSuccess: (updatedValues, variables) => {
-      queryClient.setQueryData(QUERY_KEYS.customFields.values(variables.card_id), updatedValues);
+      queryClient.setQueryData(
+        QUERY_KEYS.customFields.values(variables.card_id),
+        updatedValues,
+      );
     },
   });
 };

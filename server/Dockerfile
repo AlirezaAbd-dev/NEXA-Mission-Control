@@ -10,7 +10,7 @@ COPY Cargo.toml Cargo.lock ./
 COPY migrations ./migrations
 COPY src ./src
 
-RUN cargo build --release
+RUN cargo build --release --locked
 
 # Stage 2: Runtime
 FROM debian:bookworm-slim AS runner
@@ -23,6 +23,7 @@ COPY --from=builder /app/target/release/taskflow-server /app/taskflow-server
 COPY --from=builder /app/migrations /app/migrations
 
 ENV PORT=8000
+ENV HOST=0.0.0.0
 ENV DATABASE_URL=sqlite:///data/taskflow.db?mode=rwc
 ENV UPLOAD_DIR=/uploads
 

@@ -14,3 +14,10 @@ pub mod sprint;
 pub mod time_log;
 pub mod upload;
 pub mod workspace;
+
+pub mod enterprise;
+pub mod integrations;
+
+pub mod realtime;
+
+pub mod productivity;

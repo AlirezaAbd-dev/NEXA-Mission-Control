@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface BoardFilterStore {
   searchQuery: string;
@@ -6,36 +6,42 @@ interface BoardFilterStore {
   filterPriority: string;
   selectedAssigneeId: string | null;
   selectedLabelId: string | null;
-  viewMode: 'board' | 'backlog' | 'timeline' | 'calendar' | 'list';
+  viewMode: "board" | "backlog" | "timeline" | "calendar" | "list";
   setSearchQuery: (query: string) => void;
   setSelectedPriority: (priority: string | null) => void;
   setFilterPriority: (priority: string) => void;
   setSelectedAssigneeId: (id: string | null) => void;
   setSelectedLabelId: (id: string | null) => void;
-  setViewMode: (mode: 'board' | 'backlog' | 'timeline' | 'calendar' | 'list') => void;
+  setViewMode: (
+    mode: "board" | "backlog" | "timeline" | "calendar" | "list",
+  ) => void;
   resetFilters: () => void;
 }
 
 export const useBoardFilterStore = create<BoardFilterStore>((set) => ({
-  searchQuery: '',
+  searchQuery: "",
   selectedPriority: null,
-  filterPriority: 'all',
+  filterPriority: "all",
   selectedAssigneeId: null,
   selectedLabelId: null,
-  viewMode: 'board',
+  viewMode: "board",
 
   setSearchQuery: (searchQuery) => set({ searchQuery }),
   setSelectedPriority: (selectedPriority) =>
-    set({ selectedPriority, filterPriority: selectedPriority || 'all' }),
+    set({ selectedPriority, filterPriority: selectedPriority || "all" }),
   setFilterPriority: (filterPriority) =>
-    set({ filterPriority, selectedPriority: filterPriority === 'all' ? null : filterPriority }),
+    set({
+      filterPriority,
+      selectedPriority: filterPriority === "all" ? null : filterPriority,
+    }),
   setSelectedAssigneeId: (selectedAssigneeId) => set({ selectedAssigneeId }),
   setSelectedLabelId: (selectedLabelId) => set({ selectedLabelId }),
   setViewMode: (viewMode) => set({ viewMode }),
   resetFilters: () =>
     set({
-      searchQuery: '',
+      searchQuery: "",
       selectedPriority: null,
+      filterPriority: "all",
       selectedAssigneeId: null,
       selectedLabelId: null,
     }),

@@ -20,7 +20,9 @@ pub struct CreateChecklistItemRequest {
 pub struct UpdateChecklistItemRequest {
     pub title: Option<String>,
     pub is_done: Option<bool>,
+    #[serde(default,deserialize_with="nullable_string")]
     pub assignee_id: Option<Option<String>>,
+    #[serde(default,deserialize_with="nullable_string")]
     pub due_date: Option<Option<String>>,
 }
 
@@ -45,3 +47,5 @@ pub struct ChecklistResponse {
     pub items: Vec<ChecklistItemResponse>,
     pub created_at: String,
 }
+
+fn nullable_string<'de,D:serde::Deserializer<'de>>(d:D)->Result<Option<Option<String>>,D::Error>{Ok(Some(Option::<String>::deserialize(d)?))}

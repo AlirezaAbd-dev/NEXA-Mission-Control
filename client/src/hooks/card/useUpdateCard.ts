@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { cardApi } from '@/lib/api/card.api';
-import { QUERY_KEYS } from '@/constants/queryKeys';
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { cardApi } from "@/lib/api/card.api";
+import { QUERY_KEYS } from "@/constants/queryKeys";
 
 export const useUpdateCard = (projectId: string) => {
   const queryClient = useQueryClient();
@@ -22,8 +22,11 @@ export const useUpdateCard = (projectId: string) => {
     }) => cardApi.update(data.id, data),
 
     onSuccess: (card) => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.cards.byProject(projectId) });
+      queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.cards.byProject(projectId),
+      });
       queryClient.setQueryData(QUERY_KEYS.cards.detail(card.id), card);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.productivity.all });
     },
   });
 };

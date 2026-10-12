@@ -97,6 +97,7 @@ impl SprintService {
             .await?
             .ok_or_else(|| AppError::Forbidden("You do not have access to this project".to_string()))?;
 
+        if req.status.as_deref().is_some_and(|status|status!=sprint.status) {return Err(AppError::Validation("Use the sprint lifecycle endpoint to start or complete a sprint".into()));}
         let _ = SprintRepository::update(
             &state.pool,
             id,
@@ -132,10 +133,16 @@ impl SprintService {
 
     pub async fn toggle_card(
         state: &AppState,
+        user_id: &str,
         sprint_id: &str,
         card_id: &str,
         add: bool,
     ) -> Result<(), AppError> {
+        let sprint = SprintRepository::find_by_id(&state.pool,sprint_id).await?
+            .ok_or_else(||AppError::NotFound("Sprint not found".into()))?;
+        crate::features::enterprise::service::authorize(state,user_id,&sprint.project_id,true,false).await?;
+        crate::features::enterprise::operations::require_card(&state.pool,&sprint.project_id,card_id).await?;
+        if sprint.status == "completed" { return Err(AppError::Conflict("Completed sprint membership is frozen".into())); }
         let now = Utc::now().to_rfc3339();
         if add {
             SprintRepository::add_card(&state.pool, sprint_id, card_id, &now).await

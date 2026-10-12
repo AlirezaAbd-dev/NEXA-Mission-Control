@@ -2,10 +2,12 @@
 
 > **Project**: NEXA Mission Control (Enterprise Project Management Platform)  
 > **Repository**: [GitHub: AlirezaAbd-dev/NEXA-Mission-Control](https://github.com/AlirezaAbd-dev/NEXA-Mission-Control)  
-> **Status**: **Phase 1 Completed & Verified ✅** | Phases 2–5 Ready for Execution 🚀  
+> **Status**: **Phases 1–5 implemented locally; provider configuration required for integrations**
 > **Stack**: Rust (Axum 0.8 + SQLite WAL + SQLx) + React 19 (TypeScript + Vite + Tailwind CSS v4 + TanStack Query + Zustand)
 
 ---
+
+Implementation scope and validation are recorded in [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md). The detailed sections below preserve the original requirements.
 
 ## Table of Contents
 1. [Developer Onboarding & Quick Start (Work Computer Setup)](#1-developer-onboarding--quick-start-work-computer-setup)

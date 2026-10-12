@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { cn } from '@/lib/utils';
-import { ChevronDown, Check, Search, AlertCircle } from 'lucide-react';
+import React, { useState, useRef, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { ChevronDown, Check, Search, AlertCircle } from "lucide-react";
 
 export interface SelectOption {
   label: string;
@@ -26,7 +26,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   options,
   value,
   onChange,
-  placeholder = 'Select option...',
+  placeholder = "Select option...",
   label,
   error,
   searchable = false,
@@ -35,44 +35,55 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
   id,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find((opt) => opt.value === value);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setIsOpen(false);
-        setSearchQuery('');
+        setSearchQuery("");
       }
     };
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
 
-  const filteredOptions = searchable && searchQuery.trim()
-    ? options.filter((opt) =>
-        opt.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        opt.description?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : options;
+  const filteredOptions =
+    searchable && searchQuery.trim()
+      ? options.filter(
+          (opt) =>
+            opt.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            opt.description?.toLowerCase().includes(searchQuery.toLowerCase()),
+        )
+      : options;
 
   const handleSelect = (val: string) => {
     onChange(val);
     setIsOpen(false);
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   return (
-    <div className={cn('w-full space-y-1.5 text-left relative', className)} ref={containerRef}>
+    <div
+      className={cn("w-full space-y-1.5 text-left relative", className)}
+      ref={containerRef}
+    >
       {label && (
-        <label htmlFor={id} className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+        <label
+          htmlFor={id}
+          className="block text-xs font-semibold text-slate-700 dark:text-slate-300"
+        >
           {label}
         </label>
       )}
@@ -84,29 +95,32 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
         disabled={disabled}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         className={cn(
-          'w-full px-3 py-2 text-sm rounded-lg border flex items-center justify-between gap-2 transition-all shadow-2xs select-none cursor-pointer',
-          'bg-white dark:bg-[#091316] text-slate-900 dark:text-slate-100',
-          'border-slate-200 dark:border-[#183035]',
+          "w-full px-3 py-2 text-sm rounded-lg border flex items-center justify-between gap-2 transition-all shadow-2xs select-none cursor-pointer",
+          "bg-white dark:bg-[#091316] text-slate-900 dark:text-slate-100",
+          "border-slate-200 dark:border-[#183035]",
           isOpen
-            ? 'ring-2 ring-teal-500/30 border-teal-500 dark:border-teal-500'
-            : 'hover:border-slate-300 dark:hover:border-[#2dd4bf]/40',
-          error && 'border-rose-500 dark:border-rose-500 ring-rose-500/20 bg-rose-500/5',
-          disabled && 'opacity-50 cursor-not-allowed'
+            ? "ring-2 ring-teal-500/30 border-teal-500 dark:border-teal-500"
+            : "hover:border-slate-300 dark:hover:border-[#2dd4bf]/40",
+          error &&
+            "border-rose-500 dark:border-rose-500 ring-rose-500/20 bg-rose-500/5",
+          disabled && "opacity-50 cursor-not-allowed",
         )}
       >
         <div className="flex items-center gap-2 truncate">
           {selectedOption?.icon && (
-            <span className="shrink-0 text-slate-400">{selectedOption.icon}</span>
+            <span className="shrink-0 text-slate-400">
+              {selectedOption.icon}
+            </span>
           )}
-          <span className={cn('truncate', !selectedOption && 'text-slate-400')}>
+          <span className={cn("truncate", !selectedOption && "text-slate-400")}>
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </div>
 
         <ChevronDown
           className={cn(
-            'w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0',
-            isOpen && 'rotate-180 text-teal-500'
+            "w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0",
+            isOpen && "rotate-180 text-teal-500",
           )}
         />
       </button>
@@ -144,10 +158,10 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
                     type="button"
                     onClick={() => handleSelect(opt.value)}
                     className={cn(
-                      'w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition-colors text-left cursor-pointer',
+                      "w-full flex items-center justify-between px-3 py-2 text-xs rounded-lg transition-colors text-left cursor-pointer",
                       isSelected
-                        ? 'bg-teal-500/15 text-teal-600 dark:text-teal-400 font-semibold'
-                        : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#132428]'
+                        ? "bg-teal-500/15 text-teal-600 dark:text-teal-400 font-semibold"
+                        : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#132428]",
                     )}
                   >
                     <div className="flex items-center gap-2 truncate">

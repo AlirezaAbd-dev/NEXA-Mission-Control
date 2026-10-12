@@ -1,35 +1,40 @@
-import React from 'react';
-import { History, ArrowRight, PlusCircle, CheckCircle, Clock } from 'lucide-react';
-import { UserAvatar } from '@/components/common/UserAvatar';
-import { useCardActivities } from '@/hooks/card/useCardActivities';
-import { formatRelativeTime } from '@/lib/utils';
+import React from "react";
+import { History, ArrowRight, PlusCircle, Clock } from "lucide-react";
+import { UserAvatar } from "@/components/common/UserAvatar";
+import { useCardActivities } from "@/hooks/card/useCardActivities";
+import { formatRelativeTime } from "@/lib/utils";
 
 interface CardActivityStreamProps {
   cardId: string;
 }
 
-export const CardActivityStream: React.FC<CardActivityStreamProps> = ({ cardId }) => {
+export const CardActivityStream: React.FC<CardActivityStreamProps> = ({
+  cardId,
+}) => {
   const { data: activities = [], isLoading } = useCardActivities(cardId);
 
-  const getActionDescription = (action: string, payload: any) => {
+  const getActionDescription = (
+    action: string,
+    payload: Record<string, unknown>,
+  ) => {
     switch (action) {
-      case 'created_card':
-        return 'created this card';
-      case 'moved_card':
-        return `moved card to ${payload?.to_column || 'another list'}`;
-      case 'updated_card':
-        return 'updated card properties';
+      case "created_card":
+        return "created this card";
+      case "moved_card":
+        return `moved card to ${payload?.to_column || "another list"}`;
+      case "updated_card":
+        return "updated card properties";
       default:
-        return action.replace('_', ' ');
+        return action.replace("_", " ");
     }
   };
 
   const getActionIcon = (action: string) => {
     switch (action) {
-      case 'created_card':
+      case "created_card":
         return <PlusCircle className="w-3.5 h-3.5 text-teal-500" />;
-      case 'moved_card':
-        return <ArrowRight className="w-3.5 h-3.5 text-cyan-500" />;
+      case "moved_card":
+        return <ArrowRight className="w-3.5 h-3.5 text-teal-500" />;
       default:
         return <Clock className="w-3.5 h-3.5 text-slate-400" />;
     }
@@ -43,9 +48,13 @@ export const CardActivityStream: React.FC<CardActivityStreamProps> = ({ cardId }
       </div>
 
       {isLoading ? (
-        <div className="text-xs text-slate-400 animate-pulse">Loading activity log...</div>
+        <div className="text-xs text-slate-400 animate-pulse">
+          Loading activity log...
+        </div>
       ) : activities.length === 0 ? (
-        <div className="text-xs text-slate-400 italic py-1">No recorded history for this card yet.</div>
+        <div className="text-xs text-slate-400 italic py-1">
+          No recorded history for this card yet.
+        </div>
       ) : (
         <div className="space-y-2.5 pt-1">
           {activities.map((act) => (
@@ -64,8 +73,9 @@ export const CardActivityStream: React.FC<CardActivityStreamProps> = ({ cardId }
                   <span className="font-semibold text-slate-900 dark:text-slate-100">
                     {act.actor_name}
                   </span>
+                  {getActionIcon(act.action)}
                   <span>{getActionDescription(act.action, act.payload)}</span>
-                  <span className="text-[11px] text-slate-400 ml-auto">
+                  <span className="text-[11px] text-slate-400 ms-auto">
                     {formatRelativeTime(act.created_at)}
                   </span>
                 </div>

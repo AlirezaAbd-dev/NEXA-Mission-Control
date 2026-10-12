@@ -1,5 +1,8 @@
-import { useState } from 'react';
-import { NavLink, useParams, useNavigate } from 'react-router';
+import { CustomSelect } from "@/components/ui/CustomSelect";
+import { useProject } from "@/hooks/project/useProject";
+import { StarredBoards } from "@/features/views/StarredBoards";
+import { useState } from "react";
+import { NavLink, useParams, useNavigate } from "react-router";
 import {
   Kanban,
   ListTodo,
@@ -8,76 +11,96 @@ import {
   TableProperties,
   Plus,
   Settings,
-} from 'lucide-react';
-import { NexaLogo } from '@/components/common/NexaLogo';
-import { useUiStore } from '@/stores/ui.store';
-import { useWorkspaces } from '@/hooks/workspace/useWorkspaces';
-import { useProjects } from '@/hooks/project/useProjects';
-import { Modal, Button, Input, Textarea } from '@/components/ui';
-import { useCreateProject } from '@/hooks/project/useCreateProject';
-import { useCreateWorkspace } from '@/hooks/workspace/useCreateWorkspace';
+} from "lucide-react";
+import { NexaLogo } from "@/components/common/NexaLogo";
+import { useUiStore } from "@/stores/ui.store";
+import { useWorkspaces } from "@/hooks/workspace/useWorkspaces";
+import { useProjects } from "@/hooks/project/useProjects";
+import { Modal, Button, Input, Textarea } from "@/components/ui";
+import { useCreateProject } from "@/hooks/project/useCreateProject";
+import { useCreateWorkspace } from "@/hooks/workspace/useCreateWorkspace";
 
 export const Sidebar = () => {
-  const { workspaceId, projectId } = useParams<{ workspaceId?: string; projectId?: string }>();
+  const { workspaceId, projectId } = useParams<{
+    workspaceId?: string;
+    projectId?: string;
+  }>();
   const navigate = useNavigate();
   const sidebarOpen = useUiStore((s) => s.sidebarOpen);
 
   const { data: workspaces = [] } = useWorkspaces();
-  const currentWorkspace = workspaces.find((w) => w.id === workspaceId) || workspaces[0];
+  const { data: activeProject } = useProject(projectId || "");
+  const currentWorkspace =
+    workspaces.find(
+      (w) => w.id === (workspaceId || activeProject?.workspace_id),
+    ) || workspaces[0];
 
   const { data: projects = [] } = useProjects(currentWorkspace?.id);
-  const currentProject = projects.find((p) => p.id === projectId) || projects[0];
+  const currentProject =
+    projects.find((p) => p.id === projectId) || projects[0];
 
   const [createProjectOpen, setCreateProjectOpen] = useState(false);
-  const [newProjectName, setNewProjectName] = useState('');
-  const [newProjectIdentifier, setNewProjectIdentifier] = useState('');
-  const [newProjectDesc, setNewProjectDesc] = useState('');
+  const [newProjectName, setNewProjectName] = useState("");
+  const [newProjectIdentifier, setNewProjectIdentifier] = useState("");
+  const [newProjectDesc, setNewProjectDesc] = useState("");
+  const [newProjectVisibility, setNewProjectVisibility] = useState<
+    "public" | "private"
+  >("public");
   const [projectError, setProjectError] = useState<string | null>(null);
 
   const [createWorkspaceOpen, setCreateWorkspaceOpen] = useState(false);
-  const [newWorkspaceName, setNewWorkspaceName] = useState('');
+  const [newWorkspaceName, setNewWorkspaceName] = useState("");
   const [workspaceError, setWorkspaceError] = useState<string | null>(null);
 
-  const createProjectMutation = useCreateProject(currentWorkspace?.id || '');
+  const createProjectMutation = useCreateProject(currentWorkspace?.id || "");
   const createWorkspaceMutation = useCreateWorkspace();
 
   const handleCreateProject = async () => {
     if (!newProjectName.trim()) {
-      setProjectError('Project name is required');
+      setProjectError("Project name is required");
       return;
     }
     setProjectError(null);
 
-    const identifier = newProjectIdentifier.trim() || newProjectName.slice(0, 3).toUpperCase();
+    const identifier =
+      newProjectIdentifier.trim() || newProjectName.slice(0, 3).toUpperCase();
     try {
       await createProjectMutation.mutateAsync({
         name: newProjectName.trim(),
         identifier,
         description: newProjectDesc.trim() || undefined,
+        visibility: newProjectVisibility,
       });
       setCreateProjectOpen(false);
-      setNewProjectName('');
-      setNewProjectIdentifier('');
-      setNewProjectDesc('');
+      setNewProjectName("");
+      setNewProjectIdentifier("");
+      setNewProjectDesc("");
+      setNewProjectVisibility("public");
     } catch (err: any) {
-      setProjectError(err?.response?.data?.error?.message || 'Failed to create project');
+      setProjectError(
+        err?.response?.data?.error?.message || "Failed to create project",
+      );
     }
   };
 
   const handleCreateWorkspace = async () => {
     if (!newWorkspaceName.trim()) {
-      setWorkspaceError('Workspace name is required');
+      setWorkspaceError("Workspace name is required");
       return;
     }
     setWorkspaceError(null);
 
     try {
-      const ws = await createWorkspaceMutation.mutateAsync({ name: newWorkspaceName.trim() });
+      const ws = await createWorkspaceMutation.mutateAsync({
+        name: newWorkspaceName.trim(),
+      });
       setCreateWorkspaceOpen(false);
-      setNewWorkspaceName('');
+      setNewWorkspaceName("");
       navigate(`/w/${ws.id}`);
     } catch (err: any) {
-      setWorkspaceError(err?.response?.data?.error?.message || 'Failed to create workspace');
+      setWorkspaceError(
+        err?.response?.data?.error?.message || "Failed to create workspace",
+      );
     }
   };
 
@@ -92,7 +115,7 @@ export const Sidebar = () => {
             <NexaLogo size={32} className="shrink-0" />
             <div className="truncate">
               <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate flex items-center gap-1.5">
-                <span>{currentWorkspace?.name || 'NEXA'}</span>
+                <span>{currentWorkspace?.name || "NEXA"}</span>
               </h2>
               <span className="text-[10px] text-teal-600 dark:text-teal-400 font-semibold tracking-wider uppercase">
                 Mission Control
@@ -113,6 +136,18 @@ export const Sidebar = () => {
 
         {/* Project navigation */}
         <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+          <CustomSelect
+            value={currentWorkspace?.id}
+            options={workspaces.map((w) => ({ value: w.id, label: w.name }))}
+            onChange={(id) => navigate(`/w/${id}`)}
+          />
+          <NavLink
+            className="mx-3 p-3 text-sm rounded-xl hover:bg-teal-500/10"
+            to={`/w/${currentWorkspace?.id}/work`}
+          >
+            Inbox, Planner & workspace work
+          </NavLink>
+          <StarredBoards projectId={currentProject?.id || ""} />
           {/* Projects list */}
           <div>
             <div className="flex items-center justify-between px-2 mb-2">
@@ -140,13 +175,13 @@ export const Sidebar = () => {
                     onClick={() => navigate(`/p/${proj.id}/board`)}
                     className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all text-left ${
                       isActive
-                        ? 'bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/25'
-                        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100/70 dark:hover:bg-[#132428]'
+                        ? "bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/25"
+                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-100/70 dark:hover:bg-[#132428]"
                     }`}
                   >
                     <span
                       className="w-2 h-2 rounded-full shrink-0"
-                      style={{ backgroundColor: proj.color || '#2dd4bf' }}
+                      style={{ backgroundColor: proj.color || "#2dd4bf" }}
                     />
                     <span className="truncate">{proj.name}</span>
                   </button>
@@ -170,8 +205,8 @@ export const Sidebar = () => {
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                       isActive
-                        ? 'bg-slate-100 dark:bg-[#132428] text-teal-600 dark:text-teal-400 font-semibold'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#132428]/50'
+                        ? "bg-slate-100 dark:bg-[#132428] text-teal-600 dark:text-teal-400 font-semibold"
+                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#132428]/50"
                     }`
                   }
                 >
@@ -184,8 +219,8 @@ export const Sidebar = () => {
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                       isActive
-                        ? 'bg-slate-100 dark:bg-[#132428] text-teal-600 dark:text-teal-400 font-semibold'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#132428]/50'
+                        ? "bg-slate-100 dark:bg-[#132428] text-teal-600 dark:text-teal-400 font-semibold"
+                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#132428]/50"
                     }`
                   }
                 >
@@ -198,8 +233,8 @@ export const Sidebar = () => {
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                       isActive
-                        ? 'bg-slate-100 dark:bg-[#132428] text-teal-600 dark:text-teal-400 font-semibold'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#132428]/50'
+                        ? "bg-slate-100 dark:bg-[#132428] text-teal-600 dark:text-teal-400 font-semibold"
+                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#132428]/50"
                     }`
                   }
                 >
@@ -212,12 +247,12 @@ export const Sidebar = () => {
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                       isActive
-                        ? 'bg-slate-100 dark:bg-[#132428] text-teal-600 dark:text-teal-400 font-semibold'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#132428]/50'
+                        ? "bg-slate-100 dark:bg-[#132428] text-teal-600 dark:text-teal-400 font-semibold"
+                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#132428]/50"
                     }`
                   }
                 >
-                  <CalendarDays className="w-4 h-4 text-cyan-500" />
+                  <CalendarDays className="w-4 h-4 text-teal-500" />
                   <span>Calendar</span>
                 </NavLink>
 
@@ -226,8 +261,8 @@ export const Sidebar = () => {
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                       isActive
-                        ? 'bg-slate-100 dark:bg-[#132428] text-teal-600 dark:text-teal-400 font-semibold'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#132428]/50'
+                        ? "bg-slate-100 dark:bg-[#132428] text-teal-600 dark:text-teal-400 font-semibold"
+                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-[#132428]/50"
                     }`
                   }
                 >
@@ -267,7 +302,9 @@ export const Sidebar = () => {
               setNewProjectName(e.target.value);
               if (projectError) setProjectError(null);
               if (!newProjectIdentifier) {
-                setNewProjectIdentifier(e.target.value.slice(0, 4).toUpperCase());
+                setNewProjectIdentifier(
+                  e.target.value.slice(0, 4).toUpperCase(),
+                );
               }
             }}
           />
@@ -275,7 +312,18 @@ export const Sidebar = () => {
             label="Identifier (Key)"
             placeholder="e.g. WEB"
             value={newProjectIdentifier}
-            onChange={(e) => setNewProjectIdentifier(e.target.value.toUpperCase())}
+            onChange={(e) =>
+              setNewProjectIdentifier(e.target.value.toUpperCase())
+            }
+          />
+          <CustomSelect
+            label="Visibility"
+            value={newProjectVisibility}
+            options={[
+              { value: "public", label: "Workspace-visible" },
+              { value: "private", label: "Private" },
+            ]}
+            onChange={(v) => setNewProjectVisibility(v as "public" | "private")}
           />
           <Textarea
             label="Description (Optional)"
@@ -285,7 +333,11 @@ export const Sidebar = () => {
             rows={3}
           />
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" size="sm" onClick={() => setCreateProjectOpen(false)}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setCreateProjectOpen(false)}
+            >
               Cancel
             </Button>
             <Button
@@ -317,7 +369,11 @@ export const Sidebar = () => {
             }}
           />
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="secondary" size="sm" onClick={() => setCreateWorkspaceOpen(false)}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setCreateWorkspaceOpen(false)}
+            >
               Cancel
             </Button>
             <Button

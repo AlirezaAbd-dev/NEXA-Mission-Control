@@ -145,14 +145,10 @@ impl SprintRepository {
     }
 
     pub async fn add_card(pool: &SqlitePool, sprint_id: &str, card_id: &str, now: &str) -> Result<(), AppError> {
-        sqlx::query(
-            "INSERT INTO sprint_cards (sprint_id, card_id, added_at) VALUES (?1, ?2, ?3) ON CONFLICT DO NOTHING"
-        )
-        .bind(sprint_id)
-        .bind(card_id)
-        .bind(now)
-        .execute(pool)
-        .await?;
+        let mut tx=pool.begin().await?;
+        sqlx::query("DELETE FROM sprint_cards WHERE card_id=? AND sprint_id IN (SELECT id FROM sprints WHERE status!='completed')").bind(card_id).execute(&mut *tx).await?;
+        sqlx::query("INSERT INTO sprint_cards(sprint_id,card_id,added_at) VALUES(?,?,?)").bind(sprint_id).bind(card_id).bind(now).execute(&mut *tx).await?;
+        tx.commit().await?;
 
         Ok(())
     }

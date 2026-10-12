@@ -1,7 +1,3 @@
-use axum::{
-    extract::{Query, State},
-    Json,
-};
 use crate::{
     error::AppError,
     extractors::auth::AuthUser,
@@ -10,6 +6,10 @@ use crate::{
         service::SearchService,
     },
     state::AppState,
+};
+use axum::{
+    extract::{Query, State},
+    Json,
 };
 
 pub async fn search(

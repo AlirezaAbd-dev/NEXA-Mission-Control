@@ -21,7 +21,13 @@ pub async fn init_db(database_url: &str) -> anyhow::Result<SqlitePool> {
     }
 
     let pool = SqlitePoolOptions::new()
-        .max_connections(20)
+        .max_connections(8)
+        .after_connect(|connection,_| Box::pin(async move {
+            sqlx::query("PRAGMA foreign_keys=ON").execute(&mut *connection).await?;
+            sqlx::query("PRAGMA busy_timeout=5000").execute(&mut *connection).await?;
+            sqlx::query("PRAGMA synchronous=NORMAL").execute(&mut *connection).await?;
+            Ok(())
+        }))
         .connect(database_url)
         .await
         .with_context(|| format!("Failed to connect to SQLite at {}", database_url))?;
@@ -57,3 +63,5 @@ pub async fn init_db(database_url: &str) -> anyhow::Result<SqlitePool> {
 
     Ok(pool)
 }
+
+pub mod demo;

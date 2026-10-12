@@ -63,9 +63,10 @@ pub struct SprintCardTogglePayload {
 
 pub async fn toggle_card(
     State(state): State<AppState>,
+    auth: AuthUser,
     Path(sprint_id): Path<String>,
     Json(payload): Json<SprintCardTogglePayload>,
 ) -> Result<Json<serde_json::Value>, AppError> {
-    SprintService::toggle_card(&state, &sprint_id, &payload.card_id, payload.add).await?;
+    SprintService::toggle_card(&state, &auth.id, &sprint_id, &payload.card_id, payload.add).await?;
     Ok(Json(serde_json::json!({ "success": true })))
 }

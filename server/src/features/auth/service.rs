@@ -177,6 +177,7 @@ impl AuthService {
             .verify_password(req.password.as_bytes(), &parsed_hash)
             .map_err(|_| AppError::Unauthorized("Invalid email or password".to_string()))?;
 
+        super::mfa_service::verify_login(state,&user.id,req.otp.as_deref()).await?;
         let token = Self::generate_token(&user, &state.config.jwt_secret)?;
 
         Ok(AuthResponse {

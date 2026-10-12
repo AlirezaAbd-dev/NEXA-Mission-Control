@@ -1,17 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { Play, Square, Clock, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
+import { useNow } from "@/hooks/useNow";
+import React, { useState, useEffect } from "react";
+import {
+  Play,
+  Square,
+  Clock,
+  Plus,
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import {
   useTimeLogs,
   useCreateTimeLog,
   useDeleteTimeLog,
-} from '@/hooks/timeLog/useTimeLogs';
+} from "@/hooks/timeLog/useTimeLogs";
 import {
   useActiveTimer,
   useStartTimer,
   useStopTimer,
-} from '@/hooks/timeLog/useActiveTimer';
+} from "@/hooks/timeLog/useActiveTimer";
 
 interface CardTimerProps {
   cardId: string;
@@ -25,45 +34,41 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
   const createTimeLog = useCreateTimeLog();
   const deleteTimeLog = useDeleteTimeLog();
 
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [tick, setTick] = useState(() => Date.now());
+  const now = useNow();
+  const elapsedSeconds = activeTimer?.started_at
+    ? Math.max(
+        0,
+        Math.floor(
+          (Math.max(tick, now) - new Date(activeTimer.started_at).getTime()) /
+            1000,
+        ),
+      )
+    : 0;
   const [showManualLog, setShowManualLog] = useState(false);
   const [showLogHistory, setShowLogHistory] = useState(false);
-  const [manualMinutes, setManualMinutes] = useState('');
-  const [manualDescription, setManualDescription] = useState('');
+  const [manualMinutes, setManualMinutes] = useState("");
+  const [manualDescription, setManualDescription] = useState("");
 
-  // Live ticking stopwatch when active timer is running
   useEffect(() => {
-    if (!activeTimer?.started_at) {
-      setElapsedSeconds(0);
-      return;
-    }
-
-    const startTime = new Date(activeTimer.started_at).getTime();
-
-    const updateElapsed = () => {
-      const now = Date.now();
-      const diff = Math.max(0, Math.floor((now - startTime) / 1000));
-      setElapsedSeconds(diff);
-    };
-
-    updateElapsed();
-    const interval = setInterval(updateElapsed, 1000);
-    return () => clearInterval(interval);
+    if (!activeTimer?.started_at) return;
+    const timer = setInterval(() => setTick(Date.now()), 1000);
+    return () => clearInterval(timer);
   }, [activeTimer?.started_at]);
 
   const formatStopwatch = (totalSec: number) => {
     const hours = Math.floor(totalSec / 3600);
     const minutes = Math.floor((totalSec % 3600) / 60);
     const seconds = totalSec % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes
+    return `${hours.toString().padStart(2, "0")}:${minutes
       .toString()
-      .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
   const totalMinutesLogged = logs.reduce((acc, log) => acc + log.minutes, 0);
   const totalHours = Math.floor(totalMinutesLogged / 60);
   const remainingMinutes = totalMinutesLogged % 60;
-  const formattedTotal = `${totalHours > 0 ? `${totalHours}h ` : ''}${remainingMinutes}m`;
+  const formattedTotal = `${totalHours > 0 ? `${totalHours}h ` : ""}${remainingMinutes}m`;
 
   const handleToggleTimer = () => {
     if (activeTimer) {
@@ -86,11 +91,11 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
       },
       {
         onSuccess: () => {
-          setManualMinutes('');
-          setManualDescription('');
+          setManualMinutes("");
+          setManualDescription("");
           setShowManualLog(false);
         },
-      }
+      },
     );
   };
 
@@ -110,15 +115,15 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
       <div
         className={`p-3 rounded-xl border transition-all ${
           activeTimer
-            ? 'bg-teal-500/10 dark:bg-teal-950/30 border-teal-500/40 ring-1 ring-teal-500/20'
-            : 'bg-slate-50 dark:bg-[#0d1a1d] border-slate-200 dark:border-[#183035]'
+            ? "bg-teal-500/10 dark:bg-teal-950/30 border-teal-500/40 ring-1 ring-teal-500/20"
+            : "bg-slate-50 dark:bg-[#0d1a1d] border-slate-200 dark:border-[#183035]"
         }`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div
               className={`w-2.5 h-2.5 rounded-full ${
-                activeTimer ? 'bg-teal-400 animate-ping' : 'bg-slate-400'
+                activeTimer ? "bg-teal-400 animate-ping" : "bg-slate-400"
               }`}
             />
             <span className="font-mono text-base font-bold tracking-wider text-slate-900 dark:text-slate-100">
@@ -129,7 +134,7 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
           <Button
             type="button"
             size="sm"
-            variant={activeTimer ? 'danger' : 'primary'}
+            variant={activeTimer ? "danger" : "primary"}
             onClick={handleToggleTimer}
             isLoading={startTimer.isPending || stopTimer.isPending}
             className="h-8 text-xs font-medium cursor-pointer"
@@ -166,14 +171,21 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
               className="text-slate-500 dark:text-slate-400 hover:text-teal-500 dark:hover:text-teal-400 flex items-center gap-1 transition-colors cursor-pointer"
             >
               <span>{logs.length} logs</span>
-              {showLogHistory ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              {showLogHistory ? (
+                <ChevronUp className="w-3 h-3" />
+              ) : (
+                <ChevronDown className="w-3 h-3" />
+              )}
             </button>
           )}
         </div>
 
         {/* Manual Time Entry Form */}
         {showManualLog && (
-          <form onSubmit={handleManualSubmit} className="mt-3 pt-2.5 border-t border-slate-200/60 dark:border-[#183035] space-y-2">
+          <form
+            onSubmit={handleManualSubmit}
+            className="mt-3 pt-2.5 border-t border-slate-200/60 dark:border-[#183035] space-y-2"
+          >
             <div className="flex gap-2">
               <Input
                 type="number"

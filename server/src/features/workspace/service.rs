@@ -160,6 +160,8 @@ impl WorkspaceService {
             .ok_or_else(|| AppError::NotFound(format!("User with email {} not found", req.email)))?;
 
         let now = Utc::now().to_rfc3339();
+        if !matches!(req.role.as_str(),"admin"|"member"|"viewer"){return Err(AppError::Validation("Choose admin, member, or viewer".into()));}
+        if WorkspaceRepository::get_user_role(&state.pool,workspace_id,&target_user.id).await?.as_deref()==Some("owner"){return Err(AppError::Conflict("The workspace owner's role cannot be changed by an invitation".into()));}
         WorkspaceRepository::add_member(&state.pool, workspace_id, &target_user.id, &req.role, &now).await
     }
 

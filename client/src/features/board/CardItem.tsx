@@ -1,19 +1,28 @@
-import React from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { MessageSquare, CheckSquare, Hash, ThumbsUp, Eye, FileText } from 'lucide-react';
-import { PriorityBadge } from '@/components/common/PriorityBadge';
-import { LabelBadge } from '@/components/common/LabelBadge';
-import { UserAvatar } from '@/components/common/UserAvatar';
-import { DueDateBadge } from '@/components/common/DueDateBadge';
-import { useUiStore } from '@/stores/ui.store';
-import type { Card } from '@/types';
+import { useNow } from "@/hooks/useNow";
+import React from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
+  MessageSquare,
+  CheckSquare,
+  Hash,
+  ThumbsUp,
+  Eye,
+  FileText,
+} from "lucide-react";
+import { PriorityBadge } from "@/components/common/PriorityBadge";
+import { LabelBadge } from "@/components/common/LabelBadge";
+import { UserAvatar } from "@/components/common/UserAvatar";
+import { DueDateBadge } from "@/components/common/DueDateBadge";
+import { useUiStore } from "@/stores/ui.store";
+import type { Card } from "@/types";
 
 interface CardItemProps {
   card: Card;
 }
 
 export const CardItem: React.FC<CardItemProps> = ({ card }) => {
+  const now = useNow();
   const openCardModal = useUiStore((s) => s.openCardModal);
 
   const {
@@ -26,7 +35,7 @@ export const CardItem: React.FC<CardItemProps> = ({ card }) => {
   } = useSortable({
     id: card.id,
     data: {
-      type: 'card',
+      type: "card",
       card,
     },
   });
@@ -37,8 +46,9 @@ export const CardItem: React.FC<CardItemProps> = ({ card }) => {
     opacity: isDragging ? 0.35 : 1,
   };
 
-  const hasCoverColor = card.cover_url && card.cover_url.startsWith('#');
-  const hasCoverImage = card.cover_url && !card.cover_url.startsWith('#');
+  const stale = now - new Date(card.updated_at).getTime() > 14 * 86400000;
+  const hasCoverColor = card.cover_url && card.cover_url.startsWith("#");
+  const hasCoverImage = card.cover_url && !card.cover_url.startsWith("#");
 
   return (
     <div
@@ -76,13 +86,18 @@ export const CardItem: React.FC<CardItemProps> = ({ card }) => {
               Template
             </span>
           )}
-          {card.labels && card.labels.length > 0 && (
+          {card.labels &&
+            card.labels.length > 0 &&
             card.labels.map((lbl) => (
               <LabelBadge key={lbl.id} name={lbl.name} color={lbl.color} />
-            ))
-          )}
+            ))}
         </div>
 
+        {stale && (
+          <span className="text-[10px] text-amber-600 dark:text-amber-400">
+            No updates for 14+ days
+          </span>
+        )}
         {/* Title */}
         <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-snug">
           {card.title}
@@ -104,7 +119,10 @@ export const CardItem: React.FC<CardItemProps> = ({ card }) => {
             {card.due_date && (
               <DueDateBadge
                 dueDate={card.due_date}
-                isCompleted={card.checklist_total > 0 && card.checklist_completed === card.checklist_total}
+                isCompleted={
+                  card.checklist_total > 0 &&
+                  card.checklist_completed === card.checklist_total
+                }
               />
             )}
 
@@ -130,12 +148,14 @@ export const CardItem: React.FC<CardItemProps> = ({ card }) => {
             )}
 
             {card.is_watched && (
-              <span title="You are watching this card" className="text-teal-500">
+              <span
+                title="You are watching this card"
+                className="text-teal-500"
+              >
                 <Eye className="w-3 h-3" />
               </span>
             )}
           </div>
-
 
           {/* Assignees */}
           {card.assignees && card.assignees.length > 0 && (

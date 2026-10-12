@@ -15,6 +15,7 @@ pub struct RegisterRequest {
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct LoginRequest {
+    pub otp: Option<String>,
     #[validate(email(message = "Invalid email format"))]
     pub email: String,
     #[validate(length(min = 1, message = "Password cannot be empty"))]

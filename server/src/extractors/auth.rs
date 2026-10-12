@@ -41,6 +41,11 @@ where
             .strip_prefix("Bearer ")
             .ok_or_else(|| AppError::Unauthorized("Invalid Authorization header scheme".to_string()))?;
 
+        if token.starts_with("mc_") {
+            let (id,email,role) = crate::features::integrations::repository::authenticate(&app_state.pool,token).await?
+                .ok_or_else(||AppError::Unauthorized("Invalid or expired API token".into()))?;
+            return Ok(AuthUser{id,email,role});
+        }
         let decoding_key = DecodingKey::from_secret(app_state.config.jwt_secret.as_bytes());
         let validation = Validation::default();
 

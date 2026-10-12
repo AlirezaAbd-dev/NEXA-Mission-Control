@@ -661,6 +661,9 @@ impl CardRepository {
             FROM card_links cl
             INNER JOIN cards c ON cl.target_card_id = c.id
             WHERE cl.source_card_id = ?1
+            UNION ALL
+            SELECT cl.id,cl.target_card_id,cl.source_card_id,c.title,CASE cl.link_type WHEN 'blocks' THEN 'blocked_by' WHEN 'blocked_by' THEN 'blocks' ELSE cl.link_type END
+            FROM card_links cl JOIN cards c ON c.id=cl.source_card_id WHERE cl.target_card_id=?1
             "#
         )
         .bind(card_id)

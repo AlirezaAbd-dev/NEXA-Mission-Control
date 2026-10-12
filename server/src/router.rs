@@ -25,6 +25,10 @@ pub fn create_router(state: AppState) -> Router {
 
     let api_v1 = Router::new()
         .route("/health", get(|| async { Json(serde_json::json!({ "status": "ok", "app": "TaskFlow" })) }))
+        .nest("/productivity",features::productivity::router())
+        .nest("/realtime", features::realtime::router())
+        .nest("/enterprise", features::enterprise::router())
+        .nest("/integrations", features::integrations::router())
         .nest("/auth", features::auth::router())
         .nest("/workspaces", features::workspace::router())
         .nest("/projects", features::project::router())
@@ -47,6 +51,7 @@ pub fn create_router(state: AppState) -> Router {
     Router::new()
         .nest("/api/v1", api_v1)
         .nest_service("/uploads", ServeDir::new(upload_dir))
+        .layer(axum::middleware::from_fn_with_state(state.clone(), features::enterprise::access::guard))
         .layer(cors)
         .layer(TraceLayer::new_for_http())
         .with_state(state)

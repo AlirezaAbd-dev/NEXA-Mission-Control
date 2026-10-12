@@ -9,6 +9,7 @@ export interface RegisterDTO {
 }
 
 export interface LoginDTO {
+  otp?:string;
   email: string;
   password: string;
 }

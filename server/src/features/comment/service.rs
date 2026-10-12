@@ -7,7 +7,9 @@ use crate::{
     features::{
         card::repository::CardRepository,
         comment::{
-            dto::{AddReactionRequest, CommentResponse, CreateCommentRequest, UpdateCommentRequest},
+            dto::{
+                AddReactionRequest, CommentResponse, CreateCommentRequest, UpdateCommentRequest,
+            },
             repository::CommentRepository,
         },
         project::repository::ProjectRepository,
@@ -19,7 +21,11 @@ use crate::{
 pub struct CommentService;
 
 impl CommentService {
-    pub async fn list_by_card(state: &AppState, card_id: &str, user_id: &str) -> Result<Vec<CommentResponse>, AppError> {
+    pub async fn list_by_card(
+        state: &AppState,
+        card_id: &str,
+        user_id: &str,
+    ) -> Result<Vec<CommentResponse>, AppError> {
         let card = CardRepository::find_by_id(&state.pool, card_id)
             .await?
             .ok_or_else(|| AppError::NotFound("Card not found".to_string()))?;
@@ -30,9 +36,31 @@ impl CommentService {
 
         let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
             .await?
-            .ok_or_else(|| AppError::Forbidden("You do not have access to this card".to_string()))?;
+            .ok_or_else(|| {
+                AppError::Forbidden("You do not have access to this card".to_string())
+            })?;
 
-        CommentRepository::list_by_card(&state.pool, card_id).await
+        let role = crate::features::enterprise::service::authorize(
+            state,
+            user_id,
+            &project.id,
+            false,
+            false,
+        )
+        .await?;
+        let mut comments = CommentRepository::list_by_card(&state.pool, card_id).await?;
+        let internal = crate::features::enterprise::internal_comments_repository::internal_ids(
+            &state.pool,
+            card_id,
+        )
+        .await?;
+        for comment in &mut comments {
+            comment.is_internal = internal.contains(&comment.id);
+        }
+        if !matches!(role.as_str(), "owner" | "admin") {
+            comments.retain(|c| !c.is_internal);
+        }
+        Ok(comments)
     }
 
     pub async fn create(
@@ -40,7 +68,8 @@ impl CommentService {
         user_id: &str,
         req: CreateCommentRequest,
     ) -> Result<CommentResponse, AppError> {
-        req.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+        req.validate()
+            .map_err(|e| AppError::Validation(e.to_string()))?;
 
         let card = CardRepository::find_by_id(&state.pool, &req.card_id)
             .await?
@@ -52,14 +81,47 @@ impl CommentService {
 
         let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
             .await?
-            .ok_or_else(|| AppError::Forbidden("You do not have access to this card".to_string()))?;
+            .ok_or_else(|| {
+                AppError::Forbidden("You do not have access to this card".to_string())
+            })?;
 
+        crate::features::enterprise::service::authorize(
+            state,
+            user_id,
+            &project.id,
+            true,
+            req.is_internal,
+        )
+        .await?;
         let id = Uuid::now_v7().to_string();
         let now = Utc::now().to_rfc3339();
 
-        let _ = CommentRepository::create(&state.pool, &id, &req.card_id, user_id, &req.body, &now).await?;
+        let _ = CommentRepository::create(&state.pool, &id, &req.card_id, user_id, &req.body, &now)
+            .await?;
 
-        let comments = CommentRepository::list_by_card(&state.pool, &req.card_id).await?;
+        crate::features::enterprise::internal_comments_repository::set_internal(
+            &state.pool,
+            &id,
+            req.is_internal,
+        )
+        .await?;
+        if !req.is_internal {
+            crate::features::enterprise::operations::first_response(&state.pool, &req.card_id)
+                .await?;
+        }
+        if let Err(error) = crate::features::enterprise::collaboration::comment_notifications(
+            state,
+            user_id,
+            &req.card_id,
+            &card.title,
+            &req.body,
+            req.is_internal,
+        )
+        .await
+        {
+            tracing::warn!("Comment notification failed: {}", error);
+        }
+        let comments = Self::list_by_card(state, &req.card_id, user_id).await?;
         comments
             .into_iter()
             .find(|c| c.id == id)
@@ -72,14 +134,17 @@ impl CommentService {
         user_id: &str,
         req: UpdateCommentRequest,
     ) -> Result<CommentResponse, AppError> {
-        req.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+        req.validate()
+            .map_err(|e| AppError::Validation(e.to_string()))?;
 
         let comment = CommentRepository::find_by_id(&state.pool, id)
             .await?
             .ok_or_else(|| AppError::NotFound("Comment not found".to_string()))?;
 
         if comment.author_id.as_deref() != Some(user_id) {
-            return Err(AppError::Forbidden("You can only edit your own comments".to_string()));
+            return Err(AppError::Forbidden(
+                "You can only edit your own comments".to_string(),
+            ));
         }
 
         let now = Utc::now().to_rfc3339();
@@ -98,7 +163,9 @@ impl CommentService {
             .ok_or_else(|| AppError::NotFound("Comment not found".to_string()))?;
 
         if comment.author_id.as_deref() != Some(user_id) {
-            return Err(AppError::Forbidden("You can only delete your own comments".to_string()));
+            return Err(AppError::Forbidden(
+                "You can only delete your own comments".to_string(),
+            ));
         }
 
         CommentRepository::delete(&state.pool, id).await
@@ -110,7 +177,8 @@ impl CommentService {
         user_id: &str,
         req: AddReactionRequest,
     ) -> Result<(), AppError> {
-        req.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+        req.validate()
+            .map_err(|e| AppError::Validation(e.to_string()))?;
 
         let comment = CommentRepository::find_by_id(&state.pool, id)
             .await?
@@ -126,7 +194,9 @@ impl CommentService {
 
         let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
             .await?
-            .ok_or_else(|| AppError::Forbidden("You do not have access to this card".to_string()))?;
+            .ok_or_else(|| {
+                AppError::Forbidden("You do not have access to this card".to_string())
+            })?;
 
         CommentRepository::toggle_reaction(&state.pool, id, user_id, &req.emoji).await
     }

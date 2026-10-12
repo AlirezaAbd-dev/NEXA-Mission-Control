@@ -3,12 +3,11 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  
+  --font-sans:
+    "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
   /* NEXA Brand tokens: Deep Cyber Teal & Petrol */
-  --color-primary: #0d9488;
   --color-primary-hover: #0f766e;
-  --color-primary-light: #ccfbf1;
   --color-accent-teal: #2dd4bf;
   --color-accent-gold: #c59b51;
 
@@ -17,7 +16,7 @@
   --color-surface-100: #f1f5f9;
   --color-surface-200: #e2e8f0;
   --color-surface-300: #cbd5e1;
-  
+
   --color-surface-700: #1b4d52;
   --color-surface-800: #132428;
   --color-surface-900: #0d1a1d;
@@ -35,6 +34,134 @@
   --radius-md: 0.5rem;
   --radius-lg: 0.625rem;
   --radius-xl: 0.75rem;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+html.light {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+/* ─────────────────────────────────────────────
+   Breakpoints
+   ───────────────────────────────────────────── */
+@theme {
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* ─────────────────────────────────────────────
+   Design tokens — light-dark(روشن, تیره)
+   ───────────────────────────────────────────── */
+@theme {
+  /* 1. Surfaces */
+  --color-app-bg: light-dark(#f8fafc, #070e10);
+  --color-app-surface: light-dark(#ffffff, #0d1a1d);
+  --color-app-overlay: light-dark(#ffffff, #132428);
+
+  /* 2. Brand & AI */
+  --color-app-accent: light-dark(#0d9488, #2dd4bf);
+  --color-app-ai: light-dark(#0f766e, #2dd4bf);
+  --color-accent: light-dark(#c59b51, #e0b159);
+
+  /* 3. Typography */
+  --color-app-text-main: light-dark(#0f172a, #f8fafc);
+  --color-app-text-secondary: light-dark(#334155, #94a3b8);
+  --color-app-text-muted: light-dark(#64748b, #64748b);
+
+  /* 4. UI chrome */
+  --color-app-border: light-dark(#e2e8f0, #183035);
+  --color-app-hover: light-dark(#f1f5f9, #15292e);
+  --color-app-muted: light-dark(#f1f5f9, #112226);
+  --color-app-accent-fg: light-dark(#ffffff, #021a1a);
+  --color-app-accent-light: light-dark(#ccfbf1, #082528);
+  --color-app-ai-light: light-dark(#f0fdfa, #082528);
+  --color-app-sidebar: light-dark(#ffffff, #0a1518);
+
+  /* 5. Chat bubbles */
+  --color-chat-incoming-bg: light-dark(#f1f5f9, #132428);
+  --color-chat-incoming-text: light-dark(#0f172a, #f8fafc);
+  --color-chat-operator-bg: light-dark(#f0fdfa, #0d2b2e);
+  --color-chat-operator-edge: light-dark(#99f6e4, #1b4d52);
+  --color-chat-operator-text: light-dark(#0f766e, #5eead4);
+  --color-chat-ai-bg: light-dark(#f0fdf4, #0a2720);
+  --color-chat-ai-edge: light-dark(#bbf7d0, #14493a);
+  --color-chat-ai-text: light-dark(#166534, #4ade80);
+
+  /* 6. Status (distinct from gold brand) */
+  --color-app-success: light-dark(#10b981, #10b981);
+  --color-app-success-light: light-dark(#d1fae5, #064e3b);
+  --color-app-warning: light-dark(#f97316, #f97316);
+  --color-app-warning-light: light-dark(#ffedd5, #7c2d12);
+  --color-app-danger: light-dark(#ef4444, #ef4444);
+  --color-app-danger-light: light-dark(#fee2e2, #7f1d1d);
+  --color-app-info: light-dark(#64748b, #94a3b8);
+  --color-app-info-light: light-dark(#f1f5f9, #1e293b);
+  --color-app-input: light-dark(#ffffff, #091316);
+
+  /* 7. Glass */
+  --color-glass-bg: light-dark(
+    rgba(255, 255, 255, 0.88),
+    rgba(13, 26, 29, 0.85)
+  );
+  --color-glass-border: light-dark(
+    rgba(226, 232, 240, 0.85),
+    rgba(24, 48, 53, 0.9)
+  );
+}
+
+/* ─────────────────────────────────────────────
+   Tailwind aliases
+   ───────────────────────────────────────────── */
+@theme inline {
+  --color-background: var(--color-app-bg);
+  --color-foreground: var(--color-app-text-main);
+  --color-secondary-foreground: var(--color-app-text-secondary);
+  --color-muted-foreground: var(--color-app-text-muted);
+  --color-muted: var(--color-app-muted);
+  --color-border: var(--color-app-border);
+  --color-card: var(--color-app-surface);
+  --color-surface: var(--color-app-surface);
+  --color-overlay: var(--color-app-overlay);
+  --color-hover: var(--color-app-hover);
+
+  --color-primary: var(--color-app-accent);
+  --color-primary-foreground: var(--color-app-accent-fg);
+  --color-primary-light: var(--color-app-accent-light);
+
+  --color-ai: var(--color-app-ai);
+  --color-ai-foreground: var(--color-app-text-main);
+  --color-ai-light: var(--color-app-ai-light);
+
+  --color-success: var(--color-app-success);
+  --color-success-light: var(--color-app-success-light);
+  --color-warning: var(--color-app-warning);
+  --color-warning-light: var(--color-app-warning-light);
+  --color-danger: var(--color-app-danger);
+  --color-danger-light: var(--color-app-danger-light);
+  --color-info: var(--color-app-info);
+  --color-info-light: var(--color-app-info-light);
+
+  --color-sidebar: var(--color-app-surface);
+  --color-sidebar-active: var(--color-app-accent);
+
+  --color-chat-incoming: var(--color-chat-incoming-bg);
+  --color-chat-incoming-foreground: var(--color-chat-incoming-text);
+  --color-chat-operator: var(--color-chat-operator-bg);
+  --color-chat-operator-border: var(--color-chat-operator-edge);
+  --color-chat-operator-foreground: var(--color-chat-operator-text);
+  --color-chat-ai: var(--color-chat-ai-bg);
+  --color-chat-ai-border: var(--color-chat-ai-edge);
+  --color-chat-ai-foreground: var(--color-chat-ai-text);
 }
 
 @layer base {
@@ -100,4 +227,21 @@
 
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #2dd4bf;
+}
+
+@font-face {
+  font-family: Manrope;
+  src: url("/fonts/Manrope-VariableFont_wght.ttf") format("truetype");
+  font-weight: 200 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: Vazirmatn;
+  src: url("/fonts/Vazirmatn-VariableFont_wght.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+[lang="fa"],
+[lang="ar"] {
+  font-family: Vazirmatn, system-ui, sans-serif;
 }

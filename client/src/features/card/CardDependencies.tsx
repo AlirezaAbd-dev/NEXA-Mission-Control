@@ -1,39 +1,48 @@
-import React, { useState } from 'react';
-import { Link2, Plus, X, ArrowRight, ShieldAlert, CheckCircle2 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { CustomSelect } from '@/components/ui/CustomSelect';
-import { useCardLinks, useAddCardLink, useRemoveCardLink } from '@/hooks/card/useCardLinks';
-import { useCards } from '@/hooks/card/useCards';
-import { useUiStore } from '@/stores/ui.store';
-import type { Card } from '@/types';
+import React, { useState } from "react";
+import { Link2, Plus, X, ArrowRight, ShieldAlert } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { CustomSelect } from "@/components/ui/CustomSelect";
+import {
+  useCardLinks,
+  useAddCardLink,
+  useRemoveCardLink,
+} from "@/hooks/card/useCardLinks";
+import { useEnterpriseResource } from "@/hooks/enterprise/useEnterpriseResource";
+import { useUiStore } from "@/stores/ui.store";
+import type { Card } from "@/types";
 
 interface CardDependenciesProps {
   card: Card;
 }
 
 const LINK_TYPES = [
-  { value: 'blocks', label: 'Blocks' },
-  { value: 'blocked_by', label: 'Is Blocked By' },
-  { value: 'relates_to', label: 'Relates To' },
+  { value: "blocks", label: "Blocks" },
+  { value: "blocked_by", label: "Is Blocked By" },
+  { value: "relates_to", label: "Relates To" },
+  { value: "mirrors", label: "Cross-board reference" },
 ];
 
 export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
   const { data: links = [] } = useCardLinks(card.id);
-  const { data: projectCards = [] } = useCards({ project_id: card.project_id });
+  const { data: projectCards = [] } = useEnterpriseResource<
+    { id: string; title: string; project_id: string; project_name: string }[]
+  >(card.project_id, "related-cards");
   const addLink = useAddCardLink();
   const removeLink = useRemoveCardLink();
   const openCardModal = useUiStore((s) => s.openCardModal);
 
   const [isAdding, setIsAdding] = useState(false);
-  const [selectedLinkType, setSelectedLinkType] = useState('relates_to');
-  const [targetCardId, setTargetCardId] = useState('');
+  const [selectedLinkType, setSelectedLinkType] = useState("relates_to");
+  const [targetCardId, setTargetCardId] = useState("");
 
   // Available cards to link to (exclude self and already linked)
   const availableCards = projectCards
-    .filter((c) => c.id !== card.id && !links.some((l) => l.target_card_id === c.id))
+    .filter(
+      (c) => c.id !== card.id && !links.some((l) => l.target_card_id === c.id),
+    )
     .map((c) => ({
       value: c.id,
-      label: `${c.title} (${c.id.slice(0, 6)})`,
+      label: `${c.project_name} · ${c.title}`,
     }));
 
   const handleAddLink = (e: React.FormEvent) => {
@@ -48,32 +57,32 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
       },
       {
         onSuccess: () => {
-          setTargetCardId('');
+          setTargetCardId("");
           setIsAdding(false);
         },
-      }
+      },
     );
   };
 
   const getLinkBadge = (type: string) => {
     switch (type) {
-      case 'blocks':
+      case "blocks":
         return {
           icon: ShieldAlert,
-          label: 'Blocks',
-          color: 'bg-rose-500/10 text-rose-500 border-rose-500/20',
+          label: "Blocks",
+          color: "bg-rose-500/10 text-rose-500 border-rose-500/20",
         };
-      case 'blocked_by':
+      case "blocked_by":
         return {
           icon: ShieldAlert,
-          label: 'Blocked by',
-          color: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+          label: "Blocked by",
+          color: "bg-amber-500/10 text-amber-500 border-amber-500/20",
         };
       default:
         return {
           icon: Link2,
-          label: 'Relates to',
-          color: 'bg-teal-500/10 text-teal-500 border-teal-500/20',
+          label: "Relates to",
+          color: "bg-teal-500/10 text-teal-500 border-teal-500/20",
         };
     }
   };
@@ -183,7 +192,9 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
 
                 <button
                   type="button"
-                  onClick={() => removeLink.mutate({ cardId: card.id, linkId: link.id })}
+                  onClick={() =>
+                    removeLink.mutate({ cardId: card.id, linkId: link.id })
+                  }
                   className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-500 rounded transition-all cursor-pointer"
                   title="Remove link"
                 >

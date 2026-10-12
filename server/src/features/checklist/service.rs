@@ -7,7 +7,10 @@ use crate::{
     features::{
         card::repository::CardRepository,
         checklist::{
-            dto::{ChecklistItemResponse, ChecklistResponse, CreateChecklistItemRequest, CreateChecklistRequest, UpdateChecklistItemRequest},
+            dto::{
+                ChecklistItemResponse, ChecklistResponse, CreateChecklistItemRequest,
+                CreateChecklistRequest, UpdateChecklistItemRequest,
+            },
             repository::ChecklistRepository,
         },
         project::repository::ProjectRepository,
@@ -19,7 +22,11 @@ use crate::{
 pub struct ChecklistService;
 
 impl ChecklistService {
-    pub async fn list_by_card(state: &AppState, card_id: &str, user_id: &str) -> Result<Vec<ChecklistResponse>, AppError> {
+    pub async fn list_by_card(
+        state: &AppState,
+        card_id: &str,
+        user_id: &str,
+    ) -> Result<Vec<ChecklistResponse>, AppError> {
         let card = CardRepository::find_by_id(&state.pool, card_id)
             .await?
             .ok_or_else(|| AppError::NotFound("Card not found".to_string()))?;
@@ -30,7 +37,9 @@ impl ChecklistService {
 
         let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
             .await?
-            .ok_or_else(|| AppError::Forbidden("You do not have access to this card".to_string()))?;
+            .ok_or_else(|| {
+                AppError::Forbidden("You do not have access to this card".to_string())
+            })?;
 
         ChecklistRepository::list_by_card(&state.pool, card_id).await
     }
@@ -40,7 +49,8 @@ impl ChecklistService {
         user_id: &str,
         req: CreateChecklistRequest,
     ) -> Result<ChecklistResponse, AppError> {
-        req.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+        req.validate()
+            .map_err(|e| AppError::Validation(e.to_string()))?;
 
         let card = CardRepository::find_by_id(&state.pool, &req.card_id)
             .await?
@@ -52,12 +62,22 @@ impl ChecklistService {
 
         let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
             .await?
-            .ok_or_else(|| AppError::Forbidden("You do not have access to this card".to_string()))?;
+            .ok_or_else(|| {
+                AppError::Forbidden("You do not have access to this card".to_string())
+            })?;
 
         let id = Uuid::now_v7().to_string();
         let now = Utc::now().to_rfc3339();
 
-        let ch = ChecklistRepository::create_checklist(&state.pool, &id, &req.card_id, &req.title, 1000.0, &now).await?;
+        let ch = ChecklistRepository::create_checklist(
+            &state.pool,
+            &id,
+            &req.card_id,
+            &req.title,
+            1000.0,
+            &now,
+        )
+        .await?;
 
         Ok(ChecklistResponse {
             id: ch.id,
@@ -69,7 +89,11 @@ impl ChecklistService {
         })
     }
 
-    pub async fn delete_checklist(state: &AppState, id: &str, _user_id: &str) -> Result<(), AppError> {
+    pub async fn delete_checklist(
+        state: &AppState,
+        id: &str,
+        _user_id: &str,
+    ) -> Result<(), AppError> {
         ChecklistRepository::delete_checklist(&state.pool, id).await
     }
 
@@ -79,7 +103,8 @@ impl ChecklistService {
         _user_id: &str,
         req: CreateChecklistItemRequest,
     ) -> Result<ChecklistItemResponse, AppError> {
-        req.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+        req.validate()
+            .map_err(|e| AppError::Validation(e.to_string()))?;
 
         let id = Uuid::now_v7().to_string();
         let now = Utc::now().to_rfc3339();
@@ -114,6 +139,19 @@ impl ChecklistService {
         _user_id: &str,
         req: UpdateChecklistItemRequest,
     ) -> Result<ChecklistItemResponse, AppError> {
+        let previous_context =
+            crate::features::enterprise::operations::checklist_context(&state.pool, item_id)
+                .await?;
+        if let Some((project, _, _)) = &previous_context {
+            if let Some(Some(assignee)) = &req.assignee_id {
+                crate::features::enterprise::operations::require_member(
+                    &state.pool,
+                    &project,
+                    assignee,
+                )
+                .await?;
+            }
+        }
         let item = ChecklistRepository::update_item(
             &state.pool,
             item_id,
@@ -124,6 +162,24 @@ impl ChecklistService {
         )
         .await?;
 
+        if let Some((project, card, complete)) =
+            crate::features::enterprise::operations::checklist_context(&state.pool, item_id).await?
+        {
+            crate::features::enterprise::operations::touch_card(&state.pool, &card).await?;
+            if complete
+                && req.is_done == Some(true)
+                && previous_context.as_ref().is_some_and(|c| !c.2)
+            {
+                crate::features::enterprise::automation::dispatch(
+                    state,
+                    &project,
+                    &card,
+                    "checklist_completed",
+                    Some(_user_id),
+                )
+                .await?;
+            }
+        }
         Ok(ChecklistItemResponse {
             id: item.id,
             checklist_id: item.checklist_id,
@@ -136,7 +192,11 @@ impl ChecklistService {
         })
     }
 
-    pub async fn delete_item(state: &AppState, item_id: &str, _user_id: &str) -> Result<(), AppError> {
+    pub async fn delete_item(
+        state: &AppState,
+        item_id: &str,
+        _user_id: &str,
+    ) -> Result<(), AppError> {
         ChecklistRepository::delete_item(&state.pool, item_id).await
     }
 }

@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { cn } from '@/lib/utils';
+import React, { useState, useRef, useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 export interface DropdownItem {
   id: string;
@@ -12,26 +12,34 @@ export interface DropdownItem {
 export interface DropdownProps {
   trigger: React.ReactNode;
   items: DropdownItem[];
-  align?: 'left' | 'right';
+  align?: "left" | "right";
   className?: string;
 }
 
-export const Dropdown = ({ trigger, items, align = 'right', className }: DropdownProps) => {
+export const Dropdown = ({
+  trigger,
+  items,
+  align = "right",
+  className,
+}: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(e.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
 
@@ -44,9 +52,9 @@ export const Dropdown = ({ trigger, items, align = 'right', className }: Dropdow
       {isOpen && (
         <div
           className={cn(
-            'absolute z-50 mt-1.5 w-48 rounded-lg bg-white dark:bg-slate-900 shadow-xl border border-slate-200 dark:border-slate-800 py-1 focus:outline-none animate-in fade-in zoom-in-95 duration-100',
-            align === 'right' ? 'right-0' : 'left-0',
-            className
+            "absolute z-50 mt-1.5 w-48 rounded-lg bg-white dark:bg-card shadow-xl border border-slate-200 dark:border-border py-1 focus:outline-none animate-in fade-in zoom-in-95 duration-100",
+            align === "right" ? "right-0" : "left-0",
+            className,
           )}
         >
           {items.map((item) => (
@@ -57,13 +65,15 @@ export const Dropdown = ({ trigger, items, align = 'right', className }: Dropdow
                 item.onClick();
               }}
               className={cn(
-                'w-full flex items-center px-3 py-2 text-xs font-medium transition-colors text-left gap-2',
+                "w-full flex items-center px-3 py-2 text-xs font-medium transition-colors text-left gap-2",
                 item.danger
-                  ? 'text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40'
-                  : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? "text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40"
+                  : "text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-muted",
               )}
             >
-              {item.icon && <span className="w-4 h-4 text-current">{item.icon}</span>}
+              {item.icon && (
+                <span className="w-4 h-4 text-current">{item.icon}</span>
+              )}
               <span>{item.label}</span>
             </button>
           ))}

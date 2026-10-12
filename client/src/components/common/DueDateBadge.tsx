@@ -1,19 +1,26 @@
-import React from 'react';
-import { Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { formatDate } from '@/lib/utils';
+import { useNow } from "@/hooks/useNow";
+import React from "react";
+import { Clock, AlertCircle, CheckCircle2 } from "lucide-react";
+import { formatDate } from "@/lib/utils";
 
 interface DueDateBadgeProps {
   dueDate?: string | null;
   isCompleted?: boolean;
 }
 
-export const DueDateBadge: React.FC<DueDateBadgeProps> = ({ dueDate, isCompleted = false }) => {
+export const DueDateBadge: React.FC<DueDateBadgeProps> = ({
+  dueDate,
+  isCompleted = false,
+}) => {
+  const now = new Date(useNow());
   if (!dueDate) return null;
 
   const due = new Date(dueDate);
-  const now = new Date();
   const isOverdue = !isCompleted && due < now;
-  const isDueSoon = !isCompleted && !isOverdue && due.getTime() - now.getTime() < 24 * 60 * 60 * 1000;
+  const isDueSoon =
+    !isCompleted &&
+    !isOverdue &&
+    due.getTime() - now.getTime() < 24 * 60 * 60 * 1000;
 
   if (isCompleted) {
     return (

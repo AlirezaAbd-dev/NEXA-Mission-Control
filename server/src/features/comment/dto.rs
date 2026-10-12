@@ -4,6 +4,7 @@ use validator::Validate;
 #[derive(Debug, Deserialize, Validate)]
 pub struct CreateCommentRequest {
     pub card_id: String,
+    #[serde(default)] pub is_internal: bool,
     #[validate(length(min = 1, message = "Comment body cannot be empty"))]
     pub body: String,
 }
@@ -29,6 +30,7 @@ pub struct ReactionResponse {
 
 #[derive(Debug, Serialize, Clone)]
 pub struct CommentResponse {
+    pub is_internal: bool,
     pub id: String,
     pub card_id: String,
     pub author_id: Option<String>,

@@ -1,143 +1,141 @@
-import React, { useRef } from 'react';
-import { Paperclip, Upload, Trash2, Image, ExternalLink } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import { ConfirmModal } from '@/components/common/ConfirmModal';
-import { useUpdateCard } from '@/hooks/card/useUpdateCard';
-import apiClient from '@/lib/api/client';
-import type { Card } from '@/types';
-
-interface CardAttachmentsProps {
+import { useRef, useState } from "react";
+import { Paperclip, Upload, FileText } from "lucide-react";
+import { Button } from "@/components/ui";
+import { ConfirmModal } from "@/components/common/ConfirmModal";
+import { useUpdateCard } from "@/hooks/card/useUpdateCard";
+import { useAttachments } from "@/hooks/enterprise/useAttachments";
+import { useUploadAttachment } from "@/hooks/enterprise/useUploadAttachment";
+import { useRemoveAttachment } from "@/hooks/enterprise/useRemoveAttachment";
+import { apiError } from "@/lib/apiError";
+import type { Card } from "@/types";
+export function CardAttachments({
+  card,
+  projectId,
+}: {
   card: Card;
   projectId: string;
-}
-
-export const CardAttachments: React.FC<CardAttachmentsProps> = ({ card, projectId }) => {
-  const [isUploading, setIsUploading] = React.useState(false);
-  const [deleteCoverConfirmOpen, setDeleteCoverConfirmOpen] = React.useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const updateCard = useUpdateCard(projectId);
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const res = await apiClient.post<{ url: string; filename: string }>('/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-      // If image, automatically offer setting as cover
-      if (file.type.startsWith('image/')) {
-        updateCard.mutate({
-          id: card.id,
-          cover_url: res.data.url,
-        });
-      }
-    } catch (err) {
-      console.error('File upload failed:', err);
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
-  const handleRemoveCover = () => {
-    updateCard.mutate(
-      {
-        id: card.id,
-        cover_url: '',
-      },
-      {
-        onSuccess: () => setDeleteCoverConfirmOpen(false),
-      }
-    );
-  };
-
+}) {
+  const { data: files = [], error: loadError } = useAttachments(
+      projectId,
+      card.id,
+    ),
+    upload = useUploadAttachment(projectId, card.id),
+    remove = useRemoveAttachment(projectId, card.id),
+    update = useUpdateCard(projectId);
+  const input = useRef<HTMLInputElement>(null),
+    [deleting, setDeleting] = useState<string>(),
+    [error, setError] = useState("");
   return (
-    <>
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-            <Paperclip className="w-4 h-4 text-teal-500" />
-            <span>Attachments & Media</span>
+    <section className="space-y-3">
+      <div className="flex justify-between items-center">
+        <h3 className="flex gap-2 text-sm font-semibold">
+          <Paperclip size={16} />
+          Attachments · {files.length}
+        </h3>
+        <input
+          ref={input}
+          className="hidden"
+          type="file"
+          aria-label="Attach a file"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) {
+              if (file.size > 10 * 1024 * 1024)
+                setError("Choose a file up to 10 MB.");
+              else
+                upload.mutate(file, {
+                  onError: (e) => setError(apiError(e)),
+                  onSuccess: () => setError(""),
+                });
+            }
+            e.target.value = "";
+          }}
+        />
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => input.current?.click()}
+          isLoading={upload.isPending}
+        >
+          <Upload size={14} />
+          Attach
+        </Button>
+      </div>
+      {(error || loadError) && (
+        <p role="alert" className="text-xs text-rose-500">
+          {error || apiError(loadError)}
+        </p>
+      )}
+      {files.map((file) => (
+        <article
+          key={file.id}
+          className="flex flex-wrap gap-3 items-center rounded-lg bg-slate-50 dark:bg-[#132428] p-3"
+        >
+          {file.mime_type.startsWith("image/") ? (
+            <a href={file.file_path} target="_blank" rel="noreferrer">
+              <img
+                src={file.file_path}
+                alt={file.filename}
+                className="w-16 h-12 object-cover rounded"
+              />
+            </a>
+          ) : (
+            <FileText className="text-teal-500" size={28} />
+          )}
+          <div className="flex-1 min-w-0">
+            <a
+              href={file.file_path}
+              download={file.filename}
+              className="text-xs text-teal-600 dark:text-teal-300 break-all"
+            >
+              {file.filename}
+            </a>
+            <p className="text-[10px] text-slate-500">
+              {Math.ceil(file.file_size / 1024)} KB ·{" "}
+              {new Date(file.created_at).toLocaleDateString()}
+            </p>
           </div>
-
-          <div>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileUpload}
-              className="hidden"
-            />
+          {file.mime_type.startsWith("image/") && (
             <Button
               size="sm"
               variant="outline"
-              onClick={() => fileInputRef.current?.click()}
-              isLoading={isUploading}
+              onClick={() =>
+                update.mutate({ id: card.id, cover_url: file.file_path })
+              }
             >
-              <Upload className="w-3.5 h-3.5 mr-1" />
-              Attach File
+              {card.cover_url === file.file_path ? "Cover" : "Use as cover"}
             </Button>
-          </div>
-        </div>
-
-        {card.cover_url && !card.cover_url.startsWith('#') && (
-          <div className="flex items-center gap-3 p-2.5 rounded-xl border border-slate-200 dark:border-[#183035] bg-slate-50 dark:bg-[#091316]">
-            <div className="w-16 h-12 rounded-lg overflow-hidden bg-slate-200 dark:bg-[#132428] shrink-0">
-              <img
-                src={card.cover_url}
-                alt="Cover"
-                className="w-full h-full object-cover"
-              />
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-1.5 truncate">
-                <Image className="w-3.5 h-3.5 text-teal-500 shrink-0" />
-                <span className="truncate">Card Cover Image</span>
-              </div>
-              <span className="text-[11px] text-teal-600 dark:text-teal-400 font-medium">
-                Active Cover
-              </span>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <a
-                href={card.cover_url}
-                target="_blank"
-                rel="noreferrer"
-                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-[#132428]"
-                title="View image"
-              >
-                <ExternalLink className="w-4 h-4" />
-              </a>
-              <button
-                type="button"
-                onClick={() => setDeleteCoverConfirmOpen(true)}
-                className="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg hover:bg-slate-100 dark:hover:bg-[#132428]"
-                title="Remove cover"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-
+          )}
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setDeleting(file.id)}
+          >
+            Remove
+          </Button>
+        </article>
+      ))}
+      {files.length === 0 && (
+        <p className="text-xs text-slate-500">
+          Attach documents or images to keep your task context together. Maximum
+          file size: 10 MB.
+        </p>
+      )}
       <ConfirmModal
-        isOpen={deleteCoverConfirmOpen}
-        onClose={() => setDeleteCoverConfirmOpen(false)}
-        onConfirm={handleRemoveCover}
-        title="Remove cover image?"
-        description="Are you sure you want to remove the cover from this card?"
-        confirmLabel="Remove Cover"
-        isDestructive={true}
-        isLoading={updateCard.isPending}
+        isOpen={!!deleting}
+        onClose={() => setDeleting(undefined)}
+        title="Remove this attachment?"
+        description="The file and its attachment record will be removed."
+        isDestructive
+        onConfirm={() =>
+          deleting &&
+          remove.mutate(deleting, {
+            onSuccess: () => setDeleting(undefined),
+            onError: (e) => setError(apiError(e)),
+          })
+        }
+        isLoading={remove.isPending}
       />
-    </>
+    </section>
   );
-};
+}

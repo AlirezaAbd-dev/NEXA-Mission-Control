@@ -31,8 +31,10 @@ pub struct UpdateCardRequest {
     pub estimated_hours: Option<f64>,
     pub cover_url: Option<String>,
     pub is_template: Option<bool>,
-    pub story_points: Option<f64>,
+    #[serde(default,deserialize_with="nullable_points")]
+    pub story_points: Option<Option<f64>>,
 }
+fn nullable_points<'de,D:serde::Deserializer<'de>>(d:D)->Result<Option<Option<f64>>,D::Error>{Ok(Some(Option::<f64>::deserialize(d)?))}
 
 #[derive(Debug, Deserialize)]
 pub struct MoveCardRequest {
