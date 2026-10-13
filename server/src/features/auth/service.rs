@@ -166,16 +166,28 @@ impl AuthService {
     pub async fn login(state: &AppState, req: LoginRequest) -> Result<AuthResponse, AppError> {
         req.validate().map_err(|e| AppError::Validation(e.to_string()))?;
 
-        let user = AuthRepository::find_by_email(&state.pool, &req.email)
-            .await?
-            .ok_or_else(|| AppError::Unauthorized("Invalid email or password".to_string()))?;
+        let identifier = req
+            .username
+            .as_deref()
+            .or(req.email.as_deref())
+            .map(|s| s.trim())
+            .filter(|s| !s.is_empty())
+            .ok_or_else(|| AppError::Validation("Username or email is required".to_string()))?;
+
+        // Check by email first, and if not found, check by username
+        let user = if let Some(u) = AuthRepository::find_by_email(&state.pool, identifier).await? {
+            Some(u)
+        } else {
+            AuthRepository::find_by_username(&state.pool, identifier).await?
+        }
+        .ok_or_else(|| AppError::Unauthorized("Invalid username/email or password".to_string()))?;
 
         let parsed_hash = PasswordHash::new(&user.password_hash)
             .map_err(|e| AppError::Internal(format!("Invalid stored password hash: {}", e)))?;
 
         Argon2::default()
             .verify_password(req.password.as_bytes(), &parsed_hash)
-            .map_err(|_| AppError::Unauthorized("Invalid email or password".to_string()))?;
+            .map_err(|_| AppError::Unauthorized("Invalid username/email or password".to_string()))?;
 
         super::mfa_service::verify_login(state,&user.id,req.otp.as_deref()).await?;
         let token = Self::generate_token(&user, &state.config.jwt_secret)?;

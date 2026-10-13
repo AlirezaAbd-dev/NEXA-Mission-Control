@@ -15,11 +15,11 @@ import { ShieldCheck } from "lucide-react";
 import { NexaLogo } from "@/components/common/NexaLogo";
 
 export const LoginPage = () => {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [formErrors, setFormErrors] = useState<{
-    email?: string;
+    identifier?: string;
     password?: string;
   }>({});
   const loginMutation = useLogin();
@@ -27,8 +27,9 @@ export const LoginPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const errors: { email?: string; password?: string } = {};
-    if (!email.trim()) errors.email = "Email address is required";
+    const errors: { identifier?: string; password?: string } = {};
+    if (!identifier.trim())
+      errors.identifier = "Username or email is required";
     if (!password) errors.password = "Password is required";
 
     if (Object.keys(errors).length > 0) {
@@ -39,7 +40,8 @@ export const LoginPage = () => {
 
     try {
       await loginMutation.mutateAsync({
-        email: email.trim(),
+        username: identifier.trim(),
+        email: identifier.trim(),
         password,
         otp: otp || undefined,
       });
@@ -60,7 +62,7 @@ export const LoginPage = () => {
           <div className="flex justify-center mb-3">
             <NexaLogo size={48} />
           </div>
-          <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+          <CardTitle className="text-2xl font-bold text-slate-900 dark:white tracking-tight">
             NEXA{" "}
             <span className="text-teal-600 dark:text-teal-400">
               Mission Control
@@ -80,16 +82,16 @@ export const LoginPage = () => {
             )}
 
             <Input
-              id="email"
-              type="email"
-              label="Email Address"
-              placeholder="you@company.com"
-              value={email}
-              error={formErrors.email}
+              id="identifier"
+              type="text"
+              label="Username or Email"
+              placeholder="username or you@company.com"
+              value={identifier}
+              error={formErrors.identifier}
               onChange={(e) => {
-                setEmail(e.target.value);
-                if (formErrors.email)
-                  setFormErrors((prev) => ({ ...prev, email: undefined }));
+                setIdentifier(e.target.value);
+                if (formErrors.identifier)
+                  setFormErrors((prev) => ({ ...prev, identifier: undefined }));
               }}
             />
 
