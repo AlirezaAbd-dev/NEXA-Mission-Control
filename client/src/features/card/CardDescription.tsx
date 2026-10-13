@@ -1,3 +1,4 @@
+import { formatDescriptionHtml } from "@/lib/formatDescription";
 import React, { useState } from "react";
 import { AlignLeft, Check, X, Edit3 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -15,6 +16,8 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
   const [description, setDescription] = useState(card.description || "");
   const updateCard = useUpdateCard(card.project_id);
   const uploadAttachment = useUploadAttachment(card.project_id, card.id);
+
+  const formattedHtml = formatDescriptionHtml(card.description || "");
 
   const handleSave = () => {
     updateCard.mutate(
@@ -66,7 +69,7 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
       {isEditing ? (
         <div className="space-y-2.5">
           <RichTextEditor
-            content={description}
+            content={formatDescriptionHtml(description)}
             onChange={(val) => setDescription(val)}
             onImageUpload={handleImageUpload}
             placeholder="Add rich description, paste or drop images, checklists, code, tables..."
@@ -103,7 +106,7 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
           {hasDescription ? (
             <div
               className="prose prose-sm dark:prose-invert tiptap-content max-w-none text-sm break-words leading-relaxed overflow-x-auto"
-              dangerouslySetInnerHTML={{ __html: card.description! }}
+              dangerouslySetInnerHTML={{ __html: formattedHtml }}
             />
           ) : (
             <div className="flex items-center gap-2 py-1 text-muted-foreground">
