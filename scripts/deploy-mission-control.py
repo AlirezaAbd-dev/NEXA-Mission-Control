@@ -13,16 +13,15 @@ REMOTE_CONF = "/opt/nexa/deploy/nginx/default.conf"
 
 JWT_SECRET = secrets.token_hex(32)
 
-# Mission Control drop-in replacement Compose
-# Replaces Planka directly on container_name: planka on network deploy_crm at port 1337.
+# Mission Control Production Compose
 MISSION_CONTROL_COMPOSE = f"""services:
-  planka:
+  mission-control:
     image: alirezaabddev/nexa-mission-control:latest
-    container_name: planka
+    container_name: mission-control
     restart: unless-stopped
     volumes:
-      - /opt/planka/data:/data
-      - /opt/planka/uploads:/uploads
+      - /opt/mission-control/data:/data
+      - /opt/mission-control/uploads:/uploads
     environment:
       - PORT=1337
       - HOST=0.0.0.0
@@ -52,28 +51,23 @@ def main():
 
     sftp = ssh.open_sftp()
 
-    # 1. Update /opt/planka directory structure for Mission Control
-    print("Preparing /opt/planka for Mission Control...")
-    ssh.exec_command("mkdir -p /opt/planka/data /opt/planka/uploads")
+    # 1. Update /opt/mission-control directory structure
+    print("Preparing /opt/mission-control...")
+    ssh.exec_command("mkdir -p /opt/mission-control/data /opt/mission-control/uploads")
 
-    # 2. Stop old planka service if running
-    print("Stopping previous planka container...")
-    stdin, stdout, stderr = ssh.exec_command("cd /opt/planka && docker compose down")
-    stdout.channel.recv_exit_status()
-
-    # 3. Write new compose file
-    print("Uploading Mission Control docker-compose.yml to /opt/planka/...")
-    with sftp.open("/opt/planka/docker-compose.yml", "w") as f:
+    # 2. Write compose file
+    print("Uploading Mission Control docker-compose.yml to /opt/mission-control/...")
+    with sftp.open("/opt/mission-control/docker-compose.yml", "w") as f:
         f.write(MISSION_CONTROL_COMPOSE)
 
-    # 4. Pull and Start Mission Control
+    # 3. Pull and Start Mission Control
     print("Pulling and starting Mission Control...")
-    stdin, stdout, stderr = ssh.exec_command("cd /opt/planka && docker compose pull && docker compose up -d")
+    stdin, stdout, stderr = ssh.exec_command("cd /opt/mission-control && docker compose pull && docker compose up -d")
     print(stdout.read().decode())
     print(stderr.read().decode())
 
     time.sleep(3)
-    stdin, stdout, stderr = ssh.exec_command("docker ps --filter name=planka")
+    stdin, stdout, stderr = ssh.exec_command("docker ps --filter name=mission-control")
     print(stdout.read().decode())
 
     # 5. Reload Nginx

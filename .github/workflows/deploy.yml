@@ -88,17 +88,17 @@ jobs:
           script: |
             set -e
             echo "🚀 [1/4] Navigating to Mission Control directory..."
-            cd /opt/planka
+            cd /opt/mission-control
 
             echo "📦 [2/4] Pulling latest production container image..."
-            docker compose pull planka
+            docker compose pull mission-control
 
             echo "🔄 [3/4] Recreating container with zero downtime..."
-            docker compose up -d --remove-orphans planka
+            docker compose up -d --remove-orphans mission-control
 
             echo "⏳ [4/4] Verifying container health..."
             sleep 6
-            docker ps --filter name=planka
-            docker exec planka curl -sf http://localhost:1337/api/v1/health || exit 1
+            docker ps --filter name=mission-control
+            docker exec mission-control curl -sf http://localhost:1337/api/v1/health || exit 1
 
             echo "✅ Deployment successful! Live at https://tasks.nexasmart.net"
