@@ -1,7 +1,8 @@
 import { useBoardStore } from "@/stores/board.store";
 import { useState } from "react";
-import { Star, Bookmark } from "lucide-react";
+import { Star, Bookmark, Archive } from "lucide-react";
 import { Button, CustomSelect, Input, Modal } from "@/components/ui";
+import { ArchiveCenter } from "@/features/enterprise/ArchiveCenter";
 import { usePreferences } from "@/hooks/enterprise/usePreferences";
 import { useSavePreferences } from "@/hooks/enterprise/useSavePreferences";
 import { useEnterpriseResource } from "@/hooks/enterprise/useEnterpriseResource";
@@ -14,6 +15,7 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
     { data: views = [] } = useEnterpriseResource(projectId, "views"),
     create = useSaveResource(projectId, "views");
   const [modal, setModal] = useState(false),
+    [archiveOpen, setArchiveOpen] = useState(false),
     [name, setName] = useState(""),
     [error, setError] = useState("");
   return (
@@ -88,11 +90,29 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
         <Bookmark size={14} />
         Save view
       </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => setArchiveOpen(true)}
+        className="text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400"
+      >
+        <Archive size={14} />
+        Archive
+      </Button>
       {error && (
         <p role="alert" className="text-sm text-rose-500">
           {error}
         </p>
       )}
+
+      <Modal
+        isOpen={archiveOpen}
+        onClose={() => setArchiveOpen(false)}
+        title="Project archive"
+        size="lg"
+      >
+        <ArchiveCenter projectId={projectId} compact />
+      </Modal>
       <Modal
         isOpen={modal}
         onClose={() => setModal(false)}
