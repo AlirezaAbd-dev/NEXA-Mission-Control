@@ -12,7 +12,8 @@ interface CardDescriptionProps {
 }
 
 export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
-  const [isEditing, setIsEditing] = useState(false);
+  const hasDescription = Boolean(card.description && card.description.trim());
+  const [isEditing, setIsEditing] = useState(!hasDescription);
   const [description, setDescription] = useState(card.description || "");
   const updateCard = useUpdateCard(card.project_id);
   const uploadAttachment = useUploadAttachment(card.project_id, card.id);
@@ -26,14 +27,20 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
         description: description.trim(),
       },
       {
-        onSuccess: () => setIsEditing(false),
+        onSuccess: () => {
+          if (description.trim()) {
+            setIsEditing(false);
+          }
+        },
       },
     );
   };
 
   const handleCancel = () => {
     setDescription(card.description || "");
-    setIsEditing(false);
+    if (hasDescription) {
+      setIsEditing(false);
+    }
   };
 
   const handleImageUpload = async (file: File): Promise<string> => {
@@ -41,7 +48,16 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
     return attachment.file_path;
   };
 
-  const hasDescription = Boolean(card.description && card.description.trim());
+  // When card changes or updates externally, sync editing state and description
+  React.useEffect(() => {
+    setDescription(card.description || "");
+    const cardHasDesc = Boolean(card.description && card.description.trim());
+    if (!cardHasDesc) {
+      setIsEditing(true);
+    } else {
+      setIsEditing(false);
+    }
+  }, [card.id, card.description]);
 
   return (
     <div className="space-y-2.5">
