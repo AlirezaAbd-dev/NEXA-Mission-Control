@@ -24,7 +24,7 @@ export const AppLayout = () => {
       <Sidebar />
       <div className="flex flex-col flex-1 h-screen h-[100dvh] overflow-hidden min-w-0 bg-slate-50/50 dark:bg-[#070e10]/50">
         <TopBar />
-        <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col">
           <Outlet />
         </main>
       </div>

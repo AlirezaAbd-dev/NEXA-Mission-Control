@@ -58,7 +58,7 @@ export function ServiceDeskPage() {
     }
   }
   return (
-    <div className="p-4 md:p-6 space-y-5">
+    <div className="p-4 md:p-6 space-y-5 min-h-full flex-1 flex flex-col">
       <ViewTabs projectId={projectId} />
       <header className="flex flex-wrap justify-between gap-4 border-b border-border pb-5">
         <div>

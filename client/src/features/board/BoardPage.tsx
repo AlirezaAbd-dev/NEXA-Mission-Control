@@ -1,10 +1,9 @@
 import React from "react";
-import { MirroredTasks } from "@/features/productivity/MirroredTasks";
-import { BoardPreferences } from "@/features/views/BoardPreferences";
-import { ViewTabs } from "@/features/views/ViewTabs";
 import { useParams } from "react-router";
+import { MirroredTasks } from "@/features/productivity/MirroredTasks";
+import { ViewTabs } from "@/features/views/ViewTabs";
 import { KanbanBoard } from "./KanbanBoard";
-import { BoardFilters } from "./BoardFilters";
+import { BoardToolbar } from "./BoardToolbar";
 import { useBoard } from "@/hooks/board/useBoard";
 import { useCards } from "@/hooks/card/useCards";
 import { usePreferences } from "@/hooks/enterprise/usePreferences";
@@ -62,11 +61,8 @@ export const BoardPage: React.FC = () => {
       className={`h-full flex flex-col p-2.5 sm:p-5 md:p-6 space-y-2.5 sm:space-y-4 overflow-hidden min-w-0 transition-colors duration-300 ${boardThemes[preferences.background || "petrol"] || boardThemes.petrol}`}
     >
       <ViewTabs projectId={projectId} />
-      {/* Top action bar: Filters */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3 pb-1 shrink-0">
-        <BoardFilters />
-        <BoardPreferences projectId={projectId} />
-      </div>
+      {/* Top action bar: Filters & Display */}
+      <BoardToolbar projectId={projectId} />
 
       <MirroredTasks projectId={projectId} />
       {/* Kanban Board canvas */}

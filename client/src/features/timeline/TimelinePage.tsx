@@ -12,7 +12,7 @@ export function TimelinePage() {
   } = useCards({ project_id: projectId });
   const { data: board } = useBoard(projectId);
   return (
-    <div className="p-4 md:p-6 space-y-5">
+    <div className="p-4 md:p-6 space-y-5 min-h-full flex-1 flex flex-col">
       <ViewTabs projectId={projectId} />
       {error ? (
         <p role="alert">Could not load tasks. Please retry.</p>

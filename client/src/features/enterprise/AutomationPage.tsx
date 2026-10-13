@@ -97,7 +97,7 @@ export function AutomationPage() {
           ? labels.map((l) => ({ value: l.id, label: l.name }))
           : board?.columns.map((c) => ({ value: c.id, label: c.name })) || [];
   return (
-    <div className="p-4 md:p-6 space-y-5">
+    <div className="p-4 md:p-6 space-y-5 min-h-full flex-1 flex flex-col">
       <ViewTabs projectId={projectId} />
       <div className="flex justify-between">
         <div>

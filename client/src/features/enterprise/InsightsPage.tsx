@@ -56,7 +56,7 @@ export function InsightsPage() {
     ).slice(-5),
     vmax = Math.max(1, ...velocity.map((s) => s.committed));
   return (
-    <div className="p-4 md:p-6 space-y-5">
+    <div className="p-4 md:p-6 space-y-5 min-h-full flex-1 flex flex-col">
       <ViewTabs projectId={projectId} />
       <h1 className="text-2xl font-bold">Delivery insights</h1>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

@@ -18,7 +18,7 @@ export function CalendarPage() {
 
   return (
     <div
-      className={`min-h-full p-4 md:p-6 space-y-5 transition-colors duration-300 ${boardThemes[preferences.background || "petrol"] || boardThemes.petrol}`}
+      className={`min-h-full flex-1 flex flex-col p-4 md:p-6 space-y-5 transition-colors duration-300 ${boardThemes[preferences.background || "petrol"] || boardThemes.petrol}`}
     >
       <ViewTabs projectId={projectId} />
       {error ? (

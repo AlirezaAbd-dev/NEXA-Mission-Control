@@ -53,7 +53,7 @@ export function BacklogPage() {
     },
   ];
   return (
-    <div className="p-4 md:p-6 space-y-5">
+    <div className="p-4 md:p-6 space-y-5 min-h-full flex-1 flex flex-col">
       <ViewTabs projectId={projectId} />
       <div className="flex justify-between items-center">
         <div>
@@ -143,47 +143,50 @@ export function BacklogPage() {
               group.cards.map((c) => (
                 <div
                   key={c.id}
-                  className="flex flex-wrap items-center gap-3 p-3 border-t border-slate-100 dark:border-[#183035]"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 p-3 border-t border-slate-100 dark:border-[#183035] hover:bg-slate-50/50 dark:hover:bg-[#132428]/40 transition-colors"
                 >
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex-1 justify-start"
+                  <button
+                    type="button"
                     onClick={() => open(c.id)}
+                    className="flex-1 min-w-0 text-left font-medium text-xs sm:text-sm text-slate-800 dark:text-slate-100 hover:text-teal-600 dark:hover:text-teal-400 break-words line-clamp-2 transition-colors cursor-pointer py-1"
+                    title={c.title}
                   >
                     {c.title}
-                  </Button>
-                  <span className="text-xs text-slate-500">
-                    {c.story_points || 0} pts · {c.priority}
-                  </span>
-                  <CustomSelect
-                    className="w-44"
-                    value={group.id}
-                    options={[
-                      { value: "backlog", label: "Product backlog" },
-                      ...sprints
-                        .filter((s) => s.status !== "completed")
-                        .map((s) => ({ value: s.id, label: s.name })),
-                    ]}
-                    onChange={async (target) => {
-                      try {
-                        if (group.sprint)
-                          await toggle.mutateAsync({
-                            sprintId: group.id,
-                            cardId: c.id,
-                            add: false,
-                          });
-                        if (target !== "backlog")
-                          await toggle.mutateAsync({
-                            sprintId: target,
-                            cardId: c.id,
-                            add: true,
-                          });
-                      } catch (e) {
-                        setError(apiError(e));
-                      }
-                    }}
-                  />
+                  </button>
+                  <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
+                    <span className="text-xs text-slate-500 font-mono">
+                      {c.story_points || 0} pts · {c.priority}
+                    </span>
+                    <CustomSelect
+                      className="w-40 sm:w-44"
+                      size="sm"
+                      value={group.id}
+                      options={[
+                        { value: "backlog", label: "Product backlog" },
+                        ...sprints
+                          .filter((s) => s.status !== "completed")
+                          .map((s) => ({ value: s.id, label: s.name })),
+                      ]}
+                      onChange={async (target) => {
+                        try {
+                          if (group.sprint)
+                            await toggle.mutateAsync({
+                              sprintId: group.id,
+                              cardId: c.id,
+                              add: false,
+                            });
+                          if (target !== "backlog")
+                            await toggle.mutateAsync({
+                              sprintId: target,
+                              cardId: c.id,
+                              add: true,
+                            });
+                        } catch (e) {
+                          setError(apiError(e));
+                        }
+                      }}
+                    />
+                  </div>
                 </div>
               ))
             )}
