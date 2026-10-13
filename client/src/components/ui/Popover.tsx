@@ -18,7 +18,7 @@ export const Popover = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
+    const handlePointerDownOutside = (e: MouseEvent | TouchEvent) => {
       if (
         containerRef.current &&
         !containerRef.current.contains(e.target as Node)
@@ -28,10 +28,12 @@ export const Popover = ({
     };
 
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("mousedown", handlePointerDownOutside);
+      document.addEventListener("touchstart", handlePointerDownOutside);
     }
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handlePointerDownOutside);
+      document.removeEventListener("touchstart", handlePointerDownOutside);
     };
   }, [isOpen]);
 
@@ -50,7 +52,7 @@ export const Popover = ({
       {isOpen && (
         <div
           className={cn(
-            "absolute z-50 mt-2 p-3 bg-white dark:bg-card border border-slate-200 dark:border-border rounded-xl shadow-xl animate-in fade-in zoom-in-95 duration-100",
+            "absolute z-50 mt-2 p-3 bg-white dark:bg-card border border-slate-200 dark:border-border rounded-xl shadow-xl animate-in fade-in zoom-in-95 duration-100 max-w-[calc(100vw-2rem)]",
             alignClasses[align],
             className,
           )}
