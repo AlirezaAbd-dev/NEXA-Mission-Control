@@ -172,7 +172,7 @@ export const SettingsPage: React.FC = () => {
   );
 
   return (
-    <div className="h-full flex flex-col p-6 space-y-6 overflow-y-auto max-w-5xl mx-auto w-full">
+    <div className="min-h-full flex-1 flex flex-col p-4 sm:p-6 space-y-5 max-w-5xl mx-auto w-full">
       {/* Header & Workspace Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-[#183035]">
         <div>
@@ -196,58 +196,64 @@ export const SettingsPage: React.FC = () => {
         )}
       </div>
 
-      {/* Modern Tabs Navigation */}
-      <div className="flex items-center gap-1 border-b border-slate-200 dark:border-[#183035] overflow-x-auto">
+      {/* Modern Responsive Tabs Navigation */}
+      <div className="flex items-center gap-1.5 border-b border-slate-200/80 dark:border-[#183035] overflow-x-auto scrollbar-none pb-2 shrink-0">
         <button
           type="button"
           onClick={() => setActiveTab("workspace")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all border-b-2 -mb-px cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl shrink-0 whitespace-nowrap transition-all cursor-pointer ${
             activeTab === "workspace"
-              ? "border-teal-500 text-teal-600 dark:text-teal-400 font-bold"
-              : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+              ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/25 shadow-2xs font-bold"
+              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-[#132428] border border-transparent"
           }`}
         >
-          <Sliders className="w-4 h-4" />
-          General & Appearance
+          <Sliders className="w-3.5 h-3.5 shrink-0" />
+          <span>General & Appearance</span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab("labels")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all border-b-2 -mb-px cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl shrink-0 whitespace-nowrap transition-all cursor-pointer ${
             activeTab === "labels"
-              ? "border-teal-500 text-teal-600 dark:text-teal-400 font-bold"
-              : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+              ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/25 shadow-2xs font-bold"
+              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-[#132428] border border-transparent"
           }`}
         >
-          <Tag className="w-4 h-4" />
-          Labels ({labels.length})
+          <Tag className="w-3.5 h-3.5 shrink-0" />
+          <span>Labels</span>
+          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-200/60 dark:bg-[#183035] text-slate-700 dark:text-slate-300">
+            {labels.length}
+          </span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab("members")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all border-b-2 -mb-px cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl shrink-0 whitespace-nowrap transition-all cursor-pointer ${
             activeTab === "members"
-              ? "border-teal-500 text-teal-600 dark:text-teal-400 font-bold"
-              : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+              ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/25 shadow-2xs font-bold"
+              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-[#132428] border border-transparent"
           }`}
         >
-          <Users className="w-4 h-4" />
-          Team Members ({members.length})
+          <Users className="w-3.5 h-3.5 shrink-0" />
+          <span>Team Members</span>
+          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-200/60 dark:bg-[#183035] text-slate-700 dark:text-slate-300">
+            {members.length}
+          </span>
         </button>
 
         <button
           type="button"
           onClick={() => setActiveTab("security")}
-          className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider transition-all border-b-2 -mb-px cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl shrink-0 whitespace-nowrap transition-all cursor-pointer ${
             activeTab === "security"
-              ? "border-teal-500 text-teal-600 dark:text-teal-400 font-bold"
-              : "border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+              ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/25 shadow-2xs font-bold"
+              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-[#132428] border border-transparent"
           }`}
         >
-          <Shield className="w-4 h-4" />
-          Security & Access
+          <Shield className="w-3.5 h-3.5 shrink-0" />
+          <span>Security & Access</span>
         </button>
       </div>
 

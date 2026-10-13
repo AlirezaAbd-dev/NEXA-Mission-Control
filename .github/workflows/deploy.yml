@@ -59,6 +59,16 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Update Docker Hub Description
+        if: github.ref == 'refs/heads/main'
+        uses: peter-evans/dockerhub-description@v4
+        continue-on-error: true
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME || 'alirezaabddev' }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ secrets.DOCKERHUB_USERNAME || 'alirezaabddev' }}/nexa-mission-control
+          readme-filepath: ./DOCKERHUB.md
+
   deploy:
     name: Deploy to Production VPS
     needs: build-and-push

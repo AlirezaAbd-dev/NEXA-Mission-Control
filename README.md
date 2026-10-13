@@ -16,7 +16,7 @@
   Single 42MB Docker image • Instant startup • Zero external database requirements • Runs on only ~30MB of RAM.
 </p>
 
-[Quick Start](#-instant-docker-run) • [Key Features](#-features-at-a-glance) • [Interactive Views](#-views-for-every-workflow) • [Drop-in Replacement for Planka](#-drop-in-replacement-for-planka) • [Docs](docs/INTEGRATIONS.md)
+[Quick Start](#-instant-docker-run) • [Key Features](#-features-at-a-glance) • [Interactive Views](#-views-for-every-workflow) • [Docs](docs/INTEGRATIONS.md)
 
 ---
 
@@ -110,18 +110,6 @@ volumes:
 - **Blazing Fast Keyboard Navigation**: Press `?` anywhere to reveal single-key shortcuts (`m` for members, `l` for labels, `d` for dates, `Space` to self-assign).
 - **Two-Factor Authentication (2FA/TOTP)**: Secure your workspace with standard authenticator apps and recovery codes.
 - **Full Data Portability**: Instant one-click import from Trello and exports to CSV, Excel (`.xlsx`), and JSON.
-
----
-
-## 🔄 Drop-in Replacement for Planka
-
-NEXA Mission Control runs on port **`1337`** and can seamlessly replace existing Planka installations behind Nginx or Traefik with zero configuration headache:
-
-1. **Point your Reverse Proxy**: Forward traffic to `http://<container_name>:1337`.
-2. **Mount Persistent Volumes**: Map `/data` for SQLite and `/uploads` for card attachments.
-3. **Enjoy 10x Performance**: Instant load times and a fraction of the CPU and memory consumption.
-
-Automated zero-downtime migration scripts are available in [`deploy/deploy-mission-control.py`](deploy/deploy-mission-control.py).
 
 ---
 

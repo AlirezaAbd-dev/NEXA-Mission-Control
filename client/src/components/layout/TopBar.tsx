@@ -1,6 +1,6 @@
 import { RealtimeStatus } from "@/components/common/RealtimeStatus";
 import { useQueryClient } from "@tanstack/react-query";
-import { Search, Sun, Moon, PanelLeft, LogOut, User } from "lucide-react";
+import { Search, Sun, Moon, PanelLeft, LogOut, User, Settings } from "lucide-react";
 import { useUiStore } from "@/stores/ui.store";
 import { useAuthStore } from "@/stores/auth.store";
 import { NotificationBell } from "@/components/common/NotificationBell";
@@ -92,6 +92,12 @@ export const TopBar = () => {
               id: "profile",
               label: currentUser?.display_name || "My Profile",
               icon: <User className="w-3.5 h-3.5" />,
+              onClick: () => navigate("/settings"),
+            },
+            {
+              id: "settings",
+              label: "Settings & Workspace",
+              icon: <Settings className="w-3.5 h-3.5" />,
               onClick: () => navigate("/settings"),
             },
             {
