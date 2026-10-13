@@ -128,7 +128,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
     <>
       <div
         ref={setNodeRef}
-        className={`w-[84vw] max-w-xs sm:w-72 md:w-80 shrink-0 snap-center sm:snap-align-none flex flex-col rounded-2xl bg-white/80 dark:bg-[#0c181b]/85 backdrop-blur-md border border-slate-200/90 dark:border-[#183035] transition-colors shadow-xs ${
+        className={`w-[88vw] max-w-[340px] sm:w-72 md:w-80 shrink-0 snap-center sm:snap-align-none flex flex-col h-full min-h-[min(540px,calc(100dvh-180px))] sm:min-h-0 rounded-2xl bg-white/80 dark:bg-[#0c181b]/85 backdrop-blur-md border border-slate-200/90 dark:border-[#183035] transition-colors shadow-xs ${
           exceeded
             ? "ring-2 ring-amber-500/50"
             : isOver
@@ -202,7 +202,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
           />
         </div>
         {/* Cards List Container */}
-        <div className="flex-1 p-2 space-y-2 overflow-y-auto min-h-24 max-h-[calc(100vh-280px)] sm:max-h-[calc(100vh-260px)]">
+        <div className="flex-1 min-h-0 p-2 space-y-2 overflow-y-auto max-h-[calc(100dvh-200px)] sm:max-h-none">
           <SortableContext
             items={cardIds}
             strategy={verticalListSortingStrategy}

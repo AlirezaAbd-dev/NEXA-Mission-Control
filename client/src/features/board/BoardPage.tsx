@@ -59,11 +59,11 @@ export const BoardPage: React.FC = () => {
 
   return (
     <div
-      className={`h-full flex flex-col p-3 sm:p-5 md:p-6 space-y-3 sm:space-y-4 overflow-hidden min-w-0 transition-colors duration-300 ${boardThemes[preferences.background || "petrol"] || boardThemes.petrol}`}
+      className={`h-full flex flex-col p-2.5 sm:p-5 md:p-6 space-y-2.5 sm:space-y-4 overflow-hidden min-w-0 transition-colors duration-300 ${boardThemes[preferences.background || "petrol"] || boardThemes.petrol}`}
     >
       <ViewTabs projectId={projectId} />
       {/* Top action bar: Filters */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 sm:gap-3 pb-1 shrink-0">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3 pb-1 shrink-0">
         <BoardFilters />
         <BoardPreferences projectId={projectId} />
       </div>

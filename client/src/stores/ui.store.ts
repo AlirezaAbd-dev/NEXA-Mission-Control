@@ -20,7 +20,8 @@ interface UiStore {
 export const useUiStore = create<UiStore>((set) => ({
   mutationError: null,
   setMutationError: (mutationError) => set({ mutationError }),
-  sidebarOpen: true,
+  sidebarOpen:
+    typeof window !== "undefined" ? window.innerWidth >= 768 : true,
   theme:
     (localStorage.getItem("mission_control_theme") as "light" | "dark") ||
     (document.documentElement.classList.contains("dark") ? "dark" : "light"),

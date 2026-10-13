@@ -19,7 +19,7 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
     [name, setName] = useState(""),
     [error, setError] = useState("");
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto max-w-full pb-1 sm:pb-0 scrollbar-none shrink-0 flex-nowrap sm:flex-wrap">
       <Button
         variant="outline"
         size="sm"

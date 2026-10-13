@@ -45,7 +45,7 @@ export const NotificationBell = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-card border border-slate-200 dark:border-border rounded-xl shadow-2xl p-4 z-50">
+        <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-1.5rem)] bg-white dark:bg-card border border-slate-200 dark:border-border rounded-xl shadow-2xl p-4 z-50">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-border">
             <h4 className="text-xs font-semibold text-slate-900 dark:text-slate-100">
               Notifications ({unreadCount})

@@ -316,7 +316,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 {lane.id === lanes[0].id && (
                   <>
                     {/* Add Column Box */}
-                    <div className="w-[84vw] max-w-xs sm:w-72 md:w-80 shrink-0 snap-center sm:snap-align-none self-start">
+                    <div className="w-[88vw] max-w-[340px] sm:w-72 md:w-80 shrink-0 snap-center sm:snap-align-none self-start">
                       {isAddingColumn ? (
                         <form
                           onSubmit={handleAddColumn}

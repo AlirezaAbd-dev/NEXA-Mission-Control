@@ -1,8 +1,8 @@
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import { useProject } from "@/hooks/project/useProject";
 import { StarredBoards } from "@/features/views/StarredBoards";
-import { useState } from "react";
-import { NavLink, useParams, useNavigate } from "react-router";
+import { useState, useEffect } from "react";
+import { NavLink, useParams, useNavigate, useLocation } from "react-router";
 import {
   Kanban,
   ListTodo,
@@ -33,7 +33,28 @@ export const Sidebar = () => {
     projectId?: string;
   }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const sidebarOpen = useUiStore((s) => s.sidebarOpen);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      useUiStore.getState().setSidebarOpen(false);
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (
+        typeof window !== "undefined" &&
+        window.innerWidth < 768 &&
+        useUiStore.getState().sidebarOpen
+      ) {
+        useUiStore.getState().setSidebarOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const { data: workspaces = [] } = useWorkspaces();
   const { data: activeProject } = useProject(projectId || "");
