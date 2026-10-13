@@ -1,37 +1,30 @@
 services:
-  server:
+  # Standalone single-image deployment
+  mission-control:
     build:
-      context: ./server
+      context: .
       dockerfile: Dockerfile
+    image: nexamc/mission-control:latest
+    container_name: mission-control
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8000:8000"
+      - "1337:1337"
     environment:
-      - PORT=8000
+      - PORT=1337
       - HOST=0.0.0.0
       - DATABASE_URL=sqlite:///data/mission-control.db?mode=rwc
-      - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET in .env}
+      - JWT_SECRET=${JWT_SECRET:-mission-control-super-secure-production-jwt-token-2026!}
       - UPLOAD_DIR=/uploads
+      - STATIC_DIR=/app/dist
     volumes:
-      - db_data:/data
-      - uploads_data:/uploads
+      - ./data:/data
+      - ./uploads:/uploads
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
-      interval: 10s
+      test: ["CMD", "curl", "-f", "http://localhost:1337/api/v1/health"]
+      interval: 15s
       timeout: 5s
       retries: 3
 
-  client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:3000:80"
-    depends_on:
-      server:
-        condition: service_healthy
-
 volumes:
-  db_data:
-  uploads_data:
+  data:
+  uploads:

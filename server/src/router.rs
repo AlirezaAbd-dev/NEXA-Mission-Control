@@ -5,7 +5,7 @@ use axum::{
 };
 use tower_http::{
     cors::{AllowOrigin, CorsLayer},
-    services::ServeDir,
+    services::{ServeDir, ServeFile},
     trace::TraceLayer,
 };
 use crate::{features, state::AppState};
@@ -48,10 +48,19 @@ pub fn create_router(state: AppState) -> Router {
         .nest("/upload", features::upload::router());
 
     let upload_dir = state.config.upload_dir.clone();
+    let static_dir = state.config.static_dir.clone();
 
-    Router::new()
+    let mut router = Router::new()
         .nest("/api/v1", api_v1)
-        .nest_service("/uploads", ServeDir::new(upload_dir))
+        .nest_service("/uploads", ServeDir::new(upload_dir));
+
+    if let Some(dir) = static_dir {
+        let index_file = std::path::Path::new(&dir).join("index.html");
+        let serve_dir = ServeDir::new(&dir).fallback(ServeFile::new(index_file));
+        router = router.fallback_service(serve_dir);
+    }
+
+    router
         .layer(axum::middleware::from_fn_with_state(state.clone(), features::enterprise::access::guard))
         .layer(cors)
         .layer(TraceLayer::new_for_http())

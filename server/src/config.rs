@@ -6,6 +6,7 @@ pub struct Config {
     pub jwt_secret: String,
     pub port: u16,
     pub upload_dir: String,
+    pub static_dir: Option<String>,
 }
 
 impl Config {
@@ -42,12 +43,20 @@ impl Config {
             .and_then(|p| p.parse().ok())
             .unwrap_or(8000);
         let upload_dir = env::var("UPLOAD_DIR").unwrap_or_else(|_| "./uploads".to_string());
+        let static_dir = env::var("STATIC_DIR").ok().or_else(|| {
+            if std::path::Path::new("./dist").exists() {
+                Some("./dist".to_string())
+            } else {
+                None
+            }
+        });
 
         Ok(Self {
             database_url,
             jwt_secret,
             port,
             upload_dir,
+            static_dir,
         })
     }
 }

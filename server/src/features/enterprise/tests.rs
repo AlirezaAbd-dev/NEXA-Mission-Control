@@ -40,6 +40,7 @@ async fn fixture() -> AppState {
             jwt_secret: "test".into(),
             port: 8000,
             upload_dir: "/tmp/test".into(),
+            static_dir: None,
         },
     )
 }
