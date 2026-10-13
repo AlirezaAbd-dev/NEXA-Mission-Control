@@ -150,7 +150,7 @@ impl CommentService {
         let now = Utc::now().to_rfc3339();
         CommentRepository::update(&state.pool, id, &req.body, &now).await?;
 
-        let comments = CommentRepository::list_by_card(&state.pool, &comment.card_id).await?;
+        let comments = Self::list_by_card(state, &comment.card_id, user_id).await?;
         comments
             .into_iter()
             .find(|c| c.id == id)
@@ -163,9 +163,23 @@ impl CommentService {
             .ok_or_else(|| AppError::NotFound("Comment not found".to_string()))?;
 
         if comment.author_id.as_deref() != Some(user_id) {
-            return Err(AppError::Forbidden(
-                "You can only delete your own comments".to_string(),
-            ));
+            let is_admin = sqlx::query_scalar::<_, i64>(
+                "SELECT count(*) FROM workspace_members wm 
+                 JOIN projects p ON p.workspace_id = wm.workspace_id 
+                 JOIN cards c ON c.project_id = p.id 
+                 WHERE c.id = ?1 AND wm.user_id = ?2 AND wm.role IN ('owner', 'admin')",
+            )
+            .bind(&comment.card_id)
+            .bind(user_id)
+            .fetch_one(&state.pool)
+            .await
+            .unwrap_or(0) > 0;
+
+            if !is_admin {
+                return Err(AppError::Forbidden(
+                    "You can only delete your own comments".to_string(),
+                ));
+            }
         }
 
         CommentRepository::delete(&state.pool, id).await

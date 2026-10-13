@@ -1484,3 +1484,72 @@ async fn task_removal_and_restore_use_archive_permission_and_preserve_data() {
         .unwrap();
     assert_eq!(response.status(), 403);
 }
+
+#[tokio::test]
+async fn author_and_admin_comment_edit_delete_lifecycle() {
+    let state = fixture().await;
+    let comment = crate::features::comment::service::CommentService::create(
+        &state,
+        "member",
+        crate::features::comment::dto::CreateCommentRequest {
+            card_id: "c1".into(),
+            body: "Original comment text".into(),
+            is_internal: false,
+        },
+    )
+    .await
+    .unwrap();
+
+    assert_eq!(comment.body, "Original comment text");
+    assert!(comment.edited_at.is_none());
+
+    // Non-author member cannot edit
+    let edit_forbidden = crate::features::comment::service::CommentService::update(
+        &state,
+        &comment.id,
+        "other_user",
+        crate::features::comment::dto::UpdateCommentRequest {
+            body: "Hacked comment".into(),
+        },
+    )
+    .await;
+    assert!(edit_forbidden.is_err());
+
+    // Author can edit
+    let updated = crate::features::comment::service::CommentService::update(
+        &state,
+        &comment.id,
+        "member",
+        crate::features::comment::dto::UpdateCommentRequest {
+            body: "Edited comment text".into(),
+        },
+    )
+    .await
+    .unwrap();
+    assert_eq!(updated.body, "Edited comment text");
+    assert!(updated.edited_at.is_some());
+
+    // Non-author non-admin cannot delete
+    let delete_forbidden = crate::features::comment::service::CommentService::delete(
+        &state,
+        &comment.id,
+        "other_user",
+    )
+    .await;
+    assert!(delete_forbidden.is_err());
+
+    // Author can delete
+    let deleted = crate::features::comment::service::CommentService::delete(
+        &state,
+        &comment.id,
+        "member",
+    )
+    .await;
+    assert!(deleted.is_ok());
+
+    // Verify it is gone
+    let list = crate::features::comment::service::CommentService::list_by_card(&state, "c1", "member")
+        .await
+        .unwrap();
+    assert!(!list.iter().any(|c| c.id == comment.id));
+}
