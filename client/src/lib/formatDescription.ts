@@ -17,14 +17,20 @@ export function formatDescriptionHtml(content: string): string {
     return trimmed;
   }
 
-  // Convert markdown image: ![alt](url_or_data_uri)
+  // Convert markdown image: ![alt](url_or_data_uri [=WIDTHxHEIGHT])
   let html = content.replace(
-    /!\[(.*?)\]\((data:image\/[^;]+;base64,[A-Za-z0-9+/=\\\s]+|https?:\/\/[^\s)]+|\/[^\s)]+)\)/g,
-    (_match, alt, src) => {
-      const cleanSrc = src.startsWith("data:image/")
-        ? src.replace(/\s+/g, "").replace(/\\([+/=])/g, "$1").replace(/\\/g, "")
-        : src;
-      return `<img src="${cleanSrc}" alt="${alt || "image"}" class="max-w-full h-auto rounded-xl border border-slate-200 dark:border-[#183035] shadow-md my-3.5" />`;
+    /!\[(.*?)\]\((data:image\/[^;]+;base64,[A-Za-z0-9+/=\\\s]+?|https?:\/\/[^\s)]+|\/[^\s)]+?)(?:\s+=\s*(\d*)x(\d*))?\)/g,
+    (_match, alt, src, width) => {
+      let cleanSrc = src.trim();
+      if (cleanSrc.startsWith("data:image/")) {
+        cleanSrc = cleanSrc
+          .replace(/\s+/g, "")
+          .replace(/\\([+/=])/g, "$1")
+          .replace(/\\/g, "")
+          .replace(/=\d*x\d*$/, "");
+      }
+      const widthStyle = width ? `max-width: ${width}px;` : "";
+      return `<img src="${cleanSrc}" alt="${alt || "image"}" style="${widthStyle}" class="max-w-full h-auto rounded-xl border border-slate-200 dark:border-[#183035] shadow-md my-3.5 cursor-pointer hover:opacity-95 transition-opacity" />`;
     },
   );
 
