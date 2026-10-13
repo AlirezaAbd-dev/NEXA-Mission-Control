@@ -1,4 +1,4 @@
-name: Build & Publish Docker Image
+name: CI/CD - Build & Deploy to VPS
 
 on:
   push:
@@ -10,6 +10,7 @@ on:
 
 jobs:
   build-and-push:
+    name: Build & Push Docker Image
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -30,10 +31,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Log in to Docker Hub
-        if: env.DOCKERHUB_TOKEN != ''
         uses: docker/login-action@v3
-        env:
-          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME || 'alirezaabddev' }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -44,7 +42,7 @@ jobs:
         with:
           images: |
             ghcr.io/${{ github.repository }}
-            alirezaabddev/nexa-mission-control
+            ${{ secrets.DOCKERHUB_USERNAME || 'alirezaabddev' }}/nexa-mission-control
           tags: |
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
             type=ref,event=tag
@@ -60,3 +58,37 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to Production VPS
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Execute Remote Deployment via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST || '130.185.78.131' }}
+          username: ${{ secrets.VPS_USERNAME || 'root' }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -e
+            echo "🚀 [1/4] Navigating to Mission Control directory..."
+            cd /opt/planka
+
+            echo "📦 [2/4] Pulling latest production container image..."
+            docker compose pull planka
+
+            echo "🔄 [3/4] Recreating container with zero downtime..."
+            docker compose up -d --remove-orphans planka
+
+            echo "⏳ [4/4] Verifying container health..."
+            sleep 6
+            docker ps --filter name=planka
+            docker exec planka curl -sf http://localhost:1337/api/v1/health || exit 1
+
+            echo "✅ Deployment successful! Live at https://tasks.nexasmart.net"
