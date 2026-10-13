@@ -19,9 +19,22 @@ export function formatDescriptionHtml(content: string): string {
 
   // Convert markdown image: ![alt](url_or_data_uri)
   let html = content.replace(
-    /!\[(.*?)\]\((data:image\/[^;]+;base64,[^\s)]+|https?:\/\/[^\s)]+|\/[^\s)]+)\)/g,
-    (_match, alt, src) =>
-      `<img src="${src}" alt="${alt || "image"}" class="max-w-full h-auto rounded-xl border border-slate-200 dark:border-[#183035] shadow-md my-3.5" />`,
+    /!\[(.*?)\]\((data:image\/[^;]+;base64,[A-Za-z0-9+/=\\\s]+|https?:\/\/[^\s)]+|\/[^\s)]+)\)/g,
+    (_match, alt, src) => {
+      const cleanSrc = src.startsWith("data:image/")
+        ? src.replace(/\s+/g, "").replace(/\\([+/=])/g, "$1").replace(/\\/g, "")
+        : src;
+      return `<img src="${cleanSrc}" alt="${alt || "image"}" class="max-w-full h-auto rounded-xl border border-slate-200 dark:border-[#183035] shadow-md my-3.5" />`;
+    },
+  );
+
+  // Also clean any existing <img src="data:image/..."> with escaped backslashes
+  html = html.replace(
+    /<img([^>]+)src=["'](data:image\/[^;]+;base64,[^"']+)["']([^>]*)>/gi,
+    (_match, pre, src, post) => {
+      const cleanSrc = src.replace(/\s+/g, "").replace(/\\([+/=])/g, "$1").replace(/\\/g, "");
+      return `<img${pre}src="${cleanSrc}"${post}>`;
+    },
   );
 
   // Convert markdown link: [text](url)
