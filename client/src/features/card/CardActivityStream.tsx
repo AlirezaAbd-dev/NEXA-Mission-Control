@@ -5,7 +5,7 @@ import {
 } from "@/components/common/auditPresentation";
 import { apiError } from "@/lib/apiError";
 import React from "react";
-import { History, ArrowRight, PlusCircle, Clock } from "lucide-react";
+import { History, ArrowRight, PlusCircle, Clock, UserPlus, UserMinus } from "lucide-react";
 import { UserAvatar } from "@/components/common/UserAvatar";
 import { useCardActivities } from "@/hooks/card/useCardActivities";
 import { formatRelativeTime } from "@/lib/utils";
@@ -25,6 +25,10 @@ export const CardActivityStream: React.FC<CardActivityStreamProps> = ({
         return <PlusCircle className="w-3.5 h-3.5 text-teal-500" />;
       case "moved_card":
         return <ArrowRight className="w-3.5 h-3.5 text-teal-500" />;
+      case "member_added":
+        return <UserPlus className="w-3.5 h-3.5 text-teal-500" />;
+      case "member_removed":
+        return <UserMinus className="w-3.5 h-3.5 text-rose-500" />;
       default:
         return <Clock className="w-3.5 h-3.5 text-slate-400" />;
     }

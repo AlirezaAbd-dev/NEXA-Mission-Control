@@ -31,8 +31,8 @@ export const CardDetailModal: React.FC = () => {
     <Modal
       isOpen={!!activeCardId}
       onClose={closeCardModal}
-      size="2xl"
-      className="max-w-6xl h-[min(880px,calc(100dvh-2rem))] md:bg-card md:backdrop-blur-none"
+      size="full"
+      className="w-[96vw] max-w-[1720px] h-[94vh] max-h-[96vh] md:bg-card md:backdrop-blur-none"
       hideHeaderClose={!!card}
       header={
         card ? <CardHeader card={card} onClose={closeCardModal} /> : undefined
@@ -70,13 +70,13 @@ export const CardDetailModal: React.FC = () => {
           </div>
 
           {/* Main Body */}
-          <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px]">
-            {/* Left Column (2/3 width) */}
+          <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_340px] xl:grid-cols-[minmax(0,1fr)_380px] 2xl:grid-cols-[minmax(0,1fr)_420px]">
+            {/* Left Column (Main content) */}
             <div
               role="region"
               aria-label="Task details and activity"
               className={
-                "min-w-0 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-6 lg:block " +
+                "min-w-0 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 lg:p-8 space-y-6 lg:block " +
                 (pane === "details" ? "block" : "hidden")
               }
             >
@@ -132,7 +132,7 @@ export const CardDetailModal: React.FC = () => {
             <aside
               aria-label="Task properties"
               className={
-                "min-w-0 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-5 bg-muted/20 lg:border-s border-border lg:block " +
+                "min-w-0 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 bg-muted/20 lg:border-s border-border lg:block " +
                 (pane === "properties" ? "block" : "hidden")
               }
             >

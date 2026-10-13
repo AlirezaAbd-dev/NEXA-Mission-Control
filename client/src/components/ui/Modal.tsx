@@ -22,7 +22,7 @@ export interface ModalProps {
   title?: string;
   description?: string;
   children: React.ReactNode;
-  size?: "sm" | "md" | "lg" | "xl" | "2xl";
+  size?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "full";
   className?: string;
   header?: React.ReactNode;
   contentClassName?: string;
@@ -129,12 +129,15 @@ export const Modal = ({
     lg: "max-w-lg",
     xl: "max-w-xl",
     "2xl": "max-w-3xl",
+    "3xl": "max-w-5xl",
+    "4xl": "max-w-7xl",
+    full: "w-[96vw] max-w-[1720px]",
   };
 
   return createPortal(
     <div
       style={{ zIndex: 50 + Math.max(0, stackPosition) * 10 }}
-      className="fixed inset-0 flex items-center justify-center p-3 sm:p-5 overflow-hidden"
+      className="fixed inset-0 flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden"
     >
       {/* Backdrop */}
       <div

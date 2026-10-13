@@ -104,6 +104,8 @@ export function auditSummary(action: string, payload: AuditPayload): string {
   const labels: Record<string, string> = {
     created_card: "Created this task",
     moved_card: "Moved this task",
+    member_added: "Assigned member",
+    member_removed: "Unassigned member",
     updated_card: "Updated this task",
     updated_task_links: "Updated task links and deadlines",
     automation_executed: "Ran an automation",
@@ -112,6 +114,19 @@ export function auditSummary(action: string, payload: AuditPayload): string {
     uploaded_attachment: "Uploaded an attachment",
     updated_process_settings: "Updated process settings",
   };
+  if (
+    action === "moved_card" &&
+    (payload.from_column || payload.from) &&
+    (payload.to_column || payload.to)
+  ) {
+    return `Moved from "${payload.from_column || payload.from}" to "${payload.to_column || payload.to}"`;
+  }
+  if (action === "member_added" && payload.assignee) {
+    return `Assigned ${payload.assignee}`;
+  }
+  if (action === "member_removed" && (payload.removed_assignee || payload.assignee)) {
+    return `Unassigned ${payload.removed_assignee || payload.assignee}`;
+  }
   if (labels[action]) return labels[action];
   if (action === "api_mutation") {
     const route = String(payload.route || ""),

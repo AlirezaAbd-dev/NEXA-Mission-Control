@@ -210,9 +210,9 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
               ).values(),
             ).map((a) => ({
               id: a.user_id,
-              name: a.display_name,
+              name: a.display_name || a.username,
               cards: filteredCards.filter(
-                (c) => c.assignees[0]?.user_id === a.user_id,
+                (c) => c.assignees.some((x) => x.user_id === a.user_id),
               ),
             })),
           ]
@@ -241,7 +241,13 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex-1 min-h-0 h-full overflow-hidden flex flex-col">
+      <div
+        className={`flex-1 min-h-0 h-full flex flex-col ${
+          grouping === "none"
+            ? "overflow-hidden"
+            : "overflow-y-auto overscroll-contain pr-1 pb-10 space-y-6"
+        }`}
+      >
         {notice && (
           <p
             role="status"
@@ -256,32 +262,39 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
             className={
               grouping === "none"
                 ? "flex-1 min-h-0 h-full flex flex-col"
-                : "mb-5 shrink-0"
+                : "shrink-0 flex flex-col"
             }
           >
             {grouping !== "none" && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mb-2 shrink-0 self-start"
-                onClick={() =>
-                  setCollapsed((ids) =>
-                    ids.includes(lane.id)
-                      ? ids.filter((id) => id !== lane.id)
-                      : [...ids, lane.id],
-                  )
-                }
-              >
-                {collapsed.includes(lane.id) ? "▸" : "▾"} {lane.name} ·{" "}
-                {lane.cards.length}
-              </Button>
+              <div className="sticky top-0 z-20 flex items-center justify-between pb-2 bg-inherit/90 backdrop-blur-md">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="font-semibold text-sm hover:bg-slate-200/60 dark:hover:bg-[#132428] rounded-xl px-2.5 py-1 text-slate-800 dark:text-slate-100"
+                  onClick={() =>
+                    setCollapsed((ids) =>
+                      ids.includes(lane.id)
+                        ? ids.filter((id) => id !== lane.id)
+                        : [...ids, lane.id],
+                    )
+                  }
+                >
+                  <span className="text-teal-500 font-bold mr-1.5">
+                    {collapsed.includes(lane.id) ? "▸" : "▾"}
+                  </span>
+                  <span>{lane.name}</span>
+                  <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-slate-100 dark:bg-[#132428] text-slate-600 dark:text-teal-400 font-mono font-medium border border-slate-200/80 dark:border-[#183035]">
+                    {lane.cards.length}
+                  </span>
+                </Button>
+              </div>
             )}
             {!collapsed.includes(lane.id) && (
               <div
-                className={`flex gap-3 sm:gap-4 overflow-x-auto pb-2 select-none scroll-smooth snap-x snap-mandatory sm:snap-none ${
+                className={`flex gap-3 sm:gap-4 overflow-x-auto pb-3 select-none scroll-smooth snap-x snap-mandatory sm:snap-none ${
                   grouping === "none"
                     ? "flex-1 min-h-0 h-full items-stretch"
-                    : "items-start"
+                    : "items-start min-h-[140px]"
                 }`}
               >
                 {board.columns.map((column) => {
