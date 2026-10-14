@@ -23,7 +23,7 @@ export function CardRemoveButton({
       <Button
         size="sm"
         variant="ghost"
-        className="text-danger h-7 px-2"
+        className="h-7 px-2 text-danger hover:text-danger hover:bg-danger/10 dark:text-danger dark:hover:text-danger dark:hover:bg-danger/10 focus:ring-danger/30"
         onClick={() => {
           remove.reset();
           setOpen(true);
