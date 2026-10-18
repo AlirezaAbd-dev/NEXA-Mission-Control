@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Button, Modal, CustomSelect } from "@/components/ui";
 import { useProject } from "@/hooks/project/useProject";
 import { useProductivity } from "@/hooks/productivity/useProductivity";
@@ -13,7 +13,7 @@ interface Mirror {
   status: string;
   priority: string;
 }
-export function MirroredTasks({ projectId }: { projectId: string }) {
+export function MirroredTasks({ projectId, actions }: { projectId: string; actions?: ReactNode }) {
   const { data: project } = useProject(projectId),
     { data: mirrors = [] } = useProductivity<Mirror[]>(
       `projects/${projectId}/mirrors`,
@@ -27,14 +27,17 @@ export function MirroredTasks({ projectId }: { projectId: string }) {
   const [modal, setModal] = useState(false),
     [source, setSource] = useState("");
   return (
-    <section className="space-y-2 shrink-0">
-      <div className="flex items-center gap-3">
-        <h2 className="text-xs uppercase font-semibold text-slate-500">
-          Mirrored tasks
-        </h2>
-        <Button size="sm" variant="ghost" onClick={() => setModal(true)}>
-          Mirror a task
-        </Button>
+    <section className="min-w-0 space-y-2 shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <h2 className="text-xs uppercase font-semibold text-slate-500">
+            Mirrored tasks
+          </h2>
+          <Button size="sm" variant="ghost" onClick={() => setModal(true)}>
+            Mirror a task
+          </Button>
+        </div>
+        {actions && <div className="shrink-0">{actions}</div>}
       </div>
       {!!mirrors.length && (
         <div className="flex gap-3 overflow-x-auto">

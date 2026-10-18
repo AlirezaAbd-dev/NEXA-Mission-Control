@@ -20,8 +20,7 @@ import { useEnterpriseResource } from "@/hooks/enterprise/useEnterpriseResource"
 import type { CardMetadata } from "@/types/enterprise";
 import { applyCardPlacement, cardDropTarget, type CardDropTarget } from "./cardDrop";
 import { apiError } from "@/lib/apiError";
-import { ColumnOrderModal } from "./ColumnOrderModal";
-import { Plus, ArrowLeftRight } from "lucide-react";
+import { Plus } from "lucide-react";
 import { BoardColumn } from "./BoardColumn";
 import { CardItem } from "./CardItem";
 import { Button } from "@/components/ui/Button";
@@ -48,7 +47,6 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     projectId,
     "metadata",
   );
-  const [orderOpen,setOrderOpen] = useState(false);
   const [notice, setNotice] = useState("");
   const [collapsed, setCollapsed] = useState<string[]>([]);
   const [dropTarget,setDropTarget] = useState<CardDropTarget | null>(null);
@@ -241,9 +239,6 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
       onDragOver={updateDropTarget}
       onDragCancel={clearDrag}
     >
-      {orderOpen && <ColumnOrderModal columns={board.columns} boardId={board.id} projectId={projectId} onClose={()=>setOrderOpen(false)}/>}
-      <div className="flex justify-end pb-2"><Button size="sm" variant="outline" onClick={()=>setOrderOpen(true)} disabled={board.columns.length<2}><ArrowLeftRight size={14}/>Reorder columns</Button></div>
-
       <div
         className={`flex-1 min-h-0 h-full flex flex-col ${
           grouping === "none"

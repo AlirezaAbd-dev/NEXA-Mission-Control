@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router";
 import { MirroredTasks } from "@/features/productivity/MirroredTasks";
 import { ViewTabs } from "@/features/views/ViewTabs";
@@ -8,7 +8,9 @@ import { useBoard } from "@/hooks/board/useBoard";
 import { useCards } from "@/hooks/card/useCards";
 import { usePreferences } from "@/hooks/enterprise/usePreferences";
 import { EmptyState } from "@/components/common/EmptyState";
-import { LayoutGrid } from "lucide-react";
+import { ArrowLeftRight, LayoutGrid } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { ColumnOrderModal } from "./ColumnOrderModal";
 
 export const boardThemes: Record<string, string> = {
   petrol: "bg-slate-50 dark:bg-[#070e10]",
@@ -25,6 +27,7 @@ export const boardThemes: Record<string, string> = {
 
 export const BoardPage: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
+  const [orderOpen, setOrderOpen] = useState(false);
 
   const { data: board, isLoading: isBoardLoading } = useBoard(projectId || "");
   const { data: preferences = {} } = usePreferences(projectId || "");
@@ -64,7 +67,15 @@ export const BoardPage: React.FC = () => {
       {/* Top action bar: Filters & Display */}
       <BoardToolbar projectId={projectId} />
 
-      <MirroredTasks projectId={projectId} />
+      <MirroredTasks
+        projectId={projectId}
+        actions={
+          <Button size="sm" variant="outline" onClick={() => setOrderOpen(true)} disabled={board.columns.length < 2}>
+            <ArrowLeftRight size={14} />Reorder columns
+          </Button>
+        }
+      />
+      {orderOpen && <ColumnOrderModal columns={board.columns} boardId={board.id} projectId={projectId} onClose={() => setOrderOpen(false)} />}
       {/* Kanban Board canvas */}
       <KanbanBoard board={board} cards={cards} projectId={projectId} />
     </div>
