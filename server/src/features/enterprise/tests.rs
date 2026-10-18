@@ -1901,3 +1901,88 @@ async fn profile_http_edits_only_the_authenticated_user() {
         .unwrap();
     assert_eq!(response.status(), 401);
 }
+
+#[tokio::test]
+async fn workspace_and_project_update_and_delete_permissions() {
+    let s = fixture().await;
+
+    // 1. Workspace update: member cannot update, owner can update
+    let req = crate::features::workspace::dto::UpdateWorkspaceRequest {
+        name: Some("Renamed Workspace".into()),
+        description: Some("New description".into()),
+        logo_url: None,
+    };
+    let member_update = crate::features::workspace::service::WorkspaceService::update(
+        &s,
+        "w",
+        "member",
+        req,
+    )
+    .await;
+    assert!(member_update.is_err());
+
+    let owner_update = crate::features::workspace::service::WorkspaceService::update(
+        &s,
+        "w",
+        "owner",
+        crate::features::workspace::dto::UpdateWorkspaceRequest {
+            name: Some("Renamed Workspace".into()),
+            description: Some("New description".into()),
+            logo_url: None,
+        },
+    )
+    .await
+    .unwrap();
+    assert_eq!(owner_update.name, "Renamed Workspace");
+
+    // 2. Project update: member cannot update, owner can update
+    let proj_update_forbidden = crate::features::project::service::ProjectService::update(
+        &s,
+        "p",
+        "member",
+        crate::features::project::dto::UpdateProjectRequest {
+            name: Some("Hacked Project".into()),
+            description: None,
+            color: None,
+            cover_url: None,
+            visibility: None,
+        },
+    )
+    .await;
+    assert!(proj_update_forbidden.is_err());
+
+    let proj_update_ok = crate::features::project::service::ProjectService::update(
+        &s,
+        "p",
+        "owner",
+        crate::features::project::dto::UpdateProjectRequest {
+            name: Some("Renamed Project".into()),
+            description: Some("Updated description".into()),
+            color: Some("#3b82f6".into()),
+            cover_url: None,
+            visibility: None,
+        },
+    )
+    .await
+    .unwrap();
+    assert_eq!(proj_update_ok.name, "Renamed Project");
+
+    // 3. Project delete: member cannot delete, owner can delete
+    let proj_del_forbidden =
+        crate::features::project::service::ProjectService::delete(&s, "p", "member").await;
+    assert!(proj_del_forbidden.is_err());
+
+    let proj_del_ok =
+        crate::features::project::service::ProjectService::delete(&s, "p", "owner").await;
+    assert!(proj_del_ok.is_ok());
+
+    // 4. Workspace delete: non-owner cannot delete, owner can delete
+    let ws_del_forbidden =
+        crate::features::workspace::service::WorkspaceService::delete(&s, "w", "member").await;
+    assert!(ws_del_forbidden.is_err());
+
+    let ws_del_ok =
+        crate::features::workspace::service::WorkspaceService::delete(&s, "w", "owner").await;
+    assert!(ws_del_ok.is_ok());
+}
+

@@ -27,12 +27,15 @@ import { useActiveWorkspace } from "@/hooks/workspace/useActiveWorkspace";
 import { ProfileSettings } from "./ProfileSettings";
 import { useWorkspaceMembers } from "@/hooks/workspace/useWorkspaceMembers";
 import { useAddWorkspaceMember } from "@/hooks/workspace/useAddWorkspaceMember";
+import { useUpdateWorkspace } from "@/hooks/workspace/useUpdateWorkspace";
+import { useDeleteWorkspace } from "@/hooks/workspace/useDeleteWorkspace";
 import { useLabels } from "@/hooks/label/useLabels";
 import { useCreateLabel } from "@/hooks/label/useCreateLabel";
 import { useUpdateLabel } from "@/hooks/label/useUpdateLabel";
 import { useDeleteLabel } from "@/hooks/label/useDeleteLabel";
 import { useUiStore } from "@/stores/ui.store";
 import { apiError } from "@/lib/apiError";
+import { useNavigate } from "react-router";
 import type { Label } from "@/types";
 
 const PRESET_COLORS = [
@@ -66,6 +69,7 @@ export const SettingsPage: React.FC = () => {
 
   const theme = useUiStore((s) => s.theme);
   const toggleTheme = useUiStore((s) => s.toggleTheme);
+  const navigate = useNavigate();
 
   const { data: members = [] } = useWorkspaceMembers(currentWorkspaceId);
   const { data: labels = [] } = useLabels(currentWorkspaceId);
@@ -74,6 +78,72 @@ export const SettingsPage: React.FC = () => {
   const createLabel = useCreateLabel(currentWorkspaceId);
   const updateLabel = useUpdateLabel(currentWorkspaceId);
   const deleteLabel = useDeleteLabel(currentWorkspaceId);
+  const updateWorkspaceMutation = useUpdateWorkspace(currentWorkspaceId);
+  const deleteWorkspaceMutation = useDeleteWorkspace();
+
+  // Workspace settings state
+  const [wsName, setWsName] = useState(currentWorkspace?.name || "");
+  const [wsDescription, setWsDescription] = useState(currentWorkspace?.description || "");
+  const [wsUpdateError, setWsUpdateError] = useState("");
+  const [wsUpdateSuccess, setWsUpdateSuccess] = useState(false);
+  const [deleteWsModalOpen, setDeleteWsModalOpen] = useState(false);
+  const [wsDeleteError, setWsDeleteError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (currentWorkspace) {
+      setWsName(currentWorkspace.name || "");
+      setWsDescription(currentWorkspace.description || "");
+      setWsUpdateError("");
+      setWsUpdateSuccess(false);
+    }
+  }, [currentWorkspace?.id, currentWorkspace?.name, currentWorkspace?.description]);
+
+  const roleInWorkspace = currentWorkspace?.user_role || "";
+  const canEditWorkspace = ["owner", "admin"].includes(roleInWorkspace);
+  const canDeleteWorkspace = roleInWorkspace === "owner";
+
+  const handleUpdateWorkspace = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!wsName.trim() || !currentWorkspaceId) return;
+    setWsUpdateError("");
+    setWsUpdateSuccess(false);
+
+    updateWorkspaceMutation.mutate(
+      {
+        name: wsName.trim(),
+        description: wsDescription.trim() || undefined,
+      },
+      {
+        onSuccess: () => {
+          setWsUpdateSuccess(true);
+          setTimeout(() => setWsUpdateSuccess(false), 3000);
+        },
+        onError: (err: any) => {
+          setWsUpdateError(apiError(err));
+        },
+      }
+    );
+  };
+
+  const handleDeleteWorkspaceConfirm = () => {
+    if (!currentWorkspaceId) return;
+    setWsDeleteError(null);
+    deleteWorkspaceMutation.mutate(currentWorkspaceId, {
+      onSuccess: () => {
+        setDeleteWsModalOpen(false);
+        const remaining = workspaces.filter((w) => w.id !== currentWorkspaceId);
+        if (remaining.length > 0) {
+          selectWorkspace(remaining[0].id);
+          navigate(`/w/${remaining[0].id}`);
+        } else {
+          navigate("/");
+        }
+      },
+      onError: (err: any) => {
+        setWsDeleteError(apiError(err));
+      },
+    });
+  };
 
   // Member invite form state
   const [newMemberEmail, setNewMemberEmail] = useState("");
@@ -258,6 +328,83 @@ export const SettingsPage: React.FC = () => {
       {/* TAB 1: GENERAL & APPEARANCE */}
       {activeTab === "workspace" && (
         <div className="space-y-6">
+          {/* Workspace Settings (Rename & Info) */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Sliders className="w-4 h-4 text-teal-500" />
+                  Workspace Details
+                </span>
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-[#132428] text-slate-600 dark:text-slate-300 font-mono">
+                  Role: {roleInWorkspace || "member"}
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <form onSubmit={handleUpdateWorkspace} className="space-y-4">
+                {wsUpdateError && (
+                  <div className="p-3 text-xs rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400">
+                    {wsUpdateError}
+                  </div>
+                )}
+                {wsUpdateSuccess && (
+                  <div className="p-3 text-xs rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                    Workspace details updated successfully!
+                  </div>
+                )}
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Workspace Name <span className="text-rose-500">*</span>
+                  </label>
+                  <Input
+                    value={wsName}
+                    onChange={(e) => setWsName(e.target.value)}
+                    placeholder="e.g. Acme Corporation"
+                    disabled={!canEditWorkspace || updateWorkspaceMutation.isPending}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    Description
+                  </label>
+                  <textarea
+                    value={wsDescription}
+                    onChange={(e) => setWsDescription(e.target.value)}
+                    rows={2}
+                    placeholder="Optional workspace description..."
+                    disabled={!canEditWorkspace || updateWorkspaceMutation.isPending}
+                    className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-[#183035] bg-white dark:bg-[#070e10] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-none disabled:opacity-50"
+                  />
+                </div>
+
+                {canEditWorkspace && (
+                  <div className="flex justify-end pt-1">
+                    <Button
+                      type="submit"
+                      variant="primary"
+                      size="sm"
+                      isLoading={updateWorkspaceMutation.isPending}
+                      disabled={!wsName.trim() || (wsName === currentWorkspace?.name && wsDescription === (currentWorkspace?.description || ""))}
+                    >
+                      Save Workspace
+                    </Button>
+                  </div>
+                )}
+
+                {!canEditWorkspace && (
+                  <p className="text-xs text-slate-400 italic">
+                    Only workspace owners and admins can rename or edit workspace details.
+                  </p>
+                )}
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Theme & Appearance */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
@@ -307,6 +454,45 @@ export const SettingsPage: React.FC = () => {
           </Card>
 
           <DesktopNotificationSettings />
+
+          {/* Danger Zone: Workspace Deletion */}
+          <Card className="border-rose-500/30 dark:border-rose-500/20">
+            <CardHeader>
+              <CardTitle className="text-base text-rose-600 dark:text-rose-400 flex items-center gap-2">
+                <Trash2 className="w-4 h-4" />
+                Danger Zone
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-rose-500/5 border border-rose-500/15">
+                <div>
+                  <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    Delete Workspace
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    Permanently delete this workspace ({currentWorkspace?.name}), all of its projects, tasks, and data.
+                  </div>
+                </div>
+                {canDeleteWorkspace ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setWsDeleteError(null);
+                      setDeleteWsModalOpen(true);
+                    }}
+                    className="text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 cursor-pointer shrink-0"
+                  >
+                    Delete Workspace
+                  </Button>
+                ) : (
+                  <span className="text-xs text-slate-400 italic shrink-0">
+                    Only the workspace owner can delete this workspace
+                  </span>
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
 
@@ -652,6 +838,24 @@ export const SettingsPage: React.FC = () => {
         isDestructive={true}
         onConfirm={handleDeleteLabelConfirm}
         isLoading={deleteLabel.isPending}
+      />
+
+      {/* Confirm Delete Workspace Modal */}
+      <ConfirmModal
+        isOpen={deleteWsModalOpen}
+        onClose={() => {
+          setDeleteWsModalOpen(false);
+          setWsDeleteError(null);
+        }}
+        title={`Delete workspace "${currentWorkspace?.name}"?`}
+        description={
+          wsDeleteError ||
+          `Are you sure you want to permanently delete "${currentWorkspace?.name}" and all associated projects, tasks, boards, and attachments? This action cannot be undone.`
+        }
+        confirmLabel="Delete Workspace"
+        isDestructive={true}
+        onConfirm={handleDeleteWorkspaceConfirm}
+        isLoading={deleteWorkspaceMutation.isPending}
       />
     </div>
   );
