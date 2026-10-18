@@ -331,7 +331,7 @@ html.dark {
 .tiptap-content p.is-editor-empty:first-child::before,
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
-  float: left;
+  float: inline-start;
   color: #94a3b8;
   pointer-events: none;
   height: 0;
@@ -342,16 +342,24 @@ html.dark {
 .ProseMirror ul,
 .prose ul {
   list-style-type: disc !important;
-  padding-left: 1.4rem !important;
+  padding-inline-start: 1.4rem !important;
   margin-top: 0.4rem !important;
   margin-bottom: 0.4rem !important;
+}
+
+/* Auto list items must inherit the list direction: their text is inside block
+   children, which the browser excludes when resolving dir="auto" on the li. */
+.tiptap-content li[dir="auto"],
+.ProseMirror li[dir="auto"],
+.prose li[dir="auto"] {
+  direction: inherit;
 }
 
 .tiptap-content ol,
 .ProseMirror ol,
 .prose ol {
   list-style-type: decimal !important;
-  padding-left: 1.4rem !important;
+  padding-inline-start: 1.4rem !important;
   margin-top: 0.4rem !important;
   margin-bottom: 0.4rem !important;
 }
@@ -359,8 +367,8 @@ html.dark {
 .tiptap-content blockquote,
 .ProseMirror blockquote,
 .prose blockquote {
-  border-left: 3px solid #0d9488 !important;
-  padding-left: 0.85rem !important;
+  border-inline-start: 3px solid #0d9488 !important;
+  padding-inline-start: 0.85rem !important;
   margin-top: 0.5rem !important;
   margin-bottom: 0.5rem !important;
   font-style: italic !important;

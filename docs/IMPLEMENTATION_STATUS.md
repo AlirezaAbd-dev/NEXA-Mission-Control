@@ -92,3 +92,9 @@ Validation: 47 backend tests, 19 frontend tests, focused TypeScript and lint pas
 ### Dependency restoration and full validation
 
 Restored the already-declared Tiptap 3.31.4 packages using the frozen pnpm lockfile. No dependency version changes were needed. The complete frontend TypeScript check and production build now pass; the previous missing-editor-dependency limitation is resolved. Final validation also passes all 47 backend tests and 19 frontend tests. Frontend lint exits successfully with eight existing warnings; Vite reports one existing large-chunk advisory. README documents restoring locked dependencies after pulling changes.
+
+### Rich-text content direction
+
+The editor now exposes LTR, RTL, and Auto controls for the current block or selected blocks, using Tiptap's built-in direction support with no additional dependencies. Direction is serialized in HTML `dir` attributes and restored when reopening content; English and Persian paragraphs can have independent directions. Selected state tracks editor selection changes. List indentation, quote borders, and empty-editor placeholders follow logical directions; automatic list items inherit their containing list direction to keep markers on the correct side.
+
+Validation: full frontend build and lint pass (existing warnings remain), and 19 frontend tests pass. Browser checks verified LTR/RTL controls, multi-block selection, undo, automatic Persian direction, serialized reload persistence, read-only rendering, and RTL list markers using a disposable editor preview.

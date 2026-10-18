@@ -53,6 +53,7 @@ import {
   Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { EditorDirectionControls } from "./EditorDirectionControls";
 
 export interface RichTextEditorProps {
   content: string;
@@ -96,6 +97,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 
   const editor = useEditor({
     editable,
+    textDirection: "auto",
     extensions: [
       StarterKit.configure({
         heading: {
@@ -359,6 +361,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       {/* Editor Toolbar */}
       {editable && (
         <div className="flex flex-wrap items-center gap-1 border-b border-border/60 bg-muted/40 dark:border-white/8 dark:bg-black/30 p-1.5 text-xs select-none sticky top-0 z-10 backdrop-blur-md">
+          <EditorDirectionControls editor={editor} />
           {/* Text Style: Headings */}
           <div className="flex items-center gap-0.5 border-r border-border/60 dark:border-white/10 pe-1.5 me-0.5">
             <button

@@ -12,7 +12,7 @@ WORKDIR /app/client
 
 RUN corepack enable && corepack prepare pnpm@11.17.0 --activate
 
-COPY client/package.json client/pnpm-lock.yaml ./
+COPY client/package.json client/pnpm-lock.yaml client/pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY client/ ./
