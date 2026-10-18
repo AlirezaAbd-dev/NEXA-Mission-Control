@@ -5,6 +5,9 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Plus, MoreHorizontal, Trash2, FileText } from "lucide-react";
+import { CardDropPlaceholder } from "./CardDropPlaceholder";
+import type { CardDropTarget } from "./cardDrop";
+import { ColumnRenameModal } from "./ColumnRenameModal";
 import { CardItem } from "./CardItem";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -23,6 +26,8 @@ interface BoardColumnProps {
   cards: Card[];
   projectId: string;
   laneId?: string;
+  draggingCardId?: string;
+  dropTarget?: CardDropTarget | null;
 }
 
 export const BoardColumn: React.FC<BoardColumnProps> = ({
@@ -30,6 +35,8 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
   cards,
   projectId,
   laneId,
+  draggingCardId,
+  dropTarget,
 }) => {
   const [isAddingCard, setIsAddingCard] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState("");
@@ -37,6 +44,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const [sort, setSort] = useState("position");
+  const [renameOpen,setRenameOpen] = useState(false);
   const [wipOpen, setWipOpen] = useState(false);
   const [wip, setWip] = useState(String(column.wip_limit || 0));
   const updateColumn = useUpdateColumn(projectId);
@@ -86,10 +94,11 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
     data: {
       type: "column",
       column,
+      laneId,
     },
   });
 
-  const cardIds = cards.map((c) => c.id);
+  const cardIds = sortedCards.map((card) => laneId ? card.id+"::"+laneId : card.id);
 
   const handleCreateCard = (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,8 +135,10 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
 
   return (
     <>
+      {renameOpen && <ColumnRenameModal column={column} projectId={projectId} onClose={()=>setRenameOpen(false)} />}
       <div
         ref={setNodeRef}
+        data-column-id={column.id}
         className={`w-[88vw] max-w-[340px] sm:w-72 md:w-80 shrink-0 snap-center sm:snap-align-none flex flex-col h-full min-h-[min(540px,calc(100dvh-180px))] sm:min-h-0 rounded-2xl bg-white/80 dark:bg-[#0c181b]/85 backdrop-blur-md border border-slate-200/90 dark:border-[#183035] transition-colors shadow-xs ${
           exceeded
             ? "ring-2 ring-amber-500/50"
@@ -170,6 +181,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
                 <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
               }
               items={[
+                {id:"rename",label:"Rename column",onClick:()=>setRenameOpen(true)},
                 {
                   id: "wip",
                   label: "Set WIP limit",
@@ -208,8 +220,12 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
             strategy={verticalListSortingStrategy}
           >
             {sortedCards.map((card) => (
-              <CardItem key={card.id} card={card} />
+              <React.Fragment key={card.id}>
+                {dropTarget?.beforeId === card.id && <CardDropPlaceholder />}
+                <CardItem card={card} laneId={laneId} boardDragging={!!draggingCardId} />
+              </React.Fragment>
             ))}
+            {dropTarget && !dropTarget.beforeId && <CardDropPlaceholder />}
           </SortableContext>
         </div>
 

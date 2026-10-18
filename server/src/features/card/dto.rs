@@ -31,14 +31,24 @@ pub struct UpdateCardRequest {
     pub estimated_hours: Option<f64>,
     pub cover_url: Option<String>,
     pub is_template: Option<bool>,
-    #[serde(default,deserialize_with="nullable_points")]
+    #[serde(default, deserialize_with = "nullable_points")]
     pub story_points: Option<Option<f64>>,
 }
-fn nullable_points<'de,D:serde::Deserializer<'de>>(d:D)->Result<Option<Option<f64>>,D::Error>{Ok(Some(Option::<f64>::deserialize(d)?))}
+fn nullable_points<'de, D: serde::Deserializer<'de>>(
+    d: D,
+) -> Result<Option<Option<f64>>, D::Error> {
+    Ok(Some(Option::<f64>::deserialize(d)?))
+}
+
+#[derive(Debug, Deserialize)]
+pub struct CardPlacement {
+    pub before_id: Option<String>,
+}
 
 #[derive(Debug, Deserialize)]
 pub struct MoveCardRequest {
     pub column_id: String,
+    pub placement: Option<CardPlacement>,
     pub position: f64,
 }
 

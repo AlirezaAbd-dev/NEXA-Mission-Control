@@ -1539,17 +1539,365 @@ async fn author_and_admin_comment_edit_delete_lifecycle() {
     assert!(delete_forbidden.is_err());
 
     // Author can delete
-    let deleted = crate::features::comment::service::CommentService::delete(
-        &state,
-        &comment.id,
-        "member",
-    )
-    .await;
+    let deleted =
+        crate::features::comment::service::CommentService::delete(&state, &comment.id, "member")
+            .await;
     assert!(deleted.is_ok());
 
     // Verify it is gone
-    let list = crate::features::comment::service::CommentService::list_by_card(&state, "c1", "member")
+    let list =
+        crate::features::comment::service::CommentService::list_by_card(&state, "c1", "member")
+            .await
+            .unwrap();
+    assert!(!list.iter().any(|c| c.id == comment.id));
+}
+
+#[tokio::test]
+async fn board_columns_rename_and_reorder_validate_scope_and_permissions() {
+    use crate::features::board::{
+        dto::{ReorderColumnsRequest, UpdateColumnRequest},
+        service::BoardService,
+    };
+    let s = fixture().await;
+    let rename = |name: &str| UpdateColumnRequest {
+        name: Some(name.into()),
+        type_: None,
+        position: None,
+        wip_limit: None,
+    };
+    let result = BoardService::update_column(&s, "todo", "owner", rename("  Ready to start  "))
         .await
         .unwrap();
-    assert!(!list.iter().any(|c| c.id == comment.id));
+    assert_eq!(result.name, "Ready to start");
+    assert!(
+        BoardService::update_column(&s, "todo", "owner", rename("   "))
+            .await
+            .is_err()
+    );
+    assert!(
+        BoardService::update_column(&s, "todo", "viewer", rename("Blocked"))
+            .await
+            .is_err()
+    );
+    assert!(
+        BoardService::update_column(&s, "todo", "other", rename("Blocked"))
+            .await
+            .is_err()
+    );
+    let request = |ids: Vec<&str>| ReorderColumnsRequest {
+        column_ids: ids.into_iter().map(str::to_owned).collect(),
+    };
+    assert!(
+        BoardService::reorder_columns(&s, "b", "viewer", request(vec!["done", "todo"]))
+            .await
+            .is_err()
+    );
+    BoardService::reorder_columns(&s, "b", "owner", request(vec!["done", "todo"]))
+        .await
+        .unwrap();
+    let before = crate::features::board::repository::BoardRepository::list_columns(&s.pool, "b")
+        .await
+        .unwrap();
+    assert_eq!(
+        before.iter().map(|c| c.id.as_str()).collect::<Vec<_>>(),
+        vec!["done", "todo"]
+    );
+    // A foreign-board ID must never be mutated, even if supplied alongside a valid ID.
+    sqlx::query("INSERT INTO boards(id,project_id,name,created_at) VALUES('foreign','p','Other board','now')").execute(&s.pool).await.unwrap();
+    sqlx::query("INSERT INTO columns(id,board_id,name,type,position,created_at) VALUES('foreign-col','foreign','Foreign','active',123,'now')").execute(&s.pool).await.unwrap();
+    for ids in [
+        vec!["todo", "todo"],
+        vec!["todo"],
+        vec!["todo", "foreign-col"],
+        vec!["todo", "missing"],
+        vec![],
+    ] {
+        assert!(
+            BoardService::reorder_columns(&s, "b", "owner", request(ids))
+                .await
+                .is_err()
+        );
+    }
+    let after = crate::features::board::repository::BoardRepository::list_columns(&s.pool, "b")
+        .await
+        .unwrap();
+    assert_eq!(
+        before
+            .iter()
+            .map(|c| (&c.id, c.position))
+            .collect::<Vec<_>>(),
+        after
+            .iter()
+            .map(|c| (&c.id, c.position))
+            .collect::<Vec<_>>()
+    );
+    let position: f64 = sqlx::query_scalar("SELECT position FROM columns WHERE id='foreign-col'")
+        .fetch_one(&s.pool)
+        .await
+        .unwrap();
+    assert_eq!(position, 123.);
+    // Repository safety also rolls back earlier updates if a later ID is invalid.
+    assert!(
+        crate::features::board::repository::BoardRepository::reorder_columns(
+            &s.pool,
+            "b",
+            &vec!["todo".into(), "foreign-col".into()]
+        )
+        .await
+        .is_err()
+    );
+    let after = crate::features::board::repository::BoardRepository::list_columns(&s.pool, "b")
+        .await
+        .unwrap();
+    assert_eq!(
+        before
+            .iter()
+            .map(|c| (&c.id, c.position))
+            .collect::<Vec<_>>(),
+        after
+            .iter()
+            .map(|c| (&c.id, c.position))
+            .collect::<Vec<_>>()
+    );
+}
+
+#[tokio::test]
+async fn board_column_http_mutations_publish_realtime_changes() {
+    use axum::{body::Body, http::Request};
+    use tower::ServiceExt;
+    let s = fixture().await;
+    let mut events = s.changes.subscribe();
+    let claims = crate::extractors::auth::Claims {
+        sub: "owner".into(),
+        email: "owner@test.local".into(),
+        role: "member".into(),
+        exp: (chrono::Utc::now().timestamp() + 60) as usize,
+    };
+    let token = jsonwebtoken::encode(
+        &jsonwebtoken::Header::default(),
+        &claims,
+        &jsonwebtoken::EncodingKey::from_secret(b"test"),
+    )
+    .unwrap();
+    let app = crate::router::create_router(s.clone());
+    for (method, path, payload) in [
+        (
+            "PUT",
+            "/api/v1/boards/columns/todo",
+            r#"{"name":"New name"}"#,
+        ),
+        (
+            "POST",
+            "/api/v1/boards/b/columns/reorder",
+            r#"{"column_ids":["done","todo"]}"#,
+        ),
+    ] {
+        let response = app
+            .clone()
+            .oneshot(
+                Request::builder()
+                    .method(method)
+                    .uri(path)
+                    .header("authorization", format!("Bearer {token}"))
+                    .header("content-type", "application/json")
+                    .body(Body::from(payload))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), 200);
+        let change = events.try_recv().unwrap();
+        assert_eq!(change.project_id.as_deref(), Some("p"));
+        assert_eq!(change.kind, "changed");
+    }
+    let board = crate::features::board::service::BoardService::get_by_project_id(&s, "p", "owner")
+        .await
+        .unwrap();
+    assert_eq!(board.columns[0].id, "done");
+    assert_eq!(board.columns[1].name, "New name");
+}
+
+#[tokio::test]
+async fn anchored_task_placement_handles_ties_and_rejects_foreign_targets() {
+    use crate::features::card::repository::CardRepository;
+    let s = fixture().await;
+    sqlx::query("INSERT INTO cards(id,project_id,column_id,title,priority,position,created_at,updated_at) VALUES('c3','p','todo','Third','medium',1,'now','now')").execute(&s.pool).await.unwrap();
+    CardRepository::move_card_placed(&s.pool, "c2", "todo", Some("c3"), "later")
+        .await
+        .unwrap();
+    let ids: Vec<String> = sqlx::query_scalar(
+        "SELECT id FROM cards WHERE column_id='todo' ORDER BY position,created_at,id",
+    )
+    .fetch_all(&s.pool)
+    .await
+    .unwrap();
+    assert_eq!(ids, vec!["c1", "c2", "c3"]);
+    let positions: Vec<f64> =
+        sqlx::query_scalar("SELECT position FROM cards WHERE column_id='todo' ORDER BY position")
+            .fetch_all(&s.pool)
+            .await
+            .unwrap();
+    assert!(positions.windows(2).all(|p| p[0] < p[1]));
+    assert!(
+        CardRepository::move_card_placed(&s.pool, "c2", "todo", Some("missing"), "invalid")
+            .await
+            .is_err()
+    );
+    let after: Vec<String> =
+        sqlx::query_scalar("SELECT id FROM cards WHERE column_id='todo' ORDER BY position")
+            .fetch_all(&s.pool)
+            .await
+            .unwrap();
+    assert_eq!(ids, after);
+    CardRepository::move_card_placed(&s.pool, "c2", "done", None, "later")
+        .await
+        .unwrap();
+    let column: String = sqlx::query_scalar("SELECT column_id FROM cards WHERE id='c2'")
+        .fetch_one(&s.pool)
+        .await
+        .unwrap();
+    assert_eq!(column, "done");
+}
+
+#[tokio::test]
+async fn profile_updates_validate_names_avatars_and_preserve_account_identity() {
+    use crate::features::auth::{
+        dto::UpdateUserRequest, repository::AuthRepository, service::AuthService,
+    };
+    let s = fixture().await;
+    let request = |name: Option<&str>, avatar: Option<&str>| UpdateUserRequest {
+        display_name: name.map(str::to_owned),
+        avatar_url: avatar.map(str::to_owned),
+    };
+    let edited = AuthService::update_me(
+        &s,
+        "member",
+        request(
+            Some("  Updated Member  "),
+            Some("https://example.test/avatar.png"),
+        ),
+    )
+    .await
+    .unwrap();
+    assert_eq!(edited.display_name, "Updated Member");
+    assert_eq!(edited.username, "member");
+    assert_eq!(edited.email, "member@test.local");
+    assert_eq!(
+        edited.avatar_url.as_deref(),
+        Some("https://example.test/avatar.png")
+    );
+    let preserved = AuthService::update_me(&s, "member", request(Some("Another name"), None))
+        .await
+        .unwrap();
+    assert_eq!(preserved.avatar_url, edited.avatar_url);
+    for name in [" ", "A", &"x".repeat(51)] {
+        assert!(
+            AuthService::update_me(&s, "member", request(Some(name), None))
+                .await
+                .is_err()
+        );
+    }
+    for avatar in [
+        "javascript:alert(1)",
+        "data:image/svg+xml,bad",
+        "/uploads/../secret.png",
+        "http://example.test/avatar.png",
+    ] {
+        assert!(
+            AuthService::update_me(&s, "member", request(None, Some(avatar)))
+                .await
+                .is_err()
+        );
+    }
+    let cleared = AuthService::update_me(&s, "member", request(None, Some("")))
+        .await
+        .unwrap();
+    assert!(cleared.avatar_url.is_none());
+    assert_eq!(
+        AuthRepository::find_by_id(&s.pool, "owner")
+            .await
+            .unwrap()
+            .unwrap()
+            .display_name,
+        "owner"
+    );
+}
+#[tokio::test]
+async fn avatar_upload_enforces_image_type_and_size() {
+    use crate::features::auth::avatar_service::{store_avatar, MAX_AVATAR_BYTES};
+    let s = fixture().await;
+    assert!(
+        store_avatar(&s, "member", b"<svg><script>alert(1)</script></svg>")
+            .await
+            .is_err()
+    );
+    assert!(store_avatar(&s, "member", &vec![0; MAX_AVATAR_BYTES + 1])
+        .await
+        .is_err());
+    let uploaded = store_avatar(&s, "member", b"\x89PNG\r\n\x1a\nfixture")
+        .await
+        .unwrap();
+    assert!(uploaded.url.starts_with("/uploads/avatars/member/"));
+    assert!(uploaded.url.ends_with(".png"));
+    let path = std::path::Path::new(&s.config.upload_dir)
+        .join(uploaded.url.trim_start_matches("/uploads/"));
+    assert!(path.exists());
+    tokio::fs::remove_file(path).await.unwrap();
+}
+#[tokio::test]
+async fn profile_http_edits_only_the_authenticated_user() {
+    use axum::{body::Body, http::Request};
+    use tower::ServiceExt;
+    let s = fixture().await;
+    let app = crate::router::create_router(s.clone());
+    let claims = crate::extractors::auth::Claims {
+        sub: "member".into(),
+        email: "member@test.local".into(),
+        role: "member".into(),
+        exp: (chrono::Utc::now().timestamp() + 60) as usize,
+    };
+    let token = jsonwebtoken::encode(
+        &jsonwebtoken::Header::default(),
+        &claims,
+        &jsonwebtoken::EncodingKey::from_secret(b"test"),
+    )
+    .unwrap();
+    let response = app
+        .clone()
+        .oneshot(
+            Request::builder()
+                .method("PUT")
+                .uri("/api/v1/auth/me")
+                .header("authorization", format!("Bearer {token}"))
+                .header("content-type", "application/json")
+                .body(Body::from(
+                    r#"{"display_name":"Profile HTTP","id":"owner","role":"admin"}"#,
+                ))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), 200);
+    let name: String = sqlx::query_scalar("SELECT display_name FROM users WHERE id='member'")
+        .fetch_one(&s.pool)
+        .await
+        .unwrap();
+    assert_eq!(name, "Profile HTTP");
+    let name: String = sqlx::query_scalar("SELECT display_name FROM users WHERE id='owner'")
+        .fetch_one(&s.pool)
+        .await
+        .unwrap();
+    assert_eq!(name, "owner");
+    let response = app
+        .oneshot(
+            Request::builder()
+                .method("PUT")
+                .uri("/api/v1/auth/me")
+                .header("content-type", "application/json")
+                .body(Body::from(r#"{"display_name":"Anonymous"}"#))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), 401);
 }

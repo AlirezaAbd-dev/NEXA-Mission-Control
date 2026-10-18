@@ -66,3 +66,29 @@ Adapted the frontend date-picker design with Gregorian dates, local date-only pa
 Active product labels, seed content, API health, logs, Rust package/binary and browser storage now use Mission Control. The upgrade migration renames existing welcome text. Browser storage is migrated so sessions and themes survive. New database configuration uses mission-control.db; startup recognizes an existing legacy database rather than creating an empty app. Historical SQL migration checksums are preserved. Rich text editor work is deferred at the user's request; no editor dependencies or partial editor files are included.
 
 Validation: 40 backend tests, 13 frontend tests, TypeScript, lint, production build, live calendar/dropdown dismissal and local date persistence checks.
+
+### Board column management
+
+Each column's actions menu now includes Rename column with trimmed 1–50 character validation and API error feedback. Reorder columns opens a NEXA modal with drag handles, keyboard sorting and up/down buttons; Save order applies the draft to all swimlanes. Reordering updates the cached board immediately and rolls back on failure. The API validates the complete set of board columns and saves positions within one transaction, rejecting foreign, duplicate, missing and stale column sets. Viewer/outsider authorization and successful realtime change publication are covered by backend tests.
+
+Verified live against a disposable local board: rename, arrow movement, keyboard drag, saving, reload persistence and cleanup. Targeted board TypeScript checks and lint pass. The full client build remains blocked by pre-existing missing Tiptap dependencies; an isolated preview used the actual board components with the unrelated editor export omitted.
+
+### Task drop placement and animation
+
+Task dragging now displays a NEXA insertion marker at the exact drop slot, including empty columns. Pointer movement uses the hovered card's upper/lower half; keyboard dragging supports same-column ordering and cross-column moves. Preview cards use a distinct disabled sortable ID, and conflicting sortable/return animations are disabled. A transient placement handoff keeps the dropped task at its destination while cache notifications and requests finish. Failed requests roll back the affected positions and display an error; cancellation does not mutate data. Marker state only updates when the intended slot changes.
+
+Moves can include an optional before-task placement anchor. The server calculates fractional positions in a transaction, rebalancing only when duplicate or exhausted position values require it. Legacy position-only clients retain their existing API. Existing tasks with equal position values can therefore be inserted between correctly. Tests cover tied positions, invalid anchors, before/after slots, empty columns and shared placeholder/save calculations.
+
+Validation: 44 backend tests, 17 frontend tests, targeted board TypeScript and lint; isolated browser preview verifies keyboard reorder, cross-column movement, cancellation, pointer insertion, empty-column drops and persisted API state. Full-project client checks remain limited by the pre-existing missing editor dependencies. Disposable preview and test records were removed.
+
+## Workspace context and profile settings
+
+Workspace selection is shared by the sidebar, dashboard, and Settings and remembered per account in browser storage. Explicit workspace/project routes establish context; visiting generic pages retains that choice. Missing workspace memberships fall back safely to an accessible workspace.
+
+Settings opens on My profile with editable display name and photo, image preview, reset/save controls, pending protection, and validation feedback. Authenticated avatar uploads accept PNG/JPEG/WebP/GIF up to 2 MB; names are trimmed and validated, and empty avatar values remove the photo. Username/email remain read-only sign-in identifiers. Profile updates refresh the current-user store, header, and relevant cached member/task data. Avatar files use the existing uploads storage, which must be included in backups.
+
+Validation: 47 backend tests, 19 frontend tests, focused TypeScript and lint pass. Browser checks using an isolated database and the real Settings/sidebar components verified workspace switching, navigation to Settings, reload persistence, name save, image upload/rendering, removal, and API error recovery. Full-project client builds remain blocked by pre-existing missing Tiptap dependencies in the unrelated editor work.
+
+### Dependency restoration and full validation
+
+Restored the already-declared Tiptap 3.31.4 packages using the frozen pnpm lockfile. No dependency version changes were needed. The complete frontend TypeScript check and production build now pass; the previous missing-editor-dependency limitation is resolved. Final validation also passes all 47 backend tests and 19 frontend tests. Frontend lint exits successfully with eight existing warnings; Vite reports one existing large-chunk advisory. README documents restoring locked dependencies after pulling changes.

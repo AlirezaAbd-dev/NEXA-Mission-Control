@@ -11,10 +11,7 @@ import {
   Check,
   X,
   Shield,
-  Key,
-  Bell,
   Sliders,
-  Sparkles,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -26,7 +23,8 @@ import { AuthenticatorSettings } from "./AuthenticatorSettings";
 import { DesktopNotificationSettings } from "./DesktopNotificationSettings";
 import { PersonalTokens } from "@/features/enterprise/PersonalTokens";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
-import { useWorkspaces } from "@/hooks/workspace/useWorkspaces";
+import { useActiveWorkspace } from "@/hooks/workspace/useActiveWorkspace";
+import { ProfileSettings } from "./ProfileSettings";
 import { useWorkspaceMembers } from "@/hooks/workspace/useWorkspaceMembers";
 import { useAddWorkspaceMember } from "@/hooks/workspace/useAddWorkspaceMember";
 import { useLabels } from "@/hooks/label/useLabels";
@@ -55,12 +53,9 @@ const PRESET_COLORS = [
 
 export const SettingsPage: React.FC = () => {
   const { data: currentUser } = useCurrentUser();
-  const { data: workspaces = [] } = useWorkspaces();
-  const [selectedWorkspace, setSelectedWorkspace] = useState("");
-  const currentWorkspaceId = selectedWorkspace || workspaces[0]?.id || "";
-  const currentWorkspace = workspaces.find((w) => w.id === currentWorkspaceId);
+  const {workspaces,currentWorkspaceId,currentWorkspace,selectWorkspace}=useActiveWorkspace();
 
-  const [activeTab, setActiveTab] = useState<"workspace" | "labels" | "members" | "security">("workspace");
+  const [activeTab, setActiveTab] = useState<"profile" | "workspace" | "labels" | "members" | "security">("profile");
 
   const [roleChange, setRoleChange] = useState<{
     email: string;
@@ -177,10 +172,10 @@ export const SettingsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-[#183035]">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
-            Settings & Workspace
+            Settings
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Configure labels, manage team members, access security, and preferences.
+            Manage your profile, workspace, team, security, and preferences.
           </p>
         </div>
 
@@ -190,7 +185,7 @@ export const SettingsPage: React.FC = () => {
               label="Active Workspace"
               value={currentWorkspaceId}
               options={workspaces.map((w) => ({ value: w.id, label: w.name }))}
-              onChange={setSelectedWorkspace}
+              onChange={selectWorkspace}
             />
           </div>
         )}
@@ -198,6 +193,7 @@ export const SettingsPage: React.FC = () => {
 
       {/* Modern Responsive Tabs Navigation */}
       <div className="flex items-center gap-1.5 border-b border-slate-200/80 dark:border-[#183035] overflow-x-auto scrollbar-none pb-2 shrink-0">
+        <Button size="sm" variant={activeTab==="profile"?"secondary":"ghost"} onClick={()=>setActiveTab("profile")} aria-pressed={activeTab==="profile"}>My profile</Button>
         <button
           type="button"
           onClick={() => setActiveTab("workspace")}
@@ -256,6 +252,8 @@ export const SettingsPage: React.FC = () => {
           <span>Security & Access</span>
         </button>
       </div>
+
+      {activeTab==="profile" && <ProfileSettings />}
 
       {/* TAB 1: GENERAL & APPEARANCE */}
       {activeTab === "workspace" && (

@@ -229,3 +229,64 @@ test("Date-time picker saves local clock time and enforces time limits", () => {
     false,
   );
 });
+
+const { cardDropTarget } = load("src/features/board/cardDrop.ts");
+const dragCards = [
+  {id:"one",column_id:"todo",position:1000},
+  {id:"two",column_id:"todo",position:2000},
+  {id:"three",column_id:"todo",position:3000},
+  {id:"other",column_id:"done",position:1000},
+];
+test("card drop marker and saved order share before/after insertion math",()=>{
+  const before=cardDropTarget(dragCards,"three","todo","two",false,"all");
+  const after=cardDropTarget(dragCards,"one","todo","two",true,"all");
+  assert.equal(before.beforeId,"two");
+  assert.equal(before.position,1500);
+  assert.equal(after.beforeId,"three");
+  assert.equal(after.position,2500);
+  assert.equal(after.laneId,"all");
+});
+test("cross-column drops insert at either edge or into an empty column",()=>{
+  const first=cardDropTarget(dragCards,"one","done","other",false);
+  const last=cardDropTarget(dragCards,"one","done","other",true);
+  assert.equal(first.beforeId,"other");
+  assert.ok(first.position<1000);
+  assert.equal(last.beforeId,null);
+  assert.ok(last.position>1000);
+  const empty=cardDropTarget(dragCards,"one","empty",null,false);
+  assert.equal(empty.beforeId,null);
+  assert.equal(empty.position,65536);
+});
+test("moving a task excludes its old position and rejects invalid targets",()=>{
+  const end=cardDropTarget(dragCards,"two","todo",null,false);
+  assert.ok(end.position>3000);
+  assert.equal(cardDropTarget(dragCards,"two","todo","two",false),null);
+  assert.equal(cardDropTarget(dragCards,"two","todo","other",false),null);
+  const ordered=dragCards.filter(card=>card.id!=="one").concat({...dragCards[0],position:cardDropTarget(dragCards,"one","todo","three",true).position}).filter(card=>card.column_id==="todo").sort((a,b)=>a.position-b.position);
+  assert.deepEqual(ordered.map(card=>card.id),["two","three","one"]);
+});
+
+test("drop placement preserves the indicated slot when existing positions collide",()=>{
+  const {applyCardPlacement}=load("src/features/board/cardDrop.ts");
+  const cards=[{id:"a",column_id:"todo",position:1000},{id:"b",column_id:"todo",position:1000},{id:"c",column_id:"todo",position:1000},{id:"moved",column_id:"done",position:1000}];
+  const moved=applyCardPlacement(cards,"moved","todo","b").filter(card=>card.column_id==="todo").sort((a,b)=>a.position-b.position);
+  assert.deepEqual(moved.map(card=>card.id),["a","moved","b","c"]);
+  assert.equal(new Set(moved.map(card=>card.position)).size,4);
+});
+
+const workspaceSelection=load("src/lib/workspaceSelection.ts");
+test("workspace choice survives generic pages and validates saved membership",()=>{
+  const workspaces=[{id:"first"},{id:"chosen"}];
+  assert.equal(workspaceSelection.resolveWorkspaceId(workspaces,undefined,"chosen"),"chosen");
+  assert.equal(workspaceSelection.resolveWorkspaceId(workspaces,"first","chosen"),"first");
+  assert.equal(workspaceSelection.resolveWorkspaceId(workspaces,undefined,"removed"),"first");
+  assert.equal(workspaceSelection.resolveWorkspaceId([],undefined,"chosen"),"");
+});
+test("workspace selections remain account-specific and corrupted storage is ignored",()=>{
+  const selections=workspaceSelection.parseWorkspaceSelections('{"alice":"workspace-a","bob":"workspace-b","invalid":7}');
+  assert.equal(selections.alice,"workspace-a");
+  assert.equal(selections.bob,"workspace-b");
+  assert.equal(selections.invalid,undefined);
+  assert.deepEqual(Object.keys(workspaceSelection.parseWorkspaceSelections("not-json")),[]);
+  assert.deepEqual(Object.keys(workspaceSelection.parseWorkspaceSelections("[]")),[]);
+});

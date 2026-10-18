@@ -1,5 +1,4 @@
 import { CustomSelect } from "@/components/ui/CustomSelect";
-import { useProject } from "@/hooks/project/useProject";
 import { StarredBoards } from "@/features/views/StarredBoards";
 import { useState, useEffect } from "react";
 import { NavLink, useParams, useNavigate, useLocation } from "react-router";
@@ -21,15 +20,14 @@ import {
 } from "lucide-react";
 import { NexaLogo } from "@/components/common/NexaLogo";
 import { useUiStore } from "@/stores/ui.store";
-import { useWorkspaces } from "@/hooks/workspace/useWorkspaces";
+import { useActiveWorkspace } from "@/hooks/workspace/useActiveWorkspace";
 import { useProjects } from "@/hooks/project/useProjects";
 import { Modal, Button, Input, Textarea } from "@/components/ui";
 import { useCreateProject } from "@/hooks/project/useCreateProject";
 import { useCreateWorkspace } from "@/hooks/workspace/useCreateWorkspace";
 
 export const Sidebar = () => {
-  const { workspaceId, projectId } = useParams<{
-    workspaceId?: string;
+  const { projectId } = useParams<{
     projectId?: string;
   }>();
   const navigate = useNavigate();
@@ -56,12 +54,7 @@ export const Sidebar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const { data: workspaces = [] } = useWorkspaces();
-  const { data: activeProject } = useProject(projectId || "");
-  const currentWorkspace =
-    workspaces.find(
-      (w) => w.id === (workspaceId || activeProject?.workspace_id),
-    ) || workspaces[0];
+  const {workspaces,currentWorkspace,selectWorkspace}=useActiveWorkspace();
 
   const { data: projects = [] } = useProjects(currentWorkspace?.id);
   const currentProject =
@@ -124,6 +117,7 @@ export const Sidebar = () => {
       });
       setCreateWorkspaceOpen(false);
       setNewWorkspaceName("");
+      selectWorkspace(ws.id);
       navigate(`/w/${ws.id}`);
     } catch (err: any) {
       setWorkspaceError(
@@ -188,7 +182,7 @@ export const Sidebar = () => {
             <CustomSelect
               value={currentWorkspace?.id}
               options={workspaces.map((w) => ({ value: w.id, label: w.name }))}
-              onChange={(id) => navigate(`/w/${id}`)}
+              onChange={(id) => {selectWorkspace(id);navigate(`/w/${id}`);}}
               placeholder="Select workspace…"
               size="sm"
             />

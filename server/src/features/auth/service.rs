@@ -2,9 +2,9 @@ use argon2::{
     password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
 };
-use rand_core::OsRng;
 use chrono::{Duration, Utc};
 use jsonwebtoken::{encode, EncodingKey, Header};
+use rand_core::OsRng;
 use uuid::Uuid;
 use validator::Validate;
 
@@ -22,14 +22,26 @@ use crate::{
 pub struct AuthService;
 
 impl AuthService {
-    pub async fn register(state: &AppState, req: RegisterRequest) -> Result<AuthResponse, AppError> {
-        req.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+    pub async fn register(
+        state: &AppState,
+        req: RegisterRequest,
+    ) -> Result<AuthResponse, AppError> {
+        req.validate()
+            .map_err(|e| AppError::Validation(e.to_string()))?;
 
-        if AuthRepository::find_by_email(&state.pool, &req.email).await?.is_some() {
-            return Err(AppError::Conflict("Email is already registered".to_string()));
+        if AuthRepository::find_by_email(&state.pool, &req.email)
+            .await?
+            .is_some()
+        {
+            return Err(AppError::Conflict(
+                "Email is already registered".to_string(),
+            ));
         }
 
-        if AuthRepository::find_by_username(&state.pool, &req.username).await?.is_some() {
+        if AuthRepository::find_by_username(&state.pool, &req.username)
+            .await?
+            .is_some()
+        {
             return Err(AppError::Conflict("Username is already taken".to_string()));
         }
 
@@ -164,7 +176,8 @@ impl AuthService {
     }
 
     pub async fn login(state: &AppState, req: LoginRequest) -> Result<AuthResponse, AppError> {
-        req.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+        req.validate()
+            .map_err(|e| AppError::Validation(e.to_string()))?;
 
         let identifier = req
             .username
@@ -187,9 +200,11 @@ impl AuthService {
 
         Argon2::default()
             .verify_password(req.password.as_bytes(), &parsed_hash)
-            .map_err(|_| AppError::Unauthorized("Invalid username/email or password".to_string()))?;
+            .map_err(|_| {
+                AppError::Unauthorized("Invalid username/email or password".to_string())
+            })?;
 
-        super::mfa_service::verify_login(state,&user.id,req.otp.as_deref()).await?;
+        super::mfa_service::verify_login(state, &user.id, req.otp.as_deref()).await?;
         let token = Self::generate_token(&user, &state.config.jwt_secret)?;
 
         Ok(AuthResponse {
@@ -209,16 +224,24 @@ impl AuthService {
     pub async fn update_me(
         state: &AppState,
         user_id: &str,
-        req: UpdateUserRequest,
+        mut req: UpdateUserRequest,
     ) -> Result<UserResponse, AppError> {
-        req.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+        req.display_name = req.display_name.map(|name| name.trim().to_owned());
+        req.avatar_url = req.avatar_url.map(|url| url.trim().to_owned());
+        if let Some(url) = req.avatar_url.as_deref() {
+            super::avatar_service::validate_avatar_url(url)?;
+        }
+        req.validate()
+            .map_err(|e| AppError::Validation(e.to_string()))?;
         let now = Utc::now().to_rfc3339();
 
         let updated = AuthRepository::update_user(
             &state.pool,
             user_id,
             req.display_name.as_deref(),
-            req.avatar_url.as_deref(),
+            req.avatar_url
+                .as_deref()
+                .map(|url| if url.is_empty() { None } else { Some(url) }),
             &now,
         )
         .await?;

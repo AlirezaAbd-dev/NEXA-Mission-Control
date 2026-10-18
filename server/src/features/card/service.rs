@@ -199,7 +199,16 @@ impl CardService {
             )
             .await?;
         }
-        if let Some(column)=&req.column_id{crate::features::productivity::workflow::check(state,&project.id,id,column,Some(user_id)).await?;}
+        if let Some(column) = &req.column_id {
+            crate::features::productivity::workflow::check(
+                state,
+                &project.id,
+                id,
+                column,
+                Some(user_id),
+            )
+            .await?;
+        }
         if let Some(priority) = &req.priority {
             crate::features::enterprise::service::validate_priority(priority)?;
         }
@@ -269,7 +278,7 @@ impl CardService {
             });
         }
         crate::features::enterprise::operations::sync_resolution(&state.pool, id).await?;
-        crate::features::productivity::repository::status(&state.pool,id).await?;
+        crate::features::productivity::repository::status(&state.pool, id).await?;
         if req.column_id.is_some() {
             crate::features::enterprise::automation::dispatch(
                 state,
@@ -309,9 +318,27 @@ impl CardService {
             &req.column_id,
         )
         .await?;
-        crate::features::productivity::workflow::check(state,&project.id,id,&req.column_id,Some(user_id)).await?;
-        CardRepository::move_card(&state.pool, id, &req.column_id, req.position, &now).await?;
-        crate::features::productivity::repository::status(&state.pool,id).await?;
+        crate::features::productivity::workflow::check(
+            state,
+            &project.id,
+            id,
+            &req.column_id,
+            Some(user_id),
+        )
+        .await?;
+        if let Some(placement) = req.placement {
+            CardRepository::move_card_placed(
+                &state.pool,
+                id,
+                &req.column_id,
+                placement.before_id.as_deref(),
+                &now,
+            )
+            .await?;
+        } else {
+            CardRepository::move_card(&state.pool, id, &req.column_id, req.position, &now).await?;
+        }
+        crate::features::productivity::repository::status(&state.pool, id).await?;
         crate::features::enterprise::automation::dispatch(
             state,
             &project.id,
@@ -321,7 +348,7 @@ impl CardService {
         )
         .await?;
         crate::features::enterprise::operations::sync_resolution(&state.pool, id).await?;
-        crate::features::productivity::repository::status(&state.pool,id).await?;
+        crate::features::productivity::repository::status(&state.pool, id).await?;
         crate::features::enterprise::operations::snapshot_all(&state.pool).await?;
         Ok(())
     }

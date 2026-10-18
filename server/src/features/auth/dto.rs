@@ -43,6 +43,13 @@ pub struct AuthResponse {
 
 #[derive(Debug, Deserialize, Validate)]
 pub struct UpdateUserRequest {
+    #[validate(length(min = 2, max = 50, message = "Name must be 2-50 characters"))]
     pub display_name: Option<String>,
+    #[validate(length(max = 2048))]
     pub avatar_url: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+pub struct AvatarUploadResponse {
+    pub url: String,
 }

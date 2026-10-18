@@ -61,8 +61,8 @@ export const cardApi = {
     return res.data;
   },
 
-  move: async (id: string, column_id: string, position: number): Promise<void> => {
-    await apiClient.post(`/cards/${id}/move`, { column_id, position });
+  move: async (id: string, column_id: string, position: number, placement?: {before_id:string|null}): Promise<void> => {
+    await apiClient.post(`/cards/${id}/move`, { column_id, position, placement });
   },
 
   archive: async (id: string, archive: boolean): Promise<void> => {

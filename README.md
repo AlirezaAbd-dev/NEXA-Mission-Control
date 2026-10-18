@@ -134,12 +134,20 @@ cd NEXA-Mission-Control
 
 ### Running Automated Test Suite
 ```bash
-# Rust backend unit & integration tests (40 passing tests)
+# Rust backend unit & integration tests
 (cd server && cargo test --locked)
 
 # Frontend TypeScript validation & unit tests
 (cd client && pnpm test && pnpm build && pnpm lint)
 ```
+
+After pulling dependency changes, restore the frontend packages from the committed lockfile before starting Vite or running checks:
+
+```bash
+(cd client && pnpm install --frozen-lockfile)
+```
+
+The rich-text editor's Tiptap packages are already declared in `client/package.json` and `client/pnpm-lock.yaml`. A missing `@tiptap/*` module error after pulling means the local installation needs to be refreshed; no API key or separate editor service is required.
 
 ---
 

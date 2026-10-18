@@ -1,8 +1,8 @@
 import { useWorkspaceMetrics } from "@/hooks/enterprise/useWorkspaceMetrics";
 import React from "react";
-import { useParams, Link } from "react-router";
+import { Link } from "react-router";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
-import { useWorkspaces } from "@/hooks/workspace/useWorkspaces";
+import { useActiveWorkspace } from "@/hooks/workspace/useActiveWorkspace";
 import { useProjects } from "@/hooks/project/useProjects";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import {
@@ -14,11 +14,8 @@ import {
 } from "lucide-react";
 
 export const DashboardPage: React.FC = () => {
-  const { workspaceId } = useParams<{ workspaceId?: string }>();
   const { data: user } = useCurrentUser();
-  const { data: workspaces = [] } = useWorkspaces();
-
-  const currentWorkspaceId = workspaceId || workspaces[0]?.id || "";
+  const {workspaces,currentWorkspaceId}=useActiveWorkspace();
   const { data: metrics } = useWorkspaceMetrics(currentWorkspaceId);
   const { data: projects = [], isLoading: isProjectsLoading } =
     useProjects(currentWorkspaceId);

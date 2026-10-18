@@ -1,4 +1,3 @@
-use sqlx::SqlitePool;
 use crate::{
     error::AppError,
     features::card::{
@@ -6,11 +5,16 @@ use crate::{
         models::Card,
     },
 };
+use sqlx::SqlitePool;
 
 pub struct CardRepository;
 
 impl CardRepository {
-    pub async fn list(pool: &SqlitePool, query: &ListCardsQuery, user_id: Option<&str>) -> Result<Vec<CardResponse>, AppError> {
+    pub async fn list(
+        pool: &SqlitePool,
+        query: &ListCardsQuery,
+        user_id: Option<&str>,
+    ) -> Result<Vec<CardResponse>, AppError> {
         let is_archived = query.archived.unwrap_or(false);
 
         // Fetch basic cards matching project_id and filters
@@ -31,19 +35,28 @@ impl CardRepository {
         }
 
         if let Some(ref col_id) = query.column_id {
-            sql.push_str(&format!(" AND column_id = '{}'", col_id.replace('\'', "''")));
+            sql.push_str(&format!(
+                " AND column_id = '{}'",
+                col_id.replace('\'', "''")
+            ));
         }
 
         if let Some(ref priority) = query.priority {
-            sql.push_str(&format!(" AND priority = '{}'", priority.replace('\'', "''")));
+            sql.push_str(&format!(
+                " AND priority = '{}'",
+                priority.replace('\'', "''")
+            ));
         }
 
         if let Some(ref search) = query.search {
             let escaped = search.replace('\'', "''");
-            sql.push_str(&format!(" AND (title LIKE '%{}%' OR description LIKE '%{}%')", escaped, escaped));
+            sql.push_str(&format!(
+                " AND (title LIKE '%{}%' OR description LIKE '%{}%')",
+                escaped, escaped
+            ));
         }
 
-        sql.push_str(" ORDER BY position ASC");
+        sql.push_str(" ORDER BY position ASC, created_at ASC, id ASC");
 
         let cards = sqlx::query_as::<_, Card>(&sql)
             .bind(&query.project_id)
@@ -60,18 +73,20 @@ impl CardRepository {
                 FROM card_assignees ca
                 INNER JOIN users u ON ca.user_id = u.id
                 WHERE ca.card_id = ?1
-                "#
+                "#,
             )
             .bind(&c.id)
             .fetch_all(pool)
             .await?
             .into_iter()
-            .map(|(user_id, username, display_name, avatar_url)| CardAssigneeResponse {
-                user_id,
-                username,
-                display_name,
-                avatar_url,
-            })
+            .map(
+                |(user_id, username, display_name, avatar_url)| CardAssigneeResponse {
+                    user_id,
+                    username,
+                    display_name,
+                    avatar_url,
+                },
+            )
             .collect();
 
             // Fetch labels
@@ -81,7 +96,7 @@ impl CardRepository {
                 FROM card_labels cl
                 INNER JOIN labels l ON cl.label_id = l.id
                 WHERE cl.card_id = ?1
-                "#
+                "#,
             )
             .bind(&c.id)
             .fetch_all(pool)
@@ -97,24 +112,23 @@ impl CardRepository {
                 FROM checklists ch
                 LEFT JOIN checklist_items ci ON ch.id = ci.checklist_id
                 WHERE ch.card_id = ?1
-                "#
+                "#,
             )
             .bind(&c.id)
             .fetch_one(pool)
             .await?;
 
             // Comments count
-            let comments_count = sqlx::query_as::<_, (i64,)>(
-                "SELECT COUNT(id) FROM comments WHERE card_id = ?1"
-            )
-            .bind(&c.id)
-            .fetch_one(pool)
-            .await?
-            .0;
+            let comments_count =
+                sqlx::query_as::<_, (i64,)>("SELECT COUNT(id) FROM comments WHERE card_id = ?1")
+                    .bind(&c.id)
+                    .fetch_one(pool)
+                    .await?
+                    .0;
 
             // Watchers count
             let watchers_count = sqlx::query_as::<_, (i64,)>(
-                "SELECT COUNT(*) FROM card_watchers WHERE card_id = ?1"
+                "SELECT COUNT(*) FROM card_watchers WHERE card_id = ?1",
             )
             .bind(&c.id)
             .fetch_one(pool)
@@ -123,18 +137,17 @@ impl CardRepository {
             .unwrap_or(0);
 
             // Votes count
-            let votes_count = sqlx::query_as::<_, (i64,)>(
-                "SELECT COUNT(*) FROM card_votes WHERE card_id = ?1"
-            )
-            .bind(&c.id)
-            .fetch_one(pool)
-            .await
-            .map(|r| r.0)
-            .unwrap_or(0);
+            let votes_count =
+                sqlx::query_as::<_, (i64,)>("SELECT COUNT(*) FROM card_votes WHERE card_id = ?1")
+                    .bind(&c.id)
+                    .fetch_one(pool)
+                    .await
+                    .map(|r| r.0)
+                    .unwrap_or(0);
 
             let is_watched = if let Some(uid) = user_id {
                 sqlx::query_as::<_, (i64,)>(
-                    "SELECT COUNT(*) FROM card_watchers WHERE card_id = ?1 AND user_id = ?2"
+                    "SELECT COUNT(*) FROM card_watchers WHERE card_id = ?1 AND user_id = ?2",
                 )
                 .bind(&c.id)
                 .bind(uid)
@@ -148,7 +161,7 @@ impl CardRepository {
 
             let has_voted = if let Some(uid) = user_id {
                 sqlx::query_as::<_, (i64,)>(
-                    "SELECT COUNT(*) FROM card_votes WHERE card_id = ?1 AND user_id = ?2"
+                    "SELECT COUNT(*) FROM card_votes WHERE card_id = ?1 AND user_id = ?2",
                 )
                 .bind(&c.id)
                 .bind(uid)
@@ -188,7 +201,6 @@ impl CardRepository {
                 created_at: c.created_at,
                 updated_at: c.updated_at,
             });
-
         }
 
         Ok(results)
@@ -202,7 +214,7 @@ impl CardRepository {
                    archived_at, is_template, story_points, created_at, updated_at
             FROM cards
             WHERE id = ?1
-            "#
+            "#,
         )
         .bind(id)
         .fetch_optional(pool)
@@ -211,7 +223,11 @@ impl CardRepository {
         Ok(card)
     }
 
-    pub async fn get_card_response(pool: &SqlitePool, id: &str, user_id: Option<&str>) -> Result<Option<CardResponse>, AppError> {
+    pub async fn get_card_response(
+        pool: &SqlitePool,
+        id: &str,
+        user_id: Option<&str>,
+    ) -> Result<Option<CardResponse>, AppError> {
         let c = match Self::find_by_id(pool, id).await? {
             Some(card) => card,
             None => return Ok(None),
@@ -223,18 +239,20 @@ impl CardRepository {
             FROM card_assignees ca
             INNER JOIN users u ON ca.user_id = u.id
             WHERE ca.card_id = ?1
-            "#
+            "#,
         )
         .bind(&c.id)
         .fetch_all(pool)
         .await?
         .into_iter()
-        .map(|(user_id, username, display_name, avatar_url)| CardAssigneeResponse {
-            user_id,
-            username,
-            display_name,
-            avatar_url,
-        })
+        .map(
+            |(user_id, username, display_name, avatar_url)| CardAssigneeResponse {
+                user_id,
+                username,
+                display_name,
+                avatar_url,
+            },
+        )
         .collect();
 
         let labels = sqlx::query_as::<_, (String, String, String)>(
@@ -243,7 +261,7 @@ impl CardRepository {
             FROM card_labels cl
             INNER JOIN labels l ON cl.label_id = l.id
             WHERE cl.card_id = ?1
-            "#
+            "#,
         )
         .bind(&c.id)
         .fetch_all(pool)
@@ -258,41 +276,38 @@ impl CardRepository {
             FROM checklists ch
             LEFT JOIN checklist_items ci ON ch.id = ci.checklist_id
             WHERE ch.card_id = ?1
-            "#
+            "#,
         )
         .bind(&c.id)
         .fetch_one(pool)
         .await?;
 
-        let comments_count = sqlx::query_as::<_, (i64,)>(
-            "SELECT COUNT(id) FROM comments WHERE card_id = ?1"
-        )
-        .bind(&c.id)
-        .fetch_one(pool)
-        .await?
-        .0;
+        let comments_count =
+            sqlx::query_as::<_, (i64,)>("SELECT COUNT(id) FROM comments WHERE card_id = ?1")
+                .bind(&c.id)
+                .fetch_one(pool)
+                .await?
+                .0;
 
-        let watchers_count = sqlx::query_as::<_, (i64,)>(
-            "SELECT COUNT(*) FROM card_watchers WHERE card_id = ?1"
-        )
-        .bind(&c.id)
-        .fetch_one(pool)
-        .await
-        .map(|r| r.0)
-        .unwrap_or(0);
+        let watchers_count =
+            sqlx::query_as::<_, (i64,)>("SELECT COUNT(*) FROM card_watchers WHERE card_id = ?1")
+                .bind(&c.id)
+                .fetch_one(pool)
+                .await
+                .map(|r| r.0)
+                .unwrap_or(0);
 
-        let votes_count = sqlx::query_as::<_, (i64,)>(
-            "SELECT COUNT(*) FROM card_votes WHERE card_id = ?1"
-        )
-        .bind(&c.id)
-        .fetch_one(pool)
-        .await
-        .map(|r| r.0)
-        .unwrap_or(0);
+        let votes_count =
+            sqlx::query_as::<_, (i64,)>("SELECT COUNT(*) FROM card_votes WHERE card_id = ?1")
+                .bind(&c.id)
+                .fetch_one(pool)
+                .await
+                .map(|r| r.0)
+                .unwrap_or(0);
 
         let is_watched = if let Some(uid) = user_id {
             sqlx::query_as::<_, (i64,)>(
-                "SELECT COUNT(*) FROM card_watchers WHERE card_id = ?1 AND user_id = ?2"
+                "SELECT COUNT(*) FROM card_watchers WHERE card_id = ?1 AND user_id = ?2",
             )
             .bind(&c.id)
             .bind(uid)
@@ -306,7 +321,7 @@ impl CardRepository {
 
         let has_voted = if let Some(uid) = user_id {
             sqlx::query_as::<_, (i64,)>(
-                "SELECT COUNT(*) FROM card_votes WHERE card_id = ?1 AND user_id = ?2"
+                "SELECT COUNT(*) FROM card_votes WHERE card_id = ?1 AND user_id = ?2",
             )
             .bind(&c.id)
             .bind(uid)
@@ -347,7 +362,6 @@ impl CardRepository {
             updated_at: c.updated_at,
         }))
     }
-
 
     pub async fn create(
         pool: &SqlitePool,
@@ -459,7 +473,7 @@ impl CardRepository {
                 due_date = ?6, start_date = ?7, estimated_hours = ?8, cover_url = ?9,
                 is_template = ?10, story_points = ?11, updated_at = ?12
             WHERE id = ?13
-            "#
+            "#,
         )
         .bind(new_title)
         .bind(new_desc)
@@ -484,6 +498,69 @@ impl CardRepository {
         Ok(updated)
     }
 
+    pub async fn move_card_placed(
+        pool: &SqlitePool,
+        id: &str,
+        column_id: &str,
+        before_id: Option<&str>,
+        now: &str,
+    ) -> Result<(), AppError> {
+        let mut tx = pool.begin().await?;
+        let mut destination: Vec<(String,f64)> = sqlx::query_as("SELECT id,position FROM cards WHERE column_id=? AND id!=? AND archived_at IS NULL ORDER BY position,created_at,id")
+            .bind(column_id).bind(id).fetch_all(&mut *tx).await?;
+        let index = match before_id {
+            Some(before) => destination
+                .iter()
+                .position(|card| card.0 == before)
+                .ok_or_else(|| {
+                    AppError::Validation(
+                        "The drop target changed. Try moving the task again".into(),
+                    )
+                })?,
+            None => destination.len(),
+        };
+        let previous = index
+            .checked_sub(1)
+            .and_then(|i| destination.get(i))
+            .map(|card| card.1);
+        let next = destination.get(index).map(|card| card.1);
+        let position = match (previous, next) {
+            (Some(a), Some(b)) => (a + b) / 2.,
+            (Some(a), None) => a + 65536.,
+            (None, Some(b)) => b - 65536.,
+            _ => 65536.,
+        };
+        if !position.is_finite()
+            || previous.is_some_and(|p| position <= p)
+            || next.is_some_and(|n| position >= n)
+        {
+            destination.insert(index, (id.into(), position));
+            for (index, (card, _)) in destination.iter().enumerate() {
+                sqlx::query("UPDATE cards SET position=? WHERE id=?")
+                    .bind(((index + 1) * 1000) as f64)
+                    .bind(card)
+                    .execute(&mut *tx)
+                    .await?;
+            }
+            sqlx::query("UPDATE cards SET column_id=?,updated_at=? WHERE id=?")
+                .bind(column_id)
+                .bind(now)
+                .bind(id)
+                .execute(&mut *tx)
+                .await?;
+        } else {
+            sqlx::query("UPDATE cards SET column_id=?,position=?,updated_at=? WHERE id=?")
+                .bind(column_id)
+                .bind(position)
+                .bind(now)
+                .bind(id)
+                .execute(&mut *tx)
+                .await?;
+        }
+        tx.commit().await?;
+        Ok(())
+    }
+
     pub async fn move_card(
         pool: &SqlitePool,
         id: &str,
@@ -491,13 +568,15 @@ impl CardRepository {
         position: f64,
         now: &str,
     ) -> Result<(), AppError> {
-        sqlx::query("UPDATE cards SET column_id = ?1, position = ?2, updated_at = ?3 WHERE id = ?4")
-            .bind(column_id)
-            .bind(position)
-            .bind(now)
-            .bind(id)
-            .execute(pool)
-            .await?;
+        sqlx::query(
+            "UPDATE cards SET column_id = ?1, position = ?2, updated_at = ?3 WHERE id = ?4",
+        )
+        .bind(column_id)
+        .bind(position)
+        .bind(now)
+        .bind(id)
+        .execute(pool)
+        .await?;
 
         Ok(())
     }
@@ -521,7 +600,11 @@ impl CardRepository {
         Ok(())
     }
 
-    pub async fn set_assignees(pool: &SqlitePool, card_id: &str, user_ids: &[String]) -> Result<(), AppError> {
+    pub async fn set_assignees(
+        pool: &SqlitePool,
+        card_id: &str,
+        user_ids: &[String],
+    ) -> Result<(), AppError> {
         sqlx::query("DELETE FROM card_assignees WHERE card_id = ?1")
             .bind(card_id)
             .execute(pool)
@@ -538,7 +621,11 @@ impl CardRepository {
         Ok(())
     }
 
-    pub async fn set_labels(pool: &SqlitePool, card_id: &str, label_ids: &[String]) -> Result<(), AppError> {
+    pub async fn set_labels(
+        pool: &SqlitePool,
+        card_id: &str,
+        label_ids: &[String],
+    ) -> Result<(), AppError> {
         sqlx::query("DELETE FROM card_labels WHERE card_id = ?1")
             .bind(card_id)
             .execute(pool)
@@ -555,9 +642,14 @@ impl CardRepository {
         Ok(())
     }
 
-    pub async fn toggle_watcher(pool: &SqlitePool, card_id: &str, user_id: &str, now: &str) -> Result<bool, AppError> {
+    pub async fn toggle_watcher(
+        pool: &SqlitePool,
+        card_id: &str,
+        user_id: &str,
+        now: &str,
+    ) -> Result<bool, AppError> {
         let exists = sqlx::query_as::<_, (i64,)>(
-            "SELECT COUNT(*) FROM card_watchers WHERE card_id = ?1 AND user_id = ?2"
+            "SELECT COUNT(*) FROM card_watchers WHERE card_id = ?1 AND user_id = ?2",
         )
         .bind(card_id)
         .bind(user_id)
@@ -573,43 +665,55 @@ impl CardRepository {
                 .await?;
             Ok(false)
         } else {
-            sqlx::query("INSERT INTO card_watchers (card_id, user_id, created_at) VALUES (?1, ?2, ?3)")
-                .bind(card_id)
-                .bind(user_id)
-                .bind(now)
-                .execute(pool)
-                .await?;
+            sqlx::query(
+                "INSERT INTO card_watchers (card_id, user_id, created_at) VALUES (?1, ?2, ?3)",
+            )
+            .bind(card_id)
+            .bind(user_id)
+            .bind(now)
+            .execute(pool)
+            .await?;
             Ok(true)
         }
     }
 
-    pub async fn list_watchers(pool: &SqlitePool, card_id: &str) -> Result<Vec<crate::features::card::dto::CardWatcherResponse>, AppError> {
+    pub async fn list_watchers(
+        pool: &SqlitePool,
+        card_id: &str,
+    ) -> Result<Vec<crate::features::card::dto::CardWatcherResponse>, AppError> {
         let watchers = sqlx::query_as::<_, (String, String, String, Option<String>)>(
             r#"
             SELECT u.id, u.username, u.display_name, u.avatar_url
             FROM card_watchers cw
             INNER JOIN users u ON cw.user_id = u.id
             WHERE cw.card_id = ?1
-            "#
+            "#,
         )
         .bind(card_id)
         .fetch_all(pool)
         .await?
         .into_iter()
-        .map(|(user_id, username, display_name, avatar_url)| crate::features::card::dto::CardWatcherResponse {
-            user_id,
-            username,
-            display_name,
-            avatar_url,
+        .map(|(user_id, username, display_name, avatar_url)| {
+            crate::features::card::dto::CardWatcherResponse {
+                user_id,
+                username,
+                display_name,
+                avatar_url,
+            }
         })
         .collect();
 
         Ok(watchers)
     }
 
-    pub async fn toggle_vote(pool: &SqlitePool, card_id: &str, user_id: &str, now: &str) -> Result<bool, AppError> {
+    pub async fn toggle_vote(
+        pool: &SqlitePool,
+        card_id: &str,
+        user_id: &str,
+        now: &str,
+    ) -> Result<bool, AppError> {
         let exists = sqlx::query_as::<_, (i64,)>(
-            "SELECT COUNT(*) FROM card_votes WHERE card_id = ?1 AND user_id = ?2"
+            "SELECT COUNT(*) FROM card_votes WHERE card_id = ?1 AND user_id = ?2",
         )
         .bind(card_id)
         .bind(user_id)
@@ -625,17 +729,25 @@ impl CardRepository {
                 .await?;
             Ok(false)
         } else {
-            sqlx::query("INSERT INTO card_votes (card_id, user_id, created_at) VALUES (?1, ?2, ?3)")
-                .bind(card_id)
-                .bind(user_id)
-                .bind(now)
-                .execute(pool)
-                .await?;
+            sqlx::query(
+                "INSERT INTO card_votes (card_id, user_id, created_at) VALUES (?1, ?2, ?3)",
+            )
+            .bind(card_id)
+            .bind(user_id)
+            .bind(now)
+            .execute(pool)
+            .await?;
             Ok(true)
         }
     }
 
-    pub async fn add_link(pool: &SqlitePool, id: &str, source_card_id: &str, target_card_id: &str, link_type: &str) -> Result<(), AppError> {
+    pub async fn add_link(
+        pool: &SqlitePool,
+        id: &str,
+        source_card_id: &str,
+        target_card_id: &str,
+        link_type: &str,
+    ) -> Result<(), AppError> {
         sqlx::query("INSERT INTO card_links (id, source_card_id, target_card_id, link_type) VALUES (?1, ?2, ?3, ?4)")
             .bind(id)
             .bind(source_card_id)
@@ -654,7 +766,10 @@ impl CardRepository {
         Ok(())
     }
 
-    pub async fn list_links(pool: &SqlitePool, card_id: &str) -> Result<Vec<crate::features::card::dto::CardLinkResponse>, AppError> {
+    pub async fn list_links(
+        pool: &SqlitePool,
+        card_id: &str,
+    ) -> Result<Vec<crate::features::card::dto::CardLinkResponse>, AppError> {
         let links = sqlx::query_as::<_, (String, String, String, String, String)>(
             r#"
             SELECT cl.id, cl.source_card_id, cl.target_card_id, c.title, cl.link_type

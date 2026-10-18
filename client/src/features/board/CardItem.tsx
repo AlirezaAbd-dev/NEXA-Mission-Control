@@ -19,9 +19,12 @@ import type { Card } from "@/types";
 
 interface CardItemProps {
   card: Card;
+  preview?: boolean;
+  boardDragging?: boolean;
+  laneId?: string;
 }
 
-export const CardItem: React.FC<CardItemProps> = ({ card }) => {
+export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, boardDragging = false, laneId }) => {
   const now = useNow();
   const openCardModal = useUiStore((s) => s.openCardModal);
 
@@ -33,16 +36,18 @@ export const CardItem: React.FC<CardItemProps> = ({ card }) => {
     transition,
     isDragging,
   } = useSortable({
-    id: card.id,
+    id: preview ? "preview:"+card.id : laneId ? card.id+"::"+laneId : card.id,
+    disabled: preview,
     data: {
       type: "card",
       card,
+      laneId,
     },
   });
 
   const style: React.CSSProperties = {
-    transform: CSS.Translate.toString(transform),
-    transition,
+    transform: preview || boardDragging ? undefined : CSS.Translate.toString(transform),
+    transition: preview || boardDragging ? undefined : transition,
     opacity: isDragging ? 0.35 : 1,
   };
 
@@ -53,11 +58,13 @@ export const CardItem: React.FC<CardItemProps> = ({ card }) => {
   return (
     <div
       ref={setNodeRef}
+      data-card-id={card.id}
+      data-drag-preview={preview ? "" : undefined}
       style={style}
       {...attributes}
       {...listeners}
-      onClick={() => openCardModal(card.id)}
-      className="bg-white dark:bg-[#091316] rounded-xl shadow-xs border border-slate-200/80 dark:border-[#183035] hover:border-teal-500/50 cursor-grab active:cursor-grabbing transition-all group overflow-hidden"
+      onClick={preview ? undefined : () => openCardModal(card.id)}
+      className="bg-white dark:bg-[#091316] rounded-xl shadow-xs border border-slate-200/80 dark:border-[#183035] hover:border-teal-500/50 cursor-grab active:cursor-grabbing transition-colors group overflow-hidden"
     >
       {/* Trello Card Cover */}
       {hasCoverColor && (

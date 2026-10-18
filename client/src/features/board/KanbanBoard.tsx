@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   DndContext,
   DragOverlay,
   closestCorners,
+  pointerWithin,
+  type DragMoveEvent,
+  type CollisionDetection,
   KeyboardSensor,
   MouseSensor,
   TouchSensor,
@@ -15,7 +18,10 @@ import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { usePreferences } from "@/hooks/enterprise/usePreferences";
 import { useEnterpriseResource } from "@/hooks/enterprise/useEnterpriseResource";
 import type { CardMetadata } from "@/types/enterprise";
-import { Plus } from "lucide-react";
+import { applyCardPlacement, cardDropTarget, type CardDropTarget } from "./cardDrop";
+import { apiError } from "@/lib/apiError";
+import { ColumnOrderModal } from "./ColumnOrderModal";
+import { Plus, ArrowLeftRight } from "lucide-react";
 import { BoardColumn } from "./BoardColumn";
 import { CardItem } from "./CardItem";
 import { Button } from "@/components/ui/Button";
@@ -42,8 +48,15 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     projectId,
     "metadata",
   );
+  const [orderOpen,setOrderOpen] = useState(false);
   const [notice, setNotice] = useState("");
   const [collapsed, setCollapsed] = useState<string[]>([]);
+  const [dropTarget,setDropTarget] = useState<CardDropTarget | null>(null);
+  const dropTargetRef = useRef<CardDropTarget | null>(null);
+  const dragLane = useRef<string | undefined>(undefined);
+  const moveSequence = useRef(0);
+  const [pendingDrops,setPendingDrops] = useState<Record<string,{column_id:string;position:number;sequence:number;placement:{before_id:string|null}}>>({});
+  const visibleCards = Object.entries(pendingDrops).reduce((current,[id,patch])=>applyCardPlacement(current,id,patch.column_id,patch.placement.before_id),cards);
   const [activeCard, setActiveCard] = useState<Card | null>(null);
   const [isAddingColumn, setIsAddingColumn] = useState(false);
   const [newColumnName, setNewColumnName] = useState("");
@@ -71,7 +84,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   );
 
   // Filter cards based on search and priority
-  const filteredCards = cards.filter((card) => {
+  const filteredCards = visibleCards.filter((card) => {
     if (
       selectedAssignee &&
       !card.assignees.some((a) => a.user_id === selectedAssignee)
@@ -91,85 +104,69 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     return true;
   });
 
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-    const card = cards.find((c) => c.id === active.id);
+  const clearDrag = () => {
+    setActiveCard(null);
+    setDropTarget(null);
+    dropTargetRef.current = null;
+  };
+  const handleDragStart = ({active}: DragStartEvent) => {
+    const card = visibleCards.find(card => card.id === active.data.current?.card?.id);
     if (card) {
+      setNotice("");
       setActiveCard(card);
+      dragLane.current = active.data.current?.laneId;
+      dropTargetRef.current = null;
+      setDropTarget(null);
     }
   };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveCard(null);
-
-    if (!over) return;
-
-    const activeId = active.id as string;
-    const overId = String(over.id).split("::")[0];
-
-    const sourceCard = cards.find((c) => c.id === activeId);
-    if (!sourceCard) return;
-
-    // Check if dropped directly onto a column or another card
-    let targetColumnId = "";
-    let targetPosition = 65536.0;
-
-    const targetColumn = board.columns.find((c) => c.id === overId);
-    if (targetColumn) {
-      // Dropped into column directly
-      targetColumnId = targetColumn.id;
-      const columnCards = cards
-        .filter((c) => c.column_id === targetColumnId && c.id !== activeId)
-        .sort((a, b) => a.position - b.position);
-      if (columnCards.length > 0) {
-        targetPosition = columnCards[columnCards.length - 1].position + 65536.0;
-      }
-    } else {
-      // Dropped onto another card
-      const targetCard = cards.find((c) => c.id === overId);
-      if (targetCard) {
-        targetColumnId = targetCard.column_id;
-        const ordered = cards
-          .filter((c) => c.column_id === targetCard.column_id)
-          .sort((a, b) => a.position - b.position);
-        const after =
-          sourceCard.column_id === targetCard.column_id &&
-          ordered.findIndex((c) => c.id === activeId) <
-            ordered.findIndex((c) => c.id === overId);
-        const destination = ordered.filter((c) => c.id !== activeId);
-        const index =
-          destination.findIndex((c) => c.id === overId) + (after ? 1 : 0);
-        const previous = destination[index - 1]?.position,
-          next = destination[index]?.position;
-        targetPosition =
-          previous !== undefined && next !== undefined
-            ? (previous + next) / 2
-            : previous !== undefined
-              ? previous + 65536
-              : next !== undefined
-                ? next - 65536
-                : 65536;
-      }
+  const updateDropTarget = ({active,over,activatorEvent}: DragMoveEvent) => {
+    if (!over || active.data.current?.type !== "card") {
+      dropTargetRef.current = null; setDropTarget(null); return;
     }
-
-    if (targetColumnId) {
-      const destination = board.columns.find((c) => c.id === targetColumnId);
-      if (
-        destination?.wip_limit &&
-        cards.filter((c) => c.column_id === targetColumnId && c.id !== activeId)
-          .length +
-          1 >
-          destination.wip_limit
-      )
-        setNotice(`${destination.name} is above its work in progress limit.`);
-      else setNotice("");
-      moveCard.mutate({
-        id: activeId,
-        column_id: targetColumnId,
-        position: targetPosition,
-      });
+    const data = over.data.current;
+    const source = active.data.current?.card as Card;
+    const laneId = data?.laneId as string | undefined;
+    if (dragLane.current !== laneId) { dropTargetRef.current=null;setDropTarget(null);return; }
+    const targetCard = data?.type === "card" ? visibleCards.find(card=>card.id===data.card?.id) : undefined;
+    const columnId = targetCard?.column_id || (data?.type === "column" ? data.column.id : undefined);
+    if (!columnId) { dropTargetRef.current=null;setDropTarget(null);return; }
+    const translated = active.rect.current.translated;
+    const sourceOrder = visibleCards.filter(card=>card.column_id===source.column_id).sort((a,b)=>a.position-b.position);
+    const belowMiddle = activatorEvent.type === "keydown"
+      ? !!targetCard && source.column_id === targetCard.column_id && sourceOrder.findIndex(card=>card.id===source.id) < sourceOrder.findIndex(card=>card.id===targetCard.id)
+      : !!translated && translated.top + translated.height/2 > over.rect.top + over.rect.height/2;
+    const target = cardDropTarget(visibleCards,source.id,columnId,targetCard?.id || null,belowMiddle,laneId);
+    const previous=dropTargetRef.current;
+    if(previous?.columnId===target?.columnId && previous?.laneId===target?.laneId && previous?.beforeId===target?.beforeId && previous?.position===target?.position) return;
+    dropTargetRef.current=target;setDropTarget(target);
+  };
+  const collisionDetection: CollisionDetection = args => {
+    const containers = args.droppableContainers.filter(container=>container.id!==args.active.id);
+    const hits = pointerWithin(args);
+    if (hits.length) {
+      const cards = hits.filter(hit=>args.droppableContainers.find(container=>container.id===hit.id)?.data.current?.type === "card");
+      return cards.length ? cards : hits;
     }
+    return args.pointerCoordinates ? [] : closestCorners({...args,droppableContainers:containers});
+  };
+  const handleDragEnd = ({active,over}: DragEndEvent) => {
+    const target = dropTargetRef.current;
+    const source = visibleCards.find(card=>card.id===active.data.current?.card?.id);
+    if (!over || !source || !target) {clearDrag();return;}
+    const destination = board.columns.find(column=>column.id===target.columnId);
+    if (destination?.wip_limit && visibleCards.filter(card=>card.column_id===target.columnId && card.id!==source.id).length+1 > destination.wip_limit)
+      setNotice(destination.name+" is above its work in progress limit.");
+    const sequence = ++moveSequence.current;
+    const patch={id:source.id,column_id:target.columnId,position:target.position,placement:{before_id:target.beforeId}};
+    // Keep the destination visible through the query notification/refetch handoff.
+    setPendingDrops(current=>({...current,[source.id]:{...patch,sequence}}));
+    void moveCard.mutateAsync(patch)
+      .catch(error=>setNotice(apiError(error)))
+      .finally(()=>setPendingDrops(current=>{
+        if(current[source.id]?.sequence!==sequence)return current;
+        const next={...current};delete next[source.id];return next;
+      }));
+    clearDrag();
   };
 
   const handleAddColumn = (e: React.FormEvent) => {
@@ -237,10 +234,16 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={collisionDetection}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onDragMove={updateDropTarget}
+      onDragOver={updateDropTarget}
+      onDragCancel={clearDrag}
     >
+      {orderOpen && <ColumnOrderModal columns={board.columns} boardId={board.id} projectId={projectId} onClose={()=>setOrderOpen(false)}/>}
+      <div className="flex justify-end pb-2"><Button size="sm" variant="outline" onClick={()=>setOrderOpen(true)} disabled={board.columns.length<2}><ArrowLeftRight size={14}/>Reorder columns</Button></div>
+
       <div
         className={`flex-1 min-h-0 h-full flex flex-col ${
           grouping === "none"
@@ -309,6 +312,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                       laneId={lane.id}
                       cards={colCards}
                       projectId={projectId}
+                      draggingCardId={activeCard?.id}
+                      dropTarget={dropTarget?.columnId === column.id && dropTarget.laneId === lane.id ? dropTarget : null}
                     />
                   );
                 })}
@@ -364,8 +369,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
         ))}
       </div>
 
-      <DragOverlay>
-        {activeCard ? <CardItem card={activeCard} /> : null}
+      <DragOverlay dropAnimation={null}>
+        {activeCard ? <CardItem card={activeCard} preview /> : null}
       </DragOverlay>
     </DndContext>
   );

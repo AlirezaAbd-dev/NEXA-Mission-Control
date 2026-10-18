@@ -6,7 +6,10 @@ use crate::{
     error::AppError,
     features::{
         board::{
-            dto::{BoardResponse, ColumnResponse, CreateColumnRequest, ReorderColumnsRequest, UpdateColumnRequest},
+            dto::{
+                BoardResponse, ColumnResponse, CreateColumnRequest, ReorderColumnsRequest,
+                UpdateColumnRequest,
+            },
             models::Column,
             repository::BoardRepository,
         },
@@ -30,7 +33,9 @@ impl BoardService {
 
         let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
             .await?
-            .ok_or_else(|| AppError::Forbidden("You do not have access to this workspace".to_string()))?;
+            .ok_or_else(|| {
+                AppError::Forbidden("You do not have access to this workspace".to_string())
+            })?;
 
         let board = BoardRepository::find_by_project_id(&state.pool, project_id)
             .await?
@@ -53,7 +58,8 @@ impl BoardService {
         user_id: &str,
         req: CreateColumnRequest,
     ) -> Result<ColumnResponse, AppError> {
-        req.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+        req.validate()
+            .map_err(|e| AppError::Validation(e.to_string()))?;
 
         let board = BoardRepository::find_by_id(&state.pool, board_id)
             .await?
@@ -65,11 +71,16 @@ impl BoardService {
 
         let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
             .await?
-            .ok_or_else(|| AppError::Forbidden("You do not have access to this workspace".to_string()))?;
+            .ok_or_else(|| {
+                AppError::Forbidden("You do not have access to this workspace".to_string())
+            })?;
 
         let columns = BoardRepository::list_columns(&state.pool, board_id).await?;
         let next_position = req.position.unwrap_or_else(|| {
-            columns.last().map(|c| c.position + 1000.0).unwrap_or(1000.0)
+            columns
+                .last()
+                .map(|c| c.position + 1000.0)
+                .unwrap_or(1000.0)
         });
 
         let id = Uuid::now_v7().to_string();
@@ -95,9 +106,11 @@ impl BoardService {
         state: &AppState,
         column_id: &str,
         user_id: &str,
-        req: UpdateColumnRequest,
+        mut req: UpdateColumnRequest,
     ) -> Result<ColumnResponse, AppError> {
-        req.validate().map_err(|e| AppError::Validation(e.to_string()))?;
+        req.name = req.name.map(|name| name.trim().to_owned());
+        req.validate()
+            .map_err(|e| AppError::Validation(e.to_string()))?;
 
         let column = BoardRepository::find_column_by_id(&state.pool, column_id)
             .await?
@@ -111,9 +124,8 @@ impl BoardService {
             .await?
             .ok_or_else(|| AppError::NotFound("Project not found".to_string()))?;
 
-        let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
-            .await?
-            .ok_or_else(|| AppError::Forbidden("You do not have access to this workspace".to_string()))?;
+        crate::features::enterprise::service::authorize(state, user_id, &project.id, true, false)
+            .await?;
 
         let updated = BoardRepository::update_column(
             &state.pool,
@@ -128,7 +140,11 @@ impl BoardService {
         Ok(Self::to_column_response(updated))
     }
 
-    pub async fn delete_column(state: &AppState, column_id: &str, user_id: &str) -> Result<(), AppError> {
+    pub async fn delete_column(
+        state: &AppState,
+        column_id: &str,
+        user_id: &str,
+    ) -> Result<(), AppError> {
         let column = BoardRepository::find_column_by_id(&state.pool, column_id)
             .await?
             .ok_or_else(|| AppError::NotFound("Column not found".to_string()))?;
@@ -143,7 +159,9 @@ impl BoardService {
 
         let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
             .await?
-            .ok_or_else(|| AppError::Forbidden("You do not have access to this workspace".to_string()))?;
+            .ok_or_else(|| {
+                AppError::Forbidden("You do not have access to this workspace".to_string())
+            })?;
 
         BoardRepository::delete_column(&state.pool, column_id).await
     }
@@ -164,12 +182,26 @@ impl BoardService {
 
         let _ = WorkspaceRepository::get_user_role(&state.pool, &project.workspace_id, user_id)
             .await?
-            .ok_or_else(|| AppError::Forbidden("You do not have access to this workspace".to_string()))?;
+            .ok_or_else(|| {
+                AppError::Forbidden("You do not have access to this workspace".to_string())
+            })?;
 
-        for (idx, col_id) in req.column_ids.iter().enumerate() {
-            let position = ((idx + 1) * 1000) as f64;
-            BoardRepository::update_column_position(&state.pool, col_id, position).await?;
+        crate::features::enterprise::service::authorize(state, user_id, &project.id, true, false)
+            .await?;
+        let columns = BoardRepository::list_columns(&state.pool, board_id).await?;
+        let requested: std::collections::HashSet<&str> =
+            req.column_ids.iter().map(String::as_str).collect();
+        if requested.len() != req.column_ids.len()
+            || requested.len() != columns.len()
+            || columns
+                .iter()
+                .any(|column| !requested.contains(column.id.as_str()))
+        {
+            return Err(AppError::Validation(
+                "Provide every column in this board exactly once".into(),
+            ));
         }
+        BoardRepository::reorder_columns(&state.pool, board_id, &req.column_ids).await?;
 
         Ok(())
     }

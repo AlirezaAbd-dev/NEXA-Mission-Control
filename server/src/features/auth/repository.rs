@@ -1,5 +1,5 @@
-use sqlx::SqlitePool;
 use crate::{error::AppError, features::auth::models::User};
+use sqlx::SqlitePool;
 
 pub struct AuthRepository;
 
@@ -15,7 +15,10 @@ impl AuthRepository {
         Ok(user)
     }
 
-    pub async fn find_by_username(pool: &SqlitePool, username: &str) -> Result<Option<User>, AppError> {
+    pub async fn find_by_username(
+        pool: &SqlitePool,
+        username: &str,
+    ) -> Result<Option<User>, AppError> {
         let user = sqlx::query_as::<_, User>(
             "SELECT id, email, username, display_name, avatar_url, password_hash, role, created_at, updated_at FROM users WHERE username = ?1",
         )
@@ -71,7 +74,7 @@ impl AuthRepository {
         pool: &SqlitePool,
         id: &str,
         display_name: Option<&str>,
-        avatar_url: Option<&str>,
+        avatar_url: Option<Option<&str>>,
         now: &str,
     ) -> Result<User, AppError> {
         let current = Self::find_by_id(pool, id)
@@ -79,7 +82,7 @@ impl AuthRepository {
             .ok_or_else(|| AppError::NotFound("User not found".to_string()))?;
 
         let new_display_name = display_name.unwrap_or(&current.display_name);
-        let new_avatar_url = avatar_url.or(current.avatar_url.as_deref());
+        let new_avatar_url = avatar_url.unwrap_or(current.avatar_url.as_deref());
 
         sqlx::query(
             "UPDATE users SET display_name = ?1, avatar_url = ?2, updated_at = ?3 WHERE id = ?4",

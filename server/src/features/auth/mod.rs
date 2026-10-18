@@ -9,3 +9,6 @@ pub use routes::router;
 pub mod mfa_service;
 pub mod mfa_repository;
 mod mfa_handler;
+
+pub mod avatar_service;
+mod avatar_handler;

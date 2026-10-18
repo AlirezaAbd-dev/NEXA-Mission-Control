@@ -1,15 +1,18 @@
-use sqlx::SqlitePool;
 use crate::{
     error::AppError,
     features::board::models::{Board, Column},
 };
+use sqlx::SqlitePool;
 
 pub struct BoardRepository;
 
 impl BoardRepository {
-    pub async fn find_by_project_id(pool: &SqlitePool, project_id: &str) -> Result<Option<Board>, AppError> {
+    pub async fn find_by_project_id(
+        pool: &SqlitePool,
+        project_id: &str,
+    ) -> Result<Option<Board>, AppError> {
         let board = sqlx::query_as::<_, Board>(
-            "SELECT id, project_id, name, created_at FROM boards WHERE project_id = ?1"
+            "SELECT id, project_id, name, created_at FROM boards WHERE project_id = ?1",
         )
         .bind(project_id)
         .fetch_optional(pool)
@@ -20,7 +23,7 @@ impl BoardRepository {
 
     pub async fn find_by_id(pool: &SqlitePool, board_id: &str) -> Result<Option<Board>, AppError> {
         let board = sqlx::query_as::<_, Board>(
-            "SELECT id, project_id, name, created_at FROM boards WHERE id = ?1"
+            "SELECT id, project_id, name, created_at FROM boards WHERE id = ?1",
         )
         .bind(board_id)
         .fetch_optional(pool)
@@ -36,7 +39,7 @@ impl BoardRepository {
             FROM columns
             WHERE board_id = ?1
             ORDER BY position ASC
-            "#
+            "#,
         )
         .bind(board_id)
         .fetch_all(pool)
@@ -45,13 +48,16 @@ impl BoardRepository {
         Ok(columns)
     }
 
-    pub async fn find_column_by_id(pool: &SqlitePool, column_id: &str) -> Result<Option<Column>, AppError> {
+    pub async fn find_column_by_id(
+        pool: &SqlitePool,
+        column_id: &str,
+    ) -> Result<Option<Column>, AppError> {
         let column = sqlx::query_as::<_, Column>(
             r#"
             SELECT id, board_id, name, type AS type_, position, wip_limit, created_at
             FROM columns
             WHERE id = ?1
-            "#
+            "#,
         )
         .bind(column_id)
         .fetch_optional(pool)
@@ -108,7 +114,7 @@ impl BoardRepository {
         let new_wip = wip_limit.unwrap_or(current.wip_limit);
 
         sqlx::query(
-            "UPDATE columns SET name = ?1, type = ?2, position = ?3, wip_limit = ?4 WHERE id = ?5"
+            "UPDATE columns SET name = ?1, type = ?2, position = ?3, wip_limit = ?4 WHERE id = ?5",
         )
         .bind(new_name)
         .bind(new_type)
@@ -134,13 +140,36 @@ impl BoardRepository {
         Ok(())
     }
 
-    pub async fn update_column_position(pool: &SqlitePool, id: &str, position: f64) -> Result<(), AppError> {
-        sqlx::query("UPDATE columns SET position = ?1 WHERE id = ?2")
-            .bind(position)
-            .bind(id)
-            .execute(pool)
+    pub async fn reorder_columns(
+        pool: &SqlitePool,
+        board_id: &str,
+        ids: &[String],
+    ) -> Result<(), AppError> {
+        let mut transaction = pool.begin().await?;
+        let count: i64 = sqlx::query_scalar("SELECT count(*) FROM columns WHERE board_id = ?")
+            .bind(board_id)
+            .fetch_one(&mut *transaction)
             .await?;
-
+        if count as usize != ids.len() {
+            return Err(AppError::Validation(
+                "Columns changed. Refresh the board and try again".into(),
+            ));
+        }
+        for (index, id) in ids.iter().enumerate() {
+            let changed =
+                sqlx::query("UPDATE columns SET position = ? WHERE id = ? AND board_id = ?")
+                    .bind(((index + 1) * 1000) as f64)
+                    .bind(id)
+                    .bind(board_id)
+                    .execute(&mut *transaction)
+                    .await?;
+            if changed.rows_affected() != 1 {
+                return Err(AppError::Validation(
+                    "A column does not belong to this board".into(),
+                ));
+            }
+        }
+        transaction.commit().await?;
         Ok(())
     }
 }
