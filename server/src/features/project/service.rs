@@ -190,8 +190,8 @@ impl ProjectService {
             .await?
             .ok_or_else(|| AppError::Forbidden("You do not have access to this workspace".to_string()))?;
 
-        if role != "owner" {
-            return Err(AppError::Forbidden("Only workspace owner can delete project".to_string()));
+        if role != "owner" && role != "admin" {
+            return Err(AppError::Forbidden("Only workspace owner or admin can delete project".to_string()));
         }
 
         ProjectRepository::delete(&state.pool, id).await

@@ -4,6 +4,7 @@ import { LocalPlugins } from "@/features/localops/LocalPlugins";
 import { DeskSettings } from "@/features/localops/DeskSettings";
 import { ProjectMembers } from "@/features/productivity/ProjectMembers";
 import { ProjectPrivacy } from "@/features/productivity/ProjectPrivacy";
+import { ProjectDangerZone } from "@/features/project/ProjectDangerZone";
 import { ProjectProcessSettings } from "@/features/productivity/ProjectProcessSettings";
 import { BoardTemplates } from "@/features/productivity/BoardTemplates";
 import { MemberPermissions } from "@/features/productivity/MemberPermissions";
@@ -25,6 +26,7 @@ export function GovernancePage() {
           Keep your work connected, portable, and accountable.
         </p>
       </div>
+      <ProjectDangerZone projectId={projectId} />
       <div className="grid lg:grid-cols-2 gap-5">
         <DataPortability projectId={projectId} />
         <ArchiveCenter projectId={projectId} />
