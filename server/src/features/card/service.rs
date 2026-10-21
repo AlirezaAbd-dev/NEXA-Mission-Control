@@ -393,6 +393,34 @@ impl CardService {
         CardRepository::archive(&state.pool, id, Some(&Utc::now().to_rfc3339())).await
     }
 
+    pub async fn delete_permanently(state: &AppState, id: &str, user_id: &str) -> Result<(), AppError> {
+        let card = CardRepository::find_by_id(&state.pool, id)
+            .await?
+            .ok_or_else(|| AppError::NotFound("Card not found".into()))?;
+        crate::features::enterprise::service::authorize(state, user_id, &card.project_id, true, true)
+            .await?;
+        let files = CardRepository::delete_archived(&state.pool, id, &card.project_id, user_id).await?;
+        for file in files {
+            // Attachment uploads use flat, generated filenames. Never follow an arbitrary path.
+            let Some(name) = file.strip_prefix("/uploads/") else { continue };
+            if name.is_empty() || name.contains(['/', '\\']) || matches!(name, "." | "..") {
+                continue;
+            }
+            let referenced: bool = match sqlx::query_scalar("SELECT EXISTS(SELECT 1 FROM attachments WHERE file_path=? UNION ALL SELECT 1 FROM cards WHERE cover_url=? OR instr(COALESCE(description,''),?)>0 UNION ALL SELECT 1 FROM comments WHERE instr(body,?)>0)")
+                .bind(&file).bind(&file).bind(&file).bind(&file).fetch_one(&state.pool).await {
+                    Ok(referenced) => referenced,
+                    Err(_) => { tracing::warn!("Deleted task; attachment reference check failed, preserving file"); continue; }
+                };
+            if referenced { continue; }
+            if let Err(error) = tokio::fs::remove_file(std::path::Path::new(&state.config.upload_dir).join(name)).await {
+                if error.kind() != std::io::ErrorKind::NotFound {
+                    tracing::warn!("Deleted task; an orphaned attachment file could not be removed");
+                }
+            }
+        }
+        Ok(())
+    }
+
     pub async fn set_assignees(
         state: &AppState,
         id: &str,

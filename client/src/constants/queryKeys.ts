@@ -72,6 +72,7 @@ export const QUERY_KEYS = {
     all: ["notifications"] as const,
   },
   search: {
+    all: ["search"] as const,
     query: (q: string) => ["search", q] as const,
   },
   localops: {

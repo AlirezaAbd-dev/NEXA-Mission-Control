@@ -201,6 +201,7 @@ pub async fn guard(
     if write
         && response.status().is_success()
         && !(suffix == "cards" && audit_method == "POST")
+        && !(suffix.starts_with("cards/") && suffix.ends_with("/permanent") && audit_method == "DELETE")
         && !suffix.ends_with("/bulk")
         && !(suffix.contains("/rules/") && suffix.ends_with("/run"))
     {

@@ -89,6 +89,15 @@ pub struct AssigneesPayload {
     pub user_ids: Vec<String>,
 }
 
+pub async fn delete_permanently(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Path(id): Path<String>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    CardService::delete_permanently(&state, &id, &auth.id).await?;
+    Ok(Json(serde_json::json!({ "success": true })))
+}
+
 pub async fn set_assignees(
     State(state): State<AppState>,
     auth: AuthUser,

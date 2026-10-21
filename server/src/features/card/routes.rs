@@ -10,6 +10,7 @@ pub fn router() -> Router<AppState> {
         .route("/{id}", get(handler::get_one).put(handler::update).delete(handler::delete))
         .route("/{id}/move", post(handler::move_card))
         .route("/{id}/archive", post(handler::archive))
+        .route("/{id}/permanent", axum::routing::delete(handler::delete_permanently))
         .route("/{id}/assignees", put(handler::set_assignees))
         .route("/{id}/labels", put(handler::set_labels))
         .route("/{id}/watch", post(handler::toggle_watcher).get(handler::list_watchers))

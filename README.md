@@ -16,11 +16,34 @@
   Single 42MB Docker image • Instant startup • Zero external database requirements • Runs on only ~30MB of RAM.
 </p>
 
-[Quick Start](#-instant-docker-run) • [Key Features](#-features-at-a-glance) • [Interactive Views](#-views-for-every-workflow) • [Docs](docs/INTEGRATIONS.md)
+[Design Showcase](#design-showcase) • [Quick Start](#-instant-docker-run) • [Key Features](#-features-at-a-glance) • [Docs](docs/INTEGRATIONS.md)
 
 ---
 
 </div>
+
+## Design showcase
+
+A clearer view of work, in NEXA's petrol and teal palette.
+
+[![NEXA Mission Control designer showcase: floating Kanban, calendar, and task panels on a dark petrol background with teal studio lighting](docs/showcase/mission-control-hero.png)](docs/showcase/mission-control-hero.png)
+
+**Every detail. One shared mission.** From the big picture on the board to the context inside a task.
+
+[![Editorial Mission Control design presentation on a pale mint background, highlighting task details, checklist progress, and teammate labels](docs/showcase/mission-control-details.png)](docs/showcase/mission-control-details.png)
+
+*Designer presentation artwork composed with AI from actual application screenshots and fictional sample data. Perspective, lighting, and detail callouts are added for presentation. Select an image to view it at full size.*
+
+<details>
+<summary>View the original application screenshots</summary>
+
+- [Kanban board](docs/screenshots/kanban-board.jpg)
+- [Task details](docs/screenshots/task-details.jpg)
+- [Weekly calendar](docs/screenshots/calendar-planning.jpg)
+
+</details>
+
+---
 
 ## 💡 Why NEXA Mission Control?
 

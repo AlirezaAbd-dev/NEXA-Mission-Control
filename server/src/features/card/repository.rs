@@ -600,6 +600,21 @@ impl CardRepository {
         Ok(())
     }
 
+    pub async fn delete_archived(pool: &SqlitePool, id: &str, project: &str, actor: &str) -> Result<Vec<String>, AppError> {
+        let mut tx = pool.begin().await?;
+        let files: Vec<String> = sqlx::query_scalar("SELECT file_path FROM attachments WHERE card_id=?")
+            .bind(id).fetch_all(&mut *tx).await?;
+        let title: Option<String> = sqlx::query_scalar("DELETE FROM cards WHERE id=? AND project_id=? AND archived_at IS NOT NULL RETURNING title")
+            .bind(id).bind(project).fetch_optional(&mut *tx).await?;
+        let title = title.ok_or_else(|| AppError::Conflict("Only archived tasks can be permanently deleted. Refresh the archive and try again.".into()))?;
+        crate::features::enterprise::repository::audit(
+            &mut tx, project, None, Some(actor), "permanently_deleted_card",
+            serde_json::json!({"task_title":title,"deleted_card_id":id}),
+        ).await?;
+        tx.commit().await?;
+        Ok(files)
+    }
+
     pub async fn set_assignees(
         pool: &SqlitePool,
         card_id: &str,

@@ -81,6 +81,14 @@ Moves can include an optional before-task placement anchor. The server calculate
 
 Validation: 44 backend tests, 17 frontend tests, targeted board TypeScript and lint; isolated browser preview verifies keyboard reorder, cross-column movement, cancellation, pointer insertion, empty-column drops and persisted API state. Full-project client checks remain limited by the pre-existing missing editor dependencies. Disposable preview and test records were removed.
 
+## Permanently deleting archived tasks
+
+Archive now offers a red Delete action with a task-specific, irreversible-action confirmation. Eligibility is shared across all business activities: the task must still be archived AND the actor must currently be a project/workspace owner or admin. Existing project visibility and centralized authorization remain authoritative; changing activities grants no access. The UI uses the existing local-operations session capability, hides deletion until access is confirmed, supports loading/error/retry states, and wraps actions on mobile. No customer AI, sales, subscription, or historical-obligation behavior changes.
+
+The additive `DELETE /api/v1/cards/{id}/permanent` endpoint rechecks access and conditionally deletes only archived rows in a transaction, with a project audit entry committed atomically. Related task-owned rows cascade; subtasks and service-desk records remain with their parent/task link cleared. Existing project audit history is retained. Unreferenced attachment files are removed after commit where possible; shared files and unsafe paths are preserved, and file cleanup failure does not undo or misreport a committed deletion. Ordinary Remove task continues to archive, preserving restore behavior. Successful deletion invalidates affected caches and publishes the existing project real-time event.
+
+Validation: 49 backend tests and 19 frontend tests pass; frontend production build and focused lint pass. Tests cover archived-state enforcement, effective database roles (not claimed JWT roles), cross-workspace denial, cascades, audit retention, linked records, shared uploads, and real-time publication. Disposable local browser checks covered confirmation/cancellation, live archive removal following an API deletion, mobile wrapping, and hiding controls after admin access is revoked. No existing user tasks were deleted. Deploy the additive API before serving the updated client.
+
 ## Workspace context and profile settings
 
 Workspace selection is shared by the sidebar, dashboard, and Settings and remembered per account in browser storage. Explicit workspace/project routes establish context; visiting generic pages retains that choice. Missing workspace memberships fall back safely to an accessible workspace.

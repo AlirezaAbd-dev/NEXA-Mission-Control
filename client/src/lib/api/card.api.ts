@@ -69,6 +69,10 @@ export const cardApi = {
     await apiClient.post(`/cards/${id}/archive`, { archive });
   },
 
+  deletePermanently: async (id: string): Promise<void> => {
+    await apiClient.delete(`/cards/${id}/permanent`);
+  },
+
   delete: async (id: string): Promise<void> => {
     await apiClient.delete(`/cards/${id}`);
   },

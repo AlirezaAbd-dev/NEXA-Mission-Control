@@ -103,6 +103,7 @@ export function auditSummary(action: string, payload: AuditPayload): string {
     return "Reordered this task";
   const labels: Record<string, string> = {
     created_card: "Created this task",
+    permanently_deleted_card: "Permanently deleted archived task",
     moved_card: "Moved this task",
     member_added: "Assigned member",
     member_removed: "Unassigned member",

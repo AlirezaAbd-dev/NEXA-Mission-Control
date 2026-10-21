@@ -1901,3 +1901,70 @@ async fn profile_http_edits_only_the_authenticated_user() {
         .unwrap();
     assert_eq!(response.status(), 401);
 }
+
+#[tokio::test]
+async fn permanent_task_delete_http_requires_admin_and_archived_state_and_emits_event() {
+    use axum::{body::Body,http::Request};
+    use tower::ServiceExt;
+    let s=fixture().await;
+    let app=crate::router::create_router(s.clone());
+    let mut events=s.changes.subscribe();
+    for (user,card,expected) in [("owner","c1",409),("viewer","c1",403),("member","c1",403),("other","c1",403)] {
+        let claims=crate::extractors::auth::Claims{sub:user.into(),email:format!("{user}@test.local"),role:"owner".into(),exp:(chrono::Utc::now().timestamp()+60) as usize};
+        let token=jsonwebtoken::encode(&jsonwebtoken::Header::default(),&claims,&jsonwebtoken::EncodingKey::from_secret(b"test")).unwrap();
+        let response=app.clone().oneshot(Request::builder().method("DELETE").uri(format!("/api/v1/cards/{card}/permanent")).header("authorization",format!("Bearer {token}")).body(Body::empty()).unwrap()).await.unwrap();
+        assert_eq!(response.status().as_u16(),expected,"{user}");
+    }
+    assert!(events.try_recv().is_err());
+    sqlx::query("UPDATE cards SET archived_at='now' WHERE id='c1'").execute(&s.pool).await.unwrap();
+    // The global JWT role is not sufficient: the database project role is authoritative.
+    for user in ["member","viewer","other"] {
+        assert!(crate::features::card::service::CardService::delete_permanently(&s,"c1",user).await.is_err());
+    }
+    let claims=crate::extractors::auth::Claims{sub:"owner".into(),email:"owner@test.local".into(),role:"member".into(),exp:(chrono::Utc::now().timestamp()+60) as usize};
+    let token=jsonwebtoken::encode(&jsonwebtoken::Header::default(),&claims,&jsonwebtoken::EncodingKey::from_secret(b"test")).unwrap();
+    let response=app.oneshot(Request::builder().method("DELETE").uri("/api/v1/cards/c1/permanent").header("authorization",format!("Bearer {token}")).body(Body::empty()).unwrap()).await.unwrap();
+    assert_eq!(response.status(),200);
+    assert_eq!(sqlx::query_scalar::<_,i64>("SELECT count(*) FROM cards WHERE id='c1'").fetch_one(&s.pool).await.unwrap(),0);
+    assert_eq!(events.try_recv().unwrap().project_id.as_deref(),Some("p"));
+    let payload:String=sqlx::query_scalar("SELECT payload FROM activities WHERE action='permanently_deleted_card' AND project_id='p'").fetch_one(&s.pool).await.unwrap();
+    let value:serde_json::Value=serde_json::from_str(&payload).unwrap();
+    assert_eq!(value["task_title"],"c1");
+    assert_eq!(value["deleted_card_id"],"c1");
+    assert!(crate::features::card::service::CardService::delete_permanently(&s,"c1","owner").await.is_err());
+}
+
+#[tokio::test]
+async fn permanent_task_delete_cascades_children_preserves_history_and_shared_files() {
+    use crate::features::card::{service::CardService,repository::CardRepository};
+    let mut s=fixture().await;
+    let folder=std::env::temp_dir().join(format!("mission-delete-test-{}",uuid::Uuid::now_v7()));
+    tokio::fs::create_dir_all(&folder).await.unwrap();
+    let mut config=(*s.config).clone();
+    config.upload_dir=folder.to_string_lossy().into_owned();
+    s.config=std::sync::Arc::new(config);
+    for name in ["orphan.txt","shared.txt"] {tokio::fs::write(folder.join(name),b"sample").await.unwrap();}
+    sqlx::query("INSERT INTO project_members(id,project_id,user_id,role,joined_at) VALUES('pm','p','member','admin','now')").execute(&s.pool).await.unwrap();
+    sqlx::query("UPDATE cards SET parent_id='c1',cover_url='/uploads/shared.txt' WHERE id='c2'").execute(&s.pool).await.unwrap();
+    sqlx::query("INSERT INTO comments(id,card_id,author_id,body,created_at) VALUES('comment','c1','owner','body','now')").execute(&s.pool).await.unwrap();
+    sqlx::query("INSERT INTO checklists(id,card_id,title,position,created_at) VALUES('checklist','c1','List',0,'now')").execute(&s.pool).await.unwrap();
+    sqlx::query("INSERT INTO checklist_items(id,checklist_id,title,position,created_at) VALUES('item','checklist','Item',0,'now')").execute(&s.pool).await.unwrap();
+    sqlx::query("INSERT INTO activities(id,workspace_id,project_id,card_id,actor_id,action,payload,created_at) VALUES('old-audit','w','p','c1','owner','created_card','{}','now')").execute(&s.pool).await.unwrap();
+    sqlx::query("INSERT INTO desk_tickets(id,project_id,requester_id,card_id,title,description,status,priority,created_at,updated_at,response_due_at,resolution_due_at) VALUES('ticket','p','owner','c1','Support','Details','new','medium','now','now','later','later')").execute(&s.pool).await.unwrap();
+    for name in ["orphan.txt","shared.txt"] {
+        sqlx::query("INSERT INTO attachments(id,card_id,filename,file_path,file_size,mime_type,created_at) VALUES(?,'c1',?,?,6,'text/plain','now')").bind(name).bind(name).bind(format!("/uploads/{name}")).execute(&s.pool).await.unwrap();
+    }
+    // Repository also refuses active/restored tasks, even if a caller bypasses the service.
+    assert!(CardRepository::delete_archived(&s.pool,"c1","p","owner").await.is_err());
+    sqlx::query("UPDATE cards SET archived_at='now' WHERE id='c1'").execute(&s.pool).await.unwrap();
+    CardService::delete_permanently(&s,"c1","member").await.unwrap();
+    for table in ["comments","checklists","checklist_items","attachments"] {
+        assert_eq!(sqlx::query_scalar::<_,i64>(&format!("SELECT count(*) FROM {table}")).fetch_one(&s.pool).await.unwrap(),0, "{table}");
+    }
+    assert!(sqlx::query_scalar::<_,Option<String>>("SELECT parent_id FROM cards WHERE id='c2'").fetch_one(&s.pool).await.unwrap().is_none());
+    assert!(sqlx::query_scalar::<_,Option<String>>("SELECT card_id FROM desk_tickets WHERE id='ticket'").fetch_one(&s.pool).await.unwrap().is_none());
+    assert_eq!(sqlx::query_scalar::<_,i64>("SELECT count(*) FROM activities WHERE id='old-audit'").fetch_one(&s.pool).await.unwrap(),1);
+    assert!(!folder.join("orphan.txt").exists());
+    assert!(folder.join("shared.txt").exists());
+    tokio::fs::remove_dir_all(folder).await.unwrap();
+}
