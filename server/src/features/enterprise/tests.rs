@@ -2213,3 +2213,95 @@ async fn notes_create_with_task_validates_before_writing_and_preserves_links_in_
     n::update(&s,"viewer",&note.id,serde_json::from_value(json!({"version":2,"trashed":false})).unwrap()).await.unwrap();
     assert_eq!(n::list(&s,"viewer",filter()).await.unwrap().len(),1);
 }
+
+#[tokio::test]
+async fn dashboard_scopes_totals_projects_and_write_capabilities_to_current_access() {
+    use super::dashboard::service as d;
+    let s=fixture().await;
+    assert!(d::get(&s,"other","w","2026-10-22").await.is_err());
+    let dashboard=d::get(&s,"member","w","2026-10-22").await.unwrap();
+    assert_eq!(dashboard.summary.tasks,2); assert_eq!(dashboard.summary.pending,1); assert_eq!(dashboard.summary.completed,1);
+    assert!(dashboard.projects[0].can_write);
+    assert!(!d::get(&s,"viewer","w","2026-10-22").await.unwrap().projects[0].can_write);
+    sqlx::query("UPDATE projects SET visibility='private' WHERE id='p'").execute(&s.pool).await.unwrap();
+    let hidden=d::get(&s,"member","w","2026-10-22").await.unwrap();
+    assert_eq!(hidden.summary.tasks,0); assert_eq!(hidden.summary.projects,0); assert!(hidden.projects.is_empty());
+    sqlx::query("INSERT INTO project_members(id,project_id,user_id,role,joined_at) VALUES('pm','p','member','viewer','now')").execute(&s.pool).await.unwrap();
+    assert!(!d::get(&s,"member","w","2026-10-22").await.unwrap().projects[0].can_write);
+    assert_eq!(d::get(&s,"owner","w","2026-10-22").await.unwrap().summary.tasks,2);
+    sqlx::query("DELETE FROM workspace_members WHERE user_id='member'").execute(&s.pool).await.unwrap();
+    assert!(d::get(&s,"member","w","2026-10-22").await.is_err());
+    for day in ["2026-02-30","2026-1-2","nonsense"] { assert!(d::get(&s,"owner","w",day).await.is_err()); }
+}
+
+#[tokio::test]
+async fn dashboard_bounds_previews_without_truncating_totals_and_groups_calendar_days() {
+    use super::dashboard::service as d;
+    let s=fixture().await;
+    for i in 0..9 {
+        let id=format!("overdue-{i}");
+        sqlx::query("INSERT INTO cards(id,project_id,column_id,title,priority,position,due_date,created_at,updated_at) VALUES(?,'p','todo','Overdue','urgent',1,'2026-10-21','now','now')").bind(&id).execute(&s.pool).await.unwrap();
+        sqlx::query("INSERT INTO card_assignees(card_id,user_id) VALUES(?,'member')").bind(&id).execute(&s.pool).await.unwrap();
+    }
+    sqlx::query("UPDATE cards SET due_date='2026-10-22T23:30:00-03:00' WHERE id='c1'").execute(&s.pool).await.unwrap();
+    sqlx::query("INSERT INTO card_assignees(card_id,user_id) VALUES('c1','member')").execute(&s.pool).await.unwrap();
+    let first=d::get(&s,"member","w","2026-10-22").await.unwrap();
+    assert_eq!(first.summary.tasks,11); assert_eq!(first.summary.overdue,9); assert_eq!(first.summary.mine,10);
+    assert_eq!(first.mine_overdue.len(),6); assert_eq!(first.attention.len(),6);
+    assert_eq!(first.mine_today.len(),1); assert_eq!(first.deadlines.len(),1);
+    assert!(first.mine_upcoming.is_empty()); assert_eq!(first.projects[0].total,11);
+    sqlx::query("UPDATE cards SET due_date='2026-10-29' WHERE id='c1'").execute(&s.pool).await.unwrap();
+    assert!(d::get(&s,"member","w","2026-10-22").await.unwrap().deadlines.is_empty());
+    sqlx::query("UPDATE cards SET due_date='2026-10-28' WHERE id='c1'").execute(&s.pool).await.unwrap();
+    assert_eq!(d::get(&s,"member","w","2026-10-22").await.unwrap().deadlines.len(),1);
+    sqlx::query("UPDATE cards SET archived_at='now' WHERE id='c1'").execute(&s.pool).await.unwrap();
+    assert_eq!(d::get(&s,"member","w","2026-10-22").await.unwrap().summary.mine,9);
+    sqlx::query("UPDATE projects SET archived_at='now' WHERE id='p'").execute(&s.pool).await.unwrap();
+    assert_eq!(d::get(&s,"member","w","2026-10-22").await.unwrap().summary.tasks,0);
+}
+
+#[tokio::test]
+async fn dashboard_pins_and_activity_never_expose_private_notes_or_raw_audit_payloads() {
+    use super::dashboard::service as d;
+    use crate::features::notes::service as n;
+    let s=fixture().await;
+    for (user,workspace,title) in [("owner",None,"Private secret"),("member",None,"My pin"),("owner",Some("w"),"Team pin")] {
+        let note=n::create(&s,user,serde_json::from_value(json!({"title":title,"workspace_id":workspace})).unwrap()).await.unwrap();
+        n::update(&s,user,&note.id,serde_json::from_value(json!({"version":1,"pinned":true})).unwrap()).await.unwrap();
+    }
+    sqlx::query("INSERT INTO activities(id,workspace_id,project_id,card_id,actor_id,action,payload,created_at) VALUES('activity','w','p','c1','owner','updated_card','{\"password\":\"private-audit-value\"}','now')").execute(&s.pool).await.unwrap();
+    sqlx::query("INSERT INTO card_links(id,source_card_id,target_card_id,link_type) VALUES('l','c2','c1','blocks')").execute(&s.pool).await.unwrap();
+    let data=d::get(&s,"member","w","2026-10-22").await.unwrap();
+    assert_eq!(data.notes.len(),2); assert_eq!(data.activity.len(),1);
+    assert_eq!(data.summary.blocked,0); // Completed blockers do not block work.
+    let text=serde_json::to_string(&data).unwrap();
+    assert!(!text.contains("Private secret")); assert!(!text.contains("private-audit-value"));
+    sqlx::query("UPDATE cards SET column_id='todo' WHERE id='c2'").execute(&s.pool).await.unwrap();
+    assert_eq!(d::get(&s,"member","w","2026-10-22").await.unwrap().summary.blocked,1);
+    sqlx::query("UPDATE projects SET visibility='private' WHERE id='p'").execute(&s.pool).await.unwrap();
+    let hidden=d::get(&s,"member","w","2026-10-22").await.unwrap();
+    assert!(hidden.activity.is_empty()); assert!(hidden.attention.is_empty());
+}
+
+#[tokio::test]
+async fn dashboard_http_authentication_workspace_switching_and_templates() {
+    use super::dashboard::service as d;
+    use axum::{body::Body,http::Request};
+    use tower::ServiceExt;
+    let s=fixture().await;
+    sqlx::query("INSERT INTO workspaces(id,name,slug,owner_id,created_at,updated_at) VALUES('w2','Second','w2','owner','now','now')").execute(&s.pool).await.unwrap();
+    sqlx::query("INSERT INTO workspace_members(id,workspace_id,user_id,role,joined_at) VALUES('w2-owner','w2','owner','owner','now')").execute(&s.pool).await.unwrap();
+    assert_eq!(d::get(&s,"owner","w2","2026-10-22").await.unwrap().summary.tasks,0);
+    sqlx::query("UPDATE cards SET is_template=1 WHERE id='c1'").execute(&s.pool).await.unwrap();
+    assert_eq!(d::get(&s,"owner","w","2026-10-22").await.unwrap().summary.tasks,1);
+    let app=crate::router::create_router(s.clone());
+    let uri="/api/v1/enterprise/workspaces/w/dashboard?today=2026-10-22";
+    let response=app.clone().oneshot(Request::builder().uri(uri).body(Body::empty()).unwrap()).await.unwrap();
+    assert_eq!(response.status(),401);
+    for (user,status) in [("other",403),("viewer",200)] {
+        let claims=crate::extractors::auth::Claims{sub:user.into(),email:format!("{user}@test.local"),role:"owner".into(),exp:(chrono::Utc::now().timestamp()+60)as usize};
+        let token=jsonwebtoken::encode(&jsonwebtoken::Header::default(),&claims,&jsonwebtoken::EncodingKey::from_secret(b"test")).unwrap();
+        let response=app.clone().oneshot(Request::builder().uri(uri).header("authorization",format!("Bearer {token}")).body(Body::empty()).unwrap()).await.unwrap();
+        assert_eq!(response.status(),status);
+    }
+}

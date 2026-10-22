@@ -1,5 +1,6 @@
 pub mod automation;
 pub mod dto;
+pub mod dashboard;
 pub mod handler;
 pub mod import;
 pub mod repository;

@@ -18,6 +18,7 @@ pub fn router() -> Router<AppState> {
             10 * 1024 * 1024 + 4096,
         ))
         .route("/workspaces/{workspace}/metrics", get(h::workspace_metrics))
+        .route("/workspaces/{workspace}/dashboard", get(super::dashboard::handler::get))
         .route("/projects/{project}/bulk", post(h::bulk))
         .route(
             "/projects/{project}/preferences",
