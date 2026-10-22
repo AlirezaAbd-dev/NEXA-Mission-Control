@@ -6,6 +6,7 @@ pub struct Note {
     pub id: String,
     pub owner_id: Option<String>,
     pub workspace_id: Option<String>,
+    pub workspace_name: Option<String>,
     pub created_by: Option<String>,
     pub author_name: Option<String>,
     pub title: String,
@@ -20,6 +21,7 @@ pub struct Note {
 }
 #[derive(Deserialize, Default)]
 pub struct ListNotes {
+    pub card_id: Option<String>,
     pub scope: Option<String>,
     pub workspace_id: Option<String>,
     pub q: Option<String>,
@@ -27,6 +29,7 @@ pub struct ListNotes {
 }
 #[derive(Deserialize, Validate)]
 pub struct CreateNote {
+    pub card_id: Option<String>,
     pub workspace_id: Option<String>,
     #[validate(length(min = 1, max = 160))]
     pub title: String,

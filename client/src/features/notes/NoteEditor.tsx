@@ -26,7 +26,7 @@ export function NoteEditor({ note, workspace, onCreated, onTrashed }: { note: No
   };
   return <article className="min-w-0 rounded-2xl border border-border bg-card p-4 sm:p-6 space-y-5">
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <span className="flex items-center gap-2 text-xs text-muted-foreground">{note.workspace_id ? <Users size={14} /> : <Lock size={14} />} {note.workspace_id ? "Shared workspace note" : "Private · only you"}
+      <span className="flex items-center gap-2 text-xs text-muted-foreground">{note.workspace_id ? <Users size={14} /> : <Lock size={14} />} {note.workspace_id ? "Shared · " + (note.workspace_name || "Workspace") : "Private · only you"}
         <span role="status">{draft.pending ? "Saving…" : draft.saveError ? "Not saved" : draft.dirty ? "Unsaved changes" : <span className="inline-flex items-center gap-1"><Check size={12} />Saved</span>}</span>
       </span>
       <div className="flex flex-wrap gap-2">

@@ -1,6 +1,6 @@
 import { useDeferredValue, useState } from "react";
 import { useSearchParams } from "react-router";
-import { NotebookPen, Plus, Pin, Trash2, Lock, Users, ArrowLeft } from "lucide-react";
+import { NotebookPen, Layers, Plus, Pin, Trash2, Lock, Users, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useActiveWorkspace } from "@/hooks/workspace/useActiveWorkspace";
@@ -10,7 +10,7 @@ import { NoteEditor } from "./NoteEditor";
 export function NotesPage() {
   const { currentWorkspace, currentWorkspaceId } = useActiveWorkspace();
   const [params, setParams] = useSearchParams();
-  const scope = params.get("scope") === "workspace" ? "workspace" : "personal";
+  const scope = params.get("scope") === "workspace" ? "workspace" : params.get("scope") === "personal" ? "personal" : "all";
   const trash = params.get("trash") === "1";
   const id = params.get("note") || "";
   const [search, setSearch] = useState("");
@@ -18,15 +18,16 @@ export function NotesPage() {
   const list = useNotes({ scope, workspace_id: scope === "workspace" ? currentWorkspaceId : undefined, trash, q });
   const detail = useNote(id);
   const create = useCreateNote();
-  const editable = scope === "personal" || !!currentWorkspace && currentWorkspace.user_role !== "viewer";
+  const editable = scope !== "workspace" || !!currentWorkspace && currentWorkspace.user_role !== "viewer";
   const change = (patch: Record<string, string | null>) => { const next = new URLSearchParams(params); for (const [key, value] of Object.entries(patch)) { if (value === null) next.delete(key); else next.set(key, value); } setParams(next); };
-  const sameScope = detail.data && (scope === "personal" ? !detail.data.workspace_id : detail.data.workspace_id === currentWorkspaceId);
+  const sameScope = detail.data && (scope === "all" || (scope === "personal" ? !detail.data.workspace_id : detail.data.workspace_id === currentWorkspaceId));
   return <div className="min-h-full p-3 sm:p-6 space-y-5 max-w-7xl mx-auto">
     <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
       <div><h1 className="text-2xl font-bold flex items-center gap-2"><NotebookPen className="text-primary" />Notes</h1><p className="mt-1 text-sm text-muted-foreground">A home for ideas, meeting notes, and the context behind your work.</p></div>
-      {!trash && <Button size="sm" disabled={!editable || scope === "workspace" && !currentWorkspaceId} isLoading={create.isPending} onClick={() => create.mutate({ title: "Untitled note", workspace_id: scope === "workspace" ? currentWorkspaceId : undefined }, { onSuccess: n => change({ note: n.id }) })}><Plus size={15} />New note</Button>}
+      {!trash && <Button size="sm" disabled={!editable || scope === "workspace" && !currentWorkspaceId} isLoading={create.isPending} onClick={() => create.mutate({ title: "Untitled note", workspace_id: scope === "workspace" ? currentWorkspaceId : undefined }, { onSuccess: n => change({ note: n.id }) })}><Plus size={15} />{scope === "all" ? "New personal note" : "New note"}</Button>}
     </header>
     <div className="flex flex-wrap gap-2">
+      <Button size="sm" variant={scope === "all" ? "secondary" : "ghost"} aria-pressed={scope === "all"} onClick={() => change({ scope: "all", note: null })}><Layers size={14} />All</Button>
       <Button size="sm" variant={scope === "personal" ? "secondary" : "ghost"} aria-pressed={scope === "personal"} onClick={() => change({ scope: "personal", note: null })}><Lock size={14} />Personal</Button>
       <Button size="sm" variant={scope === "workspace" ? "secondary" : "ghost"} disabled={!currentWorkspaceId} aria-pressed={scope === "workspace"} onClick={() => change({ scope: "workspace", note: null })}><Users size={14} />{currentWorkspace?.name || "Workspace"}</Button>
       <Button size="sm" variant={trash ? "secondary" : "ghost"} aria-pressed={trash} onClick={() => change({ trash: trash ? null : "1", note: null })}><Trash2 size={14} />Trash</Button>
@@ -41,7 +42,7 @@ export function NotesPage() {
         {list.error && <div role="alert" className="text-sm text-danger"><p>{apiError(list.error)}</p><Button size="sm" variant="outline" onClick={() => void list.refetch()}>Retry</Button></div>}
         {!list.isLoading && !list.error && !list.data?.length && <p className="p-4 rounded-xl border border-dashed border-border text-sm text-muted-foreground">{search ? "No matching notes." : trash ? "Trash is empty." : "No notes yet. Create your first note to get started."}</p>}
         <div className="space-y-2">{list.data?.map(note => <Button key={note.id} variant={note.id === id ? "secondary" : "ghost"} className="w-full h-auto p-3 justify-start text-start border border-border" onClick={() => change({ note: note.id })}>
-          <span className="block min-w-0 w-full"><span className="flex items-start gap-2"><span className="break-words flex-1" dir="auto">{note.title}</span>{note.pinned && <Pin size={13} className="text-primary shrink-0" />}</span><span className="block mt-1 text-[11px] text-muted-foreground">{new Date(note.updated_at).toLocaleDateString()} · {note.author_name || "Former member"}</span></span>
+          <span className="block min-w-0 w-full"><span className="flex items-start gap-2"><span className="shrink-0 mt-0.5" title={note.workspace_id ? "Workspace: " + note.workspace_name : "Personal · only you"}>{note.workspace_id ? <Users size={14} aria-label="Workspace note" /> : <Lock size={14} aria-label="Personal note" />}</span><span className="break-words flex-1" dir="auto">{note.title}</span>{note.pinned && <Pin size={13} className="text-primary shrink-0" />}</span><span className="block mt-1 text-[11px] text-muted-foreground">{note.workspace_id ? note.workspace_name || "Workspace" : "Personal"} · {new Date(note.updated_at).toLocaleDateString()}</span></span>
         </Button>)}</div>
       </aside>
       <div className="min-w-0">

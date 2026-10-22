@@ -2,6 +2,8 @@
 
 Open **Notes** in the workspace sidebar, below Planner & Work Hub, or use the command palette. On desktop the list and editor appear side by side. On mobile, **All notes** returns to the list.
 
+The default **All** tab combines your personal notes and notes from every workspace you currently belong to. Each row has a lock or workspace icon and a scope label with its workspace name. Personal and current-workspace tabs narrow the list. Trash is a separate filter that works with every tab; All + Trash includes recoverable notes across all accessible scopes. Creating from All is explicitly labeled **New personal note** to avoid accidentally sharing content.
+
 ## Access and applicability
 
 Notes support all business activities. This standalone application introduces no CRM sales, subscription, or customer-AI restrictions. The API checks ownership and current database membership independently of UI controls and claimed token roles.
@@ -19,6 +21,8 @@ SQLite FTS5 searches titles and bodies, including Persian text, without an exter
 
 Task links do not move or modify tasks. Shared notes link only to tasks in their workspace. Link responses recheck task/project visibility and hide inaccessible private-project titles; linking does not grant access. Trash retains text and links, and Restore recovers them. Permanent note deletion is not included.
 
+Tasks now have a **Linked notes** section with scope icons and names. Open a note, attach an existing editable personal or same-workspace note, or create a new personal/shared note. Creating from a task validates task access and saves the note and link together in one database transaction before opening the editor. Viewers may create personal notes; shared creation requires workspace write access. Unlinking keeps both records. Trashed notes disappear from the task's active list and return when restored. Task note queries recheck current task access and note ownership/membership, so private notes never become visible to other task viewers.
+
 ## Concurrent changes
 
 Updates carry the editor's original version. The API rejects stale writes with HTTP 409 instead of overwriting another revision. Dirty drafts keep their original version when remote updates arrive. After an error, saving pauses until **Retry save**, **Reload latest**, or **Save personal copy**. Reload asks for confirmation because it discards the draft; saving a personal copy preserves it separately.
@@ -31,8 +35,8 @@ All endpoints require authentication:
 
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
-| GET | `/api/v1/notes` | List; accepts `scope`, `workspace_id`, `q`, `trash` |
-| POST | `/api/v1/notes` | Create; omit `workspace_id` for personal |
+| GET | `/api/v1/notes` | List; accepts `scope` (`all`, `personal`, `workspace`), `workspace_id`, `q`, `trash`, optional `card_id` for permission-filtered task backlinks |
+| POST | `/api/v1/notes` | Create; omit `workspace_id` for personal; optional `card_id` creates the link atomically |
 | GET | `/api/v1/notes/{id}` | Read content and effective edit permission |
 | PUT | `/api/v1/notes/{id}` | Update title/body/pin/trash with required `version` |
 | GET / POST | `/api/v1/notes/{id}/links` | List accessible links / add `card_id` |
@@ -42,4 +46,4 @@ The additive `20261022000000_notes.sql` migration creates notes, links, indexes,
 
 ## Verification
 
-All 54 backend tests and 19 frontend tests pass, along with the production build and lint (warnings remain). Notes tests cover privacy, current workspace roles, authenticated routes, stale-write conflicts, Persian search, trash/restore, private-project link filtering, and scoped events. Isolated browser checks cover autosave, pinning, task links, trash/restore, preserving concurrent revisions, personal-copy recovery, and 390 px navigation without horizontal overflow.
+All 57 backend tests and 19 frontend tests pass, along with the production build and lint (warnings remain). Notes tests cover privacy, current workspace roles, authenticated routes, stale-write conflicts, Persian search, trash/restore, private-project link filtering, and scoped events. All-scope/backlink tests cover membership revocation, read-only roles across workspaces, private notes, task visibility, invalid/cross-workspace creation without partial records, and trash restoration of links. Isolated browser checks cover autosave, pinning, task links, trash/restore, preserving concurrent revisions, personal-copy recovery, All-tab scope icons, task attach/unlink/create/open, and 390 px layouts without horizontal overflow.

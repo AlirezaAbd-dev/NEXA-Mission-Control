@@ -2136,3 +2136,80 @@ async fn notes_http_authentication_privacy_and_realtime_payloads() {
   assert_eq!(response.status(),404);
  }
 }
+
+#[tokio::test]
+async fn notes_all_scope_preserves_ownership_membership_roles_search_and_trash() {
+    use crate::features::notes::service as n;
+    let s = fixture().await;
+    sqlx::query("INSERT INTO workspaces(id,name,slug,owner_id,created_at,updated_at) VALUES('w2','Second workspace','w2','other','now','now')").execute(&s.pool).await.unwrap();
+    for (id, user, role) in [("w2-other", "other", "owner"), ("w2-member", "member", "viewer")] {
+        sqlx::query("INSERT INTO workspace_members(id,workspace_id,user_id,role,joined_at) VALUES(?,'w2',?,?,'now')").bind(id).bind(user).bind(role).execute(&s.pool).await.unwrap();
+    }
+    let personal = n::create(&s,"member",serde_json::from_value(json!({"title":"Personal context"})).unwrap()).await.unwrap();
+    n::create(&s,"owner",serde_json::from_value(json!({"title":"Secret context"})).unwrap()).await.unwrap();
+    let shared = n::create(&s,"owner",serde_json::from_value(json!({"title":"Team context","workspace_id":"w"})).unwrap()).await.unwrap();
+    let second = n::create(&s,"other",serde_json::from_value(json!({"title":"Second context","workspace_id":"w2"})).unwrap()).await.unwrap();
+    let all = n::list(&s,"member",serde_json::from_value(json!({"scope":"all"})).unwrap()).await.unwrap();
+    assert_eq!(all.len(),3);
+    assert!(all.iter().find(|n|n.id==personal.id).unwrap().can_edit);
+    assert!(all.iter().find(|n|n.id==shared.id).unwrap().can_edit);
+    let view = all.iter().find(|n|n.id==second.id).unwrap();
+    assert!(!view.can_edit);
+    assert_eq!(view.workspace_name.as_deref(),Some("Second workspace"));
+    assert!(view.body.is_none());
+    assert_eq!(n::list(&s,"member",serde_json::from_value(json!({"scope":"all","q":"Second"})).unwrap()).await.unwrap().len(),1);
+    assert_eq!(n::list(&s,"other",serde_json::from_value(json!({"scope":"all"})).unwrap()).await.unwrap().len(),1);
+    n::update(&s,"member",&personal.id,serde_json::from_value(json!({"version":1,"trashed":true})).unwrap()).await.unwrap();
+    assert_eq!(n::list(&s,"member",serde_json::from_value(json!({"scope":"all","trash":true})).unwrap()).await.unwrap()[0].id,personal.id);
+    sqlx::query("DELETE FROM workspace_members WHERE workspace_id='w2' AND user_id='member'").execute(&s.pool).await.unwrap();
+    assert_eq!(n::list(&s,"member",serde_json::from_value(json!({"scope":"all"})).unwrap()).await.unwrap().len(),1);
+    assert!(n::get(&s,"member",&second.id).await.is_err());
+    assert!(n::list(&s,"member",serde_json::from_value(json!({"scope":"all","workspace_id":"w"})).unwrap()).await.is_err());
+}
+
+#[tokio::test]
+async fn notes_task_backlinks_filter_private_notes_and_require_current_task_access() {
+    use crate::features::notes::service as n;
+    let s = fixture().await;
+    let private = n::create(&s,"owner",serde_json::from_value(json!({"title":"Private","card_id":"c1"})).unwrap()).await.unwrap();
+    let shared = n::create(&s,"owner",serde_json::from_value(json!({"title":"Shared","workspace_id":"w","card_id":"c1"})).unwrap()).await.unwrap();
+    assert_eq!(n::links(&s,"owner",&private.id).await.unwrap().len(),1);
+    let filter = || serde_json::from_value(json!({"scope":"all","card_id":"c1"})).unwrap();
+    assert_eq!(n::list(&s,"owner",filter()).await.unwrap().len(),2);
+    let viewer = n::list(&s,"viewer",filter()).await.unwrap();
+    assert_eq!(viewer.len(),1); assert_eq!(viewer[0].id,shared.id); assert!(!viewer[0].can_edit);
+    assert!(n::list(&s,"other",filter()).await.is_err());
+    assert!(n::list(&s,"owner",serde_json::from_value(json!({"scope":"all","card_id":"missing"})).unwrap()).await.is_err());
+    sqlx::query("UPDATE projects SET visibility='private' WHERE id='p'").execute(&s.pool).await.unwrap();
+    assert!(n::list(&s,"member",filter()).await.is_err());
+    assert_eq!(n::list(&s,"owner",filter()).await.unwrap().len(),2);
+    n::link(&s,"owner",&shared.id,"c1",true).await.unwrap();
+    assert_eq!(n::list(&s,"owner",filter()).await.unwrap().len(),1);
+    assert!(n::get(&s,"owner",&shared.id).await.is_ok());
+    assert_eq!(sqlx::query_scalar::<_,i64>("SELECT count(*) FROM cards").fetch_one(&s.pool).await.unwrap(),2);
+}
+
+#[tokio::test]
+async fn notes_create_with_task_validates_before_writing_and_preserves_links_in_trash() {
+    use crate::features::notes::service as n;
+    let s=fixture().await;
+    for (user, payload) in [
+        ("other",json!({"title":"Blocked","card_id":"c1"})),
+        ("viewer",json!({"title":"Blocked","workspace_id":"w","card_id":"c1"})),
+        ("owner",json!({"title":"Blocked","card_id":"missing"})),
+    ] {
+        assert!(n::create(&s,user,serde_json::from_value(payload).unwrap()).await.is_err());
+    }
+    assert_eq!(sqlx::query_scalar::<_,i64>("SELECT count(*) FROM notes").fetch_one(&s.pool).await.unwrap(),0);
+    sqlx::query("INSERT INTO workspaces(id,name,slug,owner_id,created_at,updated_at) VALUES('w2','Other workspace','w2','owner','now','now')").execute(&s.pool).await.unwrap();
+    sqlx::query("INSERT INTO workspace_members(id,workspace_id,user_id,role,joined_at) VALUES('w2-owner','w2','owner','owner','now')").execute(&s.pool).await.unwrap();
+    assert!(n::create(&s,"owner",serde_json::from_value(json!({"title":"Wrong workspace","workspace_id":"w2","card_id":"c1"})).unwrap()).await.is_err());
+    assert_eq!(sqlx::query_scalar::<_,i64>("SELECT count(*) FROM notes").fetch_one(&s.pool).await.unwrap(),0);
+    let note=n::create(&s,"viewer",serde_json::from_value(json!({"title":"My context","card_id":"c1"})).unwrap()).await.unwrap();
+    n::update(&s,"viewer",&note.id,serde_json::from_value(json!({"version":1,"trashed":true})).unwrap()).await.unwrap();
+    let filter=||serde_json::from_value(json!({"scope":"all","card_id":"c1"})).unwrap();
+    assert!(n::list(&s,"viewer",filter()).await.unwrap().is_empty());
+    assert_eq!(n::links(&s,"viewer",&note.id).await.unwrap().len(),1);
+    n::update(&s,"viewer",&note.id,serde_json::from_value(json!({"version":2,"trashed":false})).unwrap()).await.unwrap();
+    assert_eq!(n::list(&s,"viewer",filter()).await.unwrap().len(),1);
+}

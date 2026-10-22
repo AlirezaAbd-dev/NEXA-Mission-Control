@@ -46,6 +46,14 @@ pub async fn list(s: &AppState, u: &str, r: ListNotes) -> Result<Vec<Note>, AppE
             }
             None
         }
+        "all" => {
+            if r.workspace_id.is_some() {
+                return Err(AppError::Validation(
+                    "All notes cannot be filtered to a workspace".into(),
+                ));
+            }
+            None
+        }
         "workspace" => Some(
             r.workspace_id
                 .as_deref()
@@ -58,22 +66,22 @@ pub async fn list(s: &AppState, u: &str, r: ListNotes) -> Result<Vec<Note>, AppE
             "Search must be at most 200 characters".into(),
         ));
     }
-    let can_edit = if let Some(w) = workspace {
-        workspace_role(s, u, w).await? != "viewer"
-    } else {
-        true
-    };
-    let mut notes = repo::list(
+    if let Some(w) = workspace {
+        workspace_role(s, u, w).await?;
+    }
+    if let Some(card) = &r.card_id {
+        crate::features::card::service::CardService::get_by_id(s, card, u).await?;
+    }
+    let notes = repo::list(
         &s.pool,
         u,
         workspace,
+        scope == "all",
+        r.card_id.as_deref(),
         r.q.as_deref(),
         r.trash.unwrap_or(false),
     )
     .await?;
-    for n in &mut notes {
-        n.can_edit = can_edit;
-    }
     Ok(notes)
 }
 pub async fn create(s: &AppState, u: &str, mut r: CreateNote) -> Result<Note, AppError> {
@@ -85,6 +93,22 @@ pub async fn create(s: &AppState, u: &str, mut r: CreateNote) -> Result<Note, Ap
             return Err(AppError::Forbidden(
                 "Your workspace role cannot create shared notes".into(),
             ));
+        }
+    }
+    if let Some(card) = &r.card_id {
+        let task = crate::features::card::service::CardService::get_by_id(s, card, u).await?;
+        if let Some(w) = &r.workspace_id {
+            let project = crate::features::project::repository::ProjectRepository::find_by_id(
+                &s.pool,
+                &task.project_id,
+            )
+            .await?
+            .ok_or_else(|| AppError::NotFound("Project not found".into()))?;
+            if project.workspace_id != *w {
+                return Err(AppError::Validation(
+                    "Link a task from this workspace".into(),
+                ));
+            }
         }
     }
     let id = repo::create(&s.pool, u, &r).await?;

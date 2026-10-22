@@ -1,7 +1,7 @@
 use super::dto::*;
 use crate::error::AppError;
 use sqlx::{QueryBuilder, Sqlite, SqlitePool};
-const FIELDS:&str="n.id,n.owner_id,n.workspace_id,n.created_by,u.display_name AS author_name,n.title,n.pinned,n.version,n.deleted_at,n.created_at,n.updated_at,0 AS can_edit";
+const FIELDS:&str="n.id,n.owner_id,n.workspace_id,(SELECT name FROM workspaces WHERE id=n.workspace_id) AS workspace_name,n.created_by,u.display_name AS author_name,n.title,n.pinned,n.version,n.deleted_at,n.created_at,n.updated_at,0 AS can_edit";
 pub async fn get(pool: &SqlitePool, id: &str) -> Result<Option<Note>, AppError> {
     Ok(sqlx::query_as(&format!(
         "SELECT {FIELDS},n.body FROM notes n LEFT JOIN users u ON u.id=n.created_by WHERE n.id=?"
@@ -14,16 +14,32 @@ pub async fn list(
     pool: &SqlitePool,
     user: &str,
     workspace: Option<&str>,
+    all: bool,
+    card: Option<&str>,
     q: Option<&str>,
     trash: bool,
 ) -> Result<Vec<Note>, AppError> {
+    let fields = FIELDS.replace(
+        "0 AS can_edit",
+        "CASE WHEN n.owner_id IS NOT NULL OR wm.role <> 'viewer' THEN 1 ELSE 0 END AS can_edit",
+    );
     let mut sql = QueryBuilder::<Sqlite>::new(format!(
-        "SELECT {FIELDS},NULL AS body FROM notes n LEFT JOIN users u ON u.id=n.created_by WHERE "
+        "SELECT {fields},NULL AS body FROM notes n LEFT JOIN users u ON u.id=n.created_by LEFT JOIN workspace_members wm ON wm.workspace_id=n.workspace_id AND wm.user_id="
     ));
-    if let Some(ws) = workspace {
+    sql.push_bind(user).push(" WHERE ");
+    if all {
+        sql.push("(n.owner_id=")
+            .push_bind(user)
+            .push(" OR wm.user_id IS NOT NULL)");
+    } else if let Some(ws) = workspace {
         sql.push("n.workspace_id=").push_bind(ws);
     } else {
         sql.push("n.owner_id=").push_bind(user);
+    }
+    if let Some(card) = card {
+        sql.push(" AND EXISTS(SELECT 1 FROM note_links l WHERE l.note_id=n.id AND l.card_id=")
+            .push_bind(card)
+            .push(")");
     }
     sql.push(if trash {
         " AND n.deleted_at IS NOT NULL"
@@ -42,8 +58,17 @@ pub async fn list(
 pub async fn create(pool: &SqlitePool, user: &str, r: &CreateNote) -> Result<String, AppError> {
     let id = uuid::Uuid::now_v7().to_string();
     let now = chrono::Utc::now().to_rfc3339();
+    let mut tx = pool.begin().await?;
     sqlx::query("INSERT INTO notes(id,owner_id,workspace_id,created_by,title,body,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)")
- .bind(&id).bind(if r.workspace_id.is_none(){Some(user)}else{None}).bind(&r.workspace_id).bind(user).bind(&r.title).bind(&r.body).bind(&now).bind(&now).execute(pool).await?;
+ .bind(&id).bind(if r.workspace_id.is_none(){Some(user)}else{None}).bind(&r.workspace_id).bind(user).bind(&r.title).bind(&r.body).bind(&now).bind(&now).execute(&mut *tx).await?;
+    if let Some(card) = &r.card_id {
+        sqlx::query("INSERT INTO note_links(note_id,card_id) VALUES(?,?)")
+            .bind(&id)
+            .bind(card)
+            .execute(&mut *tx)
+            .await?;
+    }
+    tx.commit().await?;
     Ok(id)
 }
 pub async fn update(pool: &SqlitePool, note: &Note, r: &UpdateNote) -> Result<(), AppError> {

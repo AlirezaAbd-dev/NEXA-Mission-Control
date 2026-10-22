@@ -114,3 +114,9 @@ Added Notes to the workspace sidebar and command palette, with private personal 
 Notes reuse the rich-text editor with RTL/LTR, autosave, full-text search, pinning, task links, and trash/restore. Version checks prevent silent overwrites, with retry, reload, and personal-copy recovery. Private-project task links remain permission-filtered. Personal events are owner-scoped; shared events refresh workspace queries without broadcasting content. The additive migration applies on startup; deploy the API before the client. See [Notes documentation](NOTES.md) for access, API, rollout, and limitations.
 
 Validation: all 54 backend tests and 19 frontend tests pass, as do the production build and lint (warnings remain). Browser checks against an isolated database verified saving, task links, trash/restore, concurrent-change recovery, and mobile navigation without horizontal overflow. No external keys or new dependencies are required.
+
+### All notes and task backlinks
+
+The default All tab combines personal notes with notes from all accessible workspaces; scope icons and workspace names distinguish each row. Personal/current-workspace tabs and Trash remain independent filters. Tasks now show Linked notes, with open, attach, create, and unlink actions. Creation validates task access and saves the note plus link atomically. Personal privacy, workspace roles, project/task visibility, trash restoration, and membership revocation remain enforced by the API. Existing notes and links are preserved; no migration or external key is needed. These remain shared features across all business activities, with no customer-AI changes. Deploy the additive API before the client.
+
+Validation: 57 backend tests, 19 frontend tests, production build, and lint pass (warnings remain). Isolated browser checks verify scope indicators, task unlink/reattach, create-and-open, and responsive 390 px controls.

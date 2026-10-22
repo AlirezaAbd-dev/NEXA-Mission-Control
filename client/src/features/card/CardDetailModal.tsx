@@ -1,4 +1,5 @@
 import { CardSubtasks } from "./CardSubtasks";
+import { CardNotes } from "./CardNotes";
 import React from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
@@ -85,6 +86,7 @@ export const CardDetailModal: React.FC = () => {
               <CardChecklists cardId={card.id} projectId={card.project_id} />
               <CardAttachments card={card} projectId={card.project_id} />
               <CardDependencies card={card} />
+              <CardNotes key={card.id} card={card} />
 
               {/* Tabs for Comments & Activity History */}
               <div className="space-y-4 pt-2 border-t border-slate-100 dark:border-[#183035]">

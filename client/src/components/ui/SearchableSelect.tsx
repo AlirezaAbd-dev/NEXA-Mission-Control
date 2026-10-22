@@ -345,7 +345,7 @@ export function SearchableSelect({
                   onChange={(e) => setSearch(e.target.value)}
                   aria-label="Search options"
                   placeholder={searchPlaceholder || "Search…"}
-                  className="h-9 w-full rounded-xl border border-slate-200/80 bg-slate-50/70 text-slate-900 ps-8 pe-3 text-xs sm:text-sm outline-none placeholder:text-slate-400 focus:border-teal-600 focus:bg-white dark:border-border/60 dark:bg-muted/30 dark:text-slate-100 dark:placeholder:text-muted-foreground/60 transition-colors"
+                  className="h-9 w-full rounded-xl border border-slate-200/80 bg-slate-50/70 text-slate-900 ps-8 pe-3 text-xs sm:text-sm outline-none placeholder:text-slate-400 focus:border-teal-600 focus:bg-white dark:border-border/60 dark:bg-muted/30 dark:text-slate-100 dark:placeholder:text-muted-foreground/60 dark:focus:border-teal-400 dark:focus:bg-[#0a1518] transition-colors"
                 />
               </div>
 
