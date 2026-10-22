@@ -12,6 +12,7 @@ import {
   Settings,
   LayoutDashboard,
   Inbox,
+  NotebookPen,
   X,
   Zap,
   BarChart3,
@@ -215,6 +216,10 @@ export const Sidebar = () => {
               >
                 <Inbox className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
                 <span className="truncate">Planner & Work Hub</span>
+              </NavLink>
+              <NavLink to={currentWorkspace?.id ? `/w/${currentWorkspace.id}/notes` : "/notes"}
+                className={({ isActive }) => `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${isActive ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/25" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-[#132428]"}`}>
+                <NotebookPen className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" /><span>Notes</span>
               </NavLink>
             </div>
           </div>

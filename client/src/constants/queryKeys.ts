@@ -1,4 +1,11 @@
 export const QUERY_KEYS = {
+  notes: {
+    all: ["notes"] as const,
+    lists: ["notes", "list"] as const,
+    list: (filter: object) => ["notes", "list", filter] as const,
+    detail: (id: string) => ["notes", "detail", id] as const,
+    links: (id: string) => ["notes", "links", id] as const,
+  },
   productivity: {
     all: ["productivity"] as const,
     resource: (path: string) => ["productivity", path] as const,

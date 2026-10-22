@@ -1,4 +1,5 @@
 import { lazy } from "react";
+export const NotesPage = lazy(() => import("@/features/notes/NotesPage").then(m => ({ default: m.NotesPage })));
 export const LoginPage = lazy(() =>
   import("@/features/auth/LoginPage").then((m) => ({ default: m.LoginPage })),
 );

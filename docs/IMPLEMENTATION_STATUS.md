@@ -106,3 +106,11 @@ Restored the already-declared Tiptap 3.31.4 packages using the frozen pnpm lockf
 The editor now exposes LTR, RTL, and Auto controls for the current block or selected blocks, using Tiptap's built-in direction support with no additional dependencies. Direction is serialized in HTML `dir` attributes and restored when reopening content; English and Persian paragraphs can have independent directions. Selected state tracks editor selection changes. List indentation, quote borders, and empty-editor placeholders follow logical directions; automatic list items inherit their containing list direction to keep markers on the correct side.
 
 Validation: full frontend build and lint pass (existing warnings remain), and 19 frontend tests pass. Browser checks verified LTR/RTL controls, multi-block selection, undo, automatic Persian direction, serialized reload persistence, read-only rendering, and RTL list markers using a disposable editor preview.
+
+## Personal and workspace notes
+
+Added Notes to the workspace sidebar and command palette, with private personal notes across workspaces and shared workspace notes. The API enforces ownership and current workspace roles: viewers read shared notes, while other members can edit them. Eligibility is shared across all business activities, with no customer-AI or sales behavior changes.
+
+Notes reuse the rich-text editor with RTL/LTR, autosave, full-text search, pinning, task links, and trash/restore. Version checks prevent silent overwrites, with retry, reload, and personal-copy recovery. Private-project task links remain permission-filtered. Personal events are owner-scoped; shared events refresh workspace queries without broadcasting content. The additive migration applies on startup; deploy the API before the client. See [Notes documentation](NOTES.md) for access, API, rollout, and limitations.
+
+Validation: all 54 backend tests and 19 frontend tests pass, as do the production build and lint (warnings remain). Browser checks against an isolated database verified saving, task links, trash/restore, concurrent-change recovery, and mobile navigation without horizontal overflow. No external keys or new dependencies are required.

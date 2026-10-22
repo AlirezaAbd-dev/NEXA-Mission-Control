@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
+import { useNavigate } from "react-router";
 import { Modal, Input, Button } from "@/components/ui";
 import { useUiStore } from "@/stores/ui.store";
 import { useSearch } from "@/hooks/search/useSearch";
 import { PriorityBadge } from "./PriorityBadge";
 import { apiError } from "@/lib/apiError";
 export function CommandPalette() {
+  const navigate = useNavigate();
   const isOpen = useUiStore((s) => s.commandPaletteOpen),
     setOpen = useUiStore((s) => s.setCommandPaletteOpen),
     openCard = useUiStore((s) => s.openCardModal);
@@ -34,6 +36,7 @@ export function CommandPalette() {
       size="xl"
     >
       <div className="space-y-3">
+        <Button size="sm" variant="outline" onClick={() => { setOpen(false); navigate("/notes"); }}>Open Notes · personal and workspace notebooks</Button>
         <div className="flex gap-2 items-center">
           <Search size={18} className="text-slate-500" />
           <Input

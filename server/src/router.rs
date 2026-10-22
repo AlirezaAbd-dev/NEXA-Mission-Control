@@ -26,6 +26,7 @@ pub fn create_router(state: AppState) -> Router {
     let api_v1 = Router::new()
         .route("/health", get(|| async { Json(serde_json::json!({ "status": "ok", "app": "Mission Control" })) }))
         .nest("/localops",features::localops::router())
+        .nest("/notes",features::notes::router())
         .nest("/productivity",features::productivity::router())
         .nest("/realtime", features::realtime::router())
         .nest("/enterprise", features::enterprise::router())

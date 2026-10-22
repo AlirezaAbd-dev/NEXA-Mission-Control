@@ -2052,3 +2052,87 @@ async fn workspace_and_project_update_and_delete_permissions() {
         crate::features::workspace::service::WorkspaceService::delete(&s, "w", "owner").await;
     assert!(ws_del_ok.is_ok());
 }
+
+#[tokio::test]
+async fn notes_personal_privacy_and_workspace_roles_are_enforced() {
+ use crate::features::notes::{service as n,dto::*};
+ let s=fixture().await;
+ let personal=n::create(&s,"owner",serde_json::from_value(json!({"title":"Private idea","body":"<p dir=\"rtl\">یادداشت خصوصی</p>","owner_id":"member"})).unwrap()).await.unwrap();
+ assert_eq!(personal.owner_id.as_deref(),Some("owner"));
+ assert!(n::get(&s,"member",&personal.id).await.is_err());
+ assert!(n::list(&s,"member",ListNotes::default()).await.unwrap().is_empty());
+ assert_eq!(n::list(&s,"owner",ListNotes::default()).await.unwrap().len(),1);
+ let shared=n::create(&s,"owner",serde_json::from_value(json!({"workspace_id":"w","title":"Team notes","body":"Shared context"})).unwrap()).await.unwrap();
+ assert!(n::get(&s,"viewer",&shared.id).await.unwrap().can_edit==false);
+ assert!(n::get(&s,"member",&shared.id).await.unwrap().can_edit);
+ assert!(n::get(&s,"other",&shared.id).await.is_err());
+ for user in ["viewer","other"] {
+  assert!(n::create(&s,user,serde_json::from_value(json!({"workspace_id":"w","title":"Blocked"})).unwrap()).await.is_err());
+  assert!(n::update(&s,user,&shared.id,serde_json::from_value(json!({"version":1,"body":"Blocked"})).unwrap()).await.is_err());
+  assert!(n::update(&s,user,&shared.id,serde_json::from_value(json!({"version":1,"trashed":true})).unwrap()).await.is_err());
+ }
+ assert!(n::list(&s,"owner",serde_json::from_value(json!({"scope":"personal","workspace_id":"w"})).unwrap()).await.is_err());
+}
+
+#[tokio::test]
+async fn notes_version_conflicts_search_pin_trash_and_restore_preserve_content() {
+ use crate::features::notes::{service as n,dto::*};
+ let s=fixture().await;
+ let original=n::create(&s,"owner",serde_json::from_value(json!({"workspace_id":"w","title":"  Release notebook  ","body":"<p dir=\"rtl\">برنامه پروژه</p>"})).unwrap()).await.unwrap();
+ assert_eq!(original.title,"Release notebook");
+ let updated=n::update(&s,"member",&original.id,serde_json::from_value(json!({"version":1,"body":"<p dir=\"rtl\">برنامه انتشار</p>","pinned":true})).unwrap()).await.unwrap();
+ assert_eq!(updated.version,2);
+ assert!(n::update(&s,"owner",&original.id,serde_json::from_value(json!({"version":1,"body":"stale overwrite"})).unwrap()).await.is_err());
+ assert_eq!(n::get(&s,"owner",&original.id).await.unwrap().body,updated.body);
+ let found=n::list(&s,"viewer",serde_json::from_value(json!({"scope":"workspace","workspace_id":"w","q":"انتشار"})).unwrap()).await.unwrap();
+ assert_eq!(found.len(),1);assert!(found[0].body.is_none());assert!(found[0].pinned);
+ let trashed=n::update(&s,"member",&original.id,serde_json::from_value(json!({"version":2,"trashed":true})).unwrap()).await.unwrap();
+ assert!(trashed.deleted_at.is_some());
+ let list:ListNotes=serde_json::from_value(json!({"scope":"workspace","workspace_id":"w"})).unwrap();
+ assert!(n::list(&s,"owner",list).await.unwrap().is_empty());
+ assert_eq!(n::list(&s,"owner",serde_json::from_value(json!({"scope":"workspace","workspace_id":"w","trash":true})).unwrap()).await.unwrap().len(),1);
+ assert!(n::update(&s,"owner",&original.id,serde_json::from_value(json!({"version":3,"body":"bad"})).unwrap()).await.is_err());
+ assert!(n::update(&s,"viewer",&original.id,serde_json::from_value(json!({"version":3,"trashed":false})).unwrap()).await.is_err());
+ let restored=n::update(&s,"owner",&original.id,serde_json::from_value(json!({"version":3,"trashed":false})).unwrap()).await.unwrap();
+ assert!(restored.deleted_at.is_none());assert_eq!(restored.body,updated.body);
+ for q in ["quote \" test","*","-","برنامه"] {
+  assert!(n::list(&s,"owner",serde_json::from_value(json!({"scope":"workspace","workspace_id":"w","q":q})).unwrap()).await.is_ok());
+ }
+}
+
+#[tokio::test]
+async fn notes_task_links_hide_private_projects_and_do_not_change_tasks() {
+ use crate::features::notes::service as n;
+ let s=fixture().await;
+ sqlx::query("UPDATE projects SET visibility='private' WHERE id='p'").execute(&s.pool).await.unwrap();
+ let note=n::create(&s,"owner",serde_json::from_value(json!({"workspace_id":"w","title":"Team"})).unwrap()).await.unwrap();
+ n::link(&s,"owner",&note.id,"c1",false).await.unwrap();
+ assert_eq!(n::links(&s,"owner",&note.id).await.unwrap().len(),1);
+ assert!(n::links(&s,"member",&note.id).await.unwrap().is_empty());
+ assert!(n::link(&s,"member",&note.id,"c2",false).await.is_err());
+ assert!(n::link(&s,"viewer",&note.id,"c1",true).await.is_err());
+ assert!(n::links(&s,"other",&note.id).await.is_err());
+ n::link(&s,"owner",&note.id,"c1",true).await.unwrap();
+ assert!(n::links(&s,"owner",&note.id).await.unwrap().is_empty());
+ assert_eq!(sqlx::query_scalar::<_,i64>("SELECT count(*) FROM cards").fetch_one(&s.pool).await.unwrap(),2);
+}
+
+#[tokio::test]
+async fn notes_http_authentication_privacy_and_realtime_payloads() {
+ use axum::{body::{Body,to_bytes},http::Request};use tower::ServiceExt;
+ let s=fixture().await;let app=crate::router::create_router(s.clone());let mut events=s.changes.subscribe();
+ let response=app.clone().oneshot(Request::builder().uri("/api/v1/notes").body(Body::empty()).unwrap()).await.unwrap();
+ assert_eq!(response.status(),401);
+ let claims=crate::extractors::auth::Claims{sub:"owner".into(),email:"owner@test.local".into(),role:"member".into(),exp:(chrono::Utc::now().timestamp()+60)as usize};
+ let token=jsonwebtoken::encode(&jsonwebtoken::Header::default(),&claims,&jsonwebtoken::EncodingKey::from_secret(b"test")).unwrap();
+ let response=app.clone().oneshot(Request::builder().method("POST").uri("/api/v1/notes").header("authorization",format!("Bearer {token}")).header("content-type","application/json").body(Body::from(r#"{"title":"Personal HTTP","body":"secret"}"#)).unwrap()).await.unwrap();
+ assert_eq!(response.status(),200);
+ let data:serde_json::Value=serde_json::from_slice(&to_bytes(response.into_body(),1024*1024).await.unwrap()).unwrap();
+ let event=events.try_recv().unwrap();assert_eq!(event.user_id.as_deref(),Some("owner"));assert_eq!(event.kind,"notes_changed");
+ let claims=crate::extractors::auth::Claims{sub:"member".into(),email:"member@test.local".into(),role:"owner".into(),exp:(chrono::Utc::now().timestamp()+60)as usize};
+ let token=jsonwebtoken::encode(&jsonwebtoken::Header::default(),&claims,&jsonwebtoken::EncodingKey::from_secret(b"test")).unwrap();
+ for method in ["GET","PUT"] {
+  let response=app.clone().oneshot(Request::builder().method(method).uri(format!("/api/v1/notes/{}",data["id"].as_str().unwrap())).header("authorization",format!("Bearer {token}")).header("content-type","application/json").body(Body::from(r#"{"version":1,"title":"Stolen"}"#)).unwrap()).await.unwrap();
+  assert_eq!(response.status(),404);
+ }
+}

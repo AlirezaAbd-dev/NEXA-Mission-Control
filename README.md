@@ -120,6 +120,7 @@ volumes:
 - **Custom Attributes & Fields**: Text, numbers, dropdowns, dates, and checkboxes tailored to your team's workflow.
 - **Card Timers & Time Tracking**: Built-in stopwatch timers and manual work log sheets.
 - **Collaboration**: Mentions, watchers, upvoting, file attachments with image preview, and bidirectional task dependencies.
+- **[Notes](docs/NOTES.md)**: Private personal notes and shared workspace notebooks, with rich text, RTL/LTR, autosave, search, pinning, task links, and recoverable trash.
 - **Archive & Restore**: Safe soft-deletion with instant search, preview, and one-click board restoration.
 
 ### ⚡ Enterprise Power, Built Locally

@@ -12,7 +12,9 @@ import { useUiStore } from "./stores/ui.store";
 
 const queryClient = new QueryClient({
   mutationCache: new MutationCache({
-    onError: (error) => useUiStore.getState().setMutationError(apiError(error)),
+    onError: (error, _variables, _context, mutation) => {
+      if (!mutation.options.meta?.handlesError) useUiStore.getState().setMutationError(apiError(error));
+    },
   }),
   defaultOptions: {
     queries: {

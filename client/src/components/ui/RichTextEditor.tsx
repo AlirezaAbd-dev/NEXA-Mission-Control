@@ -63,6 +63,7 @@ export interface RichTextEditorProps {
   onImageUpload?: (file: File) => Promise<string>;
   minHeight?: string;
   className?: string;
+  ariaLabel?: string;
 }
 
 const COLOR_PALETTE = [
@@ -85,6 +86,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   onImageUpload,
   minHeight = "180px",
   className,
+  ariaLabel = "Rich text content",
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -188,6 +190,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
     editorProps: {
       attributes: {
         class: "tiptap-content focus:outline-none min-h-[160px]",
+        "aria-label": ariaLabel,
       },
       handleDrop: (view, event, _slice, moved) => {
         if (!moved && event.dataTransfer && event.dataTransfer.files?.length > 0) {
