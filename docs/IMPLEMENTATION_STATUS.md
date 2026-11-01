@@ -1,5 +1,13 @@
 # Enterprise implementation report
 
+## Timer clock synchronization fix
+
+Time tracking is shared across all business activities, with existing API permissions and ownership unchanged. Active-timer responses now include `server_now` alongside the persisted `started_at`. The client derives elapsed duration from those two server timestamps, anchors it to `performance.now()` on receipt, and advances it without using the computer's wall clock. Polls and returning to the page re-anchor running sessions. Initial loading/synchronization failures disable the toggle and offer retry instead of treating an unknown timer as stopped.
+
+Existing timer starts, manual entries, historical logs, and server-side stop/rounding behavior are preserved. No migration or external dependency is needed. Deploy the API before the client because the new client requires the server timestamp; old clients accept the additive response field. This changes no customer-AI, sales, subscription, or business-activity gating.
+
+Regression tests cover browser clocks eleven minutes ahead/behind, clock changes during a session, reload/poll continuation, timezone-offset timestamps, invalid responses, future-start clamping, fresh/resumed server responses, user isolation, and unchanged time-log history. Full validation passes 62 backend tests, 22 frontend tests, production build, and lint (existing warnings remain).
+
 Implemented on `feature/enterprise-roadmap` against the original enterprise roadmap. The original plan remains the requirements reference; this report records the delivered scope.
 
 | Phase | Delivered behavior |

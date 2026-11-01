@@ -1,5 +1,7 @@
 import { apiClient } from './client';
 import type { TimeLog, ActiveTimer } from '@/types';
+import { anchorTimer } from '@/lib/timerClock';
+type ActiveTimerPayload = Omit<ActiveTimer, 'elapsed_ms' | 'received_at'>;
 
 export const timeLogApi = {
   list: async (cardId: string): Promise<TimeLog[]> => {
@@ -17,13 +19,13 @@ export const timeLogApi = {
   },
 
   getActiveTimer: async (cardId: string): Promise<ActiveTimer | null> => {
-    const res = await apiClient.get<ActiveTimer | null>('/time-logs/timer/active', { params: { card_id: cardId } });
-    return res.data;
+    const res = await apiClient.get<ActiveTimerPayload | null>('/time-logs/timer/active', { params: { card_id: cardId } });
+    return res.data ? { ...res.data, ...anchorTimer(res.data, performance.now()) } : null;
   },
 
   startTimer: async (cardId: string, description?: string): Promise<ActiveTimer> => {
-    const res = await apiClient.post<ActiveTimer>('/time-logs/timer/start', { card_id: cardId, description });
-    return res.data;
+    const res = await apiClient.post<ActiveTimerPayload>('/time-logs/timer/start', { card_id: cardId, description });
+    return { ...res.data, ...anchorTimer(res.data, performance.now()) };
   },
 
   stopTimer: async (cardId: string, description?: string): Promise<TimeLog | null> => {

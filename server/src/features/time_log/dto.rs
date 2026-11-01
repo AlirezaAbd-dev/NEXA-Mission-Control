@@ -39,5 +39,6 @@ pub struct ActiveTimerResponse {
     pub card_id: String,
     pub user_id: String,
     pub started_at: String,
+    pub server_now: String,
     pub description: Option<String>,
 }

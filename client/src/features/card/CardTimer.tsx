@@ -1,4 +1,5 @@
-import { useNow } from "@/hooks/useNow";
+import { timerElapsedSeconds } from "@/lib/timerClock";
+import { apiError } from "@/lib/apiError";
 import React, { useState, useEffect } from "react";
 import {
   Play,
@@ -28,23 +29,15 @@ interface CardTimerProps {
 
 export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
   const { data: logs = [] } = useTimeLogs(cardId);
-  const { data: activeTimer } = useActiveTimer(cardId);
+  const timerQuery = useActiveTimer(cardId);
+  const { data: activeTimer } = timerQuery;
   const startTimer = useStartTimer();
   const stopTimer = useStopTimer();
   const createTimeLog = useCreateTimeLog();
   const deleteTimeLog = useDeleteTimeLog();
 
-  const [tick, setTick] = useState(() => Date.now());
-  const now = useNow();
-  const elapsedSeconds = activeTimer?.started_at
-    ? Math.max(
-        0,
-        Math.floor(
-          (Math.max(tick, now) - new Date(activeTimer.started_at).getTime()) /
-            1000,
-        ),
-      )
-    : 0;
+  const [tick, setTick] = useState(() => performance.now());
+  const elapsedSeconds = activeTimer ? timerElapsedSeconds(activeTimer, tick) : 0;
   const [showManualLog, setShowManualLog] = useState(false);
   const [showLogHistory, setShowLogHistory] = useState(false);
   const [manualMinutes, setManualMinutes] = useState("");
@@ -52,7 +45,7 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
 
   useEffect(() => {
     if (!activeTimer?.started_at) return;
-    const timer = setInterval(() => setTick(Date.now()), 1000);
+    const timer = setInterval(() => setTick(performance.now()), 1000);
     return () => clearInterval(timer);
   }, [activeTimer?.started_at]);
 
@@ -112,6 +105,7 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
       </div>
 
       {/* Stopwatch Banner */}
+      {timerQuery.error && <div role="alert" className="text-xs text-danger space-y-2"><p>{apiError(timerQuery.error)}</p><Button variant="outline" size="sm" onClick={() => void timerQuery.refetch()}>Retry timer</Button></div>}
       <div
         className={`p-3 rounded-xl border transition-all ${
           activeTimer
@@ -136,6 +130,7 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
             size="sm"
             variant={activeTimer ? "danger" : "primary"}
             onClick={handleToggleTimer}
+            disabled={timerQuery.isLoading || !!timerQuery.error}
             isLoading={startTimer.isPending || stopTimer.isPending}
             className="h-8 text-xs font-medium cursor-pointer"
           >

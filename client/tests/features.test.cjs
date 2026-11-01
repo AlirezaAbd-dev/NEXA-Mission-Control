@@ -5,7 +5,7 @@ const test = require("node:test"),
   ts = require("typescript"),
   React = require("react"),
   render = require("react-dom/server").renderToStaticMarkup;
-function load(path) {
+function load(path, clock = Date) {
   const module = { exports: {} };
   const code = ts.transpileModule(fs.readFileSync(path, "utf8"), {
     compilerOptions: {
@@ -19,11 +19,41 @@ function load(path) {
     module,
     exports: module.exports,
     URL,
-    Date,
+    Date: clock,
     window: { location: { origin: "http://localhost:3000" } },
   });
   return module.exports;
 }
+
+test("new timers start at zero despite an eleven-minute browser clock offset or clock adjustment", () => {
+  const server = Date.parse("2026-11-01T10:00:00Z");
+  for (const offset of [-660000, 660000]) {
+    let wallTime = server + offset;
+    class BrowserDate extends Date { static now() { return wallTime; } }
+    const { anchorTimer, timerElapsedSeconds } = load("src/lib/timerClock.ts", BrowserDate);
+    const timer = anchorTimer({ started_at: new Date(server).toISOString(), server_now: new Date(server).toISOString() }, 100);
+    assert.equal(timerElapsedSeconds(timer, 90), 0);
+    assert.equal(timerElapsedSeconds(timer, 100), 0);
+    assert.equal(timerElapsedSeconds(timer, 5100), 5);
+    wallTime += 3600000;
+    assert.equal(timerElapsedSeconds(timer, 6100), 6);
+  }
+});
+test("timer reloads and polls preserve server elapsed duration with timezone offsets", () => {
+  const { anchorTimer, timerElapsedSeconds } = load("src/lib/timerClock.ts");
+  const timer = anchorTimer({ started_at: "2026-11-01T13:30:00+03:30", server_now: "2026-11-01T10:11:00Z" }, 900);
+  assert.equal(timerElapsedSeconds(timer, 900), 660);
+  assert.equal(timerElapsedSeconds(timer, 2900), 662);
+  const polled = anchorTimer({ started_at: "2026-11-01T10:00:00Z", server_now: "2026-11-01T10:11:10Z" }, 10900);
+  assert.equal(timerElapsedSeconds(polled, 11900), 671);
+});
+test("timer synchronization rejects missing timestamps and clamps future starts", () => {
+  const { anchorTimer, timerElapsedSeconds } = load("src/lib/timerClock.ts");
+  assert.throws(() => anchorTimer({ started_at: "invalid", server_now: "invalid" }, 0), /synchronize/);
+  assert.throws(() => anchorTimer({ started_at: "2026-11-01T10:00:00Z" }, 0), /synchronize/);
+  const timer = anchorTimer({ started_at: "2026-11-01T10:11:00Z", server_now: "2026-11-01T10:00:00Z" }, 0);
+  assert.equal(timerElapsedSeconds(timer, 0), 0);
+});
 const dates = load("src/features/views/boardDates.ts"),
   { Markdown } = load("src/components/common/Markdown.tsx");
 test("calendar rescheduling preserves multi-day duration across months", () => {

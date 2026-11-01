@@ -129,6 +129,9 @@ export interface ActiveTimer {
   card_id: string;
   user_id: string;
   started_at: string;
+  server_now: string;
+  elapsed_ms: number;
+  received_at: number;
   description?: string | null;
 }
 

@@ -2305,3 +2305,20 @@ async fn dashboard_http_authentication_workspace_switching_and_templates() {
         assert_eq!(response.status(),status);
     }
 }
+
+#[tokio::test]
+async fn timers_report_server_time_for_new_and_resumed_sessions_without_changing_history() {
+    use crate::features::time_log::{dto::StartTimerRequest, service::TimeLogService};
+    let s=fixture().await;
+    let started=TimeLogService::start_timer(&s,"member",StartTimerRequest{card_id:"c1".into(),description:None}).await.unwrap();
+    let delta=(chrono::DateTime::parse_from_rfc3339(&started.server_now).unwrap()-chrono::DateTime::parse_from_rfc3339(&started.started_at).unwrap()).num_seconds();
+    assert!((0..=1).contains(&delta));
+    let old=(chrono::Utc::now()-chrono::Duration::minutes(11)).to_rfc3339();
+    sqlx::query("UPDATE active_timers SET started_at=? WHERE card_id='c1'").bind(&old).execute(&s.pool).await.unwrap();
+    let resumed=TimeLogService::get_active_timer(&s,"c1","member").await.unwrap().unwrap();
+    assert_eq!(resumed.started_at,old);
+    let elapsed=(chrono::DateTime::parse_from_rfc3339(&resumed.server_now).unwrap()-chrono::DateTime::parse_from_rfc3339(&resumed.started_at).unwrap()).num_seconds();
+    assert!((660..=661).contains(&elapsed));
+    assert!(TimeLogService::get_active_timer(&s,"c1","owner").await.unwrap().is_none());
+    assert_eq!(sqlx::query_scalar::<_,i64>("SELECT count(*) FROM time_logs").fetch_one(&s.pool).await.unwrap(),0);
+}

@@ -102,6 +102,7 @@ impl TimeLogRepository {
                 card_id,
                 user_id,
                 started_at,
+                server_now: chrono::Utc::now().to_rfc3339(),
                 description,
             }
         }))
@@ -138,6 +139,7 @@ impl TimeLogRepository {
             card_id: card_id.to_string(),
             user_id: user_id.to_string(),
             started_at: started_at.to_string(),
+            server_now: chrono::Utc::now().to_rfc3339(),
             description: description.map(|s| s.to_string()),
         })
     }

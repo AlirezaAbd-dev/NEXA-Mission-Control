@@ -8,6 +8,7 @@ export const useActiveTimer = (cardId?: string | null) => {
     queryFn: () => timeLogApi.getActiveTimer(cardId!),
     enabled: !!cardId,
     refetchInterval: 10000, // Poll active timer status periodically
+    refetchOnWindowFocus: true, // Re-anchor to server time when returning from sleep/background.
   });
 };
 
