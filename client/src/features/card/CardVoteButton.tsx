@@ -21,7 +21,7 @@ export const CardVoteButton: React.FC<CardVoteButtonProps> = ({ card }) => {
       className={`text-xs px-2.5 py-1 rounded-lg border font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
         hasVoted
           ? 'bg-amber-500/15 border-amber-500/40 text-amber-600 dark:text-amber-400 font-semibold'
-          : 'bg-slate-100 dark:bg-[#132428] border-slate-200 dark:border-[#183035] text-slate-600 dark:text-slate-300 hover:border-amber-500/30 hover:text-amber-500'
+          : 'bg-slate-100 dark:bg-[#101117] border-slate-200 dark:border-white/[0.06] text-slate-600 dark:text-slate-300 hover:border-amber-500/30 hover:text-amber-500'
       }`}
       title={hasVoted ? 'Remove your vote' : 'Upvote / Kudos this card'}
     >

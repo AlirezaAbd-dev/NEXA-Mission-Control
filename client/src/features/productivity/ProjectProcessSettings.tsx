@@ -27,7 +27,7 @@ export function ProjectProcessSettings({ projectId }: { projectId: string }) {
   const update = (patch: ProductivityInput) =>
     setForm((f) => ({ ...f, ...patch }));
   return (
-    <section className="space-y-4 rounded-xl border p-5 border-slate-200 dark:border-[#183035]">
+    <section className="space-y-4 rounded-xl border p-5 border-slate-200 dark:border-white/[0.06]">
       <h2 className="font-semibold text-lg">
         Work types, workflows & request forms
       </h2>
@@ -79,7 +79,7 @@ export function ProjectProcessSettings({ projectId }: { projectId: string }) {
         ))}
       </div>
       {share && (
-        <div className="p-3 rounded-xl bg-teal-500/10">
+        <div className="p-3 rounded-xl bg-emerald-500/10">
           <p className="text-sm">
             Copy this form link now. Anyone with the link can submit a request.
           </p>

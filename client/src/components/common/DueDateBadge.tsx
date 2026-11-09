@@ -50,7 +50,7 @@ export const DueDateBadge: React.FC<DueDateBadgeProps> = ({
   }
 
   return (
-    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-medium bg-slate-100 dark:bg-[#132428] text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-[#183035]">
+    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-medium bg-slate-100 dark:bg-[#101117] text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/[0.06]">
       <Clock className="w-3 h-3" />
       {formatDate(dueDate)}
     </span>

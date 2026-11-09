@@ -33,7 +33,7 @@ export const Avatar = ({
   return (
     <div
       className={cn(
-        "relative inline-flex items-center justify-center rounded-full bg-teal-100 dark:bg-teal-950 text-teal-700 dark:text-teal-300 font-semibold overflow-hidden shrink-0 select-none border border-white dark:border-border shadow-xs",
+        "relative inline-flex items-center justify-center rounded-full bg-teal-100 dark:bg-teal-950 text-emerald-700 dark:text-emerald-300 font-semibold overflow-hidden shrink-0 select-none border border-white dark:border-border shadow-xs",
         sizeClasses[size],
         className,
       )}

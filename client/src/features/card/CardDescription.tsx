@@ -63,7 +63,7 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
     <div className="space-y-2.5">
       <div className="flex items-center justify-between text-sm font-semibold text-slate-900 dark:text-slate-100">
         <div className="flex items-center gap-2">
-          <AlignLeft className="w-4 h-4 text-teal-500" />
+          <AlignLeft className="w-4 h-4 text-emerald-500" />
           <span>Description</span>
         </div>
         {!isEditing && hasDescription && (
@@ -76,7 +76,7 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
             }}
             className="h-7 text-xs text-muted-foreground hover:text-foreground"
           >
-            <Edit3 className="w-3.5 h-3.5 mr-1 text-teal-500" />
+            <Edit3 className="w-3.5 h-3.5 mr-1 text-emerald-500" />
             Edit
           </Button>
         )}

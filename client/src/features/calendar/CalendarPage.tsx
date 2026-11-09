@@ -26,7 +26,7 @@ export function CalendarPage() {
           Could not load tasks. Please retry.
         </p>
       ) : isLoading || !board ? (
-        <div className="h-64 animate-pulse rounded-2xl bg-slate-200/50 dark:bg-[#132428]/60" />
+        <div className="h-64 animate-pulse rounded-2xl bg-slate-200/50 dark:bg-[#101117]/60" />
       ) : (
         <BoardCalendarView cards={cards} projectId={projectId} />
       )}

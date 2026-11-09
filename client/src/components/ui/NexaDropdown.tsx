@@ -98,8 +98,8 @@ export function DropdownTrigger({
       onClick={() => setOpen(!open)}
       className={cn(
         "inline-flex items-center gap-2 rounded-xl cursor-pointer border px-3 py-2 text-sm font-medium transition-all duration-200 outline-none shadow-2xs",
-        "border-slate-200/90 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50 focus-visible:ring-4 focus-visible:ring-teal-600/15",
-        "dark:border-white/10 dark:bg-black/35 dark:text-slate-100 dark:hover:border-white/20 dark:hover:bg-black/50 dark:focus-visible:ring-teal-500/20",
+        "border-slate-200/90 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50 focus-visible:ring-4 focus-visible:ring-emerald-600/15",
+        "dark:border-white/10 dark:bg-black/35 dark:text-slate-100 dark:hover:border-white/20 dark:hover:bg-black/50 dark:focus-visible:ring-emerald-500/20",
         "disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
@@ -263,7 +263,7 @@ export function DropdownContent({
         }}
         className={cn(
           "absolute top-0 start-0 z-50 min-w-44 rounded-xl border border-slate-200/90 bg-white/98 text-slate-900 shadow-xl shadow-slate-900/10",
-          "dark:border-white/12 dark:bg-[#06181b]/95 dark:text-slate-100 dark:shadow-[0_16px_40px_rgba(0,0,0,0.7)]",
+          "dark:border-white/12 dark:bg-[#101117]/95 dark:text-slate-100 dark:shadow-[0_16px_40px_rgba(0,0,0,0.7)]",
           "animate-in fade-in-50 zoom-in-95 duration-150 scrollbar-thin scrollbar-sidebar",
           className,
         )}
@@ -317,7 +317,7 @@ export function DropdownItem({
         isDanger
           ? "text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
           : selected
-            ? "bg-teal-50 font-semibold text-teal-700 dark:bg-teal-500/20 dark:text-teal-300"
+            ? "bg-teal-50 font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
             : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-white/8 dark:hover:text-white",
         disabled && "cursor-not-allowed opacity-50",
         className,
@@ -567,8 +567,8 @@ export function Select({
             size === "sm"
               ? "h-8.5 rounded-lg px-2.5 text-xs"
               : "h-11 rounded-xl sm:rounded-2xl px-3.5 sm:px-4 text-sm sm:text-base",
-            "border-slate-200/90 bg-white text-slate-900 hover:border-slate-300 focus-visible:border-teal-600 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-teal-600/15",
-            "dark:border-[#183035] dark:bg-[#070e10]/60 dark:text-slate-100 dark:hover:border-teal-500/30 dark:focus-visible:border-teal-400 dark:focus-visible:bg-[#0a1518] dark:focus-visible:ring-teal-500/20",
+            "border-slate-200/90 bg-white text-slate-900 hover:border-slate-300 focus-visible:border-emerald-600 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-emerald-600/15",
+            "dark:border-white/[0.06] dark:bg-[#070709]/60 dark:text-slate-100 dark:hover:border-emerald-500/30 dark:focus-visible:border-emerald-400 dark:focus-visible:bg-[#0b0c10] dark:focus-visible:ring-emerald-500/20",
             "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-muted/40",
             !selected && placeholder && "text-slate-400 dark:text-slate-500",
             error &&
@@ -613,7 +613,7 @@ export function Select({
                     role="listbox"
                     aria-labelledby={triggerId}
                     className={cn(
-                      "absolute z-50 max-h-64 w-full overflow-y-auto rounded-2xl border border-slate-200/90 bg-white/98 text-slate-900 p-1.5 shadow-2xl shadow-slate-900/10 dark:border-white/12 dark:bg-[#06181b]/98 dark:text-slate-100 dark:shadow-[0_16px_40px_rgba(0,0,0,0.7)] animate-in fade-in-50 zoom-in-95 scrollbar-thin scrollbar-sidebar",
+                      "absolute z-50 max-h-64 w-full overflow-y-auto rounded-2xl border border-slate-200/90 bg-white/98 text-slate-900 p-1.5 shadow-2xl shadow-slate-900/10 dark:border-white/12 dark:bg-[#101117]/98 dark:text-slate-100 dark:shadow-[0_16px_40px_rgba(0,0,0,0.7)] animate-in fade-in-50 zoom-in-95 scrollbar-thin scrollbar-sidebar",
                       coords.isUp ? "bottom-0 mb-2" : "top-0 mt-2",
                     )}
                   >
@@ -631,7 +631,7 @@ export function Select({
                               ? "px-2.5 py-1.5 text-xs"
                               : "px-3 py-2.5 text-sm",
                             value === opt.value
-                              ? "bg-teal-50 font-bold text-teal-700 dark:bg-teal-500/20 dark:text-teal-300"
+                              ? "bg-teal-50 font-bold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
                               : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-white/8 dark:hover:text-white",
                             opt.disabled && "cursor-not-allowed opacity-50",
                           )}

@@ -96,17 +96,17 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
   };
 
   return (
-    <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-[#183035]">
+    <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-white/[0.06]">
       <div className="flex items-center justify-between">
         <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-          <Sliders className="w-3.5 h-3.5 text-teal-500" />
+          <Sliders className="w-3.5 h-3.5 text-emerald-500" />
           Custom Fields
         </label>
         {!isCreatingField && (
           <button
             type="button"
             onClick={() => setIsCreatingField(true)}
-            className="text-[11px] font-medium text-teal-600 dark:text-teal-400 hover:text-teal-500 flex items-center gap-1 cursor-pointer transition-colors"
+            className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 flex items-center gap-1 cursor-pointer transition-colors"
           >
             <Plus className="w-3 h-3" />
             <span>Add Field</span>
@@ -118,7 +118,7 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
       {isCreatingField && (
         <form
           onSubmit={handleCreateFieldSubmit}
-          className="p-3 bg-slate-50 dark:bg-[#0d1a1d] border border-slate-200 dark:border-[#183035] rounded-xl space-y-2 animate-in fade-in duration-150"
+          className="p-3 bg-slate-50 dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] rounded-xl space-y-2 animate-in fade-in duration-150"
         >
           <div className="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
             New Project Field
@@ -246,14 +246,14 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
                     onClick={() => handleToggleCheckbox(def.id, current?.text)}
                     className={`flex items-center gap-2 p-2 rounded-lg border text-xs w-full transition-all cursor-pointer ${
                       current?.text === 'true'
-                        ? 'bg-teal-500/10 border-teal-500/40 text-teal-600 dark:text-teal-400 font-semibold'
-                        : 'bg-slate-50 dark:bg-[#0d1a1d] border-slate-200 dark:border-[#183035] text-slate-500'
+                        ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-600 dark:text-emerald-400 font-semibold'
+                        : 'bg-slate-50 dark:bg-[#0b0c10] border-slate-200 dark:border-white/[0.06] text-slate-500'
                     }`}
                   >
                     <div
                       className={`w-4 h-4 rounded border flex items-center justify-center ${
                         current?.text === 'true'
-                          ? 'bg-teal-500 border-teal-500 text-slate-950'
+                          ? 'bg-emerald-500 border-emerald-500 text-slate-950'
                           : 'border-slate-300 dark:border-border'
                       }`}
                     >

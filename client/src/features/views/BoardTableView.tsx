@@ -74,7 +74,7 @@ export function BoardTableView({
         </p>
       )}
       {selected.length > 0 && (
-        <div className="flex flex-wrap items-center gap-3 rounded-xl bg-teal-500/10 p-3">
+        <div className="flex flex-wrap items-center gap-3 rounded-xl bg-emerald-500/10 p-3">
           <CustomSelect
             className="w-48"
             placeholder="Move selected tasks"
@@ -122,9 +122,9 @@ export function BoardTableView({
           </Button>
         </div>
       )}
-      <div className="overflow-auto rounded-xl border border-slate-200 dark:border-[#183035] bg-white dark:bg-[#0d1a1d]">
+      <div className="overflow-auto rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10]">
         <table className="w-full min-w-[960px] text-start text-sm">
-          <thead className="bg-slate-50 dark:bg-[#132428] text-xs text-slate-500">
+          <thead className="bg-slate-50 dark:bg-[#101117] text-xs text-slate-500">
             <tr>
               <th className="p-3">
                 <Checkbox
@@ -160,7 +160,7 @@ export function BoardTableView({
             {visible.map((card) => (
               <tr
                 key={card.id}
-                className="border-t border-slate-100 dark:border-[#183035]"
+                className="border-t border-slate-100 dark:border-white/[0.06]"
               >
                 <td className="p-3">
                   <Checkbox
@@ -174,7 +174,7 @@ export function BoardTableView({
                     variant="ghost"
                     size="sm"
                     onClick={() => open(card.id)}
-                    className="text-teal-600 dark:text-teal-400"
+                    className="text-emerald-600 dark:text-emerald-400"
                   >
                     Open
                   </Button>

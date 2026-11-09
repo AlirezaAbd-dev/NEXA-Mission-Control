@@ -268,7 +268,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="font-semibold text-sm hover:bg-slate-200/60 dark:hover:bg-[#132428] rounded-xl px-2.5 py-1 text-slate-800 dark:text-slate-100"
+                  className="font-semibold text-sm hover:bg-slate-200/60 dark:hover:bg-white/[0.05] rounded-xl px-2.5 py-1 text-slate-800 dark:text-slate-100"
                   onClick={() =>
                     setCollapsed((ids) =>
                       ids.includes(lane.id)
@@ -277,11 +277,11 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                     )
                   }
                 >
-                  <span className="text-teal-500 font-bold mr-1.5">
+                  <span className="text-emerald-500 font-bold mr-1.5">
                     {collapsed.includes(lane.id) ? "▸" : "▾"}
                   </span>
                   <span>{lane.name}</span>
-                  <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-slate-100 dark:bg-[#132428] text-slate-600 dark:text-teal-400 font-mono font-medium border border-slate-200/80 dark:border-[#183035]">
+                  <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-slate-100 dark:bg-[#101117] text-slate-600 dark:text-emerald-400 font-mono font-medium border border-slate-200/80 dark:border-white/[0.06]">
                     {lane.cards.length}
                   </span>
                 </Button>
@@ -320,7 +320,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                       {isAddingColumn ? (
                         <form
                           onSubmit={handleAddColumn}
-                          className="p-3 bg-white dark:bg-[#0d1a1d] border border-slate-200/90 dark:border-[#183035] rounded-2xl shadow-sm space-y-2"
+                          className="p-3 bg-white dark:bg-[#0b0c10] border border-slate-200/90 dark:border-white/[0.06] rounded-2xl shadow-sm space-y-2"
                         >
                           <Input
                             value={newColumnName}

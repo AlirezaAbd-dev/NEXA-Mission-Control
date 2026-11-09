@@ -17,16 +17,16 @@ export const NexaLogo: React.FC<NexaLogoProps> = ({ className = '', size = 32 })
     >
       <defs>
         <linearGradient id="nexa-grad-main" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#2dd4bf" />
-          <stop offset="50%" stopColor="#0d9488" />
-          <stop offset="100%" stopColor="#042f2e" />
+          <stop offset="0%" stopColor="#34d399" />
+          <stop offset="50%" stopColor="#10b981" />
+          <stop offset="100%" stopColor="#064e3b" />
         </linearGradient>
         <linearGradient id="nexa-grad-accent" x1="64" y1="0" x2="0" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#5eead4" />
-          <stop offset="100%" stopColor="#0f766e" />
+          <stop offset="0%" stopColor="#6ee7b7" />
+          <stop offset="100%" stopColor="#059669" />
         </linearGradient>
         <filter id="nexa-glow" x="-10%" y="-10%" width="120%" height="120%" filterUnits="userSpaceOnUse">
-          <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#0d9488" floodOpacity="0.35" />
+          <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#10b981" floodOpacity="0.25" />
         </filter>
       </defs>
 
@@ -37,7 +37,7 @@ export const NexaLogo: React.FC<NexaLogoProps> = ({ className = '', size = 32 })
         width="52"
         height="52"
         rx="14"
-        fill="#0d1a1d"
+        fill="#0b0c10"
         stroke="url(#nexa-grad-main)"
         strokeWidth="2.5"
         filter="url(#nexa-glow)"
@@ -63,7 +63,7 @@ export const NexaLogo: React.FC<NexaLogoProps> = ({ className = '', size = 32 })
       />
 
       {/* Central Cyber Core Pulse Dot */}
-      <circle cx="32" cy="32" r="2.5" fill="#5eead4" />
+      <circle cx="32" cy="32" r="2.5" fill="#34d399" />
     </svg>
   );
 };

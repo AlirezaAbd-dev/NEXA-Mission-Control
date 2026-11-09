@@ -24,7 +24,7 @@ export function ViewTabs({ projectId }: { projectId: string }) {
   return (
     <nav
       aria-label="Project views"
-      className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-200/80 dark:border-[#183035] scrollbar-none shrink-0"
+      className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-slate-200/80 dark:border-white/[0.06] scrollbar-none shrink-0"
     >
       {tabs.map(({ key, title, icon: Icon }) => (
         <NavLink
@@ -33,8 +33,8 @@ export function ViewTabs({ projectId }: { projectId: string }) {
           className={({ isActive }) =>
             `flex items-center gap-2 rounded-xl px-3 py-1.5 text-xs font-semibold shrink-0 transition-all ${
               isActive
-                ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/25 shadow-2xs"
-                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-[#132428]"
+                ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 shadow-2xs"
+                : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-white/[0.05]"
             }`
           }
         >

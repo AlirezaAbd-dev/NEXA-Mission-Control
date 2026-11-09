@@ -53,22 +53,22 @@ export const NotificationBell = () => {
           />
 
           {/* Notification dropdown: fixed full-width ribbon on mobile, absolute popup on desktop */}
-          <div className="fixed inset-x-2.5 top-14 mt-1.5 sm:absolute sm:inset-x-auto sm:right-0 sm:top-auto sm:mt-2 w-auto sm:w-80 max-h-[min(520px,calc(100dvh-5rem))] bg-white dark:bg-[#0c181b] border border-slate-200/90 dark:border-[#183035] rounded-2xl shadow-2xl p-4 z-50 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-[#183035] shrink-0">
+          <div className="fixed inset-x-2.5 top-14 mt-1.5 sm:absolute sm:inset-x-auto sm:right-0 sm:top-auto sm:mt-2 w-auto sm:w-80 max-h-[min(520px,calc(100dvh-5rem))] bg-white dark:bg-[#0b0c10] border border-slate-200/90 dark:border-white/[0.06] rounded-2xl shadow-2xl p-4 z-50 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/[0.06] shrink-0">
               <h4 className="text-xs font-semibold text-slate-900 dark:text-slate-100">
                 Notifications ({unreadCount})
               </h4>
               {unreadCount > 0 && (
                 <button
                   onClick={() => markAllRead.mutate()}
-                  className="text-[11px] text-teal-600 dark:text-teal-400 hover:underline flex items-center gap-1 font-medium cursor-pointer"
+                  className="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 font-medium cursor-pointer"
                 >
                   <CheckCheck className="w-3.5 h-3.5" /> Mark all read
                 </button>
               )}
             </div>
 
-            <div className="flex-1 max-h-[min(380px,calc(100dvh-10rem))] overflow-y-auto divide-y divide-slate-100 dark:divide-[#183035] mt-2 pr-1">
+            <div className="flex-1 max-h-[min(380px,calc(100dvh-10rem))] overflow-y-auto divide-y divide-slate-100 dark:divide-white/[0.06] mt-2 pr-1">
               {notifications.length === 0 ? (
                 <p className="text-xs text-slate-400 text-center py-6">
                   No notifications
@@ -84,7 +84,7 @@ export const NotificationBell = () => {
                         setIsOpen(false);
                       }
                     }}
-                    className={`py-2 px-1.5 text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-[#132428] rounded-xl transition-colors ${
+                    className={`py-2 px-1.5 text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.05] rounded-xl transition-colors ${
                       !n.read_at
                         ? "font-medium text-slate-900 dark:text-slate-100"
                         : "text-slate-500 dark:text-slate-400"

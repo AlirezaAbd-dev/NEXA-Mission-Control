@@ -17,7 +17,7 @@ export function ProjectMembers({ projectId }: { projectId: string }) {
   const workspaceViewer =
     directory.find((m) => m.user_id === target)?.role === "viewer";
   return (
-    <section className="border rounded-xl p-5 space-y-3 border-slate-200 dark:border-[#183035]">
+    <section className="border rounded-xl p-5 space-y-3 border-slate-200 dark:border-white/[0.06]">
       <h2 className="font-semibold">Project members</h2>
       <p className="text-sm text-slate-500">
         Private projects require explicit membership. Workspace administrators

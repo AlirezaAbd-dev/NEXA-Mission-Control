@@ -12,7 +12,7 @@ export function AuditLog({ projectId }: { projectId: string }) {
     "audit",
   );
   return (
-    <section className="p-5 rounded-xl bg-white dark:bg-[#0d1a1d] border border-slate-200 dark:border-[#183035]">
+    <section className="p-5 rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06]">
       <h2 className="font-semibold mb-4">Security & activity audit</h2>
       {error && (
         <p role="alert" className="text-sm text-rose-500">
@@ -23,7 +23,7 @@ export function AuditLog({ projectId }: { projectId: string }) {
         {entries.map((e) => (
           <div
             key={e.id}
-            className="border-b border-slate-100 dark:border-[#183035] pb-3"
+            className="border-b border-slate-100 dark:border-white/[0.06] pb-3"
           >
             <p className="text-xs font-medium">
               {e.actor_name || "System"} ·{" "}

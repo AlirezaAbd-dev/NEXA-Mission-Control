@@ -77,7 +77,7 @@ export function BacklogPage() {
         </p>
       )}
       {active && (
-        <section className="p-5 rounded-xl border border-teal-500/30 bg-teal-500/10">
+        <section className="p-5 rounded-xl border border-emerald-500/30 bg-emerald-500/10">
           <h2 className="font-bold">{active.name} · Active sprint</h2>
           <p className="text-sm text-slate-500 mt-1">
             {active.goal} · Ends{" "}
@@ -106,9 +106,9 @@ export function BacklogPage() {
         return (
           <section
             key={group.id}
-            className="rounded-xl border border-slate-200 dark:border-[#183035] bg-white dark:bg-[#0d1a1d] overflow-visible"
+            className="rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10] overflow-visible"
           >
-            <div className="p-4 flex flex-wrap justify-between gap-3 bg-slate-50 dark:bg-[#132428] rounded-t-xl">
+            <div className="p-4 flex flex-wrap justify-between gap-3 bg-slate-50 dark:bg-[#101117] rounded-t-xl">
               <div>
                 <h2 className="font-semibold">{group.name}</h2>
                 <p className="text-xs text-slate-500 mt-1">
@@ -143,12 +143,12 @@ export function BacklogPage() {
               group.cards.map((c) => (
                 <div
                   key={c.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 p-3 border-t border-slate-100 dark:border-[#183035] hover:bg-slate-50/50 dark:hover:bg-[#132428]/40 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 p-3 border-t border-slate-100 dark:border-white/[0.06] hover:bg-slate-50/50 dark:hover:bg-white/[0.05]/40 transition-colors"
                 >
                   <button
                     type="button"
                     onClick={() => open(c.id)}
-                    className="flex-1 min-w-0 text-left font-medium text-xs sm:text-sm text-slate-800 dark:text-slate-100 hover:text-teal-600 dark:hover:text-teal-400 break-words line-clamp-2 transition-colors cursor-pointer py-1"
+                    className="flex-1 min-w-0 text-left font-medium text-xs sm:text-sm text-slate-800 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 break-words line-clamp-2 transition-colors cursor-pointer py-1"
                     title={c.title}
                   >
                     {c.title}

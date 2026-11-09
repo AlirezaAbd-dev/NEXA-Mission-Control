@@ -65,7 +65,7 @@ export function InboxPanel({ workspaceId }: { workspaceId: string }) {
       {items.map((item) => (
         <div
           key={item.id}
-          className="p-4 rounded-xl border border-slate-200 dark:border-[#183035] flex justify-between gap-4"
+          className="p-4 rounded-xl border border-slate-200 dark:border-white/[0.06] flex justify-between gap-4"
         >
           <div className={item.done ? "line-through opacity-60" : ""}>
             <h3>{item.title}</h3>

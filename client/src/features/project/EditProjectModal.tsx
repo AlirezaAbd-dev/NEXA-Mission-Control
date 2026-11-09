@@ -113,7 +113,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
             placeholder="Optional project purpose, goals, or notes..."
-            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-[#183035] bg-white dark:bg-[#070e10] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-none"
+            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#070709] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none"
           />
         </div>
 
@@ -129,7 +129,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
                 onClick={() => setColor(c)}
                 className={`w-7 h-7 rounded-full transition-transform cursor-pointer ${
                   color === c
-                    ? "ring-2 ring-offset-2 ring-teal-500 scale-110"
+                    ? "ring-2 ring-offset-2 ring-emerald-500 scale-110"
                     : "hover:scale-105 opacity-80 hover:opacity-100"
                 }`}
                 style={{ backgroundColor: c }}
@@ -139,7 +139,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-[#183035]">
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-white/[0.06]">
           <Button
             type="button"
             variant="ghost"

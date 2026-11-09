@@ -17,7 +17,7 @@ export function TimelinePage() {
       {error ? (
         <p role="alert">Could not load tasks. Please retry.</p>
       ) : isLoading || !board ? (
-        <div className="h-64 animate-pulse rounded-xl bg-slate-100 dark:bg-[#132428]" />
+        <div className="h-64 animate-pulse rounded-xl bg-slate-100 dark:bg-[#101117]" />
       ) : (
         <BoardGanttView cards={cards} projectId={projectId} />
       )}

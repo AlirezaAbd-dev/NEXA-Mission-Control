@@ -15,7 +15,7 @@ export function StarredBoards({ projectId }: { projectId: string }) {
         <NavLink
           key={board.id}
           to={`/p/${board.id}/board`}
-          className="flex items-center gap-2 p-2 text-xs text-slate-600 dark:text-slate-300 rounded-lg hover:bg-teal-500/10"
+          className="flex items-center gap-2 p-2 text-xs text-slate-600 dark:text-slate-300 rounded-lg hover:bg-emerald-500/10"
         >
           <Star size={12} className="fill-amber-400 text-amber-500" />
           {board.name}

@@ -377,7 +377,7 @@ export function DatePicker({
               aria-label="Choose Gregorian date"
               onKeyDown={handleCalendarKey}
               className={cn(
-                "absolute start-0 w-full max-w-[calc(100vw-24px)] max-h-[calc(100dvh-24px)] overflow-y-auto rounded-2xl sm:rounded-3xl border border-border/80 bg-card/98 text-foreground p-4 shadow-2xl shadow-primary/10 backdrop-blur-2xl animate-in fade-in-50 zoom-in-95 duration-150 dark:border-white/12 dark:bg-[#06181b]/98 dark:shadow-[0_20px_50px_rgba(0,0,0,0.8)]",
+                "absolute start-0 w-full max-w-[calc(100vw-24px)] max-h-[calc(100dvh-24px)] overflow-y-auto rounded-2xl sm:rounded-3xl border border-border/80 bg-card/98 text-foreground p-4 shadow-2xl shadow-primary/10 backdrop-blur-2xl animate-in fade-in-50 zoom-in-95 duration-150 dark:border-white/12 dark:bg-[#101117]/98 dark:shadow-[0_20px_50px_rgba(0,0,0,0.8)]",
                 coords.isUp ? "origin-bottom" : "origin-top",
               )}
               dir="ltr"

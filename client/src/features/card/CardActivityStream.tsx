@@ -22,11 +22,11 @@ export const CardActivityStream: React.FC<CardActivityStreamProps> = ({
   const getActionIcon = (action: string) => {
     switch (action) {
       case "created_card":
-        return <PlusCircle className="w-3.5 h-3.5 text-teal-500" />;
+        return <PlusCircle className="w-3.5 h-3.5 text-emerald-500" />;
       case "moved_card":
-        return <ArrowRight className="w-3.5 h-3.5 text-teal-500" />;
+        return <ArrowRight className="w-3.5 h-3.5 text-emerald-500" />;
       case "member_added":
-        return <UserPlus className="w-3.5 h-3.5 text-teal-500" />;
+        return <UserPlus className="w-3.5 h-3.5 text-emerald-500" />;
       case "member_removed":
         return <UserMinus className="w-3.5 h-3.5 text-rose-500" />;
       default:
@@ -37,7 +37,7 @@ export const CardActivityStream: React.FC<CardActivityStreamProps> = ({
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-        <History className="w-4 h-4 text-teal-500" />
+        <History className="w-4 h-4 text-emerald-500" />
         <span>Audit Trail & Activity</span>
       </div>
 

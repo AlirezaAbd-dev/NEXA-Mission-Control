@@ -17,14 +17,14 @@ export function CardDevelopment({
     `projects/${projectId}/cards/${cardId}/development`,
   );
   return (
-    <section className="pt-4 border-t border-slate-200 dark:border-[#183035] space-y-3">
+    <section className="pt-4 border-t border-slate-200 dark:border-white/[0.06] space-y-3">
       <h3 className="text-xs uppercase font-semibold text-slate-500">
         Development
       </h3>
       {links.map((l) => (
         <a
           key={l.id}
-          className="block text-sm rounded-xl p-3 bg-teal-500/5 hover:bg-teal-500/10 text-teal-700 dark:text-teal-300"
+          className="block text-sm rounded-xl p-3 bg-emerald-500/5 hover:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
           href={l.url}
           target="_blank"
           rel="noreferrer"

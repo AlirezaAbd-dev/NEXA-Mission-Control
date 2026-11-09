@@ -45,7 +45,7 @@ export function ResourceSection({
     setError("");
   };
   return (
-    <section className="rounded-xl border border-slate-200 dark:border-[#183035] bg-white dark:bg-[#0d1a1d] p-5 space-y-4">
+    <section className="rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10] p-5 space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="font-bold">{title}</h2>
         <Button size="sm" variant="outline" onClick={() => edit()}>
@@ -63,7 +63,7 @@ export function ResourceSection({
         </p>
       )}
       {isLoading ? (
-        <div className="h-24 animate-pulse bg-slate-100 dark:bg-[#132428] rounded-lg" />
+        <div className="h-24 animate-pulse bg-slate-100 dark:bg-[#101117] rounded-lg" />
       ) : items.length === 0 ? (
         <p className="text-sm text-slate-500">
           No {resource} yet. Add one to organize your project.
@@ -73,7 +73,7 @@ export function ResourceSection({
           {items.map((item) => (
             <div
               key={item.id}
-              className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-slate-50 dark:bg-[#132428]"
+              className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-slate-50 dark:bg-[#101117]"
             >
               <div className="space-y-1">
                 {item.url ? (
@@ -81,7 +81,7 @@ export function ResourceSection({
                     href={item.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-teal-600 dark:text-teal-300 font-medium"
+                    className="text-emerald-600 dark:text-emerald-300 font-medium"
                   >
                     {item.name} ↗
                   </a>

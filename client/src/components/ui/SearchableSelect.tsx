@@ -276,8 +276,8 @@ export function SearchableSelect({
           onClick={() => !disabled && setIsOpen(!isOpen)}
           className={cn(
             "flex h-11 w-full items-center justify-between gap-2 rounded-xl sm:rounded-2xl border px-3.5 sm:px-4 text-sm sm:text-base font-normal outline-none transition-all duration-200 shadow-2xs cursor-pointer",
-            "border-slate-200/90 bg-white text-slate-900 hover:border-slate-300 focus-visible:border-teal-600 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-teal-600/15",
-            "dark:border-[#183035] dark:bg-[#070e10]/60 dark:text-slate-100 dark:shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)] dark:hover:border-teal-500/30 dark:focus-visible:border-teal-400 dark:focus-visible:bg-[#0a1518] dark:focus-visible:ring-4 dark:focus-visible:ring-teal-500/20",
+            "border-slate-200/90 bg-white text-slate-900 hover:border-slate-300 focus-visible:border-emerald-600 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-emerald-600/15",
+            "dark:border-white/[0.06] dark:bg-[#070709]/60 dark:text-slate-100 dark:shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)] dark:hover:border-emerald-500/30 dark:focus-visible:border-emerald-400 dark:focus-visible:bg-[#0b0c10] dark:focus-visible:ring-4 dark:focus-visible:ring-emerald-500/20",
             "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-slate-100 dark:disabled:bg-muted/40",
             !selectedOption && "text-slate-400 dark:text-white/30",
             error &&
@@ -329,12 +329,12 @@ export function SearchableSelect({
               id={listId}
               role="listbox"
               aria-labelledby={triggerId}
-              className="max-h-72 w-full overflow-hidden rounded-2xl border border-slate-200/90 bg-white/98 text-slate-900 p-1.5 shadow-2xl shadow-slate-900/10 dark:border-white/12 dark:bg-[#06181b]/98 dark:text-slate-100 dark:shadow-[0_16px_40px_rgba(0,0,0,0.7)] animate-in fade-in-50 zoom-in-95"
+              className="max-h-72 w-full overflow-hidden rounded-2xl border border-slate-200/90 bg-white/98 text-slate-900 p-1.5 shadow-2xl shadow-slate-900/10 dark:border-white/12 dark:bg-[#101117]/98 dark:text-slate-100 dark:shadow-[0_16px_40px_rgba(0,0,0,0.7)] animate-in fade-in-50 zoom-in-95"
             >
               {/* Search Input */}
               <div className="relative mb-1.5 border-b border-slate-100 dark:border-white/10 pb-1.5 px-1 pt-1">
                 {loading ? (
-                  <Loader2 className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 size-4 text-teal-600 dark:text-primary animate-spin" />
+                  <Loader2 className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 size-4 text-emerald-600 dark:text-primary animate-spin" />
                 ) : (
                   <Search className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 dark:text-muted-foreground/70" />
                 )}
@@ -345,7 +345,7 @@ export function SearchableSelect({
                   onChange={(e) => setSearch(e.target.value)}
                   aria-label="Search options"
                   placeholder={searchPlaceholder || "Search…"}
-                  className="h-9 w-full rounded-xl border border-slate-200/80 bg-slate-50/70 text-slate-900 ps-8 pe-3 text-xs sm:text-sm outline-none placeholder:text-slate-400 focus:border-teal-600 focus:bg-white dark:border-border/60 dark:bg-muted/30 dark:text-slate-100 dark:placeholder:text-muted-foreground/60 dark:focus:border-teal-400 dark:focus:bg-[#0a1518] transition-colors"
+                  className="h-9 w-full rounded-xl border border-slate-200/80 bg-slate-50/70 text-slate-900 ps-8 pe-3 text-xs sm:text-sm outline-none placeholder:text-slate-400 focus:border-emerald-600 focus:bg-white dark:border-border/60 dark:bg-muted/30 dark:text-slate-100 dark:placeholder:text-muted-foreground/60 dark:focus:border-emerald-400 dark:focus:bg-[#0b0c10] transition-colors"
                 />
               </div>
 
@@ -353,7 +353,7 @@ export function SearchableSelect({
               <ul className="max-h-52 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-sidebar">
                 {loading && currentOptions.length === 0 ? (
                   <li className="flex items-center justify-center gap-2 py-5 text-xs sm:text-sm text-slate-400 dark:text-muted-foreground">
-                    <Loader2 className="size-4 animate-spin text-teal-600 dark:text-primary" />
+                    <Loader2 className="size-4 animate-spin text-emerald-600 dark:text-primary" />
                     <span>{"Loading…"}</span>
                   </li>
                 ) : currentOptions.length === 0 ? (
@@ -372,7 +372,7 @@ export function SearchableSelect({
                         className={cn(
                           "flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-start text-xs sm:text-sm transition-all duration-150 cursor-pointer",
                           value === opt.value
-                            ? "bg-teal-50 font-bold text-teal-700 dark:bg-teal-500/20 dark:text-teal-300"
+                            ? "bg-teal-50 font-bold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300"
                             : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-white/8 dark:hover:text-white",
                           opt.disabled && "cursor-not-allowed opacity-50",
                         )}

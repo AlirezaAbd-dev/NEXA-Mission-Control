@@ -71,10 +71,10 @@ export function InsightsPage() {
         ].map(([label, value]) => (
           <section
             key={label}
-            className="p-5 rounded-xl bg-white dark:bg-[#0d1a1d] border border-slate-200 dark:border-[#183035]"
+            className="p-5 rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06]"
           >
             <p className="text-sm text-slate-500">{label}</p>
-            <p className="text-3xl font-bold text-teal-600 dark:text-teal-400 mt-2">
+            <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
               {value}
             </p>
           </section>
@@ -202,7 +202,7 @@ function ChartPanel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="p-5 rounded-xl border border-slate-200 dark:border-[#183035] bg-white dark:bg-[#0d1a1d]">
+    <section className="p-5 rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10]">
       <h2 className="font-semibold">{title}</h2>
       <p className="text-xs text-slate-500 mt-1 mb-4">{subtitle}</p>
       {children}

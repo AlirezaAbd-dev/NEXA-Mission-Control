@@ -102,15 +102,15 @@ export function BoardGanttView({
         </p>
       )}
       {scheduled.length === 0 ? (
-        <div className="p-12 rounded-xl border border-dashed border-slate-300 dark:border-[#183035] text-center">
+        <div className="p-12 rounded-xl border border-dashed border-slate-300 dark:border-white/[0.06] text-center">
           <p className="font-semibold">Schedule your first task</p>
           <p className="text-sm text-slate-500 mt-2">
             Add start and due dates from the table or task detail view.
           </p>
         </div>
       ) : (
-        <div className="flex rounded-xl border border-slate-200 dark:border-[#183035] bg-white dark:bg-[#0d1a1d] overflow-hidden">
-          <div className="w-52 shrink-0 border-e border-slate-200 dark:border-[#183035]">
+        <div className="flex rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10] overflow-hidden">
+          <div className="w-52 shrink-0 border-e border-slate-200 dark:border-white/[0.06]">
             <div className="h-[50px] p-4 text-xs text-slate-500">Task</div>
             {scheduled.map((c) => (
               <Button

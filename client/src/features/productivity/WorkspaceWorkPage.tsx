@@ -133,7 +133,7 @@ export function WorkspaceWorkPage() {
                     .map((c) => (
                       <tr
                         key={c.id}
-                        className="border-t border-slate-200 dark:border-[#183035]"
+                        className="border-t border-slate-200 dark:border-white/[0.06]"
                       >
                         <td className="p-3">
                           <Button

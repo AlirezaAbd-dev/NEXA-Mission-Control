@@ -11,7 +11,7 @@ export function MemberPermissions({ projectId }: { projectId: string }) {
   const [modal, setModal] = useState(false),
     [allowed, setAllowed] = useState<string[]>([]);
   return (
-    <section className="p-5 border rounded-xl border-slate-200 dark:border-[#183035] space-y-3">
+    <section className="p-5 border rounded-xl border-slate-200 dark:border-white/[0.06] space-y-3">
       <h2 className="font-semibold">Project member permissions</h2>
       <p className="text-sm text-slate-500">
         Administrators retain management access. Viewers remain read-only.

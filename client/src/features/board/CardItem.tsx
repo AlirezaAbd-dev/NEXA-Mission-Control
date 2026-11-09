@@ -64,7 +64,7 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
       {...attributes}
       {...listeners}
       onClick={preview ? undefined : () => openCardModal(card.id)}
-      className="bg-white dark:bg-[#091316] rounded-xl shadow-xs border border-slate-200/80 dark:border-[#183035] hover:border-teal-500/50 cursor-grab active:cursor-grabbing transition-colors group overflow-hidden"
+      className="bg-white dark:bg-[#0e0f14] rounded-xl shadow-xs border border-slate-200/80 dark:border-white/[0.06] hover:border-emerald-500/50 cursor-grab active:cursor-grabbing transition-colors group overflow-hidden"
     >
       {/* Trello Card Cover */}
       {hasCoverColor && (
@@ -75,7 +75,7 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
       )}
 
       {hasCoverImage && (
-        <div className="h-28 w-full overflow-hidden border-b border-slate-100 dark:border-[#183035] bg-slate-100 dark:bg-[#070e10]">
+        <div className="h-28 w-full overflow-hidden border-b border-slate-100 dark:border-white/[0.06] bg-slate-100 dark:bg-[#070709]">
           <img
             src={card.cover_url!}
             alt={card.title}
@@ -88,7 +88,7 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
         {/* Labels & Template Indicator */}
         <div className="flex flex-wrap items-center gap-1">
           {card.is_template && (
-            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-teal-500/15 text-teal-600 dark:text-teal-400 border border-teal-500/30 flex items-center gap-1">
+            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
               <FileText className="w-2.5 h-2.5" />
               Template
             </span>
@@ -106,18 +106,18 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
           </span>
         )}
         {/* Title */}
-        <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors leading-snug">
+        <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors leading-snug">
           {card.title}
         </h4>
 
         {/* Meta badges & assignees */}
-        <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-[#183035]">
+        <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-100 dark:border-white/[0.06]">
           <div className="flex items-center gap-1.5 text-slate-400 text-xs flex-wrap">
             <PriorityBadge priority={card.priority} />
 
             {/* Story Points */}
             {card.story_points !== undefined && card.story_points !== null && (
-              <span className="flex items-center gap-0.5 text-[11px] px-1.5 py-0.5 rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold border border-teal-500/20">
+              <span className="flex items-center gap-0.5 text-[11px] px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
                 <Hash className="w-3 h-3" />
                 {card.story_points}
               </span>
@@ -134,8 +134,8 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
             )}
 
             {card.checklist_total > 0 && (
-              <span className="flex items-center gap-1 text-[11px] px-1 py-0.5 rounded bg-slate-100 dark:bg-[#132428] text-slate-500 dark:text-slate-400">
-                <CheckSquare className="w-3 h-3 text-teal-500" />
+              <span className="flex items-center gap-1 text-[11px] px-1 py-0.5 rounded bg-slate-100 dark:bg-[#101117] text-slate-500 dark:text-slate-400">
+                <CheckSquare className="w-3 h-3 text-emerald-500" />
                 {card.checklist_completed}/{card.checklist_total}
               </span>
             )}
@@ -157,7 +157,7 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
             {card.is_watched && (
               <span
                 title="You are watching this card"
-                className="text-teal-500"
+                className="text-emerald-500"
               >
                 <Eye className="w-3 h-3" />
               </span>

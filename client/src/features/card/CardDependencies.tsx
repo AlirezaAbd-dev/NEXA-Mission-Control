@@ -82,16 +82,16 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
         return {
           icon: Link2,
           label: "Relates to",
-          color: "bg-teal-500/10 text-teal-500 border-teal-500/20",
+          color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
         };
     }
   };
 
   return (
-    <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-[#183035]">
+    <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-white/[0.06]">
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
-          <Link2 className="w-3.5 h-3.5 text-teal-500" />
+          <Link2 className="w-3.5 h-3.5 text-emerald-500" />
           Linked Cards & Dependencies ({links.length})
         </h3>
         {!isAdding && (
@@ -100,7 +100,7 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
             variant="ghost"
             size="sm"
             onClick={() => setIsAdding(true)}
-            className="h-7 text-xs text-teal-600 dark:text-teal-400 hover:text-teal-500 flex items-center gap-1 cursor-pointer"
+            className="h-7 text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 flex items-center gap-1 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Link</span>
@@ -112,7 +112,7 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
       {isAdding && (
         <form
           onSubmit={handleAddLink}
-          className="p-3 bg-slate-50 dark:bg-[#0d1a1d] border border-slate-200 dark:border-[#183035] rounded-xl space-y-2.5 animate-in fade-in duration-150"
+          className="p-3 bg-slate-50 dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] rounded-xl space-y-2.5 animate-in fade-in duration-150"
         >
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <div>
@@ -171,7 +171,7 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
             return (
               <div
                 key={link.id}
-                className="group flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-[#0d1a1d] hover:bg-slate-100 dark:hover:bg-[#132428] border border-slate-200/80 dark:border-[#183035] transition-all"
+                className="group flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-[#0b0c10] hover:bg-slate-100 dark:hover:bg-white/[0.05] border border-slate-200/80 dark:border-white/[0.06] transition-all"
               >
                 <div className="flex items-center gap-2.5 flex-1 min-w-0">
                   <span
@@ -183,10 +183,10 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
                   <button
                     type="button"
                     onClick={() => openCardModal(link.target_card_id)}
-                    className="text-xs font-medium text-slate-800 dark:text-slate-200 hover:text-teal-500 dark:hover:text-teal-400 truncate text-left cursor-pointer flex items-center gap-1"
+                    className="text-xs font-medium text-slate-800 dark:text-slate-200 hover:text-emerald-500 dark:hover:text-emerald-400 truncate text-left cursor-pointer flex items-center gap-1"
                   >
                     <span>{link.target_card_title}</span>
-                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-teal-500" />
+                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-emerald-500" />
                   </button>
                 </div>
 

@@ -27,7 +27,7 @@ export const TopBar = () => {
   };
 
   return (
-    <header className="h-14 bg-white dark:bg-[#0d1a1d] border-b border-slate-200 dark:border-[#183035] flex items-center justify-between px-3 sm:px-4 z-20 shrink-0">
+    <header className="h-14 bg-white dark:bg-[#0b0c10] border-b border-slate-200 dark:border-white/[0.06] flex items-center justify-between px-3 sm:px-4 z-20 shrink-0">
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         <button
           onClick={toggleSidebar}

@@ -25,7 +25,7 @@ export const PriorityBadge = ({
       case "medium":
         return <ArrowRight className="w-3 h-3 text-yellow-500" />;
       case "low":
-        return <ArrowDown className="w-3 h-3 text-teal-500" />;
+        return <ArrowDown className="w-3 h-3 text-emerald-500" />;
       default:
         return <Minus className="w-3 h-3 text-slate-400" />;
     }

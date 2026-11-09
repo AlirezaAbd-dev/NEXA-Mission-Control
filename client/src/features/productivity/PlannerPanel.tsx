@@ -85,7 +85,7 @@ export function PlannerPanel({ cards }: { cards: WorkCard[] }) {
       {slots.map((s) => (
         <div
           key={s.id}
-          className="border-l-4 border-teal-500 bg-teal-500/5 p-4 rounded-r-xl"
+          className="border-l-4 border-emerald-500 bg-emerald-500/5 p-4 rounded-r-xl"
         >
           <h3 className="font-semibold">{s.title}</h3>
           <p className="text-sm text-slate-500">

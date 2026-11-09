@@ -119,7 +119,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
               placeholder="Search cards..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-8.5 pl-8 pr-2 text-xs rounded-xl bg-white dark:bg-[#0c181b] border border-slate-200/90 dark:border-[#183035] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-teal-500/50 transition-colors shadow-2xs"
+              className="w-full h-8.5 pl-8 pr-2 text-xs rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200/90 dark:border-white/[0.06] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-colors shadow-2xs"
             />
           </div>
 
@@ -130,14 +130,14 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             onClick={() => setFilterModalOpen(true)}
             className={`h-8.5 px-2.5 text-xs flex items-center gap-1.5 shrink-0 ${
               filterCount > 0
-                ? "border-teal-500/40 text-teal-600 dark:text-teal-400 font-semibold"
+                ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400 font-semibold"
                 : ""
             }`}
           >
             <Filter className="w-3.5 h-3.5" />
             <span>Filters</span>
             {filterCount > 0 && (
-              <span className="w-4 h-4 rounded-full bg-teal-500 text-white text-[10px] font-bold flex items-center justify-center">
+              <span className="w-4 h-4 rounded-full bg-emerald-500 text-white text-[10px] font-bold flex items-center justify-center">
                 {filterCount}
               </span>
             )}
@@ -154,7 +154,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             onClick={() => setViewModalOpen(true)}
             className={`h-8.5 px-2.5 text-xs flex items-center gap-1.5 shrink-0 ${
               pref.grouping && pref.grouping !== "none"
-                ? "border-teal-500/40 text-teal-600 dark:text-teal-400 font-semibold"
+                ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400 font-semibold"
                 : ""
             }`}
             title="Swimlanes and board settings"
@@ -189,7 +189,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
         {hasActiveFilters && (
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5 text-xs">
             {searchQuery && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-200/80 dark:bg-[#132428] text-slate-700 dark:text-slate-200 text-[11px] font-medium shrink-0">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-200/80 dark:bg-[#101117] text-slate-700 dark:text-slate-200 text-[11px] font-medium shrink-0">
                 <span className="truncate max-w-[120px]">"{searchQuery}"</span>
                 <button
                   type="button"
@@ -213,7 +213,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
               </span>
             )}
             {selectedAssignee && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-teal-500/15 border border-teal-500/30 text-teal-700 dark:text-teal-300 text-[11px] font-medium shrink-0">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[11px] font-medium shrink-0">
                 <span className="truncate max-w-[120px]">
                   {assignees.find((a) => a.user_id === selectedAssignee)
                     ?.display_name || "Assignee"}
@@ -393,7 +393,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             size="sm"
             variant="outline"
             onClick={() => setArchiveModalOpen(true)}
-            className="text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400"
+            className="text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400"
           >
             <Archive size={14} />
             Archive
@@ -428,8 +428,8 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
                   onClick={() => setFilterPriority(p.value)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
                     filterPriority === p.value
-                      ? "bg-teal-500 text-white font-semibold shadow-xs"
-                      : "bg-slate-100 dark:bg-[#132428] text-slate-700 dark:text-slate-300 hover:bg-slate-200/80"
+                      ? "bg-emerald-500 text-white font-semibold shadow-xs"
+                      : "bg-slate-100 dark:bg-[#101117] text-slate-700 dark:text-slate-300 hover:bg-slate-200/80"
                   }`}
                 >
                   {p.label}
@@ -476,7 +476,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
           </div>
 
           {/* Modal Actions */}
-          <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-[#183035]">
+          <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-white/[0.06]">
             <Button
               variant="ghost"
               size="sm"
@@ -525,8 +525,8 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
                   onClick={() => save.mutate({ ...pref, grouping: opt.value })}
                   className={`p-2 rounded-xl text-xs font-medium text-center transition-all ${
                     (pref.grouping || "none") === opt.value
-                      ? "bg-teal-500 text-white font-semibold shadow-xs"
-                      : "bg-slate-100 dark:bg-[#132428] text-slate-700 dark:text-slate-300 hover:bg-slate-200/80"
+                      ? "bg-emerald-500 text-white font-semibold shadow-xs"
+                      : "bg-slate-100 dark:bg-[#101117] text-slate-700 dark:text-slate-300 hover:bg-slate-200/80"
                   }`}
                 >
                   {opt.label}
@@ -548,8 +548,8 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
                   onClick={() => save.mutate({ ...pref, background: t.value })}
                   className={`p-2 rounded-xl text-[11px] font-medium flex items-center gap-1.5 transition-all border ${
                     (pref.background || "petrol") === t.value
-                      ? "border-teal-500 bg-teal-500/10 text-teal-700 dark:text-teal-300 font-semibold"
-                      : "border-slate-200/80 dark:border-[#183035] bg-white dark:bg-[#0c181b] text-slate-600 dark:text-slate-400"
+                      ? "border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold"
+                      : "border-slate-200/80 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10] text-slate-600 dark:text-slate-400"
                   }`}
                 >
                   <span
@@ -563,7 +563,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
           </div>
 
           {/* Quick Actions */}
-          <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-[#183035]">
+          <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-white/[0.06]">
             <Button
               variant="outline"
               size="sm"

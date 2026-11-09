@@ -30,7 +30,7 @@ export function formatDescriptionHtml(content: string): string {
           .replace(/=\d*x\d*$/, "");
       }
       const widthStyle = width ? `max-width: ${width}px;` : "";
-      return `<img src="${cleanSrc}" alt="${alt || "image"}" style="${widthStyle}" class="max-w-full h-auto rounded-xl border border-slate-200 dark:border-[#183035] shadow-md my-3.5 cursor-pointer hover:opacity-95 transition-opacity" />`;
+      return `<img src="${cleanSrc}" alt="${alt || "image"}" style="${widthStyle}" class="max-w-full h-auto rounded-xl border border-slate-200 dark:border-white/[0.06] shadow-md my-3.5 cursor-pointer hover:opacity-95 transition-opacity" />`;
     },
   );
 
@@ -47,14 +47,14 @@ export function formatDescriptionHtml(content: string): string {
   html = html.replace(
     /\[(.*?)\]\((https?:\/\/[^\s)]+|\/[^\s)]+)\)/g,
     (_match, text, url) =>
-      `<a href="${url}" target="_blank" rel="noreferrer" class="text-teal-600 dark:text-teal-400 underline font-medium hover:opacity-80">${text}</a>`,
+      `<a href="${url}" target="_blank" rel="noreferrer" class="text-emerald-600 dark:text-emerald-400 underline font-medium hover:opacity-80">${text}</a>`,
   );
 
   // Convert autolinks: <https://...>
   html = html.replace(
     /<(https?:\/\/[^\s>]+)>/g,
     (_match, url) =>
-      `<a href="${url}" target="_blank" rel="noreferrer" class="text-teal-600 dark:text-teal-400 underline font-medium hover:opacity-80">${url}</a>`,
+      `<a href="${url}" target="_blank" rel="noreferrer" class="text-emerald-600 dark:text-emerald-400 underline font-medium hover:opacity-80">${url}</a>`,
   );
 
   // If content was not already structured in HTML paragraphs, convert newlines

@@ -24,7 +24,7 @@ function inline(text: string, depth = 0): React.ReactNode[] {
       result.push(
         <code
           key={key}
-          className="rounded bg-slate-200/60 dark:bg-[#132428] px-1 font-mono text-xs"
+          className="rounded bg-slate-200/60 dark:bg-[#101117] px-1 font-mono text-xs"
         >
           {token.slice(1, -1)}
         </code>,
@@ -41,7 +41,7 @@ function inline(text: string, depth = 0): React.ReactNode[] {
       result.push(
         <span
           key={key}
-          className="rounded bg-teal-500/10 text-teal-700 dark:text-teal-300 px-1"
+          className="rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 px-1"
         >
           {token}
         </span>,
@@ -57,7 +57,7 @@ function inline(text: string, depth = 0): React.ReactNode[] {
             href={url}
             target="_blank"
             rel="noreferrer"
-            className="text-teal-600 dark:text-teal-400 underline"
+            className="text-emerald-600 dark:text-emerald-400 underline"
           >
             {inline(label, depth + 1)}
           </a>
@@ -84,7 +84,7 @@ export function Markdown({ text }: { text: string }) {
       blocks.push(
         <pre
           key={i}
-          className="overflow-auto rounded-lg bg-slate-100 dark:bg-[#070e10] p-3 text-xs font-mono"
+          className="overflow-auto rounded-lg bg-slate-100 dark:bg-[#070709] p-3 text-xs font-mono"
         >
           <code>{code.join("\n")}</code>
         </pre>,
@@ -141,7 +141,7 @@ export function Markdown({ text }: { text: string }) {
       blocks.push(
         <blockquote
           key={i}
-          className="border-s-2 border-teal-500/40 ps-3 text-slate-500"
+          className="border-s-2 border-emerald-500/40 ps-3 text-slate-500"
         >
           {inline(line.slice(2))}
         </blockquote>,
@@ -150,7 +150,7 @@ export function Markdown({ text }: { text: string }) {
     }
     if (/^\s*---+\s*$/.test(line)) {
       blocks.push(
-        <hr key={i} className="border-slate-200 dark:border-[#183035]" />,
+        <hr key={i} className="border-slate-200 dark:border-white/[0.06]" />,
       );
       continue;
     }

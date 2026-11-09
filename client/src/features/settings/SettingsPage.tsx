@@ -239,7 +239,7 @@ export const SettingsPage: React.FC = () => {
   return (
     <div className="min-h-full flex-1 flex flex-col p-4 sm:p-6 space-y-5 max-w-5xl mx-auto w-full">
       {/* Header & Workspace Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-[#183035]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-white/[0.06]">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
             Settings
@@ -262,15 +262,15 @@ export const SettingsPage: React.FC = () => {
       </div>
 
       {/* Modern Responsive Tabs Navigation */}
-      <div className="flex items-center gap-1.5 border-b border-slate-200/80 dark:border-[#183035] overflow-x-auto scrollbar-none pb-2 shrink-0">
+      <div className="flex items-center gap-1.5 border-b border-slate-200/80 dark:border-white/[0.06] overflow-x-auto scrollbar-none pb-2 shrink-0">
         <Button size="sm" variant={activeTab==="profile"?"secondary":"ghost"} onClick={()=>setActiveTab("profile")} aria-pressed={activeTab==="profile"}>My profile</Button>
         <button
           type="button"
           onClick={() => setActiveTab("workspace")}
           className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl shrink-0 whitespace-nowrap transition-all cursor-pointer ${
             activeTab === "workspace"
-              ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/25 shadow-2xs font-bold"
-              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-[#132428] border border-transparent"
+              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 shadow-2xs font-bold"
+              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] border border-transparent"
           }`}
         >
           <Sliders className="w-3.5 h-3.5 shrink-0" />
@@ -282,8 +282,8 @@ export const SettingsPage: React.FC = () => {
           onClick={() => setActiveTab("labels")}
           className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl shrink-0 whitespace-nowrap transition-all cursor-pointer ${
             activeTab === "labels"
-              ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/25 shadow-2xs font-bold"
-              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-[#132428] border border-transparent"
+              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 shadow-2xs font-bold"
+              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] border border-transparent"
           }`}
         >
           <Tag className="w-3.5 h-3.5 shrink-0" />
@@ -298,8 +298,8 @@ export const SettingsPage: React.FC = () => {
           onClick={() => setActiveTab("members")}
           className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl shrink-0 whitespace-nowrap transition-all cursor-pointer ${
             activeTab === "members"
-              ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/25 shadow-2xs font-bold"
-              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-[#132428] border border-transparent"
+              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 shadow-2xs font-bold"
+              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] border border-transparent"
           }`}
         >
           <Users className="w-3.5 h-3.5 shrink-0" />
@@ -314,8 +314,8 @@ export const SettingsPage: React.FC = () => {
           onClick={() => setActiveTab("security")}
           className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl shrink-0 whitespace-nowrap transition-all cursor-pointer ${
             activeTab === "security"
-              ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/25 shadow-2xs font-bold"
-              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-[#132428] border border-transparent"
+              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 shadow-2xs font-bold"
+              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] border border-transparent"
           }`}
         >
           <Shield className="w-3.5 h-3.5 shrink-0" />
@@ -333,10 +333,10 @@ export const SettingsPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="text-base flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-teal-500" />
+                  <Sliders className="w-4 h-4 text-emerald-500" />
                   Workspace Details
                 </span>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-[#132428] text-slate-600 dark:text-slate-300 font-mono">
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-[#101117] text-slate-600 dark:text-slate-300 font-mono">
                   Role: {roleInWorkspace || "member"}
                 </span>
               </CardTitle>
@@ -377,7 +377,7 @@ export const SettingsPage: React.FC = () => {
                     rows={2}
                     placeholder="Optional workspace description..."
                     disabled={!canEditWorkspace || updateWorkspaceMutation.isPending}
-                    className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-[#183035] bg-white dark:bg-[#070e10] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 resize-none disabled:opacity-50"
+                    className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#070709] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none disabled:opacity-50"
                   />
                 </div>
 
@@ -408,12 +408,12 @@ export const SettingsPage: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-teal-500" />
+                <Sliders className="w-4 h-4 text-emerald-500" />
                 Appearance & Theme
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#091316] border border-slate-200/80 dark:border-[#183035]">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#0e0f14] border border-slate-200/80 dark:border-white/[0.06]">
                 <div>
                   <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                     Interface Theme
@@ -429,7 +429,7 @@ export const SettingsPage: React.FC = () => {
                   className="flex items-center gap-2 cursor-pointer"
                 >
                   {theme === "dark" ? (
-                    <Moon className="w-4 h-4 text-teal-400" />
+                    <Moon className="w-4 h-4 text-emerald-400" />
                   ) : (
                     <Sun className="w-4 h-4 text-amber-500" />
                   )}
@@ -437,7 +437,7 @@ export const SettingsPage: React.FC = () => {
                 </Button>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#091316] border border-slate-200/80 dark:border-[#183035]">
+              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#0e0f14] border border-slate-200/80 dark:border-white/[0.06]">
                 <div>
                   <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                     Signed In As
@@ -446,7 +446,7 @@ export const SettingsPage: React.FC = () => {
                     {currentUser?.display_name || currentUser?.username} ({currentUser?.email})
                   </div>
                 </div>
-                <span className="text-xs px-2.5 py-1 rounded-md bg-teal-500/10 border border-teal-500/30 font-mono font-semibold text-teal-600 dark:text-teal-400 uppercase">
+                <span className="text-xs px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 font-mono font-semibold text-emerald-600 dark:text-emerald-400 uppercase">
                   {currentUser?.role || "Member"}
                 </span>
               </div>
@@ -503,7 +503,7 @@ export const SettingsPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="text-base flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-teal-500" />
+                  <Tag className="w-4 h-4 text-emerald-500" />
                   Workspace Labels ({labels.length})
                 </span>
                 <span className="text-xs font-normal text-slate-500">
@@ -515,7 +515,7 @@ export const SettingsPage: React.FC = () => {
               {/* Create New Label Form */}
               <form
                 onSubmit={handleCreateLabel}
-                className="p-4 rounded-xl bg-slate-50 dark:bg-[#091316] border border-slate-200/80 dark:border-[#183035] space-y-3"
+                className="p-4 rounded-xl bg-slate-50 dark:bg-[#0e0f14] border border-slate-200/80 dark:border-white/[0.06] space-y-3"
               >
                 <div className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
                   Create New Label
@@ -533,7 +533,7 @@ export const SettingsPage: React.FC = () => {
 
                   {/* Color picker & presets */}
                   <div className="flex items-center gap-2 flex-wrap">
-                    <div className="flex items-center gap-1.5 p-1 rounded-lg border border-slate-200 dark:border-[#183035] bg-white dark:bg-[#0d1a1d]">
+                    <div className="flex items-center gap-1.5 p-1 rounded-lg border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10]">
                       {PRESET_COLORS.slice(0, 7).map((color) => (
                         <button
                           key={color}
@@ -541,7 +541,7 @@ export const SettingsPage: React.FC = () => {
                           onClick={() => setNewLabelColor(color)}
                           className={`w-6 h-6 rounded-md transition-all cursor-pointer ${
                             newLabelColor === color
-                              ? "ring-2 ring-teal-500 scale-110"
+                              ? "ring-2 ring-emerald-500 scale-110"
                               : "hover:scale-105 opacity-80 hover:opacity-100"
                           }`}
                           style={{ backgroundColor: color }}
@@ -584,7 +584,7 @@ export const SettingsPage: React.FC = () => {
                 </div>
 
                 {labels.length === 0 ? (
-                  <div className="text-center py-8 text-slate-400 text-sm italic border border-dashed border-slate-200 dark:border-[#183035] rounded-xl">
+                  <div className="text-center py-8 text-slate-400 text-sm italic border border-dashed border-slate-200 dark:border-white/[0.06] rounded-xl">
                     No labels created yet. Add your first label above.
                   </div>
                 ) : (
@@ -596,7 +596,7 @@ export const SettingsPage: React.FC = () => {
                         return (
                           <div
                             key={lbl.id}
-                            className="p-3 rounded-xl border-2 border-teal-500/50 bg-white dark:bg-[#0d1a1d] shadow-sm space-y-2"
+                            className="p-3 rounded-xl border-2 border-emerald-500/50 bg-white dark:bg-[#0b0c10] shadow-sm space-y-2"
                           >
                             <div className="flex items-center gap-2">
                               <input
@@ -659,7 +659,7 @@ export const SettingsPage: React.FC = () => {
                       return (
                         <div
                           key={lbl.id}
-                          className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200/80 dark:border-[#183035] bg-white dark:bg-[#0d1a1d] hover:border-teal-500/40 transition-all group"
+                          className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200/80 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10] hover:border-emerald-500/40 transition-all group"
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
                             <span
@@ -682,7 +682,7 @@ export const SettingsPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => startEditLabel(lbl)}
-                              className="p-1.5 text-slate-400 hover:text-teal-500 hover:bg-slate-100 dark:hover:bg-[#132428] rounded-md transition-colors cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-emerald-500 hover:bg-slate-100 dark:hover:bg-white/[0.05] rounded-md transition-colors cursor-pointer"
                               title="Edit label"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
@@ -691,7 +691,7 @@ export const SettingsPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => setLabelToDelete(lbl)}
-                              className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-[#132428] rounded-md transition-colors cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-white/[0.05] rounded-md transition-colors cursor-pointer"
                               title="Delete label"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -715,7 +715,7 @@ export const SettingsPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="text-base flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-teal-500" />
+                  <Users className="w-4 h-4 text-emerald-500" />
                   Workspace Team ({members.length})
                 </span>
                 <span className="text-xs font-normal text-slate-500">
@@ -757,7 +757,7 @@ export const SettingsPage: React.FC = () => {
                 </p>
               )}
 
-              <div className="divide-y divide-slate-200 dark:divide-[#183035] pt-2">
+              <div className="divide-y divide-slate-200 dark:divide-white/[0.06] pt-2">
                 {members.map((member) => (
                   <div
                     key={member.id}

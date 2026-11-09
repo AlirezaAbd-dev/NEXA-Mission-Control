@@ -12,7 +12,7 @@ export function DataPortability({ projectId }: { projectId: string }) {
     [confirm, setConfirm] = useState(false),
     [message, setMessage] = useState("");
   return (
-    <section className="p-5 rounded-xl bg-white dark:bg-[#0d1a1d] border border-slate-200 dark:border-[#183035] space-y-4">
+    <section className="p-5 rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] space-y-4">
       <h2 className="font-semibold">Export & import</h2>
       <p className="text-xs text-slate-500">
         Export your board or bring in tasks from Trello. Import creates new
@@ -85,7 +85,7 @@ export function DataPortability({ projectId }: { projectId: string }) {
         Review import
       </Button>
       {message && (
-        <p role="status" className="text-sm text-teal-600 dark:text-teal-300">
+        <p role="status" className="text-sm text-emerald-600 dark:text-emerald-300">
           {message}
         </p>
       )}

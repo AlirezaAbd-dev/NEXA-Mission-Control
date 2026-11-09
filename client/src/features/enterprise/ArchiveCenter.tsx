@@ -40,13 +40,13 @@ export function ArchiveCenter({
 
   return (
     <section
-      className={`rounded-xl bg-white dark:bg-[#0d1a1d] border border-slate-200 dark:border-[#183035] ${
+      className={`rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] ${
         compact ? "p-4 space-y-3" : "p-5 space-y-4"
       }`}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Archive size={18} className="text-teal-600 dark:text-teal-400" />
+          <Archive size={18} className="text-emerald-600 dark:text-emerald-400" />
           <h2 className="font-semibold text-slate-900 dark:text-slate-100">
             Archived tasks
           </h2>
@@ -97,7 +97,7 @@ export function ArchiveCenter({
           {filteredCards.map((c) => (
             <div
               key={c.id}
-              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2.5 rounded-lg border border-slate-100 dark:border-[#162a2e] bg-slate-50/50 dark:bg-[#091417] hover:border-teal-500/30 transition-colors"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2.5 rounded-lg border border-slate-100 dark:border-[#162a2e] bg-slate-50/50 dark:bg-[#091417] hover:border-emerald-500/30 transition-colors"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
@@ -128,7 +128,7 @@ export function ArchiveCenter({
                 <Button
                   size="sm"
                   variant="outline"
-                  className="h-7 px-2 text-xs border-teal-500/30 text-teal-600 dark:text-teal-400 hover:bg-teal-500/10"
+                  className="h-7 px-2 text-xs border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10"
                   disabled={busy}
                   onClick={() => { setError(""); setNotice(""); setTargetId(c.id); }}
                 >

@@ -11,7 +11,7 @@ export function AuthenticatorSettings() {
     [otp, setOtp] = useState(""),
     [disable, setDisable] = useState(false);
   return (
-    <section className="rounded-xl p-5 border border-slate-200 dark:border-[#183035] space-y-4">
+    <section className="rounded-xl p-5 border border-slate-200 dark:border-white/[0.06] space-y-4">
       <h2 className="text-lg font-semibold">Two-factor authentication</h2>
       <p className="text-sm text-slate-500">
         {status?.enabled

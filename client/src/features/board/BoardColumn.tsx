@@ -139,21 +139,21 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
       <div
         ref={setNodeRef}
         data-column-id={column.id}
-        className={`w-[88vw] max-w-[340px] sm:w-72 md:w-80 shrink-0 snap-center sm:snap-align-none flex flex-col h-full min-h-[min(540px,calc(100dvh-180px))] sm:min-h-0 rounded-2xl bg-white/80 dark:bg-[#0c181b]/85 backdrop-blur-md border border-slate-200/90 dark:border-[#183035] transition-colors shadow-xs ${
+        className={`w-[88vw] max-w-[340px] sm:w-72 md:w-80 shrink-0 snap-center sm:snap-align-none flex flex-col h-full min-h-[min(540px,calc(100dvh-180px))] sm:min-h-0 rounded-2xl bg-white/80 dark:bg-[#0b0c10]/85 backdrop-blur-md border border-slate-200/90 dark:border-white/[0.06] transition-colors shadow-xs ${
           exceeded
             ? "ring-2 ring-amber-500/50"
             : isOver
-              ? "ring-2 ring-teal-500/40 bg-slate-200/60 dark:bg-[#132428]"
+              ? "ring-2 ring-emerald-500/40 bg-slate-200/60 dark:bg-[#101117]"
               : ""
         }`}
       >
         {/* Column Header */}
-        <div className="p-3.5 pb-2.5 flex items-center justify-between gap-2 border-b border-slate-200/40 dark:border-[#183035]/60">
+        <div className="p-3.5 pb-2.5 flex items-center justify-between gap-2 border-b border-slate-200/40 dark:border-white/[0.04]">
           <div className="flex items-center gap-2 min-w-0">
             <h3 className="font-semibold text-sm text-slate-900 dark:text-slate-100 truncate">
               {column.name}
             </h3>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-white dark:bg-[#132428] border border-slate-200 dark:border-[#183035] text-slate-500 dark:text-teal-400 font-mono font-medium">
+            <span className="text-xs px-2 py-0.5 rounded-full bg-white dark:bg-[#101117] border border-slate-200 dark:border-white/[0.06] text-slate-500 dark:text-emerald-400 font-mono font-medium">
               {cards.length}
               {column.wip_limit
                 ? ` · ${totalCount}/${column.wip_limit} WIP`
@@ -234,7 +234,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
           {isAddingCard ? (
             <form
               onSubmit={handleCreateCard}
-              className="space-y-2 bg-white dark:bg-[#091316] p-2.5 rounded-xl border border-slate-200 dark:border-[#183035]"
+              className="space-y-2 bg-white dark:bg-[#0e0f14] p-2.5 rounded-xl border border-slate-200 dark:border-white/[0.06]"
             >
               <Input
                 value={newCardTitle}
@@ -264,9 +264,9 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
               </div>
 
               {templates.length > 0 && (
-                <div className="pt-2 border-t border-slate-100 dark:border-[#183035] space-y-1">
+                <div className="pt-2 border-t border-slate-100 dark:border-white/[0.06] space-y-1">
                   <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                    <FileText className="w-3 h-3 text-teal-500" />
+                    <FileText className="w-3 h-3 text-emerald-500" />
                     Use Template:
                   </div>
                   <div className="flex flex-wrap gap-1">
@@ -275,7 +275,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
                         key={tmpl.id}
                         type="button"
                         onClick={() => handleCreateFromTemplate(tmpl)}
-                        className="text-[11px] px-2 py-0.5 rounded-md bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/25 hover:bg-teal-500/20 transition-colors truncate max-w-[180px] cursor-pointer"
+                        className="text-[11px] px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 hover:bg-emerald-500/20 transition-colors truncate max-w-[180px] cursor-pointer"
                         title={tmpl.title}
                       >
                         {tmpl.title}
@@ -291,9 +291,9 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
                 setCardError(null);
                 setIsAddingCard(true);
               }}
-              className="w-full flex items-center gap-1.5 py-1.5 px-3 rounded-xl text-xs font-medium text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/60 dark:hover:bg-[#132428] transition-colors"
+              className="w-full flex items-center gap-1.5 py-1.5 px-3 rounded-xl text-xs font-medium text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/60 dark:hover:bg-white/[0.05] transition-colors"
             >
-              <Plus className="w-3.5 h-3.5 text-teal-500" />
+              <Plus className="w-3.5 h-3.5 text-emerald-500" />
               Add Card
             </button>
           )}

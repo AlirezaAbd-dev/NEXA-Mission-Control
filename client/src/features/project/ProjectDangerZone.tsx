@@ -51,7 +51,7 @@ export const ProjectDangerZone: React.FC<ProjectDangerZoneProps> = ({
 
   return (
     <>
-      <section className="p-5 border rounded-xl space-y-4 border-slate-200 dark:border-[#183035] bg-white dark:bg-[#0a1518]">
+      <section className="p-5 border rounded-xl space-y-4 border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
@@ -74,7 +74,7 @@ export const ProjectDangerZone: React.FC<ProjectDangerZoneProps> = ({
                 onClick={() => setEditOpen(true)}
                 className="flex items-center gap-1.5 cursor-pointer"
               >
-                <Edit2 className="w-3.5 h-3.5 text-teal-500" />
+                <Edit2 className="w-3.5 h-3.5 text-emerald-500" />
                 <span>Edit Project</span>
               </Button>
             )}

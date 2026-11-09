@@ -137,16 +137,16 @@ export const Sidebar = () => {
         onClick={() => useUiStore.getState().setSidebarOpen(false)}
       />
 
-      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-[#0a1518] border-r border-slate-200/80 dark:border-[#183035] flex flex-col shrink-0 h-screen select-none transition-all duration-300 shadow-2xl md:shadow-none md:static md:z-auto">
+      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-[#0b0c10] border-r border-slate-200/80 dark:border-white/[0.06] flex flex-col shrink-0 h-screen select-none transition-all duration-300 shadow-2xl md:shadow-none md:static md:z-auto">
         {/* Workspace selector / App branding */}
-        <div className="p-4 border-b border-slate-100 dark:border-[#183035] flex items-center justify-between">
+        <div className="p-4 border-b border-slate-100 dark:border-white/[0.06] flex items-center justify-between">
           <div className="flex items-center gap-2.5 min-w-0">
             <NexaLogo size={32} className="shrink-0" />
             <div className="min-w-0">
               <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate flex items-center gap-1.5">
                 <span>{currentWorkspace?.name || "NEXA"}</span>
               </h2>
-              <span className="text-[10px] text-teal-600 dark:text-teal-400 font-semibold tracking-wider uppercase block">
+              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold tracking-wider uppercase block">
                 Mission Control
               </span>
             </div>
@@ -154,7 +154,7 @@ export const Sidebar = () => {
           <button
             onClick={() => useUiStore.getState().setSidebarOpen(false)}
             title="Close sidebar"
-            className="md:hidden p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-[#132428] transition-colors"
+            className="md:hidden p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -174,7 +174,7 @@ export const Sidebar = () => {
                   setCreateWorkspaceOpen(true);
                 }}
                 title="Create Workspace"
-                className="text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 p-1 rounded-md hover:bg-slate-100 dark:hover:bg-[#132428] transition-colors"
+                className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 p-1 rounded-md hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" />
               </button>
@@ -195,12 +195,12 @@ export const Sidebar = () => {
                 className={({ isActive }) =>
                   `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                     isActive
-                      ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 font-semibold border border-teal-500/25 shadow-2xs"
-                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-[#132428] hover:text-slate-900 dark:hover:text-slate-200"
+                      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/25 shadow-2xs"
+                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-slate-200"
                   }`
                 }
               >
-                <LayoutDashboard className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                <LayoutDashboard className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span className="truncate">Workspace Overview</span>
               </NavLink>
 
@@ -209,17 +209,17 @@ export const Sidebar = () => {
                 className={({ isActive }) =>
                   `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                     isActive
-                      ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 font-semibold border border-teal-500/25 shadow-2xs"
-                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-[#132428] hover:text-slate-900 dark:hover:text-slate-200"
+                      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/25 shadow-2xs"
+                      : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-slate-200"
                   }`
                 }
               >
-                <Inbox className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+                <Inbox className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span className="truncate">Planner & Work Hub</span>
               </NavLink>
               <NavLink to={currentWorkspace?.id ? `/w/${currentWorkspace.id}/notes` : "/notes"}
-                className={({ isActive }) => `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${isActive ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/25" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-[#132428]"}`}>
-                <NotebookPen className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" /><span>Notes</span>
+                className={({ isActive }) => `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${isActive ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-white/[0.05]"}`}>
+                <NotebookPen className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" /><span>Notes</span>
               </NavLink>
             </div>
           </div>
@@ -237,7 +237,7 @@ export const Sidebar = () => {
                   setProjectError(null);
                   setCreateProjectOpen(true);
                 }}
-                className="text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 p-1 rounded-md hover:bg-slate-100 dark:hover:bg-[#132428] transition-colors"
+                className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 p-1 rounded-md hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-colors"
                 title="Create Project"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -258,8 +258,8 @@ export const Sidebar = () => {
                       onClick={() => navigate(`/p/${proj.id}/board`)}
                       className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all text-left ${
                         isActive
-                          ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/25 shadow-2xs"
-                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-[#132428] hover:text-slate-900 dark:hover:text-slate-100"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 shadow-2xs"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-slate-100"
                       }`}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
@@ -295,12 +295,12 @@ export const Sidebar = () => {
                     className={({ isActive }) =>
                       `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                         isActive
-                          ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 font-semibold border border-teal-500/25 shadow-2xs"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-[#132428] hover:text-slate-900 dark:hover:text-slate-200"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/25 shadow-2xs"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-slate-200"
                       }`
                     }
                   >
-                    <Kanban className="w-4 h-4 text-teal-500 shrink-0" />
+                    <Kanban className="w-4 h-4 text-emerald-500 shrink-0" />
                     <span className="truncate">Kanban Board</span>
                   </NavLink>
 
@@ -309,8 +309,8 @@ export const Sidebar = () => {
                     className={({ isActive }) =>
                       `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                         isActive
-                          ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 font-semibold border border-teal-500/25 shadow-2xs"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-[#132428] hover:text-slate-900 dark:hover:text-slate-200"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/25 shadow-2xs"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-slate-200"
                       }`
                     }
                   >
@@ -323,8 +323,8 @@ export const Sidebar = () => {
                     className={({ isActive }) =>
                       `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                         isActive
-                          ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 font-semibold border border-teal-500/25 shadow-2xs"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-[#132428] hover:text-slate-900 dark:hover:text-slate-200"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/25 shadow-2xs"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-slate-200"
                       }`
                     }
                   >
@@ -337,8 +337,8 @@ export const Sidebar = () => {
                     className={({ isActive }) =>
                       `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                         isActive
-                          ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 font-semibold border border-teal-500/25 shadow-2xs"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-[#132428] hover:text-slate-900 dark:hover:text-slate-200"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/25 shadow-2xs"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-slate-200"
                       }`
                     }
                   >
@@ -351,12 +351,12 @@ export const Sidebar = () => {
                     className={({ isActive }) =>
                       `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                         isActive
-                          ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 font-semibold border border-teal-500/25 shadow-2xs"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-[#132428] hover:text-slate-900 dark:hover:text-slate-200"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/25 shadow-2xs"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-slate-200"
                       }`
                     }
                   >
-                    <TableProperties className="w-4 h-4 text-teal-400 shrink-0" />
+                    <TableProperties className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span className="truncate">List View</span>
                   </NavLink>
                 </div>
@@ -375,8 +375,8 @@ export const Sidebar = () => {
                     className={({ isActive }) =>
                       `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                         isActive
-                          ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 font-semibold border border-teal-500/25 shadow-2xs"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-[#132428] hover:text-slate-900 dark:hover:text-slate-200"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/25 shadow-2xs"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-slate-200"
                       }`
                     }
                   >
@@ -389,8 +389,8 @@ export const Sidebar = () => {
                     className={({ isActive }) =>
                       `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                         isActive
-                          ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 font-semibold border border-teal-500/25 shadow-2xs"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-[#132428] hover:text-slate-900 dark:hover:text-slate-200"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/25 shadow-2xs"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-slate-200"
                       }`
                     }
                   >
@@ -403,8 +403,8 @@ export const Sidebar = () => {
                     className={({ isActive }) =>
                       `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                         isActive
-                          ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 font-semibold border border-teal-500/25 shadow-2xs"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-[#132428] hover:text-slate-900 dark:hover:text-slate-200"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/25 shadow-2xs"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-slate-200"
                       }`
                     }
                   >
@@ -417,8 +417,8 @@ export const Sidebar = () => {
                     className={({ isActive }) =>
                       `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                         isActive
-                          ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 font-semibold border border-teal-500/25 shadow-2xs"
-                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-[#132428] hover:text-slate-900 dark:hover:text-slate-200"
+                          ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/25 shadow-2xs"
+                          : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-slate-200"
                       }`
                     }
                   >
@@ -432,18 +432,18 @@ export const Sidebar = () => {
         </div>
 
         {/* Bottom Settings Link */}
-        <div className="p-3 border-t border-slate-100 dark:border-[#183035]">
+        <div className="p-3 border-t border-slate-100 dark:border-white/[0.06]">
           <NavLink
             to="/settings"
             className={({ isActive }) =>
               `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                 isActive
-                  ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 font-semibold border border-teal-500/25 shadow-2xs"
-                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-[#132428] hover:text-slate-900 dark:hover:text-slate-200"
+                  ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/25 shadow-2xs"
+                  : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-slate-200"
               }`
             }
           >
-            <Settings className="w-4 h-4 text-teal-500 shrink-0" />
+            <Settings className="w-4 h-4 text-emerald-500 shrink-0" />
             <span>Settings</span>
           </NavLink>
         </div>

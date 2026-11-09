@@ -143,7 +143,7 @@ export function KeyboardShortcuts() {
             ["?", "Show shortcuts"],
           ].map(([key, label]) => (
             <div key={key} className="flex justify-between gap-6">
-              <dt className="font-mono text-teal-500">{key}</dt>
+              <dt className="font-mono text-emerald-500">{key}</dt>
               <dd>{label}</dd>
             </div>
           ))}

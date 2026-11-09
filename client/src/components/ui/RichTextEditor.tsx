@@ -108,7 +108,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         codeBlock: {
           HTMLAttributes: {
             class:
-              "rounded-xl bg-slate-900 text-teal-300 dark:bg-black/80 dark:text-teal-300 p-4 font-mono text-xs my-2 overflow-x-auto border border-teal-500/20",
+              "rounded-xl bg-slate-900 text-emerald-300 dark:bg-black/80 dark:text-emerald-300 p-4 font-mono text-xs my-2 overflow-x-auto border border-emerald-500/20",
           },
         },
       }),
@@ -125,14 +125,14 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         multicolor: false,
         HTMLAttributes: {
           class:
-            "bg-teal-500/20 text-teal-800 dark:text-teal-200 px-1 py-0.5 rounded",
+            "bg-emerald-500/20 text-teal-800 dark:text-teal-200 px-1 py-0.5 rounded",
         },
       }),
       LinkExtension.configure({
         openOnClick: false,
         HTMLAttributes: {
           class:
-            "text-teal-600 dark:text-teal-400 underline font-medium hover:opacity-80 transition-opacity",
+            "text-emerald-600 dark:text-emerald-400 underline font-medium hover:opacity-80 transition-opacity",
         },
       }),
       ImageExtension.configure({
@@ -140,7 +140,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         inline: false,
         HTMLAttributes: {
           class:
-            "max-w-full h-auto rounded-xl border border-border/80 shadow-md my-3.5 object-cover cursor-pointer hover:ring-2 hover:ring-teal-500 transition-all",
+            "max-w-full h-auto rounded-xl border border-border/80 shadow-md my-3.5 object-cover cursor-pointer hover:ring-2 hover:ring-emerald-500 transition-all",
         },
       }),
       Table.configure({
@@ -154,7 +154,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       TableHeader.configure({
         HTMLAttributes: {
           class:
-            "border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-[#132428] font-bold p-2 text-start",
+            "border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-[#101117] font-bold p-2 text-start",
         },
       }),
       TableCell.configure({
@@ -735,7 +735,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               title="Upload / Embed Image"
               disabled={isUploading}
               onClick={() => fileInputRef.current?.click()}
-              className="rounded-lg p-1.5 text-teal-600 dark:text-teal-400 hover:bg-teal-500/15 transition-colors cursor-pointer flex items-center gap-1 font-semibold"
+              className="rounded-lg p-1.5 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/15 transition-colors cursor-pointer flex items-center gap-1 font-semibold"
             >
               {isUploading ? (
                 <Upload className="h-3.5 w-3.5 animate-bounce" />

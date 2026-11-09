@@ -89,20 +89,20 @@ export const CardDetailModal: React.FC = () => {
               <CardNotes key={card.id} card={card} />
 
               {/* Tabs for Comments & Activity History */}
-              <div className="space-y-4 pt-2 border-t border-slate-100 dark:border-[#183035]">
-                <div className="flex items-center gap-4 border-b border-slate-200/80 dark:border-[#183035]">
+              <div className="space-y-4 pt-2 border-t border-slate-100 dark:border-white/[0.06]">
+                <div className="flex items-center gap-4 border-b border-slate-200/80 dark:border-white/[0.06]">
                   <button
                     type="button"
                     onClick={() => setActiveTab("comments")}
                     className={`pb-2.5 text-xs font-semibold uppercase tracking-wider transition-colors relative cursor-pointer ${
                       activeTab === "comments"
-                        ? "text-teal-600 dark:text-teal-400 font-bold"
+                        ? "text-emerald-600 dark:text-emerald-400 font-bold"
                         : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                     }`}
                   >
                     Comments
                     {activeTab === "comments" && (
-                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-500 rounded-full" />
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500 rounded-full" />
                     )}
                   </button>
 
@@ -111,13 +111,13 @@ export const CardDetailModal: React.FC = () => {
                     onClick={() => setActiveTab("activity")}
                     className={`pb-2.5 text-xs font-semibold uppercase tracking-wider transition-colors relative cursor-pointer ${
                       activeTab === "activity"
-                        ? "text-teal-600 dark:text-teal-400 font-bold"
+                        ? "text-emerald-600 dark:text-emerald-400 font-bold"
                         : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                     }`}
                   >
                     Audit History
                     {activeTab === "activity" && (
-                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-teal-500 rounded-full" />
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500 rounded-full" />
                     )}
                   </button>
                 </div>

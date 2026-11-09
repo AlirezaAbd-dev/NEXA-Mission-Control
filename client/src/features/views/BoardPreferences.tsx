@@ -94,7 +94,7 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
         size="sm"
         variant="outline"
         onClick={() => setArchiveOpen(true)}
-        className="text-slate-600 dark:text-slate-300 hover:text-teal-600 dark:hover:text-teal-400"
+        className="text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400"
       >
         <Archive size={14} />
         Archive

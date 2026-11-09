@@ -15,7 +15,7 @@ export function PersonalTokens() {
     [id, setId] = useState<string>(),
     [error, setError] = useState("");
   return (
-    <section className="rounded-xl border border-slate-200 dark:border-[#183035] p-5 bg-white dark:bg-[#0d1a1d] space-y-4">
+    <section className="rounded-xl border border-slate-200 dark:border-white/[0.06] p-5 bg-white dark:bg-[#0b0c10] space-y-4">
       <h2 className="font-semibold">Personal API tokens</h2>
       <p className="text-xs text-slate-500">
         Tokens use your current workspace permissions. The token value is shown

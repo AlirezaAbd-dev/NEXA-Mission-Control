@@ -203,7 +203,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
   return (
     <>
-      <div className="group relative flex items-start gap-3 p-3 rounded-xl bg-slate-50/50 dark:bg-[#091316] border border-slate-200/60 dark:border-[#183035] transition-colors hover:border-slate-300 dark:hover:border-teal-500/30">
+      <div className="group relative flex items-start gap-3 p-3 rounded-xl bg-slate-50/50 dark:bg-[#0e0f14] border border-slate-200/60 dark:border-white/[0.06] transition-colors hover:border-slate-300 dark:hover:border-emerald-500/30">
         <UserAvatar
           displayName={comment.author_name}
           avatarUrl={comment.author_avatar}
@@ -246,7 +246,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                   <button
                     type="button"
                     onClick={handleStartEdit}
-                    className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-[#132428] transition-colors cursor-pointer"
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-white/[0.05] transition-colors cursor-pointer"
                     title="Edit comment"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
@@ -330,7 +330,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                       emoji: reaction.emoji,
                     })
                   }
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-slate-100 dark:bg-[#132428] hover:bg-slate-200 dark:hover:bg-[#183035] text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-[#183035] transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-slate-100 dark:bg-[#101117] hover:bg-slate-200 dark:hover:bg-white/[0.08] text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-white/[0.06] transition-colors cursor-pointer"
                 >
                   <span>{reaction.emoji}</span>
                   <span className="text-[11px] font-medium">{reaction.count}</span>

@@ -24,14 +24,14 @@ export const CardWatchers: React.FC<CardWatchersProps> = ({ card }) => {
           disabled={toggleWatch.isPending}
           className={`text-xs px-2.5 py-1 rounded-lg border font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
             isWatched
-              ? 'bg-teal-500/15 border-teal-500/40 text-teal-600 dark:text-teal-400'
-              : 'bg-slate-100 dark:bg-[#132428] border-slate-200 dark:border-[#183035] text-slate-600 dark:text-slate-300 hover:border-teal-500/30'
+              ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-600 dark:text-emerald-400'
+              : 'bg-slate-100 dark:bg-[#101117] border-slate-200 dark:border-white/[0.06] text-slate-600 dark:text-slate-300 hover:border-emerald-500/30'
           }`}
           title={isWatched ? 'Stop watching this card' : 'Watch this card for updates'}
         >
           {isWatched ? (
             <>
-              <EyeOff className="w-3.5 h-3.5 text-teal-500" />
+              <EyeOff className="w-3.5 h-3.5 text-emerald-500" />
               <span>Watching</span>
             </>
           ) : (
@@ -41,7 +41,7 @@ export const CardWatchers: React.FC<CardWatchersProps> = ({ card }) => {
             </>
           )}
           {count > 0 && (
-            <span className="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] bg-teal-500/20 text-teal-600 dark:text-teal-400 font-bold">
+            <span className="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold">
               {count}
             </span>
           )}
@@ -51,7 +51,7 @@ export const CardWatchers: React.FC<CardWatchersProps> = ({ card }) => {
           <button
             type="button"
             onClick={() => setShowWatcherList(!showWatcherList)}
-            className="p-1 rounded-md text-slate-400 hover:text-teal-500 hover:bg-slate-100 dark:hover:bg-[#132428] transition-colors cursor-pointer"
+            className="p-1 rounded-md text-slate-400 hover:text-emerald-500 hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-colors cursor-pointer"
             title="View subscribers"
           >
             <Users className="w-3.5 h-3.5" />
@@ -60,8 +60,8 @@ export const CardWatchers: React.FC<CardWatchersProps> = ({ card }) => {
       </div>
 
       {showWatcherList && watchers.length > 0 && (
-        <div className="absolute right-0 top-full mt-1.5 z-50 w-52 p-2 bg-white dark:bg-[#0d1a1d] border border-slate-200 dark:border-[#183035] rounded-xl shadow-xl space-y-1.5 animate-in fade-in zoom-in-95 duration-100">
-          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-1 pb-1 border-b border-slate-100 dark:border-[#183035]">
+        <div className="absolute right-0 top-full mt-1.5 z-50 w-52 p-2 bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] rounded-xl shadow-xl space-y-1.5 animate-in fade-in zoom-in-95 duration-100">
+          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-1 pb-1 border-b border-slate-100 dark:border-white/[0.06]">
             Subscribers ({watchers.length})
           </div>
           <div className="max-h-40 overflow-y-auto space-y-1">
@@ -70,7 +70,7 @@ export const CardWatchers: React.FC<CardWatchersProps> = ({ card }) => {
                 key={w.user_id}
                 className="flex items-center gap-2 p-1 rounded-md text-xs text-slate-700 dark:text-slate-200"
               >
-                <div className="w-5 h-5 rounded-full bg-teal-600 text-white text-[10px] flex items-center justify-center font-bold">
+                <div className="w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] flex items-center justify-center font-bold">
                   {w.display_name.charAt(0).toUpperCase()}
                 </div>
                 <span className="truncate">{w.display_name}</span>

@@ -38,7 +38,7 @@ export function CardProcessFields({ card }: { card: Card }) {
       },
     });
   return (
-    <section className="space-y-3 pt-4 border-t border-slate-200 dark:border-[#183035]">
+    <section className="space-y-3 pt-4 border-t border-slate-200 dark:border-white/[0.06]">
       <h3 className="text-xs uppercase text-slate-500 font-semibold">
         Process & recurring work
       </h3>

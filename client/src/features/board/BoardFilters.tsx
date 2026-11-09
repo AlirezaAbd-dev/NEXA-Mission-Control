@@ -61,7 +61,7 @@ export const BoardFilters: React.FC = () => {
           <Filter className="w-3.5 h-3.5" />
           <span className="text-xs">Filters</span>
           {filterCount > 0 && (
-            <span className="w-4 h-4 rounded-full bg-teal-500 text-white text-[10px] font-bold flex items-center justify-center">
+            <span className="w-4 h-4 rounded-full bg-emerald-500 text-white text-[10px] font-bold flex items-center justify-center">
               {filterCount}
             </span>
           )}

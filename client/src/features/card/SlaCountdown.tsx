@@ -27,7 +27,7 @@ export function SlaCountdown({
         : "Remaining";
   return (
     <p
-      className={`text-xs ${status === "Breached" || status === "Completed late" ? "text-rose-500" : "text-teal-600 dark:text-teal-400"}`}
+      className={`text-xs ${status === "Breached" || status === "Completed late" ? "text-rose-500" : "text-emerald-600 dark:text-emerald-400"}`}
     >
       {label}: {status}
       {finished === null

@@ -13,7 +13,7 @@ export function ProjectPrivacy({ projectId }: { projectId: string }) {
     workspaces.find((w) => w.id === project?.workspace_id)?.user_role || "",
   );
   return (
-    <section className="p-5 border rounded-xl space-y-3 border-slate-200 dark:border-[#183035]">
+    <section className="p-5 border rounded-xl space-y-3 border-slate-200 dark:border-white/[0.06]">
       <h2 className="font-semibold">Project visibility</h2>
       <p className="text-sm text-slate-500">
         Workspace administrators control visibility. Private projects allow

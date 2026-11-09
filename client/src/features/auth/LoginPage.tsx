@@ -52,19 +52,19 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-[#070e10] relative overflow-hidden">
+    <div className="min-h-screen w-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-[#070709] relative overflow-hidden">
       {/* Decorative ambient gradient orbs */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <Card className="w-full max-w-md shadow-2xl border-slate-200/80 dark:border-[#183035] bg-white/95 dark:bg-[#0d1a1d] backdrop-blur-md relative z-10">
+      <Card className="w-full max-w-md shadow-2xl border-slate-200/80 dark:border-white/[0.06] bg-white/95 dark:bg-[#0b0c10] backdrop-blur-md relative z-10">
         <CardHeader className="text-center pb-2">
           <div className="flex justify-center mb-3">
             <NexaLogo size={48} />
           </div>
           <CardTitle className="text-2xl font-bold text-slate-900 dark:white tracking-tight">
             NEXA{" "}
-            <span className="text-teal-600 dark:text-teal-400">
+            <span className="text-emerald-600 dark:text-emerald-400">
               Mission Control
             </span>
           </CardTitle>
@@ -125,17 +125,17 @@ export const LoginPage = () => {
             </Button>
 
             <div className="flex items-center justify-center gap-1.5 pt-2 text-xs text-slate-400 dark:text-slate-500">
-              <ShieldCheck className="w-4 h-4 text-teal-500" />
+              <ShieldCheck className="w-4 h-4 text-emerald-500" />
               <span>NEXA Argon2 secured authentication</span>
             </div>
 
-            <div className="text-center pt-2 border-t border-slate-100 dark:border-[#183035]">
+            <div className="text-center pt-2 border-t border-slate-100 dark:border-white/[0.06]">
               <span className="text-xs text-slate-500">
                 Don't have an account?{" "}
               </span>
               <Link
                 to="/register"
-                className="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:underline"
+                className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
               >
                 Create one now
               </Link>

@@ -117,11 +117,11 @@ export function AutomationPage() {
         {rules.map((r) => (
           <section
             key={r.id}
-            className="p-5 rounded-xl bg-white dark:bg-[#0d1a1d] border border-slate-200 dark:border-[#183035] space-y-3"
+            className="p-5 rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] space-y-3"
           >
             <div className="flex justify-between">
               <h2 className="font-semibold">{r.name}</h2>
-              <span className="text-xs text-teal-600 dark:text-teal-400">
+              <span className="text-xs text-emerald-600 dark:text-emerald-400">
                 {r.is_active ? "Active" : "Paused"}
               </span>
             </div>
@@ -158,7 +158,7 @@ export function AutomationPage() {
         ))}
       </div>
       {rules.length === 0 && (
-        <div className="p-12 text-center border border-dashed rounded-xl border-slate-300 dark:border-[#183035]">
+        <div className="p-12 text-center border border-dashed rounded-xl border-slate-300 dark:border-white/[0.06]">
           <h2 className="font-semibold">Let your board do the routine work</h2>
           <p className="text-sm text-slate-500 mt-2">
             Create a rule to assign tasks, change priority, add labels, or

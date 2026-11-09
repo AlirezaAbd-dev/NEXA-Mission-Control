@@ -29,7 +29,7 @@ export function CardSubtasks({ card }: { card: Card }) {
     <section className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="flex items-center gap-1.5 text-xs font-semibold text-secondary-foreground uppercase tracking-wider">
-          <ListTree className="w-3.5 h-3.5 text-teal-500" />
+          <ListTree className="w-3.5 h-3.5 text-emerald-500" />
           <span>Subtasks ({children.length})</span>
         </h3>
       </div>

@@ -40,14 +40,14 @@ export function TeamCapacity({
           return (
             <div
               key={m.user_id}
-              className="p-4 border rounded-xl border-slate-200 dark:border-[#183035] space-y-3"
+              className="p-4 border rounded-xl border-slate-200 dark:border-white/[0.06] space-y-3"
             >
               <h3 className="font-semibold">{m.display_name}</h3>
               <p
                 className={
                   hours > available
                     ? "text-rose-500"
-                    : "text-teal-600 dark:text-teal-400"
+                    : "text-emerald-600 dark:text-emerald-400"
                 }
               >
                 {hours} / {available} hours ·{" "}

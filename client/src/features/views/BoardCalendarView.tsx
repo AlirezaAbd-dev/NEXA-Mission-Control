@@ -89,11 +89,11 @@ export function BoardCalendarView({
         </p>
       )}
       <div className="overflow-x-auto">
-        <div className="min-w-[700px] grid grid-cols-7 border border-slate-200 dark:border-[#183035] rounded-xl overflow-hidden bg-white dark:bg-[#0d1a1d]">
+        <div className="min-w-[700px] grid grid-cols-7 border border-slate-200 dark:border-white/[0.06] rounded-xl overflow-hidden bg-white dark:bg-[#0b0c10]">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
             <div
               key={day}
-              className="p-3 text-xs text-center bg-slate-50 dark:bg-[#132428] text-slate-500"
+              className="p-3 text-xs text-center bg-slate-50 dark:bg-[#101117] text-slate-500"
             >
               {day}
             </div>
@@ -115,10 +115,10 @@ export function BoardCalendarView({
                       onError: (e) => setError(apiError(e)),
                     });
                 }}
-                className={`p-2 min-h-32 border-t border-e border-slate-200 dark:border-[#183035] ${today ? "bg-teal-500/10" : ""} ${date.getMonth() !== current.getMonth() && mode === "month" ? "opacity-50" : ""}`}
+                className={`p-2 min-h-32 border-t border-e border-slate-200 dark:border-white/[0.06] ${today ? "bg-emerald-500/10" : ""} ${date.getMonth() !== current.getMonth() && mode === "month" ? "opacity-50" : ""}`}
               >
                 <span
-                  className={`text-xs font-semibold ${today ? "text-teal-500" : "text-slate-500"}`}
+                  className={`text-xs font-semibold ${today ? "text-emerald-500" : "text-slate-500"}`}
                 >
                   {date.getDate()}
                 </span>
@@ -140,7 +140,7 @@ export function BoardCalendarView({
                           e.dataTransfer.setData("text/plain", c.id)
                         }
                         onClick={() => open(c.id)}
-                        className="block w-full truncate text-start bg-teal-500/10 text-teal-700 dark:text-teal-300 text-xs"
+                        className="block w-full truncate text-start bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs"
                         title={`${c.title} · ${parseDay(c.due_date || key).toLocaleDateString()}`}
                       >
                         {c.title}

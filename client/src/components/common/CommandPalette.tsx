@@ -92,7 +92,7 @@ export function CommandPalette() {
                 key={item.card_id}
                 variant="ghost"
                 onMouseEnter={() => setHighlighted(i)}
-                className={`w-full h-auto justify-between p-3 text-start ${highlighted === i ? "bg-teal-500/10" : ""}`}
+                className={`w-full h-auto justify-between p-3 text-start ${highlighted === i ? "bg-emerald-500/10" : ""}`}
                 onClick={() => select(item.card_id)}
               >
                 <span>

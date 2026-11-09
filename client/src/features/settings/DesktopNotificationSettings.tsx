@@ -8,7 +8,7 @@ export function DesktopNotificationSettings() {
     setEnabled = useNotificationPreferences((s) => s.setEnabled),
     [message, setMessage] = useState("");
   return (
-    <section className="p-5 border rounded-xl border-slate-200 dark:border-[#183035] space-y-3">
+    <section className="p-5 border rounded-xl border-slate-200 dark:border-white/[0.06] space-y-3">
       <h2 className="font-semibold">Desktop notifications</h2>
       <p className="text-sm text-slate-500">
         Receive mentions, assignments, watched comments and reminders when this

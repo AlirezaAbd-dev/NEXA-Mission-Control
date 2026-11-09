@@ -128,7 +128,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         {/* Priority */}
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Flag className="w-3.5 h-3.5 text-teal-500" />
+            <Flag className="w-3.5 h-3.5 text-emerald-500" />
             Priority
           </label>
           <Select
@@ -148,7 +148,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <Hash className="w-3.5 h-3.5 text-teal-500" />
+              <Hash className="w-3.5 h-3.5 text-emerald-500" />
               Points
             </label>
             <Input
@@ -165,7 +165,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
 
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-teal-500" />
+              <Clock className="w-3.5 h-3.5 text-emerald-500" />
               Est. Hours
             </label>
             <Input
@@ -184,7 +184,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         {/* Assignees */}
         <div data-shortcut="assignees" className="space-y-1.5">
           <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <UserCheck className="w-3.5 h-3.5 text-teal-500" />
+            <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
             Assignees
           </label>
           <div className="flex flex-wrap gap-1.5">
@@ -200,8 +200,8 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
                   onClick={() => toggleAssignee(member.user_id)}
                   className={`text-xs px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
                     isAssigned
-                      ? "bg-teal-600 text-white border-teal-600 dark:bg-teal-500 dark:text-slate-950 font-semibold"
-                      : "bg-slate-100 dark:bg-[#132428] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#183035] hover:border-teal-500/40"
+                      ? "bg-emerald-600 text-white border-emerald-600 dark:bg-emerald-500 dark:text-slate-950 font-semibold"
+                      : "bg-slate-100 dark:bg-[#101117] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/[0.06] hover:border-emerald-500/40"
                   }`}
                 >
                   {member.display_name || member.username}
@@ -214,7 +214,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         {/* Labels */}
         <div data-shortcut="labels" className="space-y-1.5">
           <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Tag className="w-3.5 h-3.5 text-teal-500" />
+            <Tag className="w-3.5 h-3.5 text-emerald-500" />
             Labels
           </label>
           {workspaceLabels.length === 0 && (
@@ -268,7 +268,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         {/* Due Date */}
         <div data-shortcut="due" className="space-y-1.5">
           <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-teal-500" />
+            <Calendar className="w-3.5 h-3.5 text-emerald-500" />
             Due Date
           </label>
           <Input
@@ -289,7 +289,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
             {/* Template Toggle */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-teal-500" />
+                <FileText className="w-3.5 h-3.5 text-emerald-500" />
                 Template
               </label>
               <button
@@ -297,15 +297,15 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
                 onClick={handleToggleTemplate}
                 className={`w-full text-xs p-2 rounded-lg border font-medium flex items-center justify-between transition-all cursor-pointer ${
                   card.is_template
-                    ? "bg-teal-500/10 border-teal-500/40 text-teal-600 dark:text-teal-400 font-semibold"
-                    : "bg-slate-50 dark:bg-[#0d1a1d] border-slate-200 dark:border-[#183035] text-slate-600 dark:text-slate-300 hover:border-teal-500/30"
+                    ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-600 dark:text-emerald-400 font-semibold"
+                    : "bg-slate-50 dark:bg-[#0b0c10] border-slate-200 dark:border-white/[0.06] text-slate-600 dark:text-slate-300 hover:border-emerald-500/30"
                 }`}
               >
                 <span>Mark as Reusable Template</span>
                 <span
                   className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${
                     card.is_template
-                      ? "bg-teal-500 border-teal-500 text-slate-950 font-bold"
+                      ? "bg-emerald-500 border-emerald-500 text-slate-950 font-bold"
                       : "border-slate-300 dark:border-border"
                   }`}
                 >

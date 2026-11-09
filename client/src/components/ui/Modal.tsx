@@ -153,7 +153,7 @@ export const Modal = ({
         aria-label={title || "Task details"}
         tabIndex={-1}
         className={cn(
-          "relative z-10 w-full min-w-0 max-h-[calc(100dvh-2rem)] flex flex-col overflow-hidden rounded-3xl border border-slate-200/90 dark:border-[#183035] bg-white dark:bg-[#0a1518] shadow-2xl shadow-slate-900/10 dark:shadow-black/70 animate-in zoom-in-95 duration-200",
+          "relative z-10 w-full min-w-0 max-h-[calc(100dvh-2rem)] flex flex-col overflow-hidden rounded-3xl border border-slate-200/90 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10] shadow-2xl shadow-slate-900/10 dark:shadow-black/70 animate-in zoom-in-95 duration-200",
           sizeClasses[size],
           className,
         )}
@@ -165,7 +165,7 @@ export const Modal = ({
             type="button"
             onClick={onClose}
             className={cn(
-              "absolute top-4 end-4 z-30 flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/90 dark:border-[#183035] bg-white dark:bg-[#132428] text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-[#183035] transition-all cursor-pointer focus:ring-2 focus:ring-teal-500/40",
+              "absolute top-4 end-4 z-30 flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/90 dark:border-white/[0.06] bg-white dark:bg-[#101117] text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-white/[0.08] transition-all cursor-pointer focus:ring-2 focus:ring-emerald-500/40",
               closeButtonClassName,
             )}
             aria-label="Close modal"
@@ -175,7 +175,7 @@ export const Modal = ({
         )}
 
         {(title || description) && (
-          <div className="shrink-0 border-b border-slate-100 dark:border-[#183035] bg-slate-50/70 dark:bg-[#0d1a1d]/80 px-6 py-4 pe-16">
+          <div className="shrink-0 border-b border-slate-100 dark:border-white/[0.06] bg-slate-50/70 dark:bg-[#0b0c10]/80 px-6 py-4 pe-16">
             {title && (
               <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                 {title}

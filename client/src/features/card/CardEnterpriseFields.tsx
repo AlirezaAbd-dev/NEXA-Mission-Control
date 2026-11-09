@@ -39,7 +39,7 @@ export function CardEnterpriseFields({ card }: { card: Card }) {
       { onError: (e) => setError(apiError(e)) },
     );
   return (
-    <section className="space-y-3 pt-4 border-t border-slate-200 dark:border-[#183035]">
+    <section className="space-y-3 pt-4 border-t border-slate-200 dark:border-white/[0.06]">
       <CardProcessFields card={card} />
       <CardDevelopment projectId={card.project_id} cardId={card.id} />
       <h3 className="text-xs font-semibold text-slate-500 uppercase">

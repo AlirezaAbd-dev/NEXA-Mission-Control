@@ -13,7 +13,7 @@ export function BoardTemplates({ projectId }: { projectId: string }) {
   const [name, setName] = useState(""),
     [apply, setApply] = useState<string>();
   return (
-    <section className="space-y-3 border rounded-xl p-5 border-slate-200 dark:border-[#183035]">
+    <section className="space-y-3 border rounded-xl p-5 border-slate-200 dark:border-white/[0.06]">
       <h2 className="font-semibold">Workspace board templates</h2>
       <p className="text-sm text-slate-500">
         Snapshot task titles, descriptions, estimates and list names. Applying

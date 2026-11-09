@@ -46,7 +46,7 @@ export function FlowReports({ projectId }: { projectId: string }) {
         History starts when tracking is enabled. Cycle time starts at the first
         recorded active state, falling back to task creation.
       </p>
-      <div className="rounded-xl border border-slate-200 dark:border-[#183035] p-4">
+      <div className="rounded-xl border border-slate-200 dark:border-white/[0.06] p-4">
         <h3 className="font-semibold">Cumulative flow · last 30 days</h3>
         <svg
           viewBox="0 0 720 260"
@@ -83,7 +83,7 @@ export function FlowReports({ projectId }: { projectId: string }) {
         </svg>
         <p className="text-sm">{states.join(" · ")}</p>
       </div>
-      <div className="rounded-xl border border-slate-200 dark:border-[#183035] p-4">
+      <div className="rounded-xl border border-slate-200 dark:border-white/[0.06] p-4">
         <h3 className="font-semibold">Cycle-time scatter chart</h3>
         <svg
           viewBox="0 0 720 200"

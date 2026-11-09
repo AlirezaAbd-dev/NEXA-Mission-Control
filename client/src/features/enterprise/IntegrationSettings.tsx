@@ -26,7 +26,7 @@ export function IntegrationSettings({ projectId }: { projectId: string }) {
     [id, setId] = useState<string>();
   const outbound = ["slack", "discord"].includes(kind);
   return (
-    <section className="p-5 rounded-xl bg-white dark:bg-[#0d1a1d] border border-slate-200 dark:border-[#183035] space-y-4">
+    <section className="p-5 rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] space-y-4">
       <div className="flex justify-between">
         <h2 className="font-semibold">Integrations</h2>
         <Button size="sm" variant="outline" onClick={() => setModal(true)}>
@@ -41,7 +41,7 @@ export function IntegrationSettings({ projectId }: { projectId: string }) {
       {items.map((i) => (
         <div
           key={i.id}
-          className="p-3 rounded-lg bg-slate-50 dark:bg-[#132428] space-y-2"
+          className="p-3 rounded-lg bg-slate-50 dark:bg-[#101117] space-y-2"
         >
           <div className="flex justify-between">
             <p className="text-sm font-medium">

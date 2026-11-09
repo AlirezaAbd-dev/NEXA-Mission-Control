@@ -16,8 +16,8 @@ export function IntakePage() {
     [done, setDone] = useState(false),
     [error, setError] = useState("");
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-[#070e10] text-slate-900 dark:text-slate-100 p-6">
-      <div className="max-w-xl mx-auto space-y-5 p-6 rounded-xl border border-slate-200 dark:border-[#183035]">
+    <main className="min-h-screen bg-slate-50 dark:bg-[#070709] text-slate-900 dark:text-slate-100 p-6">
+      <div className="max-w-xl mx-auto space-y-5 p-6 rounded-xl border border-slate-200 dark:border-white/[0.06]">
         <h1 className="text-2xl font-bold">{form?.name || "Request form"}</h1>
         {loadError ? (
           <p role="alert">This request form is unavailable.</p>
