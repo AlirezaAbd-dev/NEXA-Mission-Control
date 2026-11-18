@@ -86,25 +86,37 @@ jobs:
     steps:
       - name: Execute Remote Deployment via SSH
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME || 'alirezaabddev' }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         with:
           host: ${{ secrets.VPS_HOST || '130.185.78.131' }}
           username: ${{ secrets.VPS_USERNAME || 'root' }}
           key: ${{ secrets.VPS_SSH_KEY }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_PORT || 22 }}
+          envs: DOCKERHUB_USERNAME,DOCKERHUB_TOKEN
           script_stop: true
           script: |
             set -e
-            echo "🚀 [1/4] Navigating to Mission Control directory..."
+            echo "🚀 [1/5] Navigating to Mission Control directory..."
             cd /opt/mission-control
 
-            echo "📦 [2/4] Pulling latest production container image..."
-            docker compose pull mission-control
+            echo "🔑 [2/5] Authenticating Docker registry on VPS..."
+            if [ -n "$DOCKERHUB_TOKEN" ]; then
+              echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin || true
+            fi
 
-            echo "🔄 [3/4] Recreating container with zero downtime..."
+            echo "📦 [3/5] Pulling latest production container image..."
+            if ! docker compose pull mission-control; then
+              echo "⚠️ compose pull failed, trying direct docker pull..."
+              docker pull alirezaabddev/nexa-mission-control:latest
+            fi
+
+            echo "🔄 [4/5] Recreating container with zero downtime..."
             docker compose up -d --remove-orphans mission-control
 
-            echo "⏳ [4/4] Verifying container health..."
+            echo "⏳ [5/5] Verifying container health..."
             sleep 6
             docker ps --filter name=mission-control
             docker exec mission-control curl -sf http://localhost:1337/api/v1/health || exit 1
