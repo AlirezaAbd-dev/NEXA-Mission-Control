@@ -124,15 +124,16 @@ Configure under your Extension MCP Settings:
 ---
 
 ### E. Gemini Web & Remote MCP Connectors
-Gemini Web (`gemini.google.com`) and remote cloud AI assistants connect over **Server-Sent Events (SSE)**.
+Gemini Web (`gemini.google.com`) and modern remote cloud AI assistants connect over **Streamable HTTP** (the modern MCP standard).
 
 In Gemini Web ➔ **Settings / Connectors** ➔ **Custom** ➔ **Connect to an MCP server**:
 - **MCP server URL**:
   ```
-  https://tasks.nexasmart.net/mcp/sse?token=YOUR_PERSONAL_TOKEN_HERE
+  https://tasks.nexasmart.net/mcp?token=YOUR_PERSONAL_TOKEN_HERE
   ```
-  *(You can also use `https://tasks.nexasmart.net/api/v1/mcp/sse?token=YOUR_PERSONAL_TOKEN_HERE`)*
-- Click **Next** to establish the remote connection. All 9 Mission Control tools (`mc_*`) will be instantly recognized by Gemini Web.
+  *(Or `https://tasks.nexasmart.net/api/v1/mcp?token=YOUR_PERSONAL_TOKEN_HERE`)*
+- **Additional settings**: Leave Client ID / Client secret blank.
+- Click **Next** to establish the connection. All 9 Mission Control tools (`mc_*`) will be instantly recognized by Gemini Web.
 
 ---
 

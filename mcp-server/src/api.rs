@@ -35,8 +35,14 @@ impl MissionControlClient {
             }
         }
 
-        let client = reqwest::Client::builder()
-            .default_headers(headers)
+        let mut builder = reqwest::Client::builder()
+            .default_headers(headers);
+
+        if let Ok(addr) = "130.185.78.131:443".parse::<std::net::SocketAddr>() {
+            builder = builder.resolve("tasks.nexasmart.net", addr);
+        }
+
+        let client = builder
             .build()
             .expect("Failed to initialize reqwest client");
 

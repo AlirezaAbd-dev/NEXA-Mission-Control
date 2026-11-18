@@ -250,7 +250,7 @@ pub async fn direct_handler(
         }
 
         // Otherwise return discovery metadata
-        return Ok(Json(json!({
+        let mut resp = Json(json!({
             "status": "ok",
             "protocol": "mcp",
             "version": "2024-11-05",
@@ -266,7 +266,12 @@ pub async fn direct_handler(
                 "messages": "/api/v1/mcp/messages",
                 "direct": "/api/v1/mcp"
             }
-        })).into_response());
+        })).into_response();
+        resp.headers_mut().insert(
+            header::HeaderName::from_static("mcp-protocol-version"),
+            header::HeaderValue::from_static("2024-11-05"),
+        );
+        return Ok(resp);
     }
 
     // Direct JSON-RPC POST (Streamable HTTP)
@@ -304,5 +309,10 @@ pub async fn direct_handler(
         }),
     };
 
-    Ok(Json(json_rpc_resp).into_response())
+    let mut resp = Json(json_rpc_resp).into_response();
+    resp.headers_mut().insert(
+        header::HeaderName::from_static("mcp-protocol-version"),
+        header::HeaderValue::from_static("2024-11-05"),
+    );
+    Ok(resp)
 }

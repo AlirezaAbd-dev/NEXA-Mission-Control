@@ -21,7 +21,7 @@ export function McpManualModal({
   const tokenPlaceholder = activeToken || "YOUR_PERSONAL_TOKEN_HERE";
   const binaryPath =
     "/path/to/mission-control/mcp-server/target/release/nexa-mission-control-mcp";
-  const geminiSseUrl = `https://tasks.nexasmart.net/mcp/sse?token=${tokenPlaceholder}`;
+  const geminiHttpUrl = `https://tasks.nexasmart.net/mcp?token=${tokenPlaceholder}`;
 
   const configs = {
     claude: JSON.stringify(
@@ -107,12 +107,12 @@ export function McpManualModal({
             <Globe className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold text-sm text-blue-950 dark:text-blue-100 flex items-center gap-1.5 mb-1">
-                <span>Cloud Remote MCP (SSE)</span>
+                <span>Cloud Remote MCP (Streamable HTTP)</span>
                 <span className="px-1.5 py-0.5 text-[10px] rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 font-normal">
                   Zero Install
                 </span>
               </p>
-              Connect directly from <strong>Gemini Web</strong> (<code>gemini.google.com</code>) or any web-based AI client via live Server-Sent Events.
+              Connect directly from <strong>Gemini Web</strong> (<code>gemini.google.com</code>) or web AI clients via standard Streamable HTTP.
             </div>
           </div>
 
@@ -172,14 +172,14 @@ export function McpManualModal({
               {/* URL Box */}
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                  Step 1: Copy your MCP Server URL
+                  Step 1: Copy your MCP Server URL (Streamable HTTP)
                 </label>
                 <div className="relative group">
                   <pre className="p-3 rounded-lg bg-slate-900 text-emerald-400 font-mono text-xs overflow-x-auto pr-24 border border-slate-800">
-                    {geminiSseUrl}
+                    {geminiHttpUrl}
                   </pre>
                   <button
-                    onClick={() => copySnippet("gemini_url", geminiSseUrl)}
+                    onClick={() => copySnippet("gemini_url", geminiHttpUrl)}
                     className="absolute top-2.5 right-2.5 px-2.5 py-1.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium flex items-center gap-1.5 transition-colors shadow-sm"
                     title="Copy URL"
                   >

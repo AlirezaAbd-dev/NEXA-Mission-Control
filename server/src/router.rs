@@ -1,10 +1,10 @@
 use axum::{
-    http::{header, Method},
+    http::Method,
     routing::{get, post},
     Json, Router,
 };
 use tower_http::{
-    cors::{AllowOrigin, CorsLayer},
+    cors::{AllowOrigin, Any, CorsLayer},
     services::{ServeDir, ServeFile},
     trace::TraceLayer,
 };
@@ -21,7 +21,7 @@ pub fn create_router(state: AppState) -> Router {
             Method::PATCH,
             Method::OPTIONS,
         ])
-        .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE, header::ACCEPT]);
+        .allow_headers(Any);
 
     let api_v1 = Router::new()
         .route("/health", get(|| async { Json(serde_json::json!({ "status": "ok", "app": "Mission Control" })) }))
