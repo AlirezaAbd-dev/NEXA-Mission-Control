@@ -164,9 +164,17 @@ export function McpManualModal({
                     How to Connect Gemini Web (gemini.google.com)
                   </h4>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    No installation or local binary needed. Connects directly over HTTPS Server-Sent Events.
+                    No installation or local binary needed. Connects directly over modern Streamable HTTP.
                   </p>
                 </div>
+              </div>
+
+              {/* Warning/Tip for Gemini Web */}
+              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2.5">
+                <span className="font-bold text-amber-600 dark:text-amber-400 shrink-0">⚠️ Important:</span>
+                <span>
+                  Gemini Web strictly requires <strong>Streamable HTTP</strong>. Do <strong>not</strong> add <code>/sse</code> to the URL; use the exact endpoint below.
+                </span>
               </div>
 
               {/* URL Box */}
