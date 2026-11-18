@@ -14,7 +14,7 @@ export function McpManualModal({
   activeToken,
 }: McpManualModalProps) {
   const [activeTab, setActiveTab] = useState<
-    "claude" | "antigravity" | "cursor" | "cline" | "tools"
+    "claude" | "antigravity" | "cursor" | "cline" | "gemini_web" | "tools"
   >("claude");
   const [copied, setCopied] = useState<string | null>(null);
 
@@ -139,6 +139,7 @@ export function McpManualModal({
           {/* Client Tabs */}
           <div className="flex border-b border-slate-200 dark:border-white/[0.08] text-xs">
             {[
+              { id: "gemini_web", label: "Gemini Web (SSE)" },
               { id: "claude", label: "Claude Desktop" },
               { id: "antigravity", label: "Antigravity / Gemini" },
               { id: "cursor", label: "Cursor" },
@@ -159,7 +160,45 @@ export function McpManualModal({
             ))}
           </div>
 
-          {activeTab !== "tools" ? (
+          {activeTab === "gemini_web" ? (
+            <div className="space-y-3">
+              <p className="text-xs text-slate-600 dark:text-slate-300">
+                Connect directly from <strong>gemini.google.com</strong> without running any local binaries or containers:
+              </p>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">
+                  MCP Server URL (Remote SSE)
+                </label>
+                <div className="relative group">
+                  <pre className="p-2.5 rounded-md bg-slate-900 text-emerald-400 font-mono text-xs overflow-x-auto pr-10">
+                    {`https://tasks.nexasmart.net/mcp/sse?token=${tokenPlaceholder}`}
+                  </pre>
+                  <button
+                    onClick={() =>
+                      copySnippet(
+                        "gemini_url",
+                        `https://tasks.nexasmart.net/mcp/sse?token=${tokenPlaceholder}`,
+                      )
+                    }
+                    className="absolute top-2 right-2 p-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs flex items-center gap-1"
+                    title="Copy URL"
+                  >
+                    {copied === "gemini_url" ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              <ol className="list-decimal list-inside space-y-1 text-xs text-slate-500 dark:text-slate-400">
+                <li>Open <strong>gemini.google.com</strong> ➔ <strong>Settings / Connectors</strong>.</li>
+                <li>Click <strong>+ Custom</strong> (or <strong>Connect to an MCP server</strong>).</li>
+                <li>Paste the URL above into the <strong>MCP server URL</strong> field.</li>
+                <li>Click <strong>Next</strong>. Gemini Web will instantly discover all 9 tools!</li>
+              </ol>
+            </div>
+          ) : activeTab !== "tools" ? (
             <div className="space-y-2">
               <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                 <span>

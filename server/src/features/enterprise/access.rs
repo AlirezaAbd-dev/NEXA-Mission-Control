@@ -23,6 +23,8 @@ pub async fn guard(
         || suffix.starts_with("productivity/")
         || suffix.starts_with("localops/")
         || suffix == "notes" || suffix.starts_with("notes/")
+        || suffix == "mcp" || suffix.starts_with("mcp/")
+        || suffix == "sse" || suffix == "messages"
     {
         return Ok(next.run(request).await);
     }

@@ -24,3 +24,4 @@ pub mod productivity;
 
 pub mod localops;
 pub mod notes;
+pub mod mcp;

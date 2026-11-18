@@ -1,6 +1,6 @@
 use axum::{
     http::{header, Method},
-    routing::get,
+    routing::{get, post},
     Json, Router,
 };
 use tower_http::{
@@ -46,13 +46,19 @@ pub fn create_router(state: AppState) -> Router {
 
         .nest("/notifications", features::notification::router())
         .nest("/search", features::search::router())
-        .nest("/upload", features::upload::router());
+        .nest("/upload", features::upload::router())
+        .nest("/mcp", features::mcp::router());
 
     let upload_dir = state.config.upload_dir.clone();
     let static_dir = state.config.static_dir.clone();
 
     let mut router = Router::new()
         .nest("/api/v1", api_v1)
+        .route("/mcp", get(features::mcp::direct_handler).post(features::mcp::direct_handler))
+        .route("/mcp/sse", get(features::mcp::sse_handler))
+        .route("/mcp/messages", post(features::mcp::messages_handler))
+        .route("/sse", get(features::mcp::sse_handler))
+        .route("/messages", post(features::mcp::messages_handler))
         .nest_service("/uploads", ServeDir::new(upload_dir));
 
     if let Some(dir) = static_dir {
