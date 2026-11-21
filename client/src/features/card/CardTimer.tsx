@@ -1,3 +1,5 @@
+import { formatNumber } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { timerElapsedSeconds } from "@/lib/timerClock";
 import { apiError } from "@/lib/apiError";
 import React, { useState, useEffect } from "react";
@@ -28,6 +30,7 @@ interface CardTimerProps {
 }
 
 export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
+  useUiLocale();
   const { data: logs = [] } = useTimeLogs(cardId);
   const timerQuery = useActiveTimer(cardId);
   const { data: activeTimer } = timerQuery;
@@ -61,7 +64,7 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
   const totalMinutesLogged = logs.reduce((acc, log) => acc + log.minutes, 0);
   const totalHours = Math.floor(totalMinutesLogged / 60);
   const remainingMinutes = totalMinutesLogged % 60;
-  const formattedTotal = `${totalHours > 0 ? `${totalHours}h ` : ""}${remainingMinutes}m`;
+  const formattedTotal = totalHours > 0 ? tr("{value0}h {value1}m", { value0: totalHours, value1: remainingMinutes }) : tr("{value0}m", { value0: remainingMinutes });
 
   const handleToggleTimer = () => {
     if (activeTimer) {
@@ -96,16 +99,13 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
     <div className="space-y-2.5">
       <div className="flex items-center justify-between">
         <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-          <Clock className="w-3.5 h-3.5 text-emerald-500" />
-          Time Tracking
-        </label>
+          <Clock className="w-3.5 h-3.5 text-emerald-500" />{tr("Time Tracking")}</label>
         <span className="text-xs font-mono font-medium text-emerald-600 dark:text-emerald-400">
-          {formattedTotal} logged
-        </span>
+          {formattedTotal}{tr("logged")}</span>
       </div>
 
       {/* Stopwatch Banner */}
-      {timerQuery.error && <div role="alert" className="text-xs text-danger space-y-2"><p>{apiError(timerQuery.error)}</p><Button variant="outline" size="sm" onClick={() => void timerQuery.refetch()}>Retry timer</Button></div>}
+      {timerQuery.error && <div role="alert" className="text-xs text-danger space-y-2"><p>{apiError(timerQuery.error)}</p><Button variant="outline" size="sm" onClick={() => void timerQuery.refetch()}>{tr("Retry timer")}</Button></div>}
       <div
         className={`p-3 rounded-xl border transition-all ${
           activeTimer
@@ -120,7 +120,7 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
                 activeTimer ? "bg-emerald-400 animate-ping" : "bg-slate-400"
               }`}
             />
-            <span className="font-mono text-base font-bold tracking-wider text-slate-900 dark:text-slate-100">
+            <span dir="ltr" className="font-mono text-base font-bold tracking-wider text-slate-900 dark:text-slate-100">
               {formatStopwatch(elapsedSeconds)}
             </span>
           </div>
@@ -136,14 +136,10 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
           >
             {activeTimer ? (
               <>
-                <Square className="w-3 h-3 mr-1 fill-current" />
-                Stop
-              </>
+                <Square className="w-3 h-3 me-1 fill-current" />{tr("Stop")}</>
             ) : (
               <>
-                <Play className="w-3 h-3 mr-1 fill-current" />
-                Start
-              </>
+                <Play className="w-3 h-3 me-1 fill-current" />{tr("Start")}</>
             )}
           </Button>
         </div>
@@ -156,7 +152,7 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
             className="text-slate-500 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 flex items-center gap-1 transition-colors cursor-pointer"
           >
             <Plus className="w-3 h-3" />
-            <span>Manual entry</span>
+            <span>{tr("Manual entry")}</span>
           </button>
 
           {logs.length > 0 && (
@@ -165,7 +161,7 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
               onClick={() => setShowLogHistory(!showLogHistory)}
               className="text-slate-500 dark:text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 flex items-center gap-1 transition-colors cursor-pointer"
             >
-              <span>{logs.length} logs</span>
+              <span>{formatNumber(logs.length)}{" "}{tr("logs")}</span>
               {showLogHistory ? (
                 <ChevronUp className="w-3 h-3" />
               ) : (
@@ -184,7 +180,7 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
             <div className="flex gap-2">
               <Input
                 type="number"
-                placeholder="Minutes"
+                placeholder={tr("Minutes")}
                 min="1"
                 max="1440"
                 value={manualMinutes}
@@ -195,7 +191,7 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
               />
               <Input
                 type="text"
-                placeholder="What did you work on?"
+                placeholder={tr("What did you work on?")}
                 value={manualDescription}
                 onChange={(e) => setManualDescription(e.target.value)}
                 className="flex-1 text-xs h-8"
@@ -208,18 +204,14 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
                 size="sm"
                 onClick={() => setShowManualLog(false)}
                 className="h-7 text-xs"
-              >
-                Cancel
-              </Button>
+              >{tr("Cancel")}</Button>
               <Button
                 type="submit"
                 variant="primary"
                 size="sm"
                 isLoading={createTimeLog.isPending}
                 className="h-7 text-xs"
-              >
-                Log
-              </Button>
+              >{tr("Log")}</Button>
             </div>
           </form>
         )}
@@ -232,9 +224,9 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
                 key={log.id}
                 className="flex items-center justify-between text-xs p-1.5 rounded-lg bg-slate-100/50 dark:bg-[#101117] text-slate-600 dark:text-slate-300"
               >
-                <div className="truncate pr-2">
-                  <span className="font-semibold text-slate-800 dark:text-slate-200 mr-1.5">
-                    {log.minutes}m
+                <div className="truncate pe-2">
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 me-1.5">
+                    {formatNumber(log.minutes)}m
                   </span>
                   <span className="text-slate-400">
                     {log.description || log.user_name}
@@ -244,7 +236,7 @@ export const CardTimer: React.FC<CardTimerProps> = ({ cardId }) => {
                   type="button"
                   onClick={() => deleteTimeLog.mutate({ id: log.id, cardId })}
                   className="text-slate-400 hover:text-rose-500 transition-colors p-1"
-                  title="Delete log"
+                  title={tr("Delete log")}
                 >
                   <Trash2 className="w-3 h-3" />
                 </button>

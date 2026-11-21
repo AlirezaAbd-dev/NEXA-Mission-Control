@@ -1,3 +1,5 @@
+import { uiLabel } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { Button, CustomSelect, Modal } from "@/components/ui";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
@@ -6,6 +8,7 @@ import { useWorkspaceMembers } from "@/hooks/workspace/useWorkspaceMembers";
 import { useProjectMembers } from "@/hooks/productivity/useProjectMembers";
 import { useProductivityMutation } from "@/hooks/productivity/useProductivityMutation";
 export function ProjectMembers({ projectId }: { projectId: string }) {
+  useUiLocale();
   const { data: project } = useProject(projectId),
     { data: directory = [] } = useWorkspaceMembers(project?.workspace_id),
     { data: members = [] } = useProjectMembers(projectId),
@@ -18,20 +21,16 @@ export function ProjectMembers({ projectId }: { projectId: string }) {
     directory.find((m) => m.user_id === target)?.role === "viewer";
   return (
     <section className="border rounded-xl p-5 space-y-3 border-slate-200 dark:border-white/[0.06]">
-      <h2 className="font-semibold">Project members</h2>
-      <p className="text-sm text-slate-500">
-        Private projects require explicit membership. Workspace administrators
-        inherit access. Public projects remain visible to workspace members;
-        make a project private to restrict access.
-      </p>
+      <h2 className="font-semibold">{tr("Project members")}</h2>
+      <p className="text-sm text-slate-500">{tr("Private projects require explicit membership. Workspace administrators inherit access. Public projects remain visible to workspace members; make a project private to restrict access.")}</p>
       {members.map((m) => (
         <div
           key={m.user_id}
           className="flex justify-between items-center gap-3"
         >
           <span>
-            {m.display_name} · {m.role}
-            {m.inherited ? " · inherited" : ""}
+            {m.display_name} · {uiLabel(m.role)}
+            {m.inherited ? tr("· inherited") : ""}
           </span>
           {!m.inherited && (
             <div className="flex gap-2">
@@ -43,16 +42,12 @@ export function ProjectMembers({ projectId }: { projectId: string }) {
                   setRole(m.role);
                   setModal(true);
                 }}
-              >
-                Change role
-              </Button>
+              >{tr("Change role")}</Button>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setRemove(m.user_id)}
-              >
-                Remove membership override
-              </Button>
+              >{tr("Remove membership override")}</Button>
             </div>
           )}
         </div>
@@ -65,17 +60,15 @@ export function ProjectMembers({ projectId }: { projectId: string }) {
           setRole("member");
           setModal(true);
         }}
-      >
-        Add project member
-      </Button>
+      >{tr("Add project member")}</Button>
       <Modal
         isOpen={modal}
         onClose={() => setModal(false)}
-        title="Configure project membership"
+        title={tr("Configure project membership")}
       >
         <div className="space-y-4">
           <CustomSelect
-            label="Workspace member"
+            label={tr("Workspace member")}
             searchable
             value={target}
             options={directory
@@ -91,12 +84,12 @@ export function ProjectMembers({ projectId }: { projectId: string }) {
             }}
           />
           <CustomSelect
-            label="Project role"
+            label={tr("Project role")}
             value={role}
             options={(workspaceViewer
               ? ["viewer"]
               : ["admin", "member", "viewer"]
-            ).map((value) => ({ value, label: value }))}
+            ).map((value) => ({ value, label: uiLabel(value)}))}
             onChange={setRole}
           />
           <Button
@@ -110,16 +103,14 @@ export function ProjectMembers({ projectId }: { projectId: string }) {
                 { onSuccess: () => setModal(false) },
               )
             }
-          >
-            Save membership
-          </Button>
+          >{tr("Save membership")}</Button>
         </div>
       </Modal>
       <ConfirmModal
         isOpen={!!remove}
         onClose={() => setRemove(undefined)}
-        title="Remove project membership"
-        description="Private projects revoke explicit access. In workspace-visible projects, removing an override restores the user’s workspace role. Workspace administrators retain inherited access."
+        title={tr("Remove project membership")}
+        description={tr("Private projects revoke explicit access. In workspace-visible projects, removing an override restores the user’s workspace role. Workspace administrators retain inherited access.")}
         onConfirm={() =>
           save.mutate(
             {

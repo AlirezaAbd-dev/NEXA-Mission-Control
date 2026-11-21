@@ -1,3 +1,5 @@
+import { uiLabel } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { useParams } from "react-router";
 import {
@@ -17,6 +19,7 @@ import { KnowledgeBase } from "./KnowledgeBase";
 import type { Session, Ticket } from "./types";
 import { isSlaBreached as breached } from "./deskMetrics";
 export function ServiceDeskPage() {
+  useUiLocale();
   const { projectId = "" } = useParams();
   const { data: session } = useLocalResource<Session>(projectId, "session"),
     { data: tickets = [], error: loadError } = useLocalResource<Ticket[]>(
@@ -62,11 +65,11 @@ export function ServiceDeskPage() {
       <ViewTabs projectId={projectId} />
       <header className="flex flex-wrap justify-between gap-4 border-b border-border pb-5">
         <div>
-          <h1 className="text-2xl font-bold">Service desk</h1>
+          <h1 className="text-2xl font-bold">{tr("Service desk")}</h1>
           <p className="text-muted-foreground text-sm">
             {session?.can_triage
-              ? "Manage requests, first replies, resolutions and shared answers."
-              : "Submit requests, track your conversations and browse published guides."}
+              ? tr("Manage requests, first replies, resolutions and shared answers.")
+              : tr("Submit requests, track your conversations and browse published guides.")}
           </p>
         </div>
         <Button
@@ -74,19 +77,17 @@ export function ServiceDeskPage() {
             setOpen(true);
             setError("");
           }}
-        >
-          New request
-        </Button>
+        >{tr("New request")}</Button>
       </header>
       <div className="grid sm:grid-cols-3 gap-3">
         {[
           [
-            "Open",
+            tr("Open"),
             tickets.filter((t) => !["resolved", "closed"].includes(t.status))
               .length,
           ],
-          ["Waiting", tickets.filter((t) => t.status === "pending").length],
-          ["SLA overdue", tickets.filter((t) => breached(t)).length],
+          [tr("Waiting"), tickets.filter((t) => t.status === "pending").length],
+          [tr("SLA overdue"), tickets.filter((t) => breached(t)).length],
         ].map(([name, value]) => (
           <div
             key={name}
@@ -99,8 +100,8 @@ export function ServiceDeskPage() {
       </div>
       <div className="grid sm:grid-cols-2 gap-3">
         <Input
-          placeholder="Search requests…"
-          aria-label="Search requests"
+          placeholder={tr("Search requests…")}
+          aria-label={tr("Search requests")}
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
@@ -114,11 +115,11 @@ export function ServiceDeskPage() {
             setPage(0);
           }}
           options={[
-            { value: "", label: "All statuses" },
+            { value: "", label: tr("All statuses") },
             ...["new", "open", "pending", "resolved", "closed", "breached"].map(
               (value) => ({
                 value,
-                label: value === "breached" ? "SLA overdue" : value,
+                label: value === "breached" ? tr("SLA overdue") : uiLabel(value),
               }),
             ),
           ]}
@@ -154,7 +155,7 @@ export function ServiceDeskPage() {
               {t.status}
             </Badge>
             <Badge variant={breached(t) ? "danger" : "default"}>
-              {breached(t) ? "SLA overdue" : t.priority}
+              {breached(t) ? tr("SLA overdue") : t.priority}
             </Badge>
             {session?.can_triage && (
               <span className="text-xs text-muted-foreground">
@@ -166,10 +167,8 @@ export function ServiceDeskPage() {
       </div>
       {!filtered.length && (
         <div className="border border-dashed border-border rounded-2xl p-10 text-center">
-          <h2 className="font-semibold">No matching requests</h2>
-          <p className="text-sm text-muted-foreground">
-            Create a request or adjust the filters to begin.
-          </p>
+          <h2 className="font-semibold">{tr("No matching requests")}</h2>
+          <p className="text-sm text-muted-foreground">{tr("Create a request or adjust the filters to begin.")}</p>
         </div>
       )}
       {filtered.length > 50 && (
@@ -178,17 +177,13 @@ export function ServiceDeskPage() {
             variant="outline"
             disabled={page === 0}
             onClick={() => setPage((p) => p - 1)}
-          >
-            Previous
-          </Button>
-          <span>Page {page + 1}</span>
+          >{tr("Previous")}</Button>
+          <span>{tr("Page")}{" "}{page + 1}</span>
           <Button
             variant="outline"
             disabled={(page + 1) * 50 >= filtered.length}
             onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </Button>
+          >{tr("Next")}</Button>
         </div>
       )}
       <KnowledgeBase
@@ -199,28 +194,28 @@ export function ServiceDeskPage() {
       <Modal
         isOpen={open}
         onClose={() => setOpen(false)}
-        title="New service request"
+        title={tr("New service request")}
         size="xl"
       >
         <div className="space-y-4">
           <Input
-            label="Title"
+            label={tr("Title")}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
           <Textarea
-            label="Describe the issue"
+            label={tr("Describe the issue")}
             rows={6}
             value={body}
             onChange={(e) => setBody(e.target.value)}
           />
           <CustomSelect
-            label="Priority"
+            label={tr("Priority")}
             value={priority}
             onChange={setPriority}
             options={["urgent", "high", "medium", "low"].map((value) => ({
               value,
-              label: value,
+              label: uiLabel(value),
             }))}
           />
           {error && (
@@ -232,9 +227,7 @@ export function ServiceDeskPage() {
             disabled={!title.trim()}
             isLoading={save.isPending}
             onClick={() => void submit()}
-          >
-            Submit request
-          </Button>
+          >{tr("Submit request")}</Button>
         </div>
       </Modal>
       {chosen && (

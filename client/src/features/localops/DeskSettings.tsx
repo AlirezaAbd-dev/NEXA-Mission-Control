@@ -1,9 +1,11 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { Button, Input, Modal } from "@/components/ui";
 import { useLocalResource } from "@/hooks/localops/useLocalResource";
 import { useLocalMutation } from "@/hooks/localops/useLocalMutation";
 import type { Session } from "./types";
 export function DeskSettings({ projectId }: { projectId: string }) {
+  useUiLocale();
   const { data: session } = useLocalResource<Session>(projectId, "session"),
     { data: settings = [] } = useLocalResource<
       { response_hours: number; resolution_hours: number }[]
@@ -15,12 +17,9 @@ export function DeskSettings({ projectId }: { projectId: string }) {
   if (!session?.can_manage) return null;
   return (
     <section className="border border-border bg-card rounded-2xl p-5 space-y-3">
-      <h2 className="font-bold">Service desk SLAs</h2>
-      <p className="text-sm text-muted-foreground">
-        First reply: {settings[0]?.response_hours || 24} hours · Resolution:{" "}
-        {settings[0]?.resolution_hours || 72} hours. Applies to new requests;
-        clocks use elapsed calendar hours.
-      </p>
+      <h2 className="font-bold">{tr("Service desk SLAs")}</h2>
+      <p className="text-sm text-muted-foreground">{tr("First reply:")}{settings[0]?.response_hours || 24}{" "}{tr("hours · Resolution:")}{" "}
+        {settings[0]?.resolution_hours || 72}{tr("hours. Applies to new requests; clocks use elapsed calendar hours.")}</p>
       <Button
         size="sm"
         variant="outline"
@@ -29,17 +28,15 @@ export function DeskSettings({ projectId }: { projectId: string }) {
           setResolution(settings[0]?.resolution_hours || 72);
           setOpen(true);
         }}
-      >
-        Configure SLAs
-      </Button>
+      >{tr("Configure SLAs")}</Button>
       <Modal
         isOpen={open}
         onClose={() => setOpen(false)}
-        title="Service desk SLAs"
+        title={tr("Service desk SLAs")}
       >
         <div className="space-y-4">
           <Input
-            label="Response hours"
+            label={tr("Response hours")}
             type="number"
             min={1}
             max={8760}
@@ -47,7 +44,7 @@ export function DeskSettings({ projectId }: { projectId: string }) {
             onChange={(e) => setResponse(Number(e.target.value))}
           />
           <Input
-            label="Resolution hours"
+            label={tr("Resolution hours")}
             type="number"
             min={1}
             max={8760}
@@ -74,9 +71,7 @@ export function DeskSettings({ projectId }: { projectId: string }) {
                 { onSuccess: () => setOpen(false) },
               )
             }
-          >
-            Save SLA policy
-          </Button>
+          >{tr("Save SLA policy")}</Button>
         </div>
       </Modal>
     </section>

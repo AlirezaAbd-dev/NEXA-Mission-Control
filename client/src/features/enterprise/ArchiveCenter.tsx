@@ -1,3 +1,7 @@
+import { formatNumber } from "@/i18n";
+import { uiLabel } from "@/i18n";
+import { dateLocale } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { Archive, Search, Undo2, ExternalLink, Trash2 } from "lucide-react";
 import { Button, Input } from "@/components/ui";
@@ -17,6 +21,7 @@ export function ArchiveCenter({
   projectId: string;
   compact?: boolean;
 }) {
+  useUiLocale();
   const { data: cards = [], isLoading, error: loadError, refetch } = useCards({
     project_id: projectId,
     archived: true,
@@ -47,11 +52,9 @@ export function ArchiveCenter({
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Archive size={18} className="text-emerald-600 dark:text-emerald-400" />
-          <h2 className="font-semibold text-slate-900 dark:text-slate-100">
-            Archived tasks
-          </h2>
+          <h2 className="font-semibold text-slate-900 dark:text-slate-100">{tr("Archived tasks")}</h2>
           <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
-            {cards.length}
+            {formatNumber(cards.length)}
           </span>
         </div>
       </div>
@@ -63,7 +66,7 @@ export function ArchiveCenter({
             className="absolute start-3 top-1/2 -translate-y-1/2 text-slate-400"
           />
           <Input
-            placeholder="Search archived tasks..."
+            placeholder={tr("Search archived tasks...")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="ps-8 text-xs h-8"
@@ -72,25 +75,20 @@ export function ArchiveCenter({
       )}
 
       {isLoading ? (
-        <p className="text-sm text-slate-500 animate-pulse py-4 text-center">
-          Loading archived tasks...
-        </p>
+        <p className="text-sm text-slate-500 animate-pulse py-4 text-center">{tr("Loading archived tasks...")}</p>
       ) : loadError ? (
         <div role="alert" className="space-y-2 text-sm text-danger">
           <p>{apiError(loadError)}</p>
-          <Button size="sm" variant="outline" onClick={() => void refetch()}>Retry</Button>
+          <Button size="sm" variant="outline" onClick={() => void refetch()}>{tr("Retry")}</Button>
         </div>
       ) : cards.length === 0 ? (
         <div className="py-8 text-center text-slate-500 space-y-1">
           <Archive size={28} className="mx-auto text-slate-400/60 mb-2" />
-          <p className="text-sm font-medium">No archived tasks</p>
-          <p className="text-xs text-slate-400">
-            Removed tasks move here and can be restored until permanently deleted by an owner or admin.
-          </p>
+          <p className="text-sm font-medium">{tr("No archived tasks")}</p>
+          <p className="text-xs text-slate-400">{tr("Removed tasks move here and can be restored until permanently deleted by an owner or admin.")}</p>
         </div>
       ) : filteredCards.length === 0 ? (
-        <p className="text-xs text-slate-500 py-4 text-center">
-          No tasks matching "{search}"
+        <p className="text-xs text-slate-500 py-4 text-center">{tr("No tasks matching \"")}{search}"
         </p>
       ) : (
         <div className="space-y-2 max-h-[60vh] overflow-y-auto pe-1">
@@ -104,11 +102,10 @@ export function ArchiveCenter({
                   <span className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">
                     {c.title}
                   </span>
-                  {c.priority && <PriorityBadge priority={c.priority} />}
+                  {c.priority && <PriorityBadge priority={uiLabel(c.priority)} />}
                 </div>
                 {c.archived_at && (
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Archived {new Date(c.archived_at).toLocaleDateString()}
+                  <p className="text-[11px] text-slate-400 mt-0.5">{tr("Archived")}{new Date(c.archived_at).toLocaleDateString(dateLocale())}
                   </p>
                 )}
               </div>
@@ -118,13 +115,11 @@ export function ArchiveCenter({
                   size="sm"
                   variant="ghost"
                   className="h-7 px-2 text-xs text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
-                  title="View details"
+                  title={tr("View details")}
                   disabled={busy}
                   onClick={() => openCardModal(c.id)}
                 >
-                  <ExternalLink size={13} className="me-1" />
-                  View
-                </Button>
+                  <ExternalLink size={13} className="me-1" />{tr("View")}</Button>
                 <Button
                   size="sm"
                   variant="outline"
@@ -132,15 +127,12 @@ export function ArchiveCenter({
                   disabled={busy}
                   onClick={() => { setError(""); setNotice(""); setTargetId(c.id); }}
                 >
-                  <Undo2 size={13} className="me-1" />
-                  Restore
-                </Button>
+                  <Undo2 size={13} className="me-1" />{tr("Restore")}</Button>
                 {session?.can_manage && (
                   <Button size="sm" variant="danger" className="h-7 px-2 text-xs" disabled={busy}
-                    aria-label={`Delete permanently: ${c.title}`}
+                    aria-label={tr("Delete permanently: {value0}", { value0: (c.title) })}
                     onClick={() => { setDeleteError(""); setNotice(""); setDeleteTarget({ id: c.id, title: c.title }); }}>
-                    <Trash2 size={13} className="me-1" />Delete
-                  </Button>
+                    <Trash2 size={13} className="me-1" />{tr("Delete")}</Button>
                 )}
               </div>
             </div>
@@ -155,17 +147,17 @@ export function ArchiveCenter({
       )}
       {notice && <p role="status" className="text-xs text-primary">{notice}</p>}
       {accessError && <div role="alert" className="text-xs text-danger space-y-2">
-        <p>Could not check archive management permissions. {apiError(accessError)}</p>
-        <Button size="sm" variant="outline" onClick={() => void refreshAccess()}>Retry permission check</Button>
+        <p>{tr("Could not check archive management permissions.")}{" "}{apiError(accessError)}</p>
+        <Button size="sm" variant="outline" onClick={() => void refreshAccess()}>{tr("Retry permission check")}</Button>
       </div>}
-      <p className="text-xs text-muted-foreground">Only project or workspace owners and admins can permanently delete archived tasks.</p>
+      <p className="text-xs text-muted-foreground">{tr("Only project or workspace owners and admins can permanently delete archived tasks.")}</p>
 
       <ConfirmModal
         isOpen={!!deleteTarget}
         onClose={() => { if (!remove.isPending) { setDeleteTarget(undefined); setDeleteError(""); } }}
-        title="Delete archived task permanently?"
-        description={`“${deleteTarget?.title || ""}” and its comments, checklists, and attachments will be permanently deleted. This cannot be undone. Subtasks, linked service-desk records, and project audit history are kept.`}
-        confirmLabel="Delete permanently"
+        title={tr("Delete archived task permanently?")}
+        description={tr("“{value0}” and its comments, checklists, and attachments will be permanently deleted. This cannot be undone. Subtasks, linked service-desk records, and project audit history are kept.", { value0: (deleteTarget?.title || "") })}
+        confirmLabel={tr("Delete permanently")}
         isDestructive
         isLoading={remove.isPending}
         error={deleteError}
@@ -182,8 +174,8 @@ export function ArchiveCenter({
       <ConfirmModal
         isOpen={!!targetId}
         onClose={() => { if (!restore.isPending) setTargetId(undefined); }}
-        title="Restore this task?"
-        description="The task will return to its original column and become active on your board."
+        title={tr("Restore this task?")}
+        description={tr("The task will return to its original column and become active on your board.")}
         isLoading={restore.isPending}
         error={error}
         onConfirm={() =>

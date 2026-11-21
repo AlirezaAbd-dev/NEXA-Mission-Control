@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { flushSync } from "react-dom";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { useProject } from "@/hooks/project/useProject";
@@ -13,6 +14,7 @@ import { useCard } from "@/hooks/card/useCard";
 import { useBulkCards } from "@/hooks/enterprise/useBulkCards";
 import { useSetCardAssignees } from "@/hooks/card/useSetCardAssignees";
 export function KeyboardShortcuts() {
+  useUiLocale();
   const active = useUiStore((s) => s.activeCardId),
     user = useAuthStore((s) => s.user),
     { data: card } = useCard(active || ""),
@@ -81,7 +83,7 @@ export function KeyboardShortcuts() {
       <Modal
         isOpen={!!controls}
         onClose={() => setControls(null)}
-        title={controls === "assignees" ? "Task assignees" : "Task labels"}
+        title={controls === "assignees" ? tr("Task assignees") : tr("Task labels")}
       >
         <div className="space-y-3">
           {controls === "assignees"
@@ -130,17 +132,17 @@ export function KeyboardShortcuts() {
       <Modal
         isOpen={help}
         onClose={() => setHelp(false)}
-        title="Keyboard shortcuts"
+        title={tr("Keyboard shortcuts")}
       >
         <dl className="space-y-3 text-sm">
           {[
-            ["⌘ / Ctrl + K", "Search and command palette"],
-            ["c", "Archive the open task"],
-            ["m", "Open assignee selector"],
-            ["l", "Open labels selector"],
-            ["d", "Focus due date"],
-            ["Space", "Assign or unassign yourself"],
-            ["?", "Show shortcuts"],
+            ["⌘ / Ctrl + K", tr("Search and command palette")],
+            ["c", tr("Archive the open task")],
+            ["m", tr("Open assignee selector")],
+            ["l", tr("Open labels selector")],
+            ["d", tr("Focus due date")],
+            ["Space", tr("Assign or unassign yourself")],
+            ["?", tr("Show shortcuts")],
           ].map(([key, label]) => (
             <div key={key} className="flex justify-between gap-6">
               <dt className="font-mono text-emerald-500">{key}</dt>
@@ -152,8 +154,8 @@ export function KeyboardShortcuts() {
       <ConfirmModal
         isOpen={confirm}
         onClose={() => setConfirm(false)}
-        title="Archive this task?"
-        description="You can restore it from the archive center."
+        title={tr("Archive this task?")}
+        description={tr("You can restore it from the archive center.")}
         onConfirm={() =>
           card &&
           archive.mutate(

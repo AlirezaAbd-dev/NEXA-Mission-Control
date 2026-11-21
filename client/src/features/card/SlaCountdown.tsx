@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useNow } from "@/hooks/useNow";
 export function SlaCountdown({
   label,
@@ -8,6 +9,7 @@ export function SlaCountdown({
   deadline?: string | null;
   completed?: string | null;
 }) {
+  useUiLocale();
   const now = useNow();
   if (!deadline) return null;
   const end = new Date(deadline).getTime(),
@@ -29,9 +31,9 @@ export function SlaCountdown({
     <p
       className={`text-xs ${status === "Breached" || status === "Completed late" ? "text-rose-500" : "text-emerald-600 dark:text-emerald-400"}`}
     >
-      {label}: {status}
+      {label}: {tr(status)}
       {finished === null
-        ? ` · ${days ? `${days}d ` : ""}${hours}h ${rest}m`
+        ? tr("· {value0}{value1}h {value2}m", { value0: (days ? `${days}d ` : ""), value1: (hours), value2: (rest) })
         : ""}
     </p>
   );

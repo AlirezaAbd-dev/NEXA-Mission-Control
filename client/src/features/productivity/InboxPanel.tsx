@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { Button, Input, Textarea, CustomSelect, Modal } from "@/components/ui";
 import { useProductivity } from "@/hooks/productivity/useProductivity";
@@ -7,6 +8,7 @@ import { useBoard } from "@/hooks/board/useBoard";
 import { apiError } from "@/lib/apiError";
 import type { InboxItem } from "@/types/productivity";
 export function InboxPanel({ workspaceId }: { workspaceId: string }) {
+  useUiLocale();
   const { data: items = [] } = useProductivity<InboxItem[]>("personal/inbox"),
     save = useProductivityMutation(),
     { data: projects = [] } = useProjects(workspaceId);
@@ -32,13 +34,11 @@ export function InboxPanel({ workspaceId }: { workspaceId: string }) {
   };
   return (
     <section className="space-y-4">
-      <h2 className="text-xl font-semibold">Personal Inbox</h2>
-      <p className="text-sm text-slate-500">
-        Capture ideas now. Organize them into a project when you are ready.
-      </p>
+      <h2 className="text-xl font-semibold">{tr("Personal Inbox")}</h2>
+      <p className="text-sm text-slate-500">{tr("Capture ideas now. Organize them into a project when you are ready.")}</p>
       <div className="space-y-2 max-w-xl">
         <Input
-          label="Quick capture"
+          label={tr("Quick capture")}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onKeyDown={(e) => {
@@ -46,16 +46,14 @@ export function InboxPanel({ workspaceId }: { workspaceId: string }) {
           }}
         />
         <Textarea
-          label="Notes"
+          label={tr("Notes")}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
         <Button
           disabled={!title.trim() || save.isPending}
           onClick={() => void add()}
-        >
-          Capture idea
-        </Button>
+        >{tr("Capture idea")}</Button>
       </div>
       {error && (
         <p role="alert" className="text-rose-500">
@@ -87,7 +85,7 @@ export function InboxPanel({ workspaceId }: { workspaceId: string }) {
                 })
               }
             >
-              {item.done ? "Reopen" : "Done"}
+              {item.done ? tr("Reopen") : tr("Done")}
             </Button>
             <Button
               size="sm"
@@ -96,21 +94,19 @@ export function InboxPanel({ workspaceId }: { workspaceId: string }) {
                 setProject(projects[0]?.id || "");
                 setColumn("");
               }}
-            >
-              Move to project
-            </Button>
+            >{tr("Move to project")}</Button>
           </div>
         </div>
       ))}
-      {!items.length && <p className="text-slate-500">Your inbox is clear.</p>}
+      {!items.length && <p className="text-slate-500">{tr("Your inbox is clear.")}</p>}
       <Modal
         isOpen={!!convert}
         onClose={() => setConvert(undefined)}
-        title="Move idea to project"
+        title={tr("Move idea to project")}
       >
         <div className="space-y-4">
           <CustomSelect
-            label="Project"
+            label={tr("Project")}
             value={project}
             options={projects.map((p) => ({ value: p.id, label: p.name }))}
             onChange={(v) => {
@@ -119,7 +115,7 @@ export function InboxPanel({ workspaceId }: { workspaceId: string }) {
             }}
           />
           <CustomSelect
-            label="Column"
+            label={tr("Column")}
             value={column}
             options={(board?.columns || []).map((c) => ({
               value: c.id,
@@ -140,9 +136,7 @@ export function InboxPanel({ workspaceId }: { workspaceId: string }) {
                 setError(apiError(e));
               }
             }}
-          >
-            Create task
-          </Button>
+          >{tr("Create task")}</Button>
         </div>
       </Modal>
     </section>

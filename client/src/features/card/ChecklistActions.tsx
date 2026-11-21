@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -19,6 +20,7 @@ export const ChecklistActions = ({
   onSave,
   onDelete,
 }: Props) => {
+  useUiLocale();
   const [mode, setMode] = useState<"edit" | "delete" | null>(null);
   const [draft, setDraft] = useState("");
   const [pending, setPending] = useState(false);
@@ -39,7 +41,7 @@ export const ChecklistActions = ({
       setMode(null);
     } catch {
       setError(
-        "Could not save this change. Check your permissions and connection, then try again.",
+        tr("Could not save this change. Check your permissions and connection, then try again."),
       );
     } finally {
       setPending(false);
@@ -52,8 +54,8 @@ export const ChecklistActions = ({
           variant="ghost"
           size="icon"
           className="h-8 w-8"
-          aria-label={"Edit " + kind + ": " + title}
-          title={"Edit " + kind}
+          aria-label={tr("Edit") + kind + ": " + title}
+          title={tr("Edit") + kind}
           onClick={() => open("edit")}
         >
           <Pencil className="h-3.5 w-3.5" />
@@ -62,8 +64,8 @@ export const ChecklistActions = ({
           variant="ghost"
           size="icon"
           className="h-8 w-8 text-danger"
-          aria-label={"Delete " + kind + ": " + title}
-          title={"Delete " + kind}
+          aria-label={tr("Delete") + kind + ": " + title}
+          title={tr("Delete") + kind}
           onClick={() => open("delete")}
         >
           <Trash2 className="h-3.5 w-3.5" />
@@ -72,7 +74,7 @@ export const ChecklistActions = ({
       <Modal
         isOpen={mode === "edit"}
         onClose={close}
-        title={"Edit " + kind}
+        title={tr("Edit") + kind}
         size="sm"
       >
         <form
@@ -83,7 +85,7 @@ export const ChecklistActions = ({
           }}
         >
           <Input
-            label={kind === "checklist" ? "Checklist title" : "Item title"}
+            label={kind === "checklist" ? tr("Checklist title") : tr("Item title")}
             value={draft}
             maxLength={maxLength}
             disabled={pending}
@@ -101,17 +103,13 @@ export const ChecklistActions = ({
               size="sm"
               onClick={close}
               disabled={pending}
-            >
-              Cancel
-            </Button>
+            >{tr("Cancel")}</Button>
             <Button
               type="submit"
               size="sm"
               isLoading={pending}
               disabled={!draft.trim()}
-            >
-              Save changes
-            </Button>
+            >{tr("Save changes")}</Button>
           </div>
         </form>
       </Modal>
@@ -119,18 +117,18 @@ export const ChecklistActions = ({
         isOpen={mode === "delete"}
         onClose={close}
         onConfirm={() => void submit(onDelete)}
-        title={"Delete " + kind + "?"}
+        title={tr("Delete") + kind + "?"}
         description={
-          "Delete “" +
+          tr("Delete “") +
           title +
           "”? " +
           (kind === "checklist"
-            ? "All items in this checklist will also be removed. "
+            ? tr("All items in this checklist will also be removed.")
             : "") +
-          "This cannot be undone." +
+          tr("This cannot be undone.") +
           (error ? " " + error : "")
         }
-        confirmLabel={"Delete " + kind}
+        confirmLabel={tr("Delete") + kind}
         isDestructive
         isLoading={pending}
       />

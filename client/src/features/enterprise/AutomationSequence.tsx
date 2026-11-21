@@ -1,3 +1,5 @@
+import { uiLabel } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { Button, CustomSelect } from "@/components/ui";
 export interface ActionStep {
   type: string;
@@ -12,6 +14,7 @@ export function AutomationSequence({
   onChange: (steps: ActionStep[]) => void;
   targets: (type: string) => { value: string; label: string }[];
 }) {
+  useUiLocale();
   const kinds = [
     "set_priority",
     "assign_user",
@@ -22,14 +25,14 @@ export function AutomationSequence({
   ];
   return (
     <section className="space-y-3">
-      <h3 className="text-sm font-semibold">Then run these actions in order</h3>
+      <h3 className="text-sm font-semibold">{tr("Then run these actions in order")}</h3>
       {steps.map((step, i) => (
         <div key={i} className="grid grid-cols-2 gap-2">
           <CustomSelect
             value={step.type}
             options={kinds.map((value) => ({
               value,
-              label: value.replaceAll("_", " "),
+              label: uiLabel(value),
             }))}
             onChange={(type) =>
               onChange(steps.map((s, j) => (j === i ? { type } : s)))
@@ -49,9 +52,7 @@ export function AutomationSequence({
             size="sm"
             variant="ghost"
             onClick={() => onChange(steps.filter((_, j) => i !== j))}
-          >
-            Remove action
-          </Button>
+          >{tr("Remove action")}</Button>
         </div>
       ))}
       <Button
@@ -62,9 +63,7 @@ export function AutomationSequence({
         onClick={() =>
           onChange([...steps, { type: "set_priority", value: "high" }])
         }
-      >
-        Add another action
-      </Button>
+      >{tr("Add another action")}</Button>
     </section>
   );
 }

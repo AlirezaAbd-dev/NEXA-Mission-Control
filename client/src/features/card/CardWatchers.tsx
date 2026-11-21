@@ -1,3 +1,5 @@
+import { formatNumber } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import React, { useState } from 'react';
 import { Eye, EyeOff, Users } from 'lucide-react';
 import { useCardWatchers, useToggleWatchCard } from '@/hooks/card/useCardWatchers';
@@ -8,6 +10,7 @@ interface CardWatchersProps {
 }
 
 export const CardWatchers: React.FC<CardWatchersProps> = ({ card }) => {
+  useUiLocale();
   const { data: watchers = [] } = useCardWatchers(card.id);
   const toggleWatch = useToggleWatchCard();
   const [showWatcherList, setShowWatcherList] = useState(false);
@@ -27,22 +30,22 @@ export const CardWatchers: React.FC<CardWatchersProps> = ({ card }) => {
               ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-600 dark:text-emerald-400'
               : 'bg-slate-100 dark:bg-[#101117] border-slate-200 dark:border-white/[0.06] text-slate-600 dark:text-slate-300 hover:border-emerald-500/30'
           }`}
-          title={isWatched ? 'Stop watching this card' : 'Watch this card for updates'}
+          title={isWatched ? tr("Stop watching this card") : tr("Watch this card for updates")}
         >
           {isWatched ? (
             <>
               <EyeOff className="w-3.5 h-3.5 text-emerald-500" />
-              <span>Watching</span>
+              <span>{tr("Watching")}</span>
             </>
           ) : (
             <>
               <Eye className="w-3.5 h-3.5 text-slate-400" />
-              <span>Watch</span>
+              <span>{tr("Watch")}</span>
             </>
           )}
           {count > 0 && (
-            <span className="ml-0.5 px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold">
-              {count}
+            <span className="ms-0.5 px-1.5 py-0.2 rounded-full text-[10px] bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold">
+              {formatNumber(count)}
             </span>
           )}
         </button>
@@ -52,7 +55,7 @@ export const CardWatchers: React.FC<CardWatchersProps> = ({ card }) => {
             type="button"
             onClick={() => setShowWatcherList(!showWatcherList)}
             className="p-1 rounded-md text-slate-400 hover:text-emerald-500 hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-colors cursor-pointer"
-            title="View subscribers"
+            title={tr("View subscribers")}
           >
             <Users className="w-3.5 h-3.5" />
           </button>
@@ -60,9 +63,8 @@ export const CardWatchers: React.FC<CardWatchersProps> = ({ card }) => {
       </div>
 
       {showWatcherList && watchers.length > 0 && (
-        <div className="absolute right-0 top-full mt-1.5 z-50 w-52 p-2 bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] rounded-xl shadow-xl space-y-1.5 animate-in fade-in zoom-in-95 duration-100">
-          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-1 pb-1 border-b border-slate-100 dark:border-white/[0.06]">
-            Subscribers ({watchers.length})
+        <div className="absolute end-0 top-full mt-1.5 z-50 w-52 p-2 bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] rounded-xl shadow-xl space-y-1.5 animate-in fade-in zoom-in-95 duration-100">
+          <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider px-1 pb-1 border-b border-slate-100 dark:border-white/[0.06]">{tr("Subscribers (")}{formatNumber(watchers.length)})
           </div>
           <div className="max-h-40 overflow-y-auto space-y-1">
             {watchers.map((w) => (

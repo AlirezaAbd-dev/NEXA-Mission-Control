@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import React, { useState } from "react";
 import { useParams } from "react-router";
 import { MirroredTasks } from "@/features/productivity/MirroredTasks";
@@ -25,6 +26,7 @@ export const boardThemes: Record<string, string> = {
 };
 
 export const BoardPage: React.FC = () => {
+  useUiLocale();
   const { projectId } = useParams<{ projectId: string }>();
   const [orderOpen, setOrderOpen] = useState(false);
 
@@ -36,15 +38,13 @@ export const BoardPage: React.FC = () => {
 
   if (!projectId) {
     return (
-      <div className="p-8 text-center text-slate-500">No project selected.</div>
+      <div className="p-8 text-center text-slate-500">{tr("No project selected.")}</div>
     );
   }
 
   if (isBoardLoading || isCardsLoading) {
     return (
-      <div className="p-8 text-center text-slate-500 animate-pulse">
-        Loading board...
-      </div>
+      <div className="p-8 text-center text-slate-500 animate-pulse">{tr("Loading board...")}</div>
     );
   }
 
@@ -52,8 +52,8 @@ export const BoardPage: React.FC = () => {
     return (
       <EmptyState
         icon={<LayoutGrid className="w-6 h-6 text-emerald-500" />}
-        title="Board not found"
-        description="Could not load the board for this project."
+        title={tr("Board not found")}
+        description={tr("Could not load the board for this project.")}
       />
     );
   }
@@ -70,8 +70,7 @@ export const BoardPage: React.FC = () => {
         projectId={projectId}
         actions={
           <Button size="sm" variant="outline" onClick={() => setOrderOpen(true)} disabled={board.columns.length < 2}>
-            <ArrowLeftRight size={14} />Reorder columns
-          </Button>
+            <ArrowLeftRight size={14} />{tr("Reorder columns")}</Button>
         }
       />
       {orderOpen && <ColumnOrderModal columns={board.columns} boardId={board.id} projectId={projectId} onClose={() => setOrderOpen(false)} />}

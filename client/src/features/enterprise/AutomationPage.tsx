@@ -1,3 +1,5 @@
+import { uiLabel } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { AutomationSequence, type ActionStep } from "./AutomationSequence";
 import { useState } from "react";
 import { useParams } from "react-router";
@@ -34,6 +36,7 @@ const actions = [
   "move_card",
 ];
 export function AutomationPage() {
+  useUiLocale();
   const { projectId = "" } = useParams(),
     { data: rules = [] } = useEnterpriseResource(projectId, "rules"),
     save = useSaveResource(projectId, "rules"),
@@ -89,7 +92,7 @@ export function AutomationPage() {
     form.action_type === "set_priority"
       ? ["urgent", "high", "medium", "low", "no_priority"].map((value) => ({
           value,
-          label: value,
+          label: uiLabel(value),
         }))
       : form.action_type === "assign_user"
         ? members.map((m) => ({ value: m.user_id, label: m.display_name }))
@@ -101,12 +104,10 @@ export function AutomationPage() {
       <ViewTabs projectId={projectId} />
       <div className="flex justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Automation studio</h1>
-          <p className="text-sm text-slate-500">
-            Event rules, scheduled routines, and reusable macros.
-          </p>
+          <h1 className="text-2xl font-bold">{tr("Automation studio")}</h1>
+          <p className="text-sm text-slate-500">{tr("Event rules, scheduled routines, and reusable macros.")}</p>
         </div>
-        <Button onClick={() => edit()}>Create rule</Button>
+        <Button onClick={() => edit()}>{tr("Create rule")}</Button>
       </div>
       {error && (
         <p role="alert" className="text-rose-500">
@@ -122,54 +123,43 @@ export function AutomationPage() {
             <div className="flex justify-between">
               <h2 className="font-semibold">{r.name}</h2>
               <span className="text-xs text-emerald-600 dark:text-emerald-400">
-                {r.is_active ? "Active" : "Paused"}
+                {r.is_active ? tr("Active") : tr("Paused")}
               </span>
             </div>
-            <p className="text-sm text-slate-500">
-              When {r.trigger_type?.replaceAll("_", " ")} →{" "}
+            <p className="text-sm text-slate-500">{tr("When")}{r.trigger_type?.replaceAll("_", " ")} →{" "}
               {r.action_type?.replaceAll("_", " ")}
             </p>
             <p className="text-xs text-slate-500">
-              {r.runs || 0} successful runs
-            </p>
+              {r.runs || 0}{tr("successful runs")}</p>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => edit(r)}>
-                Edit
-              </Button>
+              <Button size="sm" variant="outline" onClick={() => edit(r)}>{tr("Edit")}</Button>
               {r.trigger_type === "manual_board" && (
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => setRunId(r.id)}
                   isLoading={run.isPending}
-                >
-                  Run on board
-                </Button>
+                >{tr("Run on board")}</Button>
               )}
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setDeleting(r.id)}
-              >
-                Remove
-              </Button>
+              >{tr("Remove")}</Button>
             </div>
           </section>
         ))}
       </div>
       {rules.length === 0 && (
         <div className="p-12 text-center border border-dashed rounded-xl border-slate-300 dark:border-white/[0.06]">
-          <h2 className="font-semibold">Let your board do the routine work</h2>
-          <p className="text-sm text-slate-500 mt-2">
-            Create a rule to assign tasks, change priority, add labels, or
-            archive completed work.
-          </p>
+          <h2 className="font-semibold">{tr("Let your board do the routine work")}</h2>
+          <p className="text-sm text-slate-500 mt-2">{tr("Create a rule to assign tasks, change priority, add labels, or archive completed work.")}</p>
         </div>
       )}
       <Modal
         isOpen={modal}
         onClose={() => setModal(false)}
-        title={editing ? "Edit automation" : "Create automation"}
+        title={editing ? tr("Edit automation") : tr("Create automation")}
       >
         <form
           className="space-y-4"
@@ -186,16 +176,16 @@ export function AutomationPage() {
         >
           <Input
             required
-            label="Rule name"
+            label={tr("Rule name")}
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
           />
           <CustomSelect
-            label="Trigger"
+            label={tr("Trigger")}
             value={form.trigger_type}
             options={triggers.map((value) => ({
               value,
-              label: value.replaceAll("_", " "),
+              label: uiLabel(value),
             }))}
             onChange={(trigger_type) =>
               setForm((f) => ({ ...f, trigger_type }))
@@ -203,10 +193,10 @@ export function AutomationPage() {
           />
           {form.trigger_type === "card_moved" && (
             <CustomSelect
-              label="Destination column (optional)"
+              label={tr("Destination column (optional)")}
               value={String(form.trigger_config?.column_id || "")}
               options={[
-                { value: "", label: "Any column" },
+                { value: "", label: tr("Any column") },
                 ...(board?.columns.map((c) => ({
                   value: c.id,
                   label: c.name,
@@ -225,7 +215,7 @@ export function AutomationPage() {
           )}{" "}
           {form.trigger_type === "done_older_than" && (
             <Input
-              label="Days in Done"
+              label={tr("Days in Done")}
               type="number"
               min="1"
               max="3650"
@@ -242,11 +232,11 @@ export function AutomationPage() {
             />
           )}
           <CustomSelect
-            label="Action"
+            label={tr("Action")}
             value={form.action_type}
             options={actions.map((value) => ({
               value,
-              label: value.replaceAll("_", " "),
+              label: uiLabel(value),
             }))}
             onChange={(action_type) =>
               setForm((f) => ({
@@ -260,7 +250,7 @@ export function AutomationPage() {
             form.action_type || "",
           ) && (
             <CustomSelect
-              label="Action target"
+              label={tr("Action target")}
               value={String(form.action_config?.value || "")}
               options={targets}
               onChange={(value) =>
@@ -272,12 +262,12 @@ export function AutomationPage() {
             />
           )}
           <CustomSelect
-            label="Only when priority matches"
+            label={tr("Only when priority matches")}
             value={String(form.trigger_config?.priority || "")}
             options={[
-              { value: "", label: "Any priority" },
+              { value: "", label: tr("Any priority") },
               ...["urgent", "high", "medium", "low", "no_priority"].map(
-                (value) => ({ value, label: value }),
+                (value) => ({ value, label: uiLabel(value)}),
               ),
             ]}
             onChange={(priority) =>
@@ -291,10 +281,10 @@ export function AutomationPage() {
             }
           />
           <CustomSelect
-            label="Only when assigned to"
+            label={tr("Only when assigned to")}
             value={String(form.trigger_config?.assignee_id || "")}
             options={[
-              { value: "", label: "Anyone" },
+              { value: "", label: tr("Anyone") },
               ...members.map((m) => ({
                 value: m.user_id,
                 label: m.display_name,
@@ -311,10 +301,10 @@ export function AutomationPage() {
             }
           />
           <CustomSelect
-            label="Only when label matches"
+            label={tr("Only when label matches")}
             value={String(form.trigger_config?.label_id || "")}
             options={[
-              { value: "", label: "Any label" },
+              { value: "", label: tr("Any label") },
               ...labels.map((l) => ({ value: l.id, label: l.name })),
             ]}
             onChange={(label_id) =>
@@ -338,7 +328,7 @@ export function AutomationPage() {
             targets={(kind) =>
               kind === "set_priority"
                 ? ["urgent", "high", "medium", "low", "no_priority"].map(
-                    (value) => ({ value, label: value }),
+                    (value) => ({ value, label: uiLabel(value)}),
                   )
                 : kind === "assign_user"
                   ? members.map((m) => ({
@@ -354,11 +344,11 @@ export function AutomationPage() {
             }
           />
           <CustomSelect
-            label="State"
+            label={tr("State")}
             value={form.is_active ? "active" : "paused"}
             options={[
-              { value: "active", label: "Active" },
-              { value: "paused", label: "Paused" },
+              { value: "active", label: tr("Active") },
+              { value: "paused", label: tr("Paused") },
             ]}
             onChange={(v) =>
               setForm((f) => ({ ...f, is_active: v === "active" }))
@@ -369,16 +359,14 @@ export function AutomationPage() {
               {error}
             </p>
           )}
-          <Button type="submit" isLoading={save.isPending}>
-            Save rule
-          </Button>
+          <Button type="submit" isLoading={save.isPending}>{tr("Save rule")}</Button>
         </form>
       </Modal>
       <ConfirmModal
         isOpen={!!runId}
         onClose={() => setRunId(undefined)}
-        title="Run this macro on the board?"
-        description="The configured action will apply to all active tasks in this project."
+        title={tr("Run this macro on the board?")}
+        description={tr("The configured action will apply to all active tasks in this project.")}
         onConfirm={() =>
           runId &&
           run.mutate(
@@ -394,8 +382,8 @@ export function AutomationPage() {
       <ConfirmModal
         isOpen={!!deleting}
         onClose={() => setDeleting(undefined)}
-        title="Remove automation?"
-        description="The rule and its run history will be removed."
+        title={tr("Remove automation?")}
+        description={tr("The rule and its run history will be removed.")}
         isDestructive
         onConfirm={() =>
           deleting &&

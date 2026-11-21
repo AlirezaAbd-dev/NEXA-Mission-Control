@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import {
   auditChanges,
   auditValue,
@@ -6,6 +7,7 @@ import {
   type AuditPayload,
 } from "./auditPresentation";
 export function AuditEventDetails({ payload }: { payload: AuditPayload }) {
+  useUiLocale();
   const safe = redactAudit(payload) as AuditPayload;
   const changes = auditChanges(safe),
     other = Object.fromEntries(
@@ -31,13 +33,13 @@ export function AuditEventDetails({ payload }: { payload: AuditPayload }) {
           </dt>
           <dd className="grid sm:grid-cols-2 gap-3 text-xs">
             <div className="min-w-0">
-              <span className="text-muted-foreground block mb-1">Previous</span>
+              <span className="text-muted-foreground block mb-1">{tr("Previous")}</span>
               <p className="whitespace-pre-wrap break-words text-secondary-foreground">
                 {auditValue(c.field === "archived" ? !!c.before : c.before)}
               </p>
             </div>
             <div className="min-w-0">
-              <span className="text-primary block mb-1">New</span>
+              <span className="text-primary block mb-1">{tr("New")}</span>
               <p className="whitespace-pre-wrap break-words text-foreground">
                 {auditValue(c.field === "archived" ? !!c.after : c.after)}
               </p>
@@ -52,9 +54,7 @@ export function AuditEventDetails({ payload }: { payload: AuditPayload }) {
       {fields(changes.slice(0, 4))}
       {changes.length > 4 && (
         <details className="mt-3 text-xs">
-          <summary className="cursor-pointer font-semibold text-primary">
-            Show {changes.length - 4} more changed fields
-          </summary>
+          <summary className="cursor-pointer font-semibold text-primary">{tr("Show")}{changes.length - 4}{tr("more changed fields")}</summary>
           {fields(changes.slice(4))}
         </details>
       )}
@@ -72,9 +72,7 @@ export function AuditEventDetails({ payload }: { payload: AuditPayload }) {
           ))}
       {Object.keys(other).length > 0 && (
         <details className="mt-2 text-xs text-muted-foreground">
-          <summary className="cursor-pointer hover:text-foreground">
-            Event metadata
-          </summary>
+          <summary className="cursor-pointer hover:text-foreground">{tr("Event metadata")}</summary>
           <pre className="whitespace-pre-wrap break-words rounded-lg bg-muted/40 p-3 mt-2 max-h-48 overflow-auto">
             {JSON.stringify(redactAudit(other), null, 2)}
           </pre>

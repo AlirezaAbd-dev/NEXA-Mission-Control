@@ -1,3 +1,5 @@
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
+import { tr, useUiLocale } from "@/i18n";
 import { SsoButton } from "./SsoButton";
 import { apiError } from "@/lib/apiError";
 import React, { useState } from "react";
@@ -15,6 +17,7 @@ import { ShieldCheck } from "lucide-react";
 import { NexaLogo } from "@/components/common/NexaLogo";
 
 export const LoginPage = () => {
+  useUiLocale();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
@@ -52,28 +55,25 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-[#070709] relative overflow-hidden">
+    <div className="h-[100dvh] w-screen flex items-start sm:items-center justify-center p-4 bg-slate-50 dark:bg-[#070709] relative overflow-y-auto overscroll-y-contain">
       {/* Decorative ambient gradient orbs */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 -start-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -end-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <Card className="w-full max-w-md shadow-2xl border-slate-200/80 dark:border-white/[0.06] bg-white/95 dark:bg-[#0b0c10] backdrop-blur-md relative z-10">
+      <Card className="w-full shrink-0 max-w-md shadow-2xl border-slate-200/80 dark:border-white/[0.06] bg-white/95 dark:bg-[#0b0c10] backdrop-blur-md relative z-10">
         <CardHeader className="text-center pb-2">
           <div className="flex justify-center mb-3">
             <NexaLogo size={48} />
           </div>
           <CardTitle className="text-2xl font-bold text-slate-900 dark:white tracking-tight">
             NEXA{" "}
-            <span className="text-emerald-600 dark:text-emerald-400">
-              Mission Control
-            </span>
+            <span className="text-emerald-600 dark:text-emerald-400">{tr("Mission Control")}</span>
           </CardTitle>
-          <p className="text-xs text-slate-500 dark:text-slate-300 mt-1.5 font-medium">
-            Sign in to direct your mission workspace
-          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-300 mt-1.5 font-medium">{tr("Sign in to direct your mission workspace")}</p>
         </CardHeader>
 
         <CardContent>
+          <div className="flex justify-end mb-3"><LanguageSwitcher /></div>
           <form onSubmit={handleSubmit} className="space-y-4">
             {loginMutation.isError && (
               <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-600 dark:text-rose-400 font-medium">
@@ -84,8 +84,8 @@ export const LoginPage = () => {
             <Input
               id="identifier"
               type="text"
-              label="Username or Email"
-              placeholder="username or you@company.com"
+              label={tr("Username or Email")}
+              placeholder={tr("username or you@company.com")}
               value={identifier}
               error={formErrors.identifier}
               onChange={(e) => {
@@ -98,7 +98,7 @@ export const LoginPage = () => {
             <Input
               id="password"
               type="password"
-              label="Password"
+              label={tr("Password")}
               placeholder="••••••••"
               value={password}
               error={formErrors.password}
@@ -110,7 +110,7 @@ export const LoginPage = () => {
             />
 
             <Input
-              label="Authenticator or recovery code (if enabled)"
+              label={tr("Authenticator or recovery code (if enabled)")}
               autoComplete="one-time-code"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
@@ -120,25 +120,20 @@ export const LoginPage = () => {
               variant="primary"
               className="w-full py-2.5 mt-2"
               isLoading={loginMutation.isPending}
-            >
-              Sign In to Mission Control
-            </Button>
+            >{tr("Sign In to Mission Control")}</Button>
 
             <div className="flex items-center justify-center gap-1.5 pt-2 text-xs text-slate-400 dark:text-slate-500">
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>NEXA Argon2 secured authentication</span>
+              <span>{tr("NEXA Argon2 secured authentication")}</span>
             </div>
 
             <div className="text-center pt-2 border-t border-slate-100 dark:border-white/[0.06]">
-              <span className="text-xs text-slate-500">
-                Don't have an account?{" "}
+              <span className="text-xs text-slate-500">{tr("Don't have an account?")}{" "}
               </span>
               <Link
                 to="/register"
                 className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
-              >
-                Create one now
-              </Link>
+              >{tr("Create one now")}</Link>
             </div>
           </form>
           <SsoButton />

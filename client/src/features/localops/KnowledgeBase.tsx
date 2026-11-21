@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { Button, Input, Textarea, Modal, Checkbox } from "@/components/ui";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
@@ -15,6 +16,7 @@ export function KnowledgeBase({
   canEdit: boolean;
   canManage: boolean;
 }) {
+  useUiLocale();
   const { data: articles = [], error: loadError } = useLocalResource<Article[]>(
       projectId,
       "articles",
@@ -43,7 +45,7 @@ export function KnowledgeBase({
   return (
     <section className="rounded-2xl border border-border bg-card p-5 space-y-4">
       <div className="flex justify-between gap-3">
-        <h2 className="font-bold">Knowledge base</h2>
+        <h2 className="font-bold">{tr("Knowledge base")}</h2>
         {canEdit && (
           <Button
             size="sm"
@@ -54,14 +56,12 @@ export function KnowledgeBase({
               setPublished(false);
               setError("");
             }}
-          >
-            New article
-          </Button>
+          >{tr("New article")}</Button>
         )}
       </div>
       <Input
-        aria-label="Search knowledge base"
-        placeholder="Search articles…"
+        aria-label={tr("Search knowledge base")}
+        placeholder={tr("Search articles…")}
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
@@ -98,42 +98,36 @@ export function KnowledgeBase({
                   setPublished(!!a.published);
                   setError("");
                 }}
-              >
-                Edit
-              </Button>
+              >{tr("Edit")}</Button>
             )}
             {canManage && (
-              <Button size="sm" variant="ghost" onClick={() => setRemove(a)}>
-                Delete
-              </Button>
+              <Button size="sm" variant="ghost" onClick={() => setRemove(a)}>{tr("Delete")}</Button>
             )}
           </div>
         ))}
       {!articles.length && (
-        <p className="text-sm text-muted-foreground">
-          Published guides will appear here to help resolve requests.
-        </p>
+        <p className="text-sm text-muted-foreground">{tr("Published guides will appear here to help resolve requests.")}</p>
       )}
       <Modal
         isOpen={editor !== undefined}
         onClose={() => setEditor(undefined)}
-        title="Knowledge article"
+        title={tr("Knowledge article")}
         size="2xl"
       >
         <div className="space-y-4">
           <Input
-            label="Title"
+            label={tr("Title")}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
           <Textarea
-            label="Content (Markdown)"
+            label={tr("Content (Markdown)")}
             rows={12}
             value={body}
             onChange={(e) => setBody(e.target.value)}
           />
           <Checkbox
-            label="Publish to project members"
+            label={tr("Publish to project members")}
             checked={published}
             onChange={setPublished}
           />
@@ -146,9 +140,7 @@ export function KnowledgeBase({
             disabled={!title.trim() || !body.trim()}
             isLoading={save.isPending}
             onClick={() => void submit()}
-          >
-            Save article
-          </Button>
+          >{tr("Save article")}</Button>
         </div>
       </Modal>
       <Modal
@@ -162,8 +154,8 @@ export function KnowledgeBase({
       <ConfirmModal
         isOpen={!!remove}
         onClose={() => setRemove(undefined)}
-        title="Delete article"
-        description="The article will be removed from the knowledge base."
+        title={tr("Delete article")}
+        description={tr("The article will be removed from the knowledge base.")}
         isDestructive
         onConfirm={() => {
           if (remove)

@@ -1,9 +1,12 @@
+import { uiLabel } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { Button, Checkbox, Modal } from "@/components/ui";
 import { useProductivity } from "@/hooks/productivity/useProductivity";
 import { useProductivityMutation } from "@/hooks/productivity/useProductivityMutation";
 const caps = ["create", "edit", "move", "archive", "comment", "upload"];
 export function MemberPermissions({ projectId }: { projectId: string }) {
+  useUiLocale();
   const { data } = useProductivity<Record<string, boolean>>(
       `projects/${projectId}/permissions`,
     ),
@@ -12,13 +15,9 @@ export function MemberPermissions({ projectId }: { projectId: string }) {
     [allowed, setAllowed] = useState<string[]>([]);
   return (
     <section className="p-5 border rounded-xl border-slate-200 dark:border-white/[0.06] space-y-3">
-      <h2 className="font-semibold">Project member permissions</h2>
-      <p className="text-sm text-slate-500">
-        Administrators retain management access. Viewers remain read-only.
-        Choose which task actions regular project members may perform.
-      </p>
-      <p className="text-sm">
-        Allowed: {caps.filter((c) => data?.[c]).join(", ") || "None"}
+      <h2 className="font-semibold">{tr("Project member permissions")}</h2>
+      <p className="text-sm text-slate-500">{tr("Administrators retain management access. Viewers remain read-only. Choose which task actions regular project members may perform.")}</p>
+      <p className="text-sm">{tr("Allowed:")}{caps.filter((c) => data?.[c]).join(", ") || tr("None")}
       </p>
       <Button
         size="sm"
@@ -27,19 +26,17 @@ export function MemberPermissions({ projectId }: { projectId: string }) {
           setAllowed(caps.filter((c) => data?.[c]));
           setModal(true);
         }}
-      >
-        Configure permissions
-      </Button>
+      >{tr("Configure permissions")}</Button>
       <Modal
         isOpen={modal}
         onClose={() => setModal(false)}
-        title="Configure member permissions"
+        title={tr("Configure member permissions")}
       >
         <div className="space-y-3">
           {caps.map((c) => (
             <Checkbox
               key={c}
-              label={`${c[0].toUpperCase() + c.slice(1)} tasks${c === "upload" ? " and attachments" : ""}`}
+              label={c === "upload" ? tr("Upload tasks and attachments") : tr("Can {value0} tasks", { value0: uiLabel(c) })}
               checked={allowed.includes(c)}
               onChange={(value) =>
                 setAllowed((a) =>
@@ -59,9 +56,7 @@ export function MemberPermissions({ projectId }: { projectId: string }) {
                 { onSuccess: () => setModal(false) },
               )
             }
-          >
-            Save permissions
-          </Button>
+          >{tr("Save permissions")}</Button>
         </div>
       </Modal>
     </section>

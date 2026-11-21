@@ -1,3 +1,5 @@
+import { formatNumber } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useNow } from "@/hooks/useNow";
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
@@ -25,6 +27,7 @@ interface CardItemProps {
 }
 
 export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, boardDragging = false, laneId }) => {
+  useUiLocale();
   const now = useNow();
   const openCardModal = useUiStore((s) => s.openCardModal);
 
@@ -89,9 +92,7 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
         <div className="flex flex-wrap items-center gap-1">
           {card.is_template && (
             <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
-              <FileText className="w-2.5 h-2.5" />
-              Template
-            </span>
+              <FileText className="w-2.5 h-2.5" />{tr("Template")}</span>
           )}
           {card.labels &&
             card.labels.length > 0 &&
@@ -101,12 +102,10 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
         </div>
 
         {stale && (
-          <span className="text-[10px] text-amber-600 dark:text-amber-400">
-            No updates for 14+ days
-          </span>
+          <span className="text-[10px] text-amber-600 dark:text-amber-400">{tr("No updates for 14+ days")}</span>
         )}
         {/* Title */}
-        <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors leading-snug">
+        <h4 dir="auto" className="text-sm font-semibold text-slate-900 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors leading-snug">
           {card.title}
         </h4>
 
@@ -119,7 +118,7 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
             {card.story_points !== undefined && card.story_points !== null && (
               <span className="flex items-center gap-0.5 text-[11px] px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
                 <Hash className="w-3 h-3" />
-                {card.story_points}
+                {formatNumber(card.story_points)}
               </span>
             )}
 
@@ -136,7 +135,7 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
             {card.checklist_total > 0 && (
               <span className="flex items-center gap-1 text-[11px] px-1 py-0.5 rounded bg-slate-100 dark:bg-[#101117] text-slate-500 dark:text-slate-400">
                 <CheckSquare className="w-3 h-3 text-emerald-500" />
-                {card.checklist_completed}/{card.checklist_total}
+                {formatNumber(card.checklist_completed)}/{formatNumber(card.checklist_total)}
               </span>
             )}
 
@@ -156,7 +155,7 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
 
             {card.is_watched && (
               <span
-                title="You are watching this card"
+                title={tr("You are watching this card")}
                 className="text-emerald-500"
               >
                 <Eye className="w-3 h-3" />

@@ -1,7 +1,8 @@
+import { tr } from "@/i18n";
 export type AuditPayload = Record<string, unknown>;
 export const fieldLabels: Record<string, string> = {
-  title: "Title",
-  description: "Description",
+  get title() { return tr("Title"); },
+  get description() { return tr("Description"); },
   status: "Status",
   priority: "Priority",
   story_points: "Story points",
@@ -28,7 +29,7 @@ export const fieldLabels: Record<string, string> = {
   custom_fields: "Custom fields",
 };
 export function labelFor(key: string) {
-  return (
+  return tr(
     fieldLabels[key] ||
     key
       .replaceAll("_", " ")
@@ -100,7 +101,7 @@ export function auditSummary(action: string, payload: AuditPayload): string {
     typeof payload.changes === "object" &&
     "position" in payload.changes
   )
-    return "Reordered this task";
+    return tr("Reordered this task");
   const labels: Record<string, string> = {
     created_card: "Created this task",
     permanently_deleted_card: "Permanently deleted archived task",
@@ -120,39 +121,39 @@ export function auditSummary(action: string, payload: AuditPayload): string {
     (payload.from_column || payload.from) &&
     (payload.to_column || payload.to)
   ) {
-    return `Moved from "${payload.from_column || payload.from}" to "${payload.to_column || payload.to}"`;
+    return tr("Moved from \"{value0}\" to \"{value1}\"", { value0: (payload.from_column || payload.from), value1: (payload.to_column || payload.to) });
   }
   if (action === "member_added" && payload.assignee) {
-    return `Assigned ${payload.assignee}`;
+    return tr("Assigned {value0}", { value0: (payload.assignee) });
   }
   if (action === "member_removed" && (payload.removed_assignee || payload.assignee)) {
-    return `Unassigned ${payload.removed_assignee || payload.assignee}`;
+    return tr("Unassigned {value0}", { value0: (payload.removed_assignee || payload.assignee) });
   }
-  if (labels[action]) return labels[action];
+  if (labels[action]) return tr(labels[action]);
   if (action === "api_mutation") {
     const route = String(payload.route || ""),
       method = String(payload.method || "");
     if (route.includes("comments"))
       return method === "DELETE"
-        ? "Removed a comment"
+        ? tr("Removed a comment")
         : method === "PUT"
-          ? "Edited a comment"
-          : "Added a comment";
-    if (route.includes("checklists")) return "Updated a checklist";
-    if (route.includes("time-logs")) return "Updated time tracking";
-    if (route.includes("attachments")) return "Changed attachments";
-    if (route.endsWith("/move")) return "Moved or reordered this task";
+          ? tr("Edited a comment")
+          : tr("Added a comment");
+    if (route.includes("checklists")) return tr("Updated a checklist");
+    if (route.includes("time-logs")) return tr("Updated time tracking");
+    if (route.includes("attachments")) return tr("Changed attachments");
+    if (route.endsWith("/move")) return tr("Moved or reordered this task");
     if (route.startsWith("cards"))
-      return method === "DELETE" ? "Archived this task" : "Updated this task";
-    return "Updated project settings";
+      return method === "DELETE" ? tr("Archived this task") : tr("Updated this task");
+    return tr("Updated project settings");
   }
   return labelFor(action);
 }
 export function auditValue(value: unknown): string {
-  if (value === null || value === undefined || value === "") return "Not set";
-  if (typeof value === "boolean") return value ? "Yes" : "No";
+  if (value === null || value === undefined || value === "") return tr("Not set");
+  if (typeof value === "boolean") return value ? tr("Yes") : tr("No");
   if (Array.isArray(value))
-    return value.length ? value.map(auditValue).join("; ") : "None";
+    return value.length ? value.map(auditValue).join("; ") : tr("None");
   if (typeof value === "object") {
     const obj = value as AuditPayload;
     if ("title" in obj)
@@ -160,8 +161,8 @@ export function auditValue(value: unknown): string {
         String(obj.title) +
         (obj.completed !== undefined
           ? obj.completed
-            ? " · Completed"
-            : " · Incomplete"
+            ? " · " + tr("Completed")
+            : " · " + tr("Incomplete")
           : "") +
         (obj.assignee ? " · " + String(obj.assignee) : "") +
         (obj.due_date ? " · Due " + String(obj.due_date) : "")
@@ -170,7 +171,7 @@ export function auditValue(value: unknown): string {
       return String(obj.name) + ": " + auditValue(obj.value);
     return JSON.stringify(redactAudit(value));
   }
-  return value === "no_priority" ? "No priority" : String(value);
+  return value === "no_priority" ? tr("No priority") : String(value);
 }
 export function redactAudit(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(redactAudit);

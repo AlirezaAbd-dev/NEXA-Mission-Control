@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useState, useRef, useEffect } from "react";
 import { Palette, FileText, Pencil, X, Check } from "lucide-react";
 import { Button, Input } from "@/components/ui";
@@ -23,6 +24,7 @@ const colors = [
   ["#64748b", "Slate"],
 ];
 export function CardHeader({ card, onClose }: CardHeaderProps) {
+  useUiLocale();
   const [editing, setEditing] = useState(false),
     [title, setTitle] = useState(card.title),
     [palette, setPalette] = useState(false);
@@ -73,8 +75,8 @@ export function CardHeader({ card, onClose }: CardHeaderProps) {
         <Button
           variant="ghost"
           size="icon"
-          aria-label="Close modal"
-          title="Close (Esc)"
+          aria-label={tr("Close modal")}
+          title={tr("Close (Esc)")}
           onClick={onClose}
           className="absolute top-3 end-3 z-30 h-9 w-9 rounded-xl border border-border bg-card/95 text-foreground shadow-sm hover:bg-muted"
         >
@@ -93,12 +95,10 @@ export function CardHeader({ card, onClose }: CardHeaderProps) {
             </span>
             {card.is_template && (
               <span className="text-xs flex items-center gap-1 text-primary">
-                <FileText size={12} />
-                Template
-              </span>
+                <FileText size={12} />{tr("Template")}</span>
             )}
             {card.archived_at && (
-              <span className="text-xs text-warning">Archived</span>
+              <span className="text-xs text-warning">{tr("Archived")}</span>
             )}
             <div
               ref={picker}
@@ -114,16 +114,14 @@ export function CardHeader({ card, onClose }: CardHeaderProps) {
                 size="sm"
                 variant="ghost"
                 aria-expanded={palette}
-                aria-label="Choose task cover"
+                aria-label={tr("Choose task cover")}
                 onClick={() => setPalette((v) => !v)}
                 className="h-7 px-2 text-xs text-muted-foreground"
               >
-                <Palette size={13} />
-                Cover
-              </Button>
+                <Palette size={13} />{tr("Cover")}</Button>
               {palette && (
                 <div className="absolute start-0 top-full mt-2 z-40 w-60 rounded-2xl border border-border bg-card text-foreground p-3 shadow-xl">
-                  <p className="text-xs font-semibold mb-3">Cover color</p>
+                  <p className="text-xs font-semibold mb-3">{tr("Cover color")}</p>
                   <div className="grid grid-cols-5 gap-2">
                     {colors.map(([color, name]) => (
                       <Button
@@ -152,9 +150,7 @@ export function CardHeader({ card, onClose }: CardHeaderProps) {
                         update.mutate({ id: card.id, cover_url: "" });
                         setPalette(false);
                       }}
-                    >
-                      Remove cover
-                    </Button>
+                    >{tr("Remove cover")}</Button>
                   )}
                 </div>
               )}
@@ -168,7 +164,7 @@ export function CardHeader({ card, onClose }: CardHeaderProps) {
         </div>
         {editing ? (
           <Input
-            aria-label="Task title"
+            aria-label={tr("Task title")}
             value={title}
             maxLength={255}
             autoFocus
@@ -199,7 +195,7 @@ export function CardHeader({ card, onClose }: CardHeaderProps) {
                 setTitle(card.title);
                 setEditing(true);
               }}
-              title="Edit task title"
+              title={tr("Edit task title")}
               className="h-auto min-h-9 w-full justify-start px-0 hover:bg-transparent gap-2 text-start text-lg sm:text-xl font-bold whitespace-normal leading-snug"
             >
               <span className="min-w-0 break-words">{card.title}</span>

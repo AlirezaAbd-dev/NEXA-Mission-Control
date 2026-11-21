@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { CardProcessFields } from "@/features/productivity/CardProcessFields";
 import { CardDevelopment } from "@/features/productivity/CardDevelopment";
 import { SlaCountdown } from "./SlaCountdown";
@@ -12,6 +13,7 @@ import { apiError } from "@/lib/apiError";
 import type { Card } from "@/types";
 import type { CardMetadata } from "@/types/enterprise";
 export function CardEnterpriseFields({ card }: { card: Card }) {
+  useUiLocale();
   const { data: epics = [] } = useEnterpriseResource(card.project_id, "epics"),
     { data: releases = [] } = useEnterpriseResource(
       card.project_id,
@@ -42,24 +44,22 @@ export function CardEnterpriseFields({ card }: { card: Card }) {
     <section className="space-y-3 pt-4 border-t border-slate-200 dark:border-white/[0.06]">
       <CardProcessFields card={card} />
       <CardDevelopment projectId={card.project_id} cardId={card.id} />
-      <h3 className="text-xs font-semibold text-slate-500 uppercase">
-        Agile & automation
-      </h3>
+      <h3 className="text-xs font-semibold text-slate-500 uppercase">{tr("Agile & automation")}</h3>
       <CustomSelect
-        label="Epic"
+        label={tr("Epic")}
         value={metadata.epic_id || ""}
         options={[
-          { value: "", label: "No epic" },
+          { value: "", label: tr("No epic") },
           ...epics.map((e) => ({ value: e.id, label: e.name })),
         ]}
         onChange={(value) => change({ epic_id: value || null })}
       />
       <CustomSelect
-        label="Parent task"
+        label={tr("Parent task")}
         searchable
         value={metadata.parent_id || ""}
         options={[
-          { value: "", label: "No parent" },
+          { value: "", label: tr("No parent") },
           ...cards
             .filter((c) => c.id !== card.id)
             .map((c) => ({ value: c.id, label: c.title })),
@@ -67,16 +67,16 @@ export function CardEnterpriseFields({ card }: { card: Card }) {
         onChange={(value) => change({ parent_id: value || null })}
       />
       <CustomSelect
-        label="Release"
+        label={tr("Release")}
         value={metadata.release_id || ""}
         options={[
-          { value: "", label: "No release" },
+          { value: "", label: tr("No release") },
           ...releases.map((r) => ({ value: r.id, label: r.name })),
         ]}
         onChange={(value) => change({ release_id: value || null })}
       />
       <Input
-        label="Response SLA deadline"
+        label={tr("Response SLA deadline")}
         type="datetime-local"
         value={localDeadline(metadata.sla_response_due_at)}
         onChange={(e) =>
@@ -88,12 +88,12 @@ export function CardEnterpriseFields({ card }: { card: Card }) {
         }
       />
       <SlaCountdown
-        label="Response"
+        label={tr("Response")}
         deadline={metadata.sla_response_due_at}
         completed={metadata.first_response_at}
       />
       <Input
-        label="Resolution SLA deadline"
+        label={tr("Resolution SLA deadline")}
         type="datetime-local"
         value={localDeadline(metadata.sla_due_at)}
         onChange={(e) =>
@@ -105,7 +105,7 @@ export function CardEnterpriseFields({ card }: { card: Card }) {
         }
       />
       <SlaCountdown
-        label="Resolution"
+        label={tr("Resolution")}
         deadline={metadata.sla_due_at}
         completed={metadata.resolved_at}
       />

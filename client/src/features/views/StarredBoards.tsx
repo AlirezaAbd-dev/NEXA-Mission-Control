@@ -1,16 +1,16 @@
+import { tr, useUiLocale } from "@/i18n";
 import { NavLink } from "react-router";
 import { Star } from "lucide-react";
 import { useEnterpriseResource } from "@/hooks/enterprise/useEnterpriseResource";
 export function StarredBoards({ projectId }: { projectId: string }) {
+  useUiLocale();
   const { data: boards = [] } = useEnterpriseResource<
     { id: string; name: string }[]
   >(projectId, "starred");
   if (!boards.length) return null;
   return (
     <section className="space-y-1">
-      <h2 className="text-[11px] font-bold uppercase text-slate-500 px-2">
-        Starred boards
-      </h2>
+      <h2 className="text-[11px] font-bold uppercase text-slate-500 px-2">{tr("Starred boards")}</h2>
       {boards.map((board) => (
         <NavLink
           key={board.id}

@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useParams } from "react-router";
 import { useCards } from "@/hooks/card/useCards";
 import { useBoard } from "@/hooks/board/useBoard";
@@ -7,6 +8,7 @@ import { BoardCalendarView } from "@/features/views/BoardCalendarView";
 import { boardThemes } from "@/features/board/BoardPage";
 
 export function CalendarPage() {
+  useUiLocale();
   const { projectId = "" } = useParams();
   const {
     data: cards = [],
@@ -22,9 +24,7 @@ export function CalendarPage() {
     >
       <ViewTabs projectId={projectId} />
       {error ? (
-        <p role="alert" className="text-rose-500 font-semibold text-sm">
-          Could not load tasks. Please retry.
-        </p>
+        <p role="alert" className="text-rose-500 font-semibold text-sm">{tr("Could not load tasks. Please retry.")}</p>
       ) : isLoading || !board ? (
         <div className="h-64 animate-pulse rounded-2xl bg-slate-200/50 dark:bg-[#101117]/60" />
       ) : (

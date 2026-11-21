@@ -1,5 +1,8 @@
+import { normalizeSearch } from "@/i18n";
+import { responsivePortal } from "./responsivePortal";
+import { useMobileViewport } from "@/hooks/useMobileViewport";
+import { tr, useUiLocale } from "@/i18n";
 /* eslint-disable react/set-state-in-effect -- Synchronizes cached asynchronous option labels using the frontend component contract. */
-"use client";
 
 import {
   useState,
@@ -11,7 +14,6 @@ import {
 } from "react";
 import { Check, ChevronDown, Loader2, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { createPortal } from "react-dom";
 import { useMenuKeyboard } from "./useMenuKeyboard";
 import { HintTooltip } from "@/components/ui/tooltip";
 
@@ -63,6 +65,8 @@ export function SearchableSelect({
   debounceMs = 250,
   initialLabel,
 }: SearchableSelectProps) {
+  useUiLocale();
+  const isMobile = useMobileViewport();
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [asyncOptions, setAsyncOptions] = useState<SearchableSelectOption[]>(
@@ -154,11 +158,11 @@ export function SearchableSelect({
       return asyncOptions;
     }
     if (!search.trim()) return options;
-    const query = search.toLowerCase().trim();
+    const query = normalizeSearch(search).trim();
     return options.filter(
       (opt) =>
-        opt.label.toLowerCase().includes(query) ||
-        (opt.sublabel && opt.sublabel.toLowerCase().includes(query)),
+        normalizeSearch(opt.label).includes(query) ||
+        (opt.sublabel && normalizeSearch(opt.sublabel).includes(query)),
     );
   }, [loadOptions, asyncOptions, options, search]);
 
@@ -267,7 +271,7 @@ export function SearchableSelect({
             ariaLabel ||
             (typeof label === "string"
               ? label
-              : placeholder || "Select an option")
+              : placeholder || tr("Select an option"))
           }
           aria-expanded={isOpen}
           aria-haspopup="listbox"
@@ -287,7 +291,7 @@ export function SearchableSelect({
           <span className="min-w-0 truncate text-start font-medium text-slate-900 dark:text-slate-100">
             {selectedOption
               ? selectedOption.label
-              : placeholder || "Select an option…"}
+              : placeholder || tr("Select an option…")}
           </span>
           <div className="flex items-center gap-1.5 shrink-0">
             {clearable && selectedOption && !disabled && (
@@ -300,7 +304,7 @@ export function SearchableSelect({
                   handleClear(e as unknown as React.MouseEvent)
                 }
                 className="rounded-md p-0.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:text-muted-foreground/60 dark:hover:bg-muted dark:hover:text-foreground transition-colors"
-                aria-label={"Clear"}
+                aria-label={tr("Clear")}
               >
                 <X className="size-3.5" />
               </span>
@@ -316,8 +320,7 @@ export function SearchableSelect({
         </button>
 
         {isOpen &&
-          createPortal(
-            <div
+          responsivePortal(<div
               data-floating-overlay
               style={{
                 position: "fixed",
@@ -343,8 +346,8 @@ export function SearchableSelect({
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  aria-label="Search options"
-                  placeholder={searchPlaceholder || "Search…"}
+                  aria-label={tr("Search options")}
+                  placeholder={searchPlaceholder || tr("Search…")}
                   className="h-9 w-full rounded-xl border border-slate-200/80 bg-slate-50/70 text-slate-900 ps-8 pe-3 text-xs sm:text-sm outline-none placeholder:text-slate-400 focus:border-emerald-600 focus:bg-white dark:border-border/60 dark:bg-muted/30 dark:text-slate-100 dark:placeholder:text-muted-foreground/60 dark:focus:border-emerald-400 dark:focus:bg-[#0b0c10] transition-colors"
                 />
               </div>
@@ -354,11 +357,11 @@ export function SearchableSelect({
                 {loading && currentOptions.length === 0 ? (
                   <li className="flex items-center justify-center gap-2 py-5 text-xs sm:text-sm text-slate-400 dark:text-muted-foreground">
                     <Loader2 className="size-4 animate-spin text-emerald-600 dark:text-primary" />
-                    <span>{"Loading…"}</span>
+                    <span>{tr("Loading…")}</span>
                   </li>
                 ) : currentOptions.length === 0 ? (
                   <li className="py-4 text-center text-xs sm:text-sm text-slate-400 dark:text-muted-foreground">
-                    {emptyMessage || "No results"}
+                    {emptyMessage || tr("No results")}
                   </li>
                 ) : (
                   currentOptions.map((opt) => (
@@ -396,9 +399,7 @@ export function SearchableSelect({
                   ))
                 )}
               </ul>
-            </div>,
-            document.body,
-          )}
+            </div>, document.body, isMobile, () => setIsOpen(false), tr("Select an option"))}
       </div>
 
       {error && (

@@ -1,4 +1,6 @@
 "use client";
+import { tr, useUiLocale } from "@/i18n";
+
 
 import {
   useState,
@@ -27,6 +29,7 @@ export function Tooltip({
   side = "top",
   align = "start",
 }: TooltipProps) {
+  useUiLocale();
   const [visible, setVisible] = useState(false);
   const mounted = true;
   const [coords, setCoords] = useState<{
@@ -168,6 +171,7 @@ export function HintTooltip({
   side?: "top" | "bottom" | "left" | "right";
   align?: "start" | "center" | "end";
 }) {
+  useUiLocale();
   if (!text) return null;
 
   return (
@@ -177,7 +181,7 @@ export function HintTooltip({
           "inline-flex items-center justify-center text-muted-foreground/60 hover:text-primary transition-colors cursor-help p-0.5 rounded-full hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary",
           iconClassName,
         )}
-        aria-label="Help info"
+        aria-label={tr("Help info")}
       >
         <HelpCircle className="size-3.5" aria-hidden />
       </span>

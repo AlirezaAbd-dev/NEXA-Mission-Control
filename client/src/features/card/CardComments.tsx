@@ -1,3 +1,5 @@
+import { formatNumber } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { Markdown } from "@/components/common/Markdown";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { useProjectMembers } from "@/hooks/productivity/useProjectMembers";
@@ -26,6 +28,7 @@ export const CardComments: React.FC<CardCommentsProps> = ({
   cardId,
   projectId,
 }) => {
+  useUiLocale();
   const { data: comments = [], isLoading } = useComments(cardId);
   const createComment = useCreateComment(cardId, projectId);
   const { data: members = [] } = useProjectMembers(projectId);
@@ -53,7 +56,7 @@ export const CardComments: React.FC<CardCommentsProps> = ({
     <div className="space-y-4">
       <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
         <MessageSquare className="w-4 h-4 text-slate-400" />
-        <span>Activity & Comments ({comments.length})</span>
+        <span>{tr("Activity & Comments (")}{formatNumber(comments.length)})</span>
       </div>
 
       {/* New Comment Input */}
@@ -66,7 +69,7 @@ export const CardComments: React.FC<CardCommentsProps> = ({
         <Textarea
           value={commentText}
           onChange={(e) => setCommentText(e.target.value)}
-          placeholder="Write a comment..."
+          placeholder={tr("Write a comment...")}
           rows={3}
           className="w-full resize-none"
         />
@@ -77,28 +80,22 @@ export const CardComments: React.FC<CardCommentsProps> = ({
             disabled={!commentText.trim()}
             isLoading={createComment.isPending}
           >
-            <Send className="w-3.5 h-3.5 mr-1.5" />
-            Comment
-          </Button>
+            <Send className="w-3.5 h-3.5 me-1.5" />{tr("Comment")}</Button>
         </div>
         {admin && (
           <Checkbox
             checked={internal}
             onChange={setInternal}
-            label="Internal · visible to project administrators"
+            label={tr("Internal · visible to project administrators")}
           />
         )}
       </form>
 
       {/* Comment List */}
       {isLoading ? (
-        <div className="text-xs text-slate-400 animate-pulse">
-          Loading comments...
-        </div>
+        <div className="text-xs text-slate-400 animate-pulse">{tr("Loading comments...")}</div>
       ) : comments.length === 0 ? (
-        <div className="text-xs text-slate-400 italic py-2">
-          No comments yet.
-        </div>
+        <div className="text-xs text-slate-400 italic py-2">{tr("No comments yet.")}</div>
       ) : (
         <div className="space-y-3 pt-2">
           {comments.map((comment) => (
@@ -132,6 +129,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
   currentUserId,
   isAdmin,
 }) => {
+  useUiLocale();
   const toggleReaction = useToggleReaction(cardId);
   const updateComment = useUpdateComment(cardId);
   const deleteComment = useDeleteComment(cardId, projectId);
@@ -162,7 +160,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
   const handleSaveEdit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!editText.trim()) {
-      setEditError("Comment cannot be empty");
+      setEditError(tr("Comment cannot be empty"));
       return;
     }
     if (editText.trim() === comment.body) {
@@ -225,17 +223,13 @@ const CommentItem: React.FC<CommentItemProps> = ({
                   className="text-[10px] text-slate-400 dark:text-slate-500 italic select-none"
                   title={
                     comment.edited_at
-                      ? `Edited ${formatRelativeTime(comment.edited_at)}`
-                      : "Edited"
+                      ? tr("Edited {value0}", { value0: (formatRelativeTime(comment.edited_at)) })
+                      : tr("Edited")
                   }
-                >
-                  · edited
-                </span>
+                >{tr("· edited")}</span>
               )}
               {comment.is_internal && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium border border-amber-500/20">
-                  Internal
-                </span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium border border-amber-500/20">{tr("Internal")}</span>
               )}
             </div>
 
@@ -247,7 +241,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                     type="button"
                     onClick={handleStartEdit}
                     className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-white/[0.05] transition-colors cursor-pointer"
-                    title="Edit comment"
+                    title={tr("Edit comment")}
                   >
                     <Edit2 className="w-3.5 h-3.5" />
                   </button>
@@ -257,7 +251,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                     type="button"
                     onClick={() => setDeleteModalOpen(true)}
                     className="p-1 rounded-md text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
-                    title="Delete comment"
+                    title={tr("Delete comment")}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -280,14 +274,12 @@ const CommentItem: React.FC<CommentItemProps> = ({
                 onKeyDown={handleKeyDown}
                 rows={3}
                 autoFocus
-                placeholder="Edit your comment..."
+                placeholder={tr("Edit your comment...")}
                 className="w-full resize-none text-sm"
               />
               <div className="flex items-center justify-between gap-2 pt-1">
-                <span className="text-[10px] text-slate-400 hidden sm:inline">
-                  Esc to cancel · ⌘+Enter to save
-                </span>
-                <div className="flex items-center gap-1.5 ml-auto">
+                <span className="text-[10px] text-slate-400 hidden sm:inline">{tr("Esc to cancel · ⌘+Enter to save")}</span>
+                <div className="flex items-center gap-1.5 ms-auto">
                   <Button
                     type="button"
                     variant="ghost"
@@ -295,9 +287,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                     onClick={handleCancelEdit}
                     disabled={updateComment.isPending}
                   >
-                    <X className="w-3.5 h-3.5 mr-1" />
-                    Cancel
-                  </Button>
+                    <X className="w-3.5 h-3.5 me-1" />{tr("Cancel")}</Button>
                   <Button
                     type="button"
                     variant="primary"
@@ -306,9 +296,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                     isLoading={updateComment.isPending}
                     disabled={!editText.trim()}
                   >
-                    <Check className="w-3.5 h-3.5 mr-1" />
-                    Save
-                  </Button>
+                    <Check className="w-3.5 h-3.5 me-1" />{tr("Save")}</Button>
                 </div>
               </div>
             </div>
@@ -333,7 +321,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-slate-100 dark:bg-[#101117] hover:bg-slate-200 dark:hover:bg-white/[0.08] text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-white/[0.06] transition-colors cursor-pointer"
                 >
                   <span>{reaction.emoji}</span>
-                  <span className="text-[11px] font-medium">{reaction.count}</span>
+                  <span className="text-[11px] font-medium">{formatNumber(reaction.count)}</span>
                 </button>
               ))}
 
@@ -349,7 +337,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                       })
                     }
                     className="hover:scale-125 transition-transform text-xs p-0.5 cursor-pointer"
-                    title={`React with ${emoji}`}
+                    title={tr("React with {value0}", { value0: (emoji) })}
                   >
                     {emoji}
                   </button>
@@ -364,9 +352,9 @@ const CommentItem: React.FC<CommentItemProps> = ({
       <ConfirmModal
         isOpen={deleteModalOpen}
         onClose={() => setDeleteModalOpen(false)}
-        title="Delete comment?"
-        description="Are you sure you want to permanently delete this comment? This action cannot be undone."
-        confirmLabel="Delete Comment"
+        title={tr("Delete comment?")}
+        description={tr("Are you sure you want to permanently delete this comment? This action cannot be undone.")}
+        confirmLabel={tr("Delete Comment")}
         isDestructive={true}
         isLoading={deleteComment.isPending}
         onConfirm={handleDeleteConfirm}

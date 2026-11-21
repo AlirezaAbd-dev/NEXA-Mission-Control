@@ -1,3 +1,5 @@
+import { dateLocale } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { AuditEventDetails } from "@/components/common/AuditEventDetails";
 import {
   auditPayload,
@@ -7,13 +9,14 @@ import { useEnterpriseResource } from "@/hooks/enterprise/useEnterpriseResource"
 import type { AuditEntry } from "@/types/enterprise";
 import { apiError } from "@/lib/apiError";
 export function AuditLog({ projectId }: { projectId: string }) {
+  useUiLocale();
   const { data: entries = [], error } = useEnterpriseResource<AuditEntry[]>(
     projectId,
     "audit",
   );
   return (
     <section className="p-5 rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06]">
-      <h2 className="font-semibold mb-4">Security & activity audit</h2>
+      <h2 className="font-semibold mb-4">{tr("Security & activity audit")}</h2>
       {error && (
         <p role="alert" className="text-sm text-rose-500">
           {apiError(error)}
@@ -26,11 +29,11 @@ export function AuditLog({ projectId }: { projectId: string }) {
             className="border-b border-slate-100 dark:border-white/[0.06] pb-3"
           >
             <p className="text-xs font-medium">
-              {e.actor_name || "System"} ·{" "}
+              {e.actor_name || tr("System")} ·{" "}
               {auditSummary(e.action, auditPayload(e.payload))}
             </p>
             <p className="text-xs text-slate-500 mt-1">
-              {new Date(e.created_at).toLocaleString()}
+              {new Date(e.created_at).toLocaleString(dateLocale())}
             </p>
             {!!auditPayload(e.payload).task_title && (
               <p className="mt-1 text-xs font-semibold text-primary">
@@ -41,9 +44,7 @@ export function AuditLog({ projectId }: { projectId: string }) {
           </div>
         ))}
         {entries.length === 0 && !error && (
-          <p className="text-sm text-slate-500">
-            Project changes will appear here.
-          </p>
+          <p className="text-sm text-slate-500">{tr("Project changes will appear here.")}</p>
         )}
       </div>
     </section>

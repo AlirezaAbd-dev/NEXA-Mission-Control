@@ -1,3 +1,6 @@
+import { uiLabel } from "@/i18n";
+import { dateLocale } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useNow } from "@/hooks/useNow";
 import { useState } from "react";
 import { Button, CustomSelect } from "@/components/ui";
@@ -17,12 +20,13 @@ const colors: Record<string, string> = {
 export function BoardGanttView({
   cards,
   projectId,
-  title = "Project timeline",
+  title = tr("Project timeline"),
 }: {
   cards: Pick<Card, "id" | "title" | "priority" | "start_date" | "due_date">[];
   projectId: string;
   title?: string;
 }) {
+  useUiLocale();
   const now = useNow();
   const [zoom, setZoom] = useState("weeks"),
     [error, setError] = useState("");
@@ -82,9 +86,7 @@ export function BoardGanttView({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold">{title}</h2>
-          <p className="text-xs text-slate-500">
-            Drag bars to move tasks; drag the end handle to change duration.
-          </p>
+          <p className="text-xs text-slate-500">{tr("Drag bars to move tasks; drag the end handle to change duration.")}</p>
         </div>
         <CustomSelect
           className="w-36"
@@ -92,7 +94,7 @@ export function BoardGanttView({
           onChange={setZoom}
           options={["days", "weeks", "months"].map((value) => ({
             value,
-            label: value,
+            label: uiLabel(value),
           }))}
         />
       </div>
@@ -103,15 +105,13 @@ export function BoardGanttView({
       )}
       {scheduled.length === 0 ? (
         <div className="p-12 rounded-xl border border-dashed border-slate-300 dark:border-white/[0.06] text-center">
-          <p className="font-semibold">Schedule your first task</p>
-          <p className="text-sm text-slate-500 mt-2">
-            Add start and due dates from the table or task detail view.
-          </p>
+          <p className="font-semibold">{tr("Schedule your first task")}</p>
+          <p className="text-sm text-slate-500 mt-2">{tr("Add start and due dates from the table or task detail view.")}</p>
         </div>
       ) : (
         <div className="flex rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10] overflow-hidden">
           <div className="w-52 shrink-0 border-e border-slate-200 dark:border-white/[0.06]">
-            <div className="h-[50px] p-4 text-xs text-slate-500">Task</div>
+            <div className="h-[50px] p-4 text-xs text-slate-500">{tr("Task")}</div>
             {scheduled.map((c) => (
               <Button
                 key={c.id}
@@ -125,10 +125,11 @@ export function BoardGanttView({
           </div>
           <div className="overflow-auto flex-1">
             <svg
+              style={{ direction: "ltr" }}
               width={width}
               height={height}
               role="img"
-              aria-label="Task timeline with dependencies"
+              aria-label={tr("Task timeline with dependencies")}
               className="text-slate-500"
             >
               <defs>
@@ -160,9 +161,9 @@ export function BoardGanttView({
                       x={i * dayWidth + 4}
                       y={22}
                       fill="currentColor"
-                      fontSize={10}
+                      fontSize={11}
                     >
-                      {addDays(start, i).toLocaleDateString(undefined, {
+                      {addDays(start, i).toLocaleDateString(dateLocale(), {
                         month: "short",
                         day: "numeric",
                       })}
@@ -256,7 +257,7 @@ export function BoardGanttView({
                     <text
                       x={left + 8}
                       y={rowY + 16}
-                      fontSize={10}
+                      fontSize={11}
                       fill="white"
                       pointerEvents="none"
                     >

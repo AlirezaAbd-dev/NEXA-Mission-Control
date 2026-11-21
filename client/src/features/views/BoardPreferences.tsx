@@ -1,3 +1,5 @@
+import { uiLabel } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useBoardStore } from "@/stores/board.store";
 import { useState } from "react";
 import { Star, Bookmark, Archive } from "lucide-react";
@@ -9,6 +11,7 @@ import { useEnterpriseResource } from "@/hooks/enterprise/useEnterpriseResource"
 import { useSaveResource } from "@/hooks/enterprise/useSaveResource";
 import { apiError } from "@/lib/apiError";
 export function BoardPreferences({ projectId }: { projectId: string }) {
+  useUiLocale();
   const filters = useBoardStore();
   const { data: pref = {} } = usePreferences(projectId),
     save = useSavePreferences(projectId),
@@ -23,7 +26,7 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
       <Button
         variant="outline"
         size="sm"
-        aria-label="Star board"
+        aria-label={tr("Star board")}
         onClick={() =>
           save.mutate(
             { ...pref, starred: !pref.starred },
@@ -44,7 +47,7 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
         onChange={(grouping) => save.mutate({ ...pref, grouping })}
         options={["none", "priority", "assignee", "epic"].map((value) => ({
           value,
-          label: value === "none" ? "No swimlanes" : `Group by ${value}`,
+          label: value === "none" ? tr("No swimlanes") : tr("Group by {value0}", { value0: uiLabel(value) }),
         }))}
       />
       <CustomSelect
@@ -53,21 +56,21 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
         value={pref.background || "petrol"}
         onChange={(background) => save.mutate({ ...pref, background })}
         options={[
-          { value: "petrol", label: "Petrol Dark" },
-          { value: "teal", label: "Teal Glow" },
-          { value: "ocean", label: "Ocean Blue" },
-          { value: "emerald", label: "Emerald Green" },
-          { value: "sunset", label: "Sunset Twilight" },
-          { value: "midnight", label: "Midnight Indigo" },
-          { value: "purple", label: "Deep Purple" },
-          { value: "slate", label: "Modern Slate" },
-          { value: "neutral", label: "Neutral Minimal" },
+          { value: "petrol", label: tr("Petrol Dark") },
+          { value: "teal", label: tr("Teal Glow") },
+          { value: "ocean", label: tr("Ocean Blue") },
+          { value: "emerald", label: tr("Emerald Green") },
+          { value: "sunset", label: tr("Sunset Twilight") },
+          { value: "midnight", label: tr("Midnight Indigo") },
+          { value: "purple", label: tr("Deep Purple") },
+          { value: "slate", label: tr("Modern Slate") },
+          { value: "neutral", label: tr("Neutral Minimal") },
         ]}
       />
       <CustomSelect
         className="w-32 sm:w-36"
         size="sm"
-        placeholder="Saved views"
+        placeholder={tr("Saved views")}
         options={views.map((v) => ({ value: v.id, label: v.name }))}
         onChange={(id) => {
           const view = views.find((v) => v.id === id);
@@ -87,18 +90,14 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
         }}
       />
       <Button size="sm" variant="outline" onClick={() => setModal(true)}>
-        <Bookmark size={14} />
-        Save view
-      </Button>
+        <Bookmark size={14} />{tr("Save view")}</Button>
       <Button
         size="sm"
         variant="outline"
         onClick={() => setArchiveOpen(true)}
         className="text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400"
       >
-        <Archive size={14} />
-        Archive
-      </Button>
+        <Archive size={14} />{tr("Archive")}</Button>
       {error && (
         <p role="alert" className="text-sm text-rose-500">
           {error}
@@ -108,7 +107,7 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
       <Modal
         isOpen={archiveOpen}
         onClose={() => setArchiveOpen(false)}
-        title="Project archive"
+        title={tr("Project archive")}
         size="lg"
       >
         <ArchiveCenter projectId={projectId} compact />
@@ -116,7 +115,7 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
       <Modal
         isOpen={modal}
         onClose={() => setModal(false)}
-        title="Save this board view"
+        title={tr("Save this board view")}
       >
         <form
           className="space-y-4"
@@ -144,14 +143,12 @@ export function BoardPreferences({ projectId }: { projectId: string }) {
           }}
         >
           <Input
-            label="View name"
+            label={tr("View name")}
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          <Button type="submit" isLoading={create.isPending}>
-            Save view
-          </Button>
+          <Button type="submit" isLoading={create.isPending}>{tr("Save view")}</Button>
         </form>
       </Modal>
     </div>

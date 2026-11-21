@@ -1,3 +1,6 @@
+import { DirectionalIcon } from "@/components/ui/DirectionalIcon";
+import { dateLocale } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useNow } from "@/hooks/useNow";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -14,6 +17,7 @@ export function BoardCalendarView({
   cards: Pick<Card, "id" | "title" | "start_date" | "due_date">[];
   projectId: string;
 }) {
+  useUiLocale();
   const now = useNow();
   const [current, setCurrent] = useState(() => new Date(now)),
     [mode, setMode] = useState<"month" | "week">("month"),
@@ -38,7 +42,7 @@ export function BoardCalendarView({
     <div className="space-y-4">
       <div className="flex flex-wrap justify-between gap-3">
         <h2 className="text-xl font-bold">
-          {current.toLocaleDateString(undefined, {
+          {current.toLocaleDateString(dateLocale(), {
             month: "long",
             year: "numeric",
           })}
@@ -48,38 +52,32 @@ export function BoardCalendarView({
             size="sm"
             variant={mode === "month" ? "primary" : "outline"}
             onClick={() => setMode("month")}
-          >
-            Month
-          </Button>
+          >{tr("Month")}</Button>
           <Button
             size="sm"
             variant={mode === "week" ? "primary" : "outline"}
             onClick={() => setMode("week")}
-          >
-            Week
-          </Button>
+          >{tr("Week")}</Button>
           <Button
-            aria-label="Previous period"
+            aria-label={tr("Previous period")}
             size="icon"
             variant="outline"
             onClick={() => navigate(-1)}
           >
-            <ChevronLeft size={16} />
+            <DirectionalIcon icon={ChevronLeft} size={16} />
           </Button>
           <Button
             size="sm"
             variant="outline"
             onClick={() => setCurrent(new Date(now))}
-          >
-            Today
-          </Button>
+          >{tr("Today")}</Button>
           <Button
-            aria-label="Next period"
+            aria-label={tr("Next period")}
             size="icon"
             variant="outline"
             onClick={() => navigate(1)}
           >
-            <ChevronRight size={16} />
+            <DirectionalIcon icon={ChevronRight} size={16} />
           </Button>
         </div>
       </div>
@@ -89,11 +87,11 @@ export function BoardCalendarView({
         </p>
       )}
       <div className="overflow-x-auto">
-        <div className="min-w-[700px] grid grid-cols-7 border border-slate-200 dark:border-white/[0.06] rounded-xl overflow-hidden bg-white dark:bg-[#0b0c10]">
-          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+        <div className="min-w-0 grid grid-cols-7 border border-slate-200 dark:border-white/[0.06] rounded-xl overflow-hidden bg-white dark:bg-[#0b0c10]">
+          {[tr("Sun"), tr("Mon"), tr("Tue"), tr("Wed"), tr("Thu"), tr("Fri"), tr("Sat")].map((day) => (
             <div
               key={day}
-              className="p-3 text-xs text-center bg-slate-50 dark:bg-[#101117] text-slate-500"
+              className="p-1 sm:p-3 text-xs text-center bg-slate-50 dark:bg-[#101117] text-slate-500"
             >
               {day}
             </div>
@@ -141,7 +139,7 @@ export function BoardCalendarView({
                         }
                         onClick={() => open(c.id)}
                         className="block w-full truncate text-start bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs"
-                        title={`${c.title} · ${parseDay(c.due_date || key).toLocaleDateString()}`}
+                        title={`${c.title} · ${parseDay(c.due_date || key).toLocaleDateString(dateLocale())}`}
                       >
                         {c.title}
                       </Button>
@@ -152,10 +150,7 @@ export function BoardCalendarView({
           })}
         </div>
       </div>
-      <p className="text-xs text-slate-500">
-        Drag a task to a date to move its entire date range. Open a task to
-        change its details.
-      </p>
+      <p className="text-xs text-slate-500">{tr("Drag a task to a date to move its entire date range. Open a task to change its details.")}</p>
     </div>
   );
 }

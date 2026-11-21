@@ -107,6 +107,8 @@ volumes:
 
 ## 🎯 Features at a Glance
 
+- **[English and Persian UI](docs/LOCALIZATION.md)**: Saved language preference, RTL layouts, Persian typography, localized numbers and Gregorian dates, with responsive mobile sheets and task lists.
+
 ### 📋 Versatile Project Views
 - **Fluid Kanban Board**: Fractional reordering, custom swimlanes (grouped by Priority, Assignee, Epic), WIP limits, themes, and starred boards.
 - **Data Grid / Spreadsheet**: High-speed spreadsheet-style task table with multi-select and bulk actions.

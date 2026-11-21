@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { formatDescriptionHtml } from "@/lib/formatDescription";
 import React, { useState } from "react";
 import { AlignLeft, Check, X, Edit3 } from "lucide-react";
@@ -12,6 +13,7 @@ interface CardDescriptionProps {
 }
 
 export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
+  useUiLocale();
   const hasDescription = Boolean(card.description && card.description.trim());
   const [isEditing, setIsEditing] = useState(!hasDescription);
   const [description, setDescription] = useState(card.description || "");
@@ -64,7 +66,7 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
       <div className="flex items-center justify-between text-sm font-semibold text-slate-900 dark:text-slate-100">
         <div className="flex items-center gap-2">
           <AlignLeft className="w-4 h-4 text-emerald-500" />
-          <span>Description</span>
+          <span>{tr("Description")}</span>
         </div>
         {!isEditing && hasDescription && (
           <Button
@@ -76,9 +78,7 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
             }}
             className="h-7 text-xs text-muted-foreground hover:text-foreground"
           >
-            <Edit3 className="w-3.5 h-3.5 mr-1 text-emerald-500" />
-            Edit
-          </Button>
+            <Edit3 className="w-3.5 h-3.5 me-1 text-emerald-500" />{tr("Edit")}</Button>
         )}
       </div>
 
@@ -88,7 +88,7 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
             content={formatDescriptionHtml(description)}
             onChange={(val) => setDescription(val)}
             onImageUpload={handleImageUpload}
-            placeholder="Add rich description, paste or drop images, checklists, code, tables..."
+            placeholder={tr("Add rich description, paste or drop images, checklists, code, tables...")}
             minHeight="220px"
           />
           <div className="flex items-center gap-2 pt-1">
@@ -98,13 +98,9 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
               isLoading={updateCard.isPending}
               className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-xs"
             >
-              <Check className="w-4 h-4 mr-1" />
-              Save
-            </Button>
+              <Check className="w-4 h-4 me-1" />{tr("Save")}</Button>
             <Button size="sm" variant="ghost" onClick={handleCancel}>
-              <X className="w-4 h-4 mr-1" />
-              Cancel
-            </Button>
+              <X className="w-4 h-4 me-1" />{tr("Cancel")}</Button>
           </div>
         </div>
       ) : (
@@ -126,7 +122,7 @@ export const CardDescription: React.FC<CardDescriptionProps> = ({ card }) => {
             />
           ) : (
             <div className="flex items-center gap-2 py-1 text-muted-foreground">
-              <span>Add a rich description, paste images, tables, checklists…</span>
+              <span>{tr("Add a rich description, paste images, tables, checklists…")}</span>
             </div>
           )}
         </div>

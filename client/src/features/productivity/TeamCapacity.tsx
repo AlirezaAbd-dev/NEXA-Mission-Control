@@ -1,3 +1,5 @@
+import { formatNumber } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { Input } from "@/components/ui";
 import { useWorkspaceMembers } from "@/hooks/workspace/useWorkspaceMembers";
 import { useProductivity } from "@/hooks/productivity/useProductivity";
@@ -11,6 +13,7 @@ export function TeamCapacity({
   workspaceId: string;
   cards: WorkCard[];
 }) {
+  useUiLocale();
   const { data: members = [] } = useWorkspaceMembers(workspaceId),
     { data: capacities = [] } = useProductivity<
       { user_id: string; weekly_hours: number }[]
@@ -20,11 +23,7 @@ export function TeamCapacity({
   const end = new Date(now + 7 * 86400000).toISOString().slice(0, 10);
   return (
     <section className="space-y-4">
-      <p className="text-sm text-slate-500">
-        Upcoming workload includes unfinished tasks due within seven days, plus
-        unscheduled work. Capacity is weekly availability; administrators can
-        change it.
-      </p>
+      <p className="text-sm text-slate-500">{tr("Upcoming workload includes unfinished tasks due within seven days, plus unscheduled work. Capacity is weekly availability; administrators can change it.")}</p>
       <div className="grid md:grid-cols-3 gap-4">
         {members.map((m) => {
           const work = cards.filter(
@@ -50,8 +49,8 @@ export function TeamCapacity({
                     : "text-emerald-600 dark:text-emerald-400"
                 }
               >
-                {hours} / {available} hours ·{" "}
-                {hours > available ? "Over capacity" : "Available"}
+                {hours} / {available}{" "}{tr("hours ·")}{" "}
+                {hours > available ? tr("Over capacity") : tr("Available")}
               </p>
               <progress
                 className="w-full accent-teal-500"
@@ -59,12 +58,11 @@ export function TeamCapacity({
                 value={hours}
               />
               <p className="text-sm text-slate-500">
-                {work.length} tasks ·{" "}
-                {work.reduce((n, c) => n + (c.story_points || 0), 0)} points
-              </p>
+                {formatNumber(work.length)}{" "}{tr("tasks ·")}{" "}
+                {work.reduce((n, c) => n + (c.story_points || 0), 0)}{tr("points")}</p>
               <Input
                 key={`${m.user_id}:${available}`}
-                label="Weekly available hours"
+                label={tr("Weekly available hours")}
                 type="number"
                 min={0}
                 max={168}

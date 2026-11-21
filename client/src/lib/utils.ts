@@ -1,3 +1,4 @@
+import { dateLocale, getLocale } from "@/i18n";
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -8,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
 export function formatDate(dateStr?: string | null): string {
   if (!dateStr) return '';
   const d = new Date(dateStr);
-  return d.toLocaleDateString(undefined, {
+  return d.toLocaleDateString(dateLocale(), {
     month: 'short',
     day: 'numeric',
   });
@@ -17,7 +18,7 @@ export function formatDate(dateStr?: string | null): string {
 export function formatDateTime(dateStr?: string | null): string {
   if (!dateStr) return '';
   const d = new Date(dateStr);
-  return d.toLocaleString(undefined, {
+  return d.toLocaleString(dateLocale(), {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
@@ -29,13 +30,13 @@ export function formatRelativeTime(dateStr?: string | null): string {
   if (!dateStr) return '';
   const d = new Date(dateStr);
   const diffSec = Math.floor((Date.now() - d.getTime()) / 1000);
-  if (diffSec < 60) return 'just now';
-  const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}m ago`;
-  const diffHour = Math.floor(diffMin / 60);
-  if (diffHour < 24) return `${diffHour}h ago`;
-  const diffDay = Math.floor(diffHour / 24);
-  return `${diffDay}d ago`;
+  const relative = new Intl.RelativeTimeFormat(getLocale() === "fa" ? "fa-IR" : "en-US", { numeric: "auto" });
+  if (diffSec < 60) return relative.format(0, "second");
+  const minutes = Math.floor(diffSec / 60);
+  if (minutes < 60) return relative.format(-minutes, "minute");
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return relative.format(-hours, "hour");
+  return relative.format(-Math.floor(hours / 24), "day");
 }
 
 export function getPriorityColor(priority: string): string {

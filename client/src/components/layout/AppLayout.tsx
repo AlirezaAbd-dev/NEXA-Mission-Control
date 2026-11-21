@@ -20,7 +20,7 @@ export const AppLayout = () => {
   }
 
   return (
-    <div className="flex h-screen h-[100dvh] w-screen overflow-hidden bg-slate-50 dark:bg-[#070709] text-slate-900 dark:text-slate-100">
+    <div className="fixed inset-0 flex h-[100dvh] w-screen overflow-hidden bg-slate-50 dark:bg-[#070709] text-slate-900 dark:text-slate-100">
       <Sidebar />
       <div className="flex flex-col flex-1 h-screen h-[100dvh] overflow-hidden min-w-0 bg-slate-50/50 dark:bg-[#070709]/50">
         <TopBar />

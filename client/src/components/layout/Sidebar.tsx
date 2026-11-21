@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import { StarredBoards } from "@/features/views/StarredBoards";
 import { useState, useEffect } from "react";
@@ -28,6 +29,7 @@ import { useCreateProject } from "@/hooks/project/useCreateProject";
 import { useCreateWorkspace } from "@/hooks/workspace/useCreateWorkspace";
 
 export const Sidebar = () => {
+  useUiLocale();
   const { projectId } = useParams<{
     projectId?: string;
   }>();
@@ -79,7 +81,7 @@ export const Sidebar = () => {
 
   const handleCreateProject = async () => {
     if (!newProjectName.trim()) {
-      setProjectError("Project name is required");
+      setProjectError(tr("Project name is required"));
       return;
     }
     setProjectError(null);
@@ -107,7 +109,7 @@ export const Sidebar = () => {
 
   const handleCreateWorkspace = async () => {
     if (!newWorkspaceName.trim()) {
-      setWorkspaceError("Workspace name is required");
+      setWorkspaceError(tr("Workspace name is required"));
       return;
     }
     setWorkspaceError(null);
@@ -137,7 +139,7 @@ export const Sidebar = () => {
         onClick={() => useUiStore.getState().setSidebarOpen(false)}
       />
 
-      <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-[#0b0c10] border-r border-slate-200/80 dark:border-white/[0.06] flex flex-col shrink-0 h-screen select-none transition-all duration-300 shadow-2xl md:shadow-none md:static md:z-auto">
+      <aside className="fixed inset-y-0 start-0 z-50 w-64 bg-white dark:bg-[#0b0c10] border-e border-slate-200/80 dark:border-white/[0.06] flex flex-col shrink-0 h-screen select-none transition-all duration-300 shadow-2xl md:shadow-none md:static md:z-auto">
         {/* Workspace selector / App branding */}
         <div className="p-4 border-b border-slate-100 dark:border-white/[0.06] flex items-center justify-between">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -146,14 +148,12 @@ export const Sidebar = () => {
               <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate flex items-center gap-1.5">
                 <span>{currentWorkspace?.name || "NEXA"}</span>
               </h2>
-              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold tracking-wider uppercase block">
-                Mission Control
-              </span>
+              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold tracking-wider uppercase block">{tr("Mission Control")}</span>
             </div>
           </div>
           <button
             onClick={() => useUiStore.getState().setSidebarOpen(false)}
-            title="Close sidebar"
+            title={tr("Close sidebar")}
             className="md:hidden p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-colors"
           >
             <X className="w-4 h-4" />
@@ -165,15 +165,13 @@ export const Sidebar = () => {
           {/* Workspace Switcher & Hub */}
           <div className="space-y-2">
             <div className="flex items-center justify-between px-1">
-              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                Workspace
-              </span>
+              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{tr("Workspace")}</span>
               <button
                 onClick={() => {
                   setWorkspaceError(null);
                   setCreateWorkspaceOpen(true);
                 }}
-                title="Create Workspace"
+                title={tr("Create Workspace")}
                 className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 p-1 rounded-md hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -184,7 +182,7 @@ export const Sidebar = () => {
               value={currentWorkspace?.id}
               options={workspaces.map((w) => ({ value: w.id, label: w.name }))}
               onChange={(id) => {selectWorkspace(id);navigate(`/w/${id}`);}}
-              placeholder="Select workspace…"
+              placeholder={tr("Select workspace…")}
               size="sm"
             />
 
@@ -201,7 +199,7 @@ export const Sidebar = () => {
                 }
               >
                 <LayoutDashboard className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span className="truncate">Workspace Overview</span>
+                <span className="truncate">{tr("Workspace Overview")}</span>
               </NavLink>
 
               <NavLink
@@ -215,11 +213,11 @@ export const Sidebar = () => {
                 }
               >
                 <Inbox className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <span className="truncate">Planner & Work Hub</span>
+                <span className="truncate">{tr("Planner & Work Hub")}</span>
               </NavLink>
               <NavLink to={currentWorkspace?.id ? `/w/${currentWorkspace.id}/notes` : "/notes"}
                 className={({ isActive }) => `flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${isActive ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100/80 dark:hover:bg-white/[0.05]"}`}>
-                <NotebookPen className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" /><span>Notes</span>
+                <NotebookPen className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" /><span>{tr("Notes")}</span>
               </NavLink>
             </div>
           </div>
@@ -229,16 +227,14 @@ export const Sidebar = () => {
           {/* Projects list */}
           <div>
             <div className="flex items-center justify-between px-2 mb-2">
-              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                Projects
-              </span>
+              <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{tr("Projects")}</span>
               <button
                 onClick={() => {
                   setProjectError(null);
                   setCreateProjectOpen(true);
                 }}
                 className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 p-1 rounded-md hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-colors"
-                title="Create Project"
+                title={tr("Create Project")}
               >
                 <Plus className="w-3.5 h-3.5" />
               </button>
@@ -246,9 +242,7 @@ export const Sidebar = () => {
 
             <div className="space-y-0.5">
               {projects.length === 0 ? (
-                <div className="px-3 py-2 text-xs text-slate-400 italic">
-                  No projects yet
-                </div>
+                <div className="px-3 py-2 text-xs text-slate-400 italic">{tr("No projects yet")}</div>
               ) : (
                 projects.map((proj) => {
                   const isActive = currentProject?.id === proj.id;
@@ -256,7 +250,7 @@ export const Sidebar = () => {
                     <button
                       key={proj.id}
                       onClick={() => navigate(`/p/${proj.id}/board`)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all text-left ${
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all text-start ${
                         isActive
                           ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 shadow-2xs"
                           : "text-slate-600 dark:text-slate-300 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] hover:text-slate-900 dark:hover:text-slate-100"
@@ -284,8 +278,7 @@ export const Sidebar = () => {
             <div className="space-y-4">
               <div>
                 <div className="px-2 mb-2">
-                  <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                    Views ({currentProject.identifier})
+                  <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{tr("Views (")}{currentProject.identifier})
                   </span>
                 </div>
 
@@ -301,7 +294,7 @@ export const Sidebar = () => {
                     }
                   >
                     <Kanban className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span className="truncate">Kanban Board</span>
+                    <span className="truncate">{tr("Kanban Board")}</span>
                   </NavLink>
 
                   <NavLink
@@ -315,7 +308,7 @@ export const Sidebar = () => {
                     }
                   >
                     <ListTodo className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span className="truncate">Backlog & Sprints</span>
+                    <span className="truncate">{tr("Backlog & Sprints")}</span>
                   </NavLink>
 
                   <NavLink
@@ -329,7 +322,7 @@ export const Sidebar = () => {
                     }
                   >
                     <GanttChartSquare className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span className="truncate">Timeline</span>
+                    <span className="truncate">{tr("Timeline")}</span>
                   </NavLink>
 
                   <NavLink
@@ -343,7 +336,7 @@ export const Sidebar = () => {
                     }
                   >
                     <CalendarDays className="w-4 h-4 text-sky-500 shrink-0" />
-                    <span className="truncate">Calendar</span>
+                    <span className="truncate">{tr("Calendar")}</span>
                   </NavLink>
 
                   <NavLink
@@ -357,7 +350,7 @@ export const Sidebar = () => {
                     }
                   >
                     <TableProperties className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span className="truncate">List View</span>
+                    <span className="truncate">{tr("List View")}</span>
                   </NavLink>
                 </div>
               </div>
@@ -365,9 +358,7 @@ export const Sidebar = () => {
               {/* Enterprise Features */}
               <div>
                 <div className="px-2 mb-2">
-                  <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                    Enterprise & Ops
-                  </span>
+                  <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{tr("Enterprise & Ops")}</span>
                 </div>
                 <div className="space-y-0.5">
                   <NavLink
@@ -381,7 +372,7 @@ export const Sidebar = () => {
                     }
                   >
                     <BarChart3 className="w-4 h-4 text-indigo-500 shrink-0" />
-                    <span className="truncate">Insights</span>
+                    <span className="truncate">{tr("Insights")}</span>
                   </NavLink>
 
                   <NavLink
@@ -395,7 +386,7 @@ export const Sidebar = () => {
                     }
                   >
                     <Zap className="w-4 h-4 text-amber-500 shrink-0" />
-                    <span className="truncate">Automation</span>
+                    <span className="truncate">{tr("Automation")}</span>
                   </NavLink>
 
                   <NavLink
@@ -409,7 +400,7 @@ export const Sidebar = () => {
                     }
                   >
                     <Layers className="w-4 h-4 text-cyan-500 shrink-0" />
-                    <span className="truncate">Service Desk</span>
+                    <span className="truncate">{tr("Service Desk")}</span>
                   </NavLink>
 
                   <NavLink
@@ -423,7 +414,7 @@ export const Sidebar = () => {
                     }
                   >
                     <Shield className="w-4 h-4 text-emerald-500 shrink-0" />
-                    <span className="truncate">Project Governance</span>
+                    <span className="truncate">{tr("Project Governance")}</span>
                   </NavLink>
                 </div>
               </div>
@@ -444,7 +435,7 @@ export const Sidebar = () => {
             }
           >
             <Settings className="w-4 h-4 text-emerald-500 shrink-0" />
-            <span>Settings</span>
+            <span>{tr("Settings")}</span>
           </NavLink>
         </div>
       </aside>
@@ -453,12 +444,12 @@ export const Sidebar = () => {
       <Modal
         isOpen={createProjectOpen}
         onClose={() => setCreateProjectOpen(false)}
-        title="Create New Project"
+        title={tr("Create New Project")}
       >
         <div className="space-y-4">
           <Input
-            label="Project Name"
-            placeholder="e.g. Website Redesign"
+            label={tr("Project Name")}
+            placeholder={tr("e.g. Website Redesign")}
             value={newProjectName}
             error={projectError || undefined}
             onChange={(e) => {
@@ -472,25 +463,25 @@ export const Sidebar = () => {
             }}
           />
           <Input
-            label="Identifier (Key)"
-            placeholder="e.g. WEB"
+            label={tr("Identifier (Key)")}
+            placeholder={tr("e.g. WEB")}
             value={newProjectIdentifier}
             onChange={(e) =>
               setNewProjectIdentifier(e.target.value.toUpperCase())
             }
           />
           <CustomSelect
-            label="Visibility"
+            label={tr("Visibility")}
             value={newProjectVisibility}
             options={[
-              { value: "public", label: "Workspace-visible" },
-              { value: "private", label: "Private" },
+              { value: "public", label: tr("Workspace-visible") },
+              { value: "private", label: tr("Private") },
             ]}
             onChange={(v) => setNewProjectVisibility(v as "public" | "private")}
           />
           <Textarea
-            label="Description (Optional)"
-            placeholder="What is this project about?"
+            label={tr("Description (Optional)")}
+            placeholder={tr("What is this project about?")}
             value={newProjectDesc}
             onChange={(e) => setNewProjectDesc(e.target.value)}
             rows={3}
@@ -500,16 +491,12 @@ export const Sidebar = () => {
               variant="secondary"
               size="sm"
               onClick={() => setCreateProjectOpen(false)}
-            >
-              Cancel
-            </Button>
+            >{tr("Cancel")}</Button>
             <Button
               size="sm"
               onClick={handleCreateProject}
               isLoading={createProjectMutation.isPending}
-            >
-              Create Project
-            </Button>
+            >{tr("Create Project")}</Button>
           </div>
         </div>
       </Modal>
@@ -518,12 +505,12 @@ export const Sidebar = () => {
       <Modal
         isOpen={createWorkspaceOpen}
         onClose={() => setCreateWorkspaceOpen(false)}
-        title="Create New Workspace"
+        title={tr("Create New Workspace")}
       >
         <div className="space-y-4">
           <Input
-            label="Workspace Name"
-            placeholder="e.g. Acme Corporation"
+            label={tr("Workspace Name")}
+            placeholder={tr("e.g. Acme Corporation")}
             value={newWorkspaceName}
             error={workspaceError || undefined}
             onChange={(e) => {
@@ -536,16 +523,12 @@ export const Sidebar = () => {
               variant="secondary"
               size="sm"
               onClick={() => setCreateWorkspaceOpen(false)}
-            >
-              Cancel
-            </Button>
+            >{tr("Cancel")}</Button>
             <Button
               size="sm"
               onClick={handleCreateWorkspace}
               isLoading={createWorkspaceMutation.isPending}
-            >
-              Create Workspace
-            </Button>
+            >{tr("Create Workspace")}</Button>
           </div>
         </div>
       </Modal>

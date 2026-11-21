@@ -1,9 +1,11 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useParams } from "react-router";
 import { useCards } from "@/hooks/card/useCards";
 import { useBoard } from "@/hooks/board/useBoard";
 import { ViewTabs } from "@/features/views/ViewTabs";
 import { BoardGanttView } from "@/features/views/BoardGanttView";
 export function TimelinePage() {
+  useUiLocale();
   const { projectId = "" } = useParams();
   const {
     data: cards = [],
@@ -15,7 +17,7 @@ export function TimelinePage() {
     <div className="p-4 md:p-6 space-y-5 min-h-full flex-1 flex flex-col">
       <ViewTabs projectId={projectId} />
       {error ? (
-        <p role="alert">Could not load tasks. Please retry.</p>
+        <p role="alert">{tr("Could not load tasks. Please retry.")}</p>
       ) : isLoading || !board ? (
         <div className="h-64 animate-pulse rounded-xl bg-slate-100 dark:bg-[#101117]" />
       ) : (

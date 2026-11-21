@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router";
@@ -7,6 +8,7 @@ import { useSearch } from "@/hooks/search/useSearch";
 import { PriorityBadge } from "./PriorityBadge";
 import { apiError } from "@/lib/apiError";
 export function CommandPalette() {
+  useUiLocale();
   const navigate = useNavigate();
   const isOpen = useUiStore((s) => s.commandPaletteOpen),
     setOpen = useUiStore((s) => s.setCommandPaletteOpen),
@@ -32,18 +34,18 @@ export function CommandPalette() {
     <Modal
       isOpen={isOpen}
       onClose={() => setOpen(false)}
-      title="Search your workspace"
+      title={tr("Search your workspace")}
       size="xl"
     >
       <div className="space-y-3">
-        <Button size="sm" variant="outline" onClick={() => { setOpen(false); navigate("/notes"); }}>Open Notes · personal and workspace notebooks</Button>
+        <Button size="sm" variant="outline" onClick={() => { setOpen(false); navigate("/notes"); }}>{tr("Open Notes · personal and workspace notebooks")}</Button>
         <div className="flex gap-2 items-center">
           <Search size={18} className="text-slate-500" />
           <Input
-            aria-label="Search tasks"
+            aria-label={tr("Search tasks")}
             autoFocus
             value={query}
-            placeholder="Search… priority:high status:active assignee:me"
+            placeholder={tr("Search… priority:high status:active assignee:me")}
             onChange={(e) => {
               setQuery(e.target.value);
               setHighlighted(0);
@@ -64,10 +66,7 @@ export function CommandPalette() {
             }}
           />
         </div>
-        <p className="text-[10px] text-slate-500">
-          Combine priority:, status:, assignee:, label:, project:, and overdue:
-          filters. ↑↓ to navigate · Enter to open.
-        </p>
+        <p className="text-[10px] text-slate-500">{tr("Combine priority:, status:, assignee:, label:, project:, and overdue: filters. ↑↓ to navigate · Enter to open.")}</p>
         {error && (
           <p role="alert" className="text-xs text-rose-500">
             {apiError(error)}
@@ -75,17 +74,11 @@ export function CommandPalette() {
         )}
         <div className="max-h-80 overflow-auto space-y-1">
           {isLoading ? (
-            <p className="p-6 animate-pulse text-xs text-slate-500">
-              Searching…
-            </p>
+            <p className="p-6 animate-pulse text-xs text-slate-500">{tr("Searching…")}</p>
           ) : query.trim().length < 2 ? (
-            <p className="p-6 text-xs text-slate-500 text-center">
-              Type at least two characters to search.
-            </p>
+            <p className="p-6 text-xs text-slate-500 text-center">{tr("Type at least two characters to search.")}</p>
           ) : results.length === 0 ? (
-            <p className="p-6 text-xs text-slate-500 text-center">
-              No matching tasks. Try a different query or filter.
-            </p>
+            <p className="p-6 text-xs text-slate-500 text-center">{tr("No matching tasks. Try a different query or filter.")}</p>
           ) : (
             results.map((item, i) => (
               <Button

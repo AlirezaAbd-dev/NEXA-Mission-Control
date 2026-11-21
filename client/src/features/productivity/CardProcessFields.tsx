@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useProjectMembers } from "@/hooks/productivity/useProjectMembers";
 import { Button, CustomSelect, Input } from "@/components/ui";
 import { useProductivity } from "@/hooks/productivity/useProductivity";
@@ -6,6 +7,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import type { Card } from "@/types";
 import type { ProjectResource } from "@/types/productivity";
 export function CardProcessFields({ card }: { card: Card }) {
+  useUiLocale();
   const base = `projects/${card.project_id}`,
     { data: types = [] } = useProductivity<ProjectResource[]>(`${base}/types`),
     { data: settings = [] } = useProductivity<ProjectResource[]>(
@@ -39,20 +41,18 @@ export function CardProcessFields({ card }: { card: Card }) {
     });
   return (
     <section className="space-y-3 pt-4 border-t border-slate-200 dark:border-white/[0.06]">
-      <h3 className="text-xs uppercase text-slate-500 font-semibold">
-        Process & recurring work
-      </h3>
+      <h3 className="text-xs uppercase text-slate-500 font-semibold">{tr("Process & recurring work")}</h3>
       <CustomSelect
-        label="Work type"
+        label={tr("Work type")}
         value={current?.work_type_id || ""}
         options={[
-          { value: "", label: "Task" },
+          { value: "", label: tr("Task") },
           ...types.map((t) => ({ value: t.id, label: t.name || "Type" })),
         ]}
         onChange={(v) => change({ work_type_id: v || null })}
       />
       <Input
-        label="Repeat every N days after completion"
+        label={tr("Repeat every N days after completion")}
         type="number"
         min={1}
         max={365}
@@ -64,14 +64,14 @@ export function CardProcessFields({ card }: { card: Card }) {
         }
       />
       <CustomSelect
-        label="Due-date reminder"
+        label={tr("Due-date reminder")}
         value={String(current?.reminder_minutes ?? "")}
         options={[
-          { value: "", label: "No reminder" },
-          { value: "0", label: "At due date" },
-          { value: "60", label: "1 hour before" },
-          { value: "1440", label: "1 day before" },
-          { value: "10080", label: "1 week before" },
+          { value: "", label: tr("No reminder") },
+          { value: "0", label: tr("At due date") },
+          { value: "60", label: tr("1 hour before") },
+          { value: "1440", label: tr("1 day before") },
+          { value: "10080", label: tr("1 week before") },
         ]}
         onChange={(v) =>
           change({ reminder_minutes: v === "" ? null : Number(v) })
@@ -91,10 +91,10 @@ export function CardProcessFields({ card }: { card: Card }) {
               <p className="text-sm">
                 {r.name}:{" "}
                 {request?.approved_by
-                  ? "Approved"
+                  ? tr("Approved")
                   : request
-                    ? "Awaiting approval"
-                    : "Approval required"}
+                    ? tr("Awaiting approval")
+                    : tr("Approval required")}
               </p>
               {!request && ["owner", "admin", "member"].includes(role) ? (
                 <Button
@@ -106,9 +106,7 @@ export function CardProcessFields({ card }: { card: Card }) {
                       data: { transition_id: r.id },
                     })
                   }
-                >
-                  Request approval
-                </Button>
+                >{tr("Request approval")}</Button>
               ) : request &&
                 !request.approved_by &&
                 request.requested_by !== user?.id &&
@@ -120,9 +118,7 @@ export function CardProcessFields({ card }: { card: Card }) {
                       path: `${base}/approvals/${request.id}/approve`,
                     })
                   }
-                >
-                  Approve transition
-                </Button>
+                >{tr("Approve transition")}</Button>
               ) : null}
             </div>
           );

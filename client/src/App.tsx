@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { MutationFeedback } from "@/components/common/MutationFeedback";
 import { apiError } from "@/lib/apiError";
 import React, { useEffect, Suspense } from "react";
@@ -26,6 +27,7 @@ const queryClient = new QueryClient({
 });
 
 export const App: React.FC = () => {
+  useUiLocale();
   const theme = useUiStore((s) => s.theme);
 
   useEffect(() => {
@@ -45,9 +47,7 @@ export const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <Suspense
         fallback={
-          <div className="p-8 animate-pulse text-slate-500">
-            Loading Mission Control…
-          </div>
+          <div className="p-8 animate-pulse text-slate-500">{tr("Loading Mission Control…")}</div>
         }
       >
         <RouterProvider router={router} />

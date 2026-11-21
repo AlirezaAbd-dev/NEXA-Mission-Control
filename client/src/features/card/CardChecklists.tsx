@@ -1,3 +1,5 @@
+import { formatNumber } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import { useProjectMembers } from "@/hooks/productivity/useProjectMembers";
 import React, { useState } from "react";
@@ -25,6 +27,7 @@ export const CardChecklists: React.FC<CardChecklistsProps> = ({
   cardId,
   projectId,
 }) => {
+  useUiLocale();
   const { data: checklists = [], isLoading } = useChecklists(cardId);
   const createChecklist = useCreateChecklist(cardId);
   const [newChecklistTitle, setNewChecklistTitle] = useState("");
@@ -43,9 +46,7 @@ export const CardChecklists: React.FC<CardChecklistsProps> = ({
 
   if (isLoading) {
     return (
-      <div className="text-xs text-slate-400 animate-pulse">
-        Loading checklists...
-      </div>
+      <div className="text-xs text-slate-400 animate-pulse">{tr("Loading checklists...")}</div>
     );
   }
 
@@ -103,7 +104,7 @@ export const CardChecklists: React.FC<CardChecklistsProps> = ({
           <Input
             value={newChecklistTitle}
             onChange={(e) => setNewChecklistTitle(e.target.value)}
-            placeholder="Checklist title..."
+            placeholder={tr("Checklist title...")}
             autoFocus
           />
           <div className="flex items-center gap-2">
@@ -111,16 +112,12 @@ export const CardChecklists: React.FC<CardChecklistsProps> = ({
               size="sm"
               type="submit"
               isLoading={createChecklist.isPending}
-            >
-              Add Checklist
-            </Button>
+            >{tr("Add Checklist")}</Button>
             <Button
               size="sm"
               variant="ghost"
               onClick={() => setIsAddingChecklist(false)}
-            >
-              Cancel
-            </Button>
+            >{tr("Cancel")}</Button>
           </div>
         </form>
       ) : (
@@ -130,9 +127,7 @@ export const CardChecklists: React.FC<CardChecklistsProps> = ({
           onClick={() => setIsAddingChecklist(true)}
           className="w-full border-dashed"
         >
-          <Plus className="w-4 h-4 me-1.5" />
-          Add Checklist
-        </Button>
+          <Plus className="w-4 h-4 me-1.5" />{tr("Add Checklist")}</Button>
       )}
     </div>
   );
@@ -149,6 +144,7 @@ const ChecklistHeader = ({
   projectId: string;
   progress: number;
 }) => {
+  useUiLocale();
   const update = useUpdateChecklist(cardId, projectId);
   const remove = useDeleteChecklist(cardId, projectId);
   return (
@@ -158,7 +154,7 @@ const ChecklistHeader = ({
         {list.title}
       </h3>
       <span className="text-xs text-muted-foreground font-mono shrink-0">
-        {progress}%
+        {formatNumber(progress)}%
       </span>
       <ChecklistActions
         kind="checklist"
@@ -182,6 +178,7 @@ const ChecklistItemRow: React.FC<ChecklistItemRowProps> = ({
   projectId,
   item,
 }) => {
+  useUiLocale();
   const updateItem = useUpdateChecklistItem(cardId, projectId);
   const deleteItem = useDeleteChecklistItem(cardId, projectId);
   const { data: members = [] } = useProjectMembers(projectId);
@@ -196,7 +193,7 @@ const ChecklistItemRow: React.FC<ChecklistItemRowProps> = ({
   return (
     <div className="grid grid-cols-[20px_minmax(0,1fr)] gap-x-3 gap-y-2 p-2 rounded-xl hover:bg-muted/40 transition-colors group">
       <Checkbox
-        aria-label={"Complete " + item.title}
+        aria-label={tr("Complete") + item.title}
         disabled={updateItem.isPending}
         checked={item.is_done}
         onChange={handleToggle}
@@ -224,8 +221,8 @@ const ChecklistItemRow: React.FC<ChecklistItemRowProps> = ({
         <div className="min-w-0">
           <Input
             type="date"
-            label="Due date"
-            aria-label={`Due date for ${item.title}`}
+            label={tr("Due date")}
+            aria-label={tr("Due date for {value0}", { value0: (item.title) })}
             value={item.due_date?.slice(0, 10) || ""}
             onChange={(e) =>
               updateItem.mutate({
@@ -236,11 +233,11 @@ const ChecklistItemRow: React.FC<ChecklistItemRowProps> = ({
           />
         </div>
         <CustomSelect
-          label="Assignee"
+          label={tr("Assignee")}
           className="min-w-0"
           value={item.assignee_id || ""}
           options={[
-            { value: "", label: "Unassigned" },
+            { value: "", label: tr("Unassigned") },
             ...members.map((m) => ({
               value: m.user_id,
               label: m.display_name,
@@ -266,6 +263,7 @@ const AddChecklistItemInput: React.FC<AddChecklistItemInputProps> = ({
   projectId,
   checklistId,
 }) => {
+  useUiLocale();
   const [isAdding, setIsAdding] = useState(false);
   const [title, setTitle] = useState("");
   const createItem = useCreateChecklistItem(cardId, projectId);
@@ -290,9 +288,7 @@ const AddChecklistItemInput: React.FC<AddChecklistItemInputProps> = ({
         onClick={() => setIsAdding(true)}
         className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 flex items-center gap-1.5 py-1 px-1.5 rounded transition-colors"
       >
-        <Plus className="w-3.5 h-3.5" />
-        Add an item
-      </button>
+        <Plus className="w-3.5 h-3.5" />{tr("Add an item")}</button>
     );
   }
 
@@ -301,16 +297,12 @@ const AddChecklistItemInput: React.FC<AddChecklistItemInputProps> = ({
       <Input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Add an item..."
+        placeholder={tr("Add an item...")}
         autoFocus
       />
       <div className="flex items-center gap-2">
-        <Button size="sm" type="submit" isLoading={createItem.isPending}>
-          Add
-        </Button>
-        <Button size="sm" variant="ghost" onClick={() => setIsAdding(false)}>
-          Cancel
-        </Button>
+        <Button size="sm" type="submit" isLoading={createItem.isPending}>{tr("Add")}</Button>
+        <Button size="sm" variant="ghost" onClick={() => setIsAdding(false)}>{tr("Cancel")}</Button>
       </div>
     </form>
   );

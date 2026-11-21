@@ -1,3 +1,6 @@
+import { formatNumber } from "@/i18n";
+import { DirectionalIcon } from "@/components/ui/DirectionalIcon";
+import { tr, useUiLocale } from "@/i18n";
 import React, { useState } from "react";
 import { Link2, Plus, X, ArrowRight, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -16,13 +19,14 @@ interface CardDependenciesProps {
 }
 
 const LINK_TYPES = [
-  { value: "blocks", label: "Blocks" },
-  { value: "blocked_by", label: "Is Blocked By" },
-  { value: "relates_to", label: "Relates To" },
-  { value: "mirrors", label: "Cross-board reference" },
+  { value: "blocks", get label() { return tr("Blocks"); } },
+  { value: "blocked_by", get label() { return tr("Is Blocked By"); } },
+  { value: "relates_to", get label() { return tr("Relates To"); } },
+  { value: "mirrors", get label() { return tr("Cross-board reference"); } },
 ];
 
 export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
+  useUiLocale();
   const { data: links = [] } = useCardLinks(card.id);
   const { data: projectCards = [] } = useEnterpriseResource<
     { id: string; title: string; project_id: string; project_name: string }[]
@@ -69,19 +73,19 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
       case "blocks":
         return {
           icon: ShieldAlert,
-          label: "Blocks",
+          label: tr("Blocks"),
           color: "bg-rose-500/10 text-rose-500 border-rose-500/20",
         };
       case "blocked_by":
         return {
           icon: ShieldAlert,
-          label: "Blocked by",
+          label: tr("Blocked by"),
           color: "bg-amber-500/10 text-amber-500 border-amber-500/20",
         };
       default:
         return {
           icon: Link2,
-          label: "Relates to",
+          label: tr("Relates to"),
           color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
         };
     }
@@ -91,8 +95,7 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
     <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-white/[0.06]">
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
-          <Link2 className="w-3.5 h-3.5 text-emerald-500" />
-          Linked Cards & Dependencies ({links.length})
+          <Link2 className="w-3.5 h-3.5 text-emerald-500" />{tr("Linked Cards & Dependencies (")}{formatNumber(links.length)})
         </h3>
         {!isAdding && (
           <Button
@@ -103,7 +106,7 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
             className="h-7 text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 flex items-center gap-1 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Add Link</span>
+            <span>{tr("Add Link")}</span>
           </Button>
         )}
       </div>
@@ -116,9 +119,7 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
         >
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <div>
-              <label className="text-[10px] font-semibold uppercase text-slate-400 block mb-1">
-                Relationship
-              </label>
+              <label className="text-[10px] font-semibold uppercase text-slate-400 block mb-1">{tr("Relationship")}</label>
               <CustomSelect
                 value={selectedLinkType}
                 onChange={setSelectedLinkType}
@@ -126,14 +127,12 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-[10px] font-semibold uppercase text-slate-400 block mb-1">
-                Target Task
-              </label>
+              <label className="text-[10px] font-semibold uppercase text-slate-400 block mb-1">{tr("Target Task")}</label>
               <CustomSelect
                 value={targetCardId}
                 onChange={setTargetCardId}
                 options={availableCards}
-                placeholder="Choose target task..."
+                placeholder={tr("Choose target task...")}
               />
             </div>
           </div>
@@ -145,9 +144,7 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
               size="sm"
               onClick={() => setIsAdding(false)}
               className="h-7 text-xs"
-            >
-              Cancel
-            </Button>
+            >{tr("Cancel")}</Button>
             <Button
               type="submit"
               variant="primary"
@@ -155,9 +152,7 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
               disabled={!targetCardId}
               isLoading={addLink.isPending}
               className="h-7 text-xs"
-            >
-              Link Task
-            </Button>
+            >{tr("Link Task")}</Button>
           </div>
         </form>
       )}
@@ -183,10 +178,10 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
                   <button
                     type="button"
                     onClick={() => openCardModal(link.target_card_id)}
-                    className="text-xs font-medium text-slate-800 dark:text-slate-200 hover:text-emerald-500 dark:hover:text-emerald-400 truncate text-left cursor-pointer flex items-center gap-1"
+                    className="text-xs font-medium text-slate-800 dark:text-slate-200 hover:text-emerald-500 dark:hover:text-emerald-400 truncate text-start cursor-pointer flex items-center gap-1"
                   >
                     <span>{link.target_card_title}</span>
-                    <ArrowRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-emerald-500" />
+                    <DirectionalIcon icon={ArrowRight} className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-emerald-500" />
                   </button>
                 </div>
 
@@ -196,7 +191,7 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
                     removeLink.mutate({ cardId: card.id, linkId: link.id })
                   }
                   className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-500 rounded transition-all cursor-pointer"
-                  title="Remove link"
+                  title={tr("Remove link")}
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -206,9 +201,7 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
         </div>
       ) : (
         !isAdding && (
-          <div className="text-xs text-slate-400 dark:text-slate-500 italic py-1">
-            No dependencies or links connected yet.
-          </div>
+          <div className="text-xs text-slate-400 dark:text-slate-500 italic py-1">{tr("No dependencies or links connected yet.")}</div>
         )
       )}
     </div>

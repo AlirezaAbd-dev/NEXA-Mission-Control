@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import "@/lib/brandStorage";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -5,6 +6,7 @@ import { useNavigate } from "react-router";
 import { useAuthStore } from "@/stores/auth.store";
 import { authApi } from "@/lib/api/auth.api";
 export function SsoCallback() {
+  useUiLocale();
   const cache = useQueryClient();
   const navigate = useNavigate(),
     setAuth = useAuthStore((s) => s.setAuth);
@@ -26,12 +28,12 @@ export function SsoCallback() {
         navigate("/", { replace: true });
       })
       .catch(() =>
-        setError("Could not establish your SSO session. Please sign in again."),
+        setError(tr("Could not establish your SSO session. Please sign in again.")),
       );
   }, [navigate, setAuth, token, cache]);
   return (
     <div className="p-10 text-center">
-      {error || "Completing secure sign-in…"}
+      {error ? tr(error) : tr("Completing secure sign-in…")}
     </div>
   );
 }

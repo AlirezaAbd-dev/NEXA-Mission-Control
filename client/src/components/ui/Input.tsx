@@ -1,4 +1,6 @@
 "use client";
+import { tr, useUiLocale } from "@/i18n";
+
 
 import {
   forwardRef,
@@ -37,6 +39,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     },
     ref,
   ) => {
+  useUiLocale();
     const generatedId = useId();
     const inputId = id ?? generatedId;
     const errorId = `${inputId}-error`;
@@ -105,7 +108,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           required={props.required}
           min={props.min === undefined ? undefined : String(props.min)}
           max={props.max === undefined ? undefined : String(props.max)}
-          error={error}
+          error={typeof error === "string" ? tr(error) : error}
           className={className}
           ariaLabel={props["aria-label"]}
           placeholder={props.placeholder}
@@ -161,12 +164,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               "h-full w-full flex-1 bg-transparent text-sm sm:text-base font-normal outline-none border-0 ring-0 focus:ring-0 focus:outline-none text-slate-900 placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-white/30",
               hasLeading ? "ps-1.5" : "ps-4",
               hasTrailing ? "pe-1.5" : "pe-4",
-              isPassword && "text-left",
+              isPassword && "text-start",
               "disabled:cursor-not-allowed",
               "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
               className,
             )}
             {...props}
+            dir={props.dir || (["email", "url", "password", "number", "tel"].includes(type || "") ? "ltr" : "auto")}
+            inputMode={props.inputMode || (type === "number" ? "decimal" : undefined)}
             aria-invalid={error ? true : props["aria-invalid"]}
             aria-describedby={
               [props["aria-describedby"], error ? errorId : null]
@@ -185,7 +190,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               tabIndex={-1}
               onClick={() => setShowPassword((prev) => !prev)}
               className="ps-2 pe-4 text-muted-foreground hover:text-foreground dark:hover:text-white transition-colors cursor-pointer flex items-center justify-center shrink-0"
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={showPassword ? tr("Hide password") : tr("Show password")}
             >
               {showPassword ? (
                 <EyeOff className="h-4.5 w-4.5" aria-hidden />
@@ -202,7 +207,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                   tabIndex={-1}
                   onClick={() => handleStep("up")}
                   className="flex-1 w-full flex items-center justify-center hover:bg-primary/15 text-muted-foreground hover:text-primary transition-colors cursor-pointer"
-                  aria-label="Increase"
+                  aria-label={tr("Increase")}
                 >
                   <ChevronUp className="h-3 w-3 stroke-[2.5]" />
                 </button>
@@ -212,7 +217,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                   tabIndex={-1}
                   onClick={() => handleStep("down")}
                   className="flex-1 w-full flex items-center justify-center hover:bg-primary/15 text-muted-foreground hover:text-primary transition-colors cursor-pointer"
-                  aria-label="Decrease"
+                  aria-label={tr("Decrease")}
                 >
                   <ChevronDown className="h-3 w-3 stroke-[2.5]" />
                 </button>
@@ -225,7 +230,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             id={errorId}
             className="text-xs font-semibold text-danger text-start"
           >
-            {error}
+            {typeof error === "string" ? tr(error) : error}
           </p>
         )}
       </div>

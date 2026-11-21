@@ -38,8 +38,8 @@ export const Popover = ({
   }, [isOpen]);
 
   const alignClasses = {
-    left: "left-0",
-    right: "right-0",
+    left: "start-0",
+    right: "end-0",
     center: "left-1/2 -translate-x-1/2",
   };
 

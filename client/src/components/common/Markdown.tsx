@@ -164,5 +164,5 @@ export function Markdown({ text }: { text: string }) {
       ),
     );
   }
-  return <div className="space-y-2 break-words">{blocks}</div>;
+  return <div dir="auto" className="space-y-2 break-words">{blocks}</div>;
 }

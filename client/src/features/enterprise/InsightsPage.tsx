@@ -1,3 +1,4 @@
+import { formatNumber, tr, useUiLocale } from "@/i18n";
 import { useNow } from "@/hooks/useNow";
 import { useParams } from "react-router";
 import { useCards } from "@/hooks/card/useCards";
@@ -7,6 +8,7 @@ import { ViewTabs } from "@/features/views/ViewTabs";
 import type { SprintSnapshot } from "@/types/enterprise";
 import { daysBetween, parseDay } from "@/features/views/boardDates";
 export function InsightsPage() {
+  useUiLocale();
   const now = useNow();
   const { projectId = "" } = useParams(),
     { data: cards = [] } = useCards({ project_id: projectId }),
@@ -58,14 +60,14 @@ export function InsightsPage() {
   return (
     <div className="p-4 md:p-6 space-y-5 min-h-full flex-1 flex flex-col">
       <ViewTabs projectId={projectId} />
-      <h1 className="text-2xl font-bold">Delivery insights</h1>
+      <h1 className="text-2xl font-bold">{tr("Delivery insights")}</h1>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          ["Total tasks", cards.length],
-          ["Completed", done.length],
-          ["Overdue", overdue.length],
+          [tr("Total tasks"), cards.length],
+          [tr("Completed"), done.length],
+          [tr("Overdue"), overdue.length],
           [
-            "Story points",
+            tr("Story points"),
             cards.reduce((n, c) => n + (c.story_points || 0), 0),
           ],
         ].map(([label, value]) => (
@@ -75,7 +77,7 @@ export function InsightsPage() {
           >
             <p className="text-sm text-slate-500">{label}</p>
             <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
-              {value}
+              {typeof value === "number" ? formatNumber(value) : value}
             </p>
           </section>
         ))}
@@ -83,14 +85,14 @@ export function InsightsPage() {
       <FlowReports projectId={projectId} />
       <div className="grid lg:grid-cols-2 gap-5">
         <ChartPanel
-          title="Sprint burndown"
-          subtitle={active?.name || "Start a sprint to begin daily tracking"}
+          title={tr("Sprint burndown")}
+          subtitle={active?.name || tr("Start a sprint to begin daily tracking")}
         >
           {active ? (
             <svg
               viewBox="0 0 580 260"
               role="img"
-              aria-label="Ideal versus actual remaining story points"
+              aria-label={tr("Ideal versus actual remaining story points")}
             >
               <path d="M40 30 V210 H540" stroke="#64748b" fill="none" />
               <path
@@ -103,29 +105,26 @@ export function InsightsPage() {
               {points.map((s) => (
                 <text key={s.day} x="45" y="248" fontSize="10" fill="#64748b">
                   {points[points.length - 1] === s
-                    ? `Latest snapshot: ${s.day} · ${s.remaining_points} pts remaining`
+                    ? tr("Latest snapshot: {value0} · {value1} pts remaining", { value0: (s.day), value1: (s.remaining_points) })
                     : ""}
                 </text>
               ))}
               <text x="40" y="15" fill="#64748b" fontSize="11">
-                {max} pts · Teal: actual · Dashed: ideal
-              </text>
+                {max}{tr("pts · Teal: actual · Dashed: ideal")}</text>
             </svg>
           ) : (
-            <p className="p-10 text-slate-500 text-sm">
-              Daily snapshots are recorded while a sprint is active.
-            </p>
+            <p className="p-10 text-slate-500 text-sm">{tr("Daily snapshots are recorded while a sprint is active.")}</p>
           )}
         </ChartPanel>
         <ChartPanel
-          title="Sprint velocity"
-          subtitle="Committed versus completed points · Last five sprints"
+          title={tr("Sprint velocity")}
+          subtitle={tr("Committed versus completed points · Last five sprints")}
         >
           {velocity.length ? (
             <svg
               viewBox="0 0 580 260"
               role="img"
-              aria-label="Sprint velocity bar chart"
+              aria-label={tr("Sprint velocity bar chart")}
             >
               {velocity.map((s, i) => (
                 <g key={s.sprint_id}>
@@ -150,20 +149,16 @@ export function InsightsPage() {
                   </text>
                 </g>
               ))}
-              <text x="30" y="15" fontSize="11" fill="#64748b">
-                Grey: committed · Teal: completed
-              </text>
+              <text x="30" y="15" fontSize="11" fill="#64748b">{tr("Grey: committed · Teal: completed")}</text>
             </svg>
           ) : (
-            <p className="p-10 text-slate-500 text-sm">
-              Complete your first sprint to see velocity.
-            </p>
+            <p className="p-10 text-slate-500 text-sm">{tr("Complete your first sprint to see velocity.")}</p>
           )}
         </ChartPanel>
       </div>
       <ChartPanel
-        title="Workflow distribution"
-        subtitle="Task count and WIP limits by column"
+        title={tr("Workflow distribution")}
+        subtitle={tr("Task count and WIP limits by column")}
       >
         <div className="space-y-4 p-4">
           {board?.columns.map((col) => {
@@ -171,18 +166,18 @@ export function InsightsPage() {
             return (
               <div
                 key={col.id}
-                className="grid grid-cols-[160px_1fr_60px] items-center gap-3 text-sm"
+                className="grid grid-cols-[minmax(0,1fr)_minmax(40px,1fr)_auto] sm:grid-cols-[160px_1fr_60px] items-center gap-3 text-sm"
               >
-                <span>{col.name}</span>
+                <span className="break-words" dir="auto">{col.name}</span>
                 <progress
-                  aria-label={`${col.name} task count`}
+                  aria-label={tr("{value0} task count", { value0: (col.name) })}
                   className="w-full h-3 accent-teal-500"
                   value={n}
                   max={Math.max(1, cards.length)}
                 />
                 <span className="text-slate-500">
-                  {n}
-                  {col.wip_limit ? `/${col.wip_limit}` : ""}
+                  {formatNumber(n)}
+                  {col.wip_limit ? `/${formatNumber(col.wip_limit)}` : ""}
                 </span>
               </div>
             );
@@ -201,6 +196,7 @@ function ChartPanel({
   subtitle: string;
   children: React.ReactNode;
 }) {
+  useUiLocale();
   return (
     <section className="p-5 rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10]">
       <h2 className="font-semibold">{title}</h2>

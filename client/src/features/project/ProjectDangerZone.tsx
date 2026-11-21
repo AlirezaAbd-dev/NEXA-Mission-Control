@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { Edit2, Trash2, ShieldAlert } from "lucide-react";
@@ -15,6 +16,7 @@ interface ProjectDangerZoneProps {
 export const ProjectDangerZone: React.FC<ProjectDangerZoneProps> = ({
   projectId,
 }) => {
+  useUiLocale();
   const navigate = useNavigate();
   const { data: project } = useProject(projectId);
   const { data: workspaces = [] } = useWorkspaces();
@@ -58,12 +60,8 @@ export const ProjectDangerZone: React.FC<ProjectDangerZoneProps> = ({
               <span
                 className="w-3 h-3 rounded-full shrink-0 shadow-xs"
                 style={{ backgroundColor: project.color || "#2dd4bf" }}
-              />
-              Project Details & Actions
-            </h2>
-            <p className="text-sm text-slate-500">
-              Manage project name, description, accent color, or permanently delete this project.
-            </p>
+              />{tr("Project Details & Actions")}</h2>
+            <p className="text-sm text-slate-500">{tr("Manage project name, description, accent color, or permanently delete this project.")}</p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
@@ -75,7 +73,7 @@ export const ProjectDangerZone: React.FC<ProjectDangerZoneProps> = ({
                 className="flex items-center gap-1.5 cursor-pointer"
               >
                 <Edit2 className="w-3.5 h-3.5 text-emerald-500" />
-                <span>Edit Project</span>
+                <span>{tr("Edit Project")}</span>
               </Button>
             )}
 
@@ -87,16 +85,14 @@ export const ProjectDangerZone: React.FC<ProjectDangerZoneProps> = ({
                 className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400 border-rose-500/20 hover:bg-rose-500/10 cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>Delete Project</span>
+                <span>{tr("Delete Project")}</span>
               </Button>
             )}
           </div>
         </div>
 
         {!canEdit && (
-          <div className="text-xs text-slate-400 italic">
-            You have viewer or member permissions. Only workspace owners and admins can edit or delete this project.
-          </div>
+          <div className="text-xs text-slate-400 italic">{tr("You have viewer or member permissions. Only workspace owners and admins can edit or delete this project.")}</div>
         )}
       </section>
 
@@ -117,12 +113,12 @@ export const ProjectDangerZone: React.FC<ProjectDangerZoneProps> = ({
             setDeleteOpen(false);
             setDeleteError(null);
           }}
-          title={`Delete "${project.name}"?`}
+          title={tr("Delete \"{value0}\"?", { value0: (project.name) })}
           description={
             deleteError ||
-            `Are you sure you want to permanently delete this project (${project.identifier}) and all of its tasks, columns, and history? This action cannot be undone.`
+            tr("Are you sure you want to permanently delete this project ({value0}) and all of its tasks, columns, and history? This action cannot be undone.", { value0: (project.identifier) })
           }
-          confirmLabel="Delete Project"
+          confirmLabel={tr("Delete Project")}
           isDestructive
           isLoading={deleteProject.isPending}
           onConfirm={handleDelete}

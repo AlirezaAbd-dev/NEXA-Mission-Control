@@ -1,14 +1,16 @@
+import { tr, useUiLocale } from "@/i18n";
 import { type Editor, useEditorState } from "@tiptap/react";
 import { PilcrowLeft, PilcrowRight } from "lucide-react";
 import { Button } from "./Button";
 
 const directions = [
-  { value: "ltr", label: "LTR", description: "Left-to-right content", Icon: PilcrowRight },
-  { value: "rtl", label: "RTL", description: "Right-to-left content", Icon: PilcrowLeft },
-  { value: "auto", label: "Auto", description: "Automatic content direction" },
+  { value: "ltr", get label() { return tr("LTR"); }, get description() { return tr("Left-to-right content"); }, Icon: PilcrowRight },
+  { value: "rtl", get label() { return tr("RTL"); }, get description() { return tr("Right-to-left content"); }, Icon: PilcrowLeft },
+  { value: "auto", get label() { return tr("Auto"); }, get description() { return tr("Automatic content direction"); } },
 ] as const;
 
 export function EditorDirectionControls({ editor }: { editor: Editor }) {
+  useUiLocale();
   const active = useEditorState({
     editor,
     selector: ({ editor }) => ({
@@ -19,7 +21,7 @@ export function EditorDirectionControls({ editor }: { editor: Editor }) {
   });
 
   return (
-    <div role="group" aria-label="Content direction" dir="ltr" className="flex items-center gap-0.5 border-e border-border/60 dark:border-white/10 pe-1.5 me-0.5">
+    <div role="group" aria-label={tr("Content direction")} dir="ltr" className="flex items-center gap-0.5 border-e border-border/60 dark:border-white/10 pe-1.5 me-0.5">
       {directions.map(({ value, label, description, ...option }) => (
         <Button
           key={value}
@@ -28,7 +30,7 @@ export function EditorDirectionControls({ editor }: { editor: Editor }) {
           variant={active[value] ? "primary" : "ghost"}
           className="h-7 gap-1 px-1.5 rounded-lg text-[11px]"
           aria-label={description}
-          title={`${description} — apply to the current paragraph or selected blocks`}
+          title={tr("{value0} — apply to the current paragraph or selected blocks", { value0: (description) })}
           aria-pressed={active[value]}
           onMouseDown={event => event.preventDefault()}
           onClick={() => editor.chain().focus().setTextDirection(value).run()}

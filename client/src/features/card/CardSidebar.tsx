@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { CardEnterpriseFields } from "./CardEnterpriseFields";
 import React from "react";
 import {
@@ -30,6 +31,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
   card,
   columns = [],
 }) => {
+  useUiLocale();
   const { data: project } = useProject(card.project_id);
   const workspaceId = project?.workspace_id || "";
 
@@ -108,11 +110,9 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         {/* Status Column */}
         {columns.length > 0 && (
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider">
-              Status
-            </label>
+            <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider">{tr("Status")}</label>
             <Select
-              ariaLabel="Status"
+              ariaLabel={tr("Status")}
               value={card.column_id}
               onChange={handleColumnChange}
             >
@@ -128,19 +128,17 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         {/* Priority */}
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Flag className="w-3.5 h-3.5 text-emerald-500" />
-            Priority
-          </label>
+            <Flag className="w-3.5 h-3.5 text-emerald-500" />{tr("Priority")}</label>
           <Select
-            ariaLabel="Priority"
+            ariaLabel={tr("Priority")}
             value={card.priority}
             onChange={handlePriorityChange}
           >
-            <option value="urgent">Urgent</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
-            <option value="no_priority">No Priority</option>
+            <option value="urgent">{tr("Urgent")}</option>
+            <option value="high">{tr("High")}</option>
+            <option value="medium">{tr("Medium")}</option>
+            <option value="low">{tr("Low")}</option>
+            <option value="no_priority">{tr("No Priority")}</option>
           </Select>
         </div>
 
@@ -148,12 +146,10 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <Hash className="w-3.5 h-3.5 text-emerald-500" />
-              Points
-            </label>
+              <Hash className="w-3.5 h-3.5 text-emerald-500" />{tr("Points")}</label>
             <Input
               type="number"
-              aria-label="Story points"
+              aria-label={tr("Story points")}
               step="1"
               min="0"
               value={card.story_points ?? ""}
@@ -165,12 +161,10 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
 
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-emerald-500" />
-              Est. Hours
-            </label>
+              <Clock className="w-3.5 h-3.5 text-emerald-500" />{tr("Est. Hours")}</label>
             <Input
               type="number"
-              aria-label="Estimated hours"
+              aria-label={tr("Estimated hours")}
               step="0.5"
               min="0"
               value={card.estimated_hours ?? ""}
@@ -184,9 +178,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         {/* Assignees */}
         <div data-shortcut="assignees" className="space-y-1.5">
           <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <UserCheck className="w-3.5 h-3.5 text-emerald-500" />
-            Assignees
-          </label>
+            <UserCheck className="w-3.5 h-3.5 text-emerald-500" />{tr("Assignees")}</label>
           <div className="flex flex-wrap gap-1.5">
             {members.map((member) => {
               const isAssigned = card.assignees.some(
@@ -214,13 +206,9 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         {/* Labels */}
         <div data-shortcut="labels" className="space-y-1.5">
           <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Tag className="w-3.5 h-3.5 text-emerald-500" />
-            Labels
-          </label>
+            <Tag className="w-3.5 h-3.5 text-emerald-500" />{tr("Labels")}</label>
           {workspaceLabels.length === 0 && (
-            <p className="text-xs text-muted-foreground">
-              No labels configured.
-            </p>
+            <p className="text-xs text-muted-foreground">{tr("No labels configured.")}</p>
           )}
           <div className="flex flex-wrap gap-1.5">
             {workspaceLabels.map((lbl) => {
@@ -253,12 +241,10 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-secondary-foreground uppercase">
-            Start date
-          </label>
+          <label className="text-xs font-semibold text-secondary-foreground uppercase">{tr("Start date")}</label>
           <Input
             type="date"
-            aria-label="Start date"
+            aria-label={tr("Start date")}
             value={card.start_date?.slice(0, 10) || ""}
             onChange={(e) =>
               updateCard.mutate({ id: card.id, start_date: e.target.value })
@@ -268,11 +254,9 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         {/* Due Date */}
         <div data-shortcut="due" className="space-y-1.5">
           <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-emerald-500" />
-            Due Date
-          </label>
+            <Calendar className="w-3.5 h-3.5 text-emerald-500" />{tr("Due Date")}</label>
           <Input
-            aria-label="Due date"
+            aria-label={tr("Due date")}
             type="date"
             value={card.due_date ? card.due_date.slice(0, 10) : ""}
             onChange={handleDueDateChange}
@@ -282,16 +266,12 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         <CardTimer cardId={card.id} />
 
         <details className="rounded-xl border border-border p-3">
-          <summary className="cursor-pointer text-sm font-semibold text-foreground">
-            Workflow & advanced settings
-          </summary>
+          <summary className="cursor-pointer text-sm font-semibold text-foreground">{tr("Workflow & advanced settings")}</summary>
           <div className="space-y-4 pt-4">
             {/* Template Toggle */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-emerald-500" />
-                Template
-              </label>
+                <FileText className="w-3.5 h-3.5 text-emerald-500" />{tr("Template")}</label>
               <button
                 type="button"
                 onClick={handleToggleTemplate}
@@ -301,7 +281,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
                     : "bg-slate-50 dark:bg-[#0b0c10] border-slate-200 dark:border-white/[0.06] text-slate-600 dark:text-slate-300 hover:border-emerald-500/30"
                 }`}
               >
-                <span>Mark as Reusable Template</span>
+                <span>{tr("Mark as Reusable Template")}</span>
                 <span
                   className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${
                     card.is_template

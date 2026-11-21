@@ -1,3 +1,5 @@
+import { uiLabel } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { ReleaseChangelog } from "./ReleaseChangelog";
 import { useState } from "react";
 import { Button, Input, Textarea, CustomSelect, Modal } from "@/components/ui";
@@ -16,6 +18,7 @@ export function ResourceSection({
   resource: "epics" | "releases" | "documents";
   title: string;
 }) {
+  useUiLocale();
   const {
       data: items = [],
       isLoading,
@@ -48,13 +51,7 @@ export function ResourceSection({
     <section className="rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10] p-5 space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="font-bold">{title}</h2>
-        <Button size="sm" variant="outline" onClick={() => edit()}>
-          Add{" "}
-          {resource === "epics"
-            ? "epic"
-            : resource === "releases"
-              ? "release"
-              : "link"}
+        <Button size="sm" variant="outline" onClick={() => edit()}> {tr("Add {value0}", { value0: uiLabel(resource) })}
         </Button>
       </div>
       {loadError && (
@@ -65,9 +62,7 @@ export function ResourceSection({
       {isLoading ? (
         <div className="h-24 animate-pulse bg-slate-100 dark:bg-[#101117] rounded-lg" />
       ) : items.length === 0 ? (
-        <p className="text-sm text-slate-500">
-          No {resource} yet. Add one to organize your project.
-        </p>
+        <p className="text-sm text-slate-500">{tr("No {value0} yet. Add one to organize your project.", { value0: uiLabel(resource) })}</p>
       ) : (
         <div className="space-y-2">
           {items.map((item) => (
@@ -100,7 +95,7 @@ export function ResourceSection({
                     className="w-40 h-1.5 accent-teal-500"
                     max={Math.max(1, item.total)}
                     value={item.done || 0}
-                    aria-label={`${item.name} progress`}
+                    aria-label={tr("{value0} progress", { value0: (item.name) })}
                   />
                 )}
               </div>
@@ -117,20 +112,14 @@ export function ResourceSection({
                     size="sm"
                     variant="outline"
                     onClick={() => setPreview(item)}
-                  >
-                    Preview design
-                  </Button>
+                  >{tr("Preview design")}</Button>
                 )}
-                <Button size="sm" variant="ghost" onClick={() => edit(item)}>
-                  Edit
-                </Button>
+                <Button size="sm" variant="ghost" onClick={() => edit(item)}>{tr("Edit")}</Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => setDeleting(item)}
-                >
-                  Remove
-                </Button>
+                >{tr("Remove")}</Button>
               </div>
             </div>
           ))}
@@ -155,7 +144,7 @@ export function ResourceSection({
       <Modal
         isOpen={editing !== undefined}
         onClose={() => setEditing(undefined)}
-        title={`${editing ? "Edit" : "Add"} ${resource === "documents" ? "link" : resource.slice(0, -1)}`}
+        title={`${editing ? tr("Edit") : tr("Add")} ${resource === "documents" ? "link" : resource.slice(0, -1)}`}
       >
         <form
           onSubmit={(e) => {
@@ -171,7 +160,7 @@ export function ResourceSection({
           className="space-y-4"
         >
           <Input
-            label="Name"
+            label={tr("Name")}
             value={form.name}
             required
             maxLength={120}
@@ -180,7 +169,7 @@ export function ResourceSection({
           {resource === "documents" ? (
             <>
               <CustomSelect
-                label="Type"
+                label={tr("Type")}
                 value={form.kind}
                 onChange={(kind) => setForm((f) => ({ ...f, kind }))}
                 options={[
@@ -190,10 +179,10 @@ export function ResourceSection({
                   "dropbox",
                   "onedrive",
                   "specification",
-                ].map((value) => ({ value, label: value }))}
+                ].map((value) => ({ value, label: uiLabel(value)}))}
               />
               <Input
-                label="HTTPS URL"
+                label={tr("HTTPS URL")}
                 type="url"
                 required
                 value={form.url}
@@ -205,23 +194,23 @@ export function ResourceSection({
           ) : (
             <>
               <Textarea
-                label="Summary"
+                label={tr("Summary")}
                 value={form.summary}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, summary: e.target.value }))
                 }
               />
               <CustomSelect
-                label="Status"
+                label={tr("Status")}
                 value={form.status}
                 onChange={(status) => setForm((f) => ({ ...f, status }))}
                 options={(resource === "epics"
                   ? ["planned", "active", "completed"]
                   : ["unreleased", "released"]
-                ).map((value) => ({ value, label: value }))}
+                ).map((value) => ({ value, label: uiLabel(value)}))}
               />
               <Input
-                label="Target date"
+                label={tr("Target date")}
                 type="date"
                 value={form.target_date}
                 onChange={(e) =>
@@ -230,7 +219,7 @@ export function ResourceSection({
               />
               {resource === "epics" && (
                 <Input
-                  label="Color"
+                  label={tr("Color")}
                   type="color"
                   value={form.color}
                   onChange={(e) =>
@@ -245,9 +234,7 @@ export function ResourceSection({
               {error}
             </p>
           )}
-          <Button type="submit" isLoading={save.isPending}>
-            Save
-          </Button>
+          <Button type="submit" isLoading={save.isPending}>{tr("Save")}</Button>
         </form>
       </Modal>
       <ConfirmModal
@@ -260,8 +247,8 @@ export function ResourceSection({
             onError: (e) => setError(apiError(e)),
           })
         }
-        title="Remove this item?"
-        description="Linked tasks remain in the project."
+        title={tr("Remove this item?")}
+        description={tr("Linked tasks remain in the project.")}
         isDestructive
         isLoading={remove.isPending}
       />

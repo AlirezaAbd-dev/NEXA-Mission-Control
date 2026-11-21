@@ -1,7 +1,9 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useEffect } from "react";
 import { Button } from "@/components/ui";
 import { useUiStore } from "@/stores/ui.store";
 export function MutationFeedback() {
+  useUiLocale();
   const message = useUiStore((s) => s.mutationError),
     clear = useUiStore((s) => s.setMutationError);
   useEffect(() => {
@@ -18,7 +20,7 @@ export function MutationFeedback() {
       <Button
         size="sm"
         variant="ghost"
-        aria-label="Dismiss error"
+        aria-label={tr("Dismiss error")}
         onClick={() => clear(null)}
       >
         ×

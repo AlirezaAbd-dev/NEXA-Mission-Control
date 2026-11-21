@@ -1,3 +1,5 @@
+import { uiLabel } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import React, { useState } from "react";
 import { useParams } from "react-router";
 import {
@@ -25,18 +27,19 @@ interface BoardToolbarProps {
 }
 
 const themeOptions = [
-  { value: "petrol", label: "Petrol Dark", color: "#070e10" },
-  { value: "teal", label: "Teal Glow", color: "#051c20" },
-  { value: "ocean", label: "Ocean Blue", color: "#051524" },
-  { value: "emerald", label: "Emerald Green", color: "#041a14" },
-  { value: "sunset", label: "Sunset Twilight", color: "#1b0d28" },
-  { value: "midnight", label: "Midnight Indigo", color: "#0e0f24" },
-  { value: "purple", label: "Deep Purple", color: "#180a24" },
-  { value: "slate", label: "Modern Slate", color: "#11171d" },
-  { value: "neutral", label: "Neutral Minimal", color: "#090b0d" },
+  { value: "petrol", get label() { return tr("Petrol Dark"); }, color: "#070e10" },
+  { value: "teal", get label() { return tr("Teal Glow"); }, color: "#051c20" },
+  { value: "ocean", get label() { return tr("Ocean Blue"); }, color: "#051524" },
+  { value: "emerald", get label() { return tr("Emerald Green"); }, color: "#041a14" },
+  { value: "sunset", get label() { return tr("Sunset Twilight"); }, color: "#1b0d28" },
+  { value: "midnight", get label() { return tr("Midnight Indigo"); }, color: "#0e0f24" },
+  { value: "purple", get label() { return tr("Deep Purple"); }, color: "#180a24" },
+  { value: "slate", get label() { return tr("Modern Slate"); }, color: "#11171d" },
+  { value: "neutral", get label() { return tr("Neutral Minimal"); }, color: "#090b0d" },
 ];
 
 export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
+  useUiLocale();
   const { data: cards = [] } = useCards({ project_id: projectId });
   const { data: pref = {} } = usePreferences(projectId);
   const save = useSavePreferences(projectId);
@@ -81,7 +84,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
 
   const handleSaveView = () => {
     if (!newViewName.trim()) {
-      setSaveViewError("View name is required");
+      setSaveViewError(tr("View name is required"));
       return;
     }
     createView.mutate(
@@ -113,13 +116,13 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
         <div className="flex items-center gap-1.5 w-full">
           {/* Search bar */}
           <div className="flex-1 min-w-0 relative">
-            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <Search className="w-3.5 h-3.5 absolute start-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search cards..."
+              placeholder={tr("Search cards...")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-8.5 pl-8 pr-2 text-xs rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200/90 dark:border-white/[0.06] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-colors shadow-2xs"
+              className="w-full h-8.5 ps-8 pe-2 text-xs rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200/90 dark:border-white/[0.06] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-colors shadow-2xs"
             />
           </div>
 
@@ -135,7 +138,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             }`}
           >
             <Filter className="w-3.5 h-3.5" />
-            <span>Filters</span>
+            <span>{tr("Filters")}</span>
             {filterCount > 0 && (
               <span className="w-4 h-4 rounded-full bg-emerald-500 text-white text-[10px] font-bold flex items-center justify-center">
                 {filterCount}
@@ -157,13 +160,13 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
                 ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400 font-semibold"
                 : ""
             }`}
-            title="Swimlanes and board settings"
+            title={tr("Swimlanes and board settings")}
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
             <span className="capitalize">
               {pref.grouping && pref.grouping !== "none"
-                ? pref.grouping
-                : "View"}
+                ? uiLabel(pref.grouping)
+                : tr("View")}
             </span>
           </Button>
 
@@ -175,7 +178,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
               save.mutate({ ...pref, starred: !pref.starred })
             }
             className="h-8.5 px-2 shrink-0"
-            title={pref.starred ? "Starred board" : "Star board"}
+            title={pref.starred ? tr("Starred board") : tr("Star board")}
           >
             <Star
               className={`w-3.5 h-3.5 ${
@@ -202,7 +205,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             )}
             {filterPriority !== "all" && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-[11px] font-medium shrink-0 capitalize">
-                <span>{filterPriority}</span>
+                <span>{uiLabel(filterPriority)}</span>
                 <button
                   type="button"
                   onClick={() => setFilterPriority("all")}
@@ -216,7 +219,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[11px] font-medium shrink-0">
                 <span className="truncate max-w-[120px]">
                   {assignees.find((a) => a.user_id === selectedAssignee)
-                    ?.display_name || "Assignee"}
+                    ?.display_name || tr("Assignee")}
                 </span>
                 <button
                   type="button"
@@ -230,7 +233,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             {selectedLabel && (
               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-700 dark:text-cyan-300 text-[11px] font-medium shrink-0">
                 <span className="truncate max-w-[120px]">
-                  {labels.find((l) => l.id === selectedLabel)?.name || "Label"}
+                  {labels.find((l) => l.id === selectedLabel)?.name || tr("Label")}
                 </span>
                 <button
                   type="button"
@@ -244,21 +247,19 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             <button
               type="button"
               onClick={resetFilters}
-              className="text-[11px] text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 underline font-medium ml-1 shrink-0 cursor-pointer"
-            >
-              Clear all
-            </button>
+              className="text-[11px] text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 underline font-medium ms-1 shrink-0 cursor-pointer"
+            >{tr("Clear all")}</button>
           </div>
         )}
       </div>
 
       {/* ─── Desktop Toolbar (Screen >= sm) ─── */}
-      <div className="hidden sm:flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 sm:gap-3 w-full">
+      <div className="hidden sm:flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 w-full">
         {/* Left: Filter Controls */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
           <div className="w-44 md:w-52">
             <Input
-              placeholder="Filter cards..."
+              placeholder={tr("Filter cards...")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -270,23 +271,23 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
               onChange={(val) => setFilterPriority(val)}
               size="sm"
               options={[
-                { label: "All Priorities", value: "all" },
-                { label: "Urgent", value: "urgent" },
-                { label: "High", value: "high" },
-                { label: "Medium", value: "medium" },
-                { label: "Low", value: "low" },
+                { label: tr("All Priorities"), value: "all" },
+                { label: tr("Urgent"), value: "urgent" },
+                { label: tr("High"), value: "high" },
+                { label: tr("Medium"), value: "medium" },
+                { label: tr("Low"), value: "low" },
               ]}
             />
           </div>
 
           <div className="w-32 md:w-36">
             <Select
-              placeholder="All assignees"
+              placeholder={tr("All assignees")}
               value={selectedAssignee || ""}
               onChange={(v) => setAssignee(v || null)}
               size="sm"
               options={[
-                { value: "", label: "All assignees" },
+                { value: "", label: tr("All assignees") },
                 ...assignees.map((a) => ({
                   value: a.user_id,
                   label: a.display_name,
@@ -297,12 +298,12 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
 
           <div className="w-32 md:w-36">
             <Select
-              placeholder="All labels"
+              placeholder={tr("All labels")}
               value={selectedLabel || ""}
               onChange={(v) => setLabel(v || null)}
               size="sm"
               options={[
-                { value: "", label: "All labels" },
+                { value: "", label: tr("All labels") },
                 ...labels.map((l) => ({ value: l.id, label: l.name })),
               ]}
             />
@@ -315,9 +316,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
               onClick={resetFilters}
               className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 h-8.5 px-2.5"
             >
-              <X className="w-3.5 h-3.5 mr-1" />
-              Clear
-            </Button>
+              <X className="w-3.5 h-3.5 me-1" />{tr("Clear")}</Button>
           )}
         </div>
 
@@ -326,7 +325,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
           <Button
             variant="outline"
             size="sm"
-            aria-label="Star board"
+            aria-label={tr("Star board")}
             onClick={() =>
               save.mutate({ ...pref, starred: !pref.starred })
             }
@@ -347,7 +346,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             onChange={(grouping) => save.mutate({ ...pref, grouping })}
             options={["none", "priority", "assignee", "epic"].map((value) => ({
               value,
-              label: value === "none" ? "No swimlanes" : `Group by ${value}`,
+              label: value === "none" ? tr("No swimlanes") : tr("Group by {value0}", { value0: uiLabel(value) }),
             }))}
           />
 
@@ -365,7 +364,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
           <CustomSelect
             className="w-32 md:w-36"
             size="sm"
-            placeholder="Saved views"
+            placeholder={tr("Saved views")}
             options={views.map((v) => ({ value: v.id, label: v.name }))}
             onChange={(id) => {
               const view = views.find((v) => v.id === id);
@@ -385,9 +384,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             variant="outline"
             onClick={() => setSaveViewModalOpen(true)}
           >
-            <Bookmark size={14} />
-            Save view
-          </Button>
+            <Bookmark size={14} />{tr("Save view")}</Button>
 
           <Button
             size="sm"
@@ -395,9 +392,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             onClick={() => setArchiveModalOpen(true)}
             className="text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400"
           >
-            <Archive size={14} />
-            Archive
-          </Button>
+            <Archive size={14} />{tr("Archive")}</Button>
         </div>
       </div>
 
@@ -405,22 +400,20 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
       <Modal
         isOpen={filterModalOpen}
         onClose={() => setFilterModalOpen(false)}
-        title="Filter Cards"
+        title={tr("Filter Cards")}
         size="sm"
       >
         <div className="p-4 space-y-4">
           {/* Priority Filter */}
           <div className="space-y-2">
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
-              Priority
-            </span>
+            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">{tr("Priority")}</span>
             <div className="flex flex-wrap gap-1.5">
               {[
-                { value: "all", label: "All" },
-                { value: "urgent", label: "🔴 Urgent" },
-                { value: "high", label: "🟠 High" },
-                { value: "medium", label: "🟡 Medium" },
-                { value: "low", label: "🟢 Low" },
+                { value: "all", label: tr("All") },
+                { value: "urgent", label: tr("🔴 Urgent") },
+                { value: "high", label: tr("🟠 High") },
+                { value: "medium", label: tr("🟡 Medium") },
+                { value: "low", label: tr("🟢 Low") },
               ].map((p) => (
                 <button
                   key={p.value}
@@ -440,16 +433,14 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
 
           {/* Assignee Filter */}
           <div className="space-y-2">
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
-              Assignee
-            </span>
+            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">{tr("Assignee")}</span>
             <Select
-              placeholder="All assignees"
+              placeholder={tr("All assignees")}
               value={selectedAssignee || ""}
               onChange={(v) => setAssignee(v || null)}
               size="sm"
               options={[
-                { value: "", label: "All assignees" },
+                { value: "", label: tr("All assignees") },
                 ...assignees.map((a) => ({
                   value: a.user_id,
                   label: a.display_name,
@@ -460,16 +451,14 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
 
           {/* Label Filter */}
           <div className="space-y-2">
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
-              Label
-            </span>
+            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">{tr("Label")}</span>
             <Select
-              placeholder="All labels"
+              placeholder={tr("All labels")}
               value={selectedLabel || ""}
               onChange={(v) => setLabel(v || null)}
               size="sm"
               options={[
-                { value: "", label: "All labels" },
+                { value: "", label: tr("All labels") },
                 ...labels.map((l) => ({ value: l.id, label: l.name })),
               ]}
             />
@@ -485,16 +474,12 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
                 setFilterModalOpen(false);
               }}
               className="text-xs text-rose-500 hover:text-rose-600"
-            >
-              Reset Filters
-            </Button>
+            >{tr("Reset Filters")}</Button>
             <Button
               variant="primary"
               size="sm"
               onClick={() => setFilterModalOpen(false)}
-            >
-              Done
-            </Button>
+            >{tr("Done")}</Button>
           </div>
         </div>
       </Modal>
@@ -503,21 +488,19 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
       <Modal
         isOpen={viewModalOpen}
         onClose={() => setViewModalOpen(false)}
-        title="Board View & Swimlanes"
+        title={tr("Board View & Swimlanes")}
         size="sm"
       >
         <div className="p-4 space-y-4">
           {/* Grouping / Swimlanes */}
           <div className="space-y-2">
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
-              Group by (Swimlanes)
-            </span>
+            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">{tr("Group by (Swimlanes)")}</span>
             <div className="grid grid-cols-2 gap-1.5">
               {[
-                { value: "none", label: "No swimlanes" },
-                { value: "assignee", label: "Assignee" },
-                { value: "priority", label: "Priority" },
-                { value: "epic", label: "Epic" },
+                { value: "none", label: tr("No swimlanes") },
+                { value: "assignee", label: tr("Assignee") },
+                { value: "priority", label: tr("Priority") },
+                { value: "epic", label: tr("Epic") },
               ].map((opt) => (
                 <button
                   key={opt.value}
@@ -537,9 +520,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
 
           {/* Background Theme */}
           <div className="space-y-2">
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
-              Background Theme
-            </span>
+            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">{tr("Background Theme")}</span>
             <div className="grid grid-cols-3 gap-1.5">
               {themeOptions.map((t) => (
                 <button
@@ -573,9 +554,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
               }}
               className="w-full justify-center text-xs"
             >
-              <Archive className="w-3.5 h-3.5 mr-1.5" />
-              Open Archive Center
-            </Button>
+              <Archive className="w-3.5 h-3.5 me-1.5" />{tr("Open Archive Center")}</Button>
           </div>
 
           <div className="pt-2 flex justify-end">
@@ -583,9 +562,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
               variant="primary"
               size="sm"
               onClick={() => setViewModalOpen(false)}
-            >
-              Done
-            </Button>
+            >{tr("Done")}</Button>
           </div>
         </div>
       </Modal>
@@ -594,12 +571,12 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
       <Modal
         isOpen={saveViewModalOpen}
         onClose={() => setSaveViewModalOpen(false)}
-        title="Save View Preset"
+        title={tr("Save View Preset")}
         size="sm"
       >
         <div className="p-4 space-y-4">
           <Input
-            placeholder="View name (e.g. My Urgent Tasks)"
+            placeholder={tr("View name (e.g. My Urgent Tasks)")}
             value={newViewName}
             onChange={(e) => {
               setNewViewName(e.target.value);
@@ -613,17 +590,13 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
               variant="ghost"
               size="sm"
               onClick={() => setSaveViewModalOpen(false)}
-            >
-              Cancel
-            </Button>
+            >{tr("Cancel")}</Button>
             <Button
               variant="primary"
               size="sm"
               onClick={handleSaveView}
               isLoading={createView.isPending}
-            >
-              Save View
-            </Button>
+            >{tr("Save View")}</Button>
           </div>
         </div>
       </Modal>
@@ -632,7 +605,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
       <Modal
         isOpen={archiveModalOpen}
         onClose={() => setArchiveModalOpen(false)}
-        title="Archive Center"
+        title={tr("Archive Center")}
         size="xl"
       >
         <div className="p-4">

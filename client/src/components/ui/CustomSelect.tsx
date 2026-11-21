@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { tr, useUiLocale } from "@/i18n";
 import { Select as NexaSelect } from "./NexaDropdown";
 import { SearchableSelect } from "./SearchableSelect";
 export interface SelectOption {
@@ -25,7 +26,7 @@ export function CustomSelect({
   options,
   value,
   onChange,
-  placeholder = "Select option…",
+  placeholder = tr("Select option…"),
   label,
   ariaLabel,
   error,
@@ -35,6 +36,7 @@ export function CustomSelect({
   id,
   size,
 }: CustomSelectProps) {
+  useUiLocale();
   if (searchable)
     return (
       <SearchableSelect

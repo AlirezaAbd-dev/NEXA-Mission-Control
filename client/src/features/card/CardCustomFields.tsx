@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import React, { useState } from 'react';
 import { Sliders, Plus, Check, DollarSign } from 'lucide-react';
 import { Input } from '@/components/ui/Input';
@@ -16,15 +17,16 @@ interface CardCustomFieldsProps {
 }
 
 const FIELD_TYPES = [
-  { value: 'text', label: 'Text' },
-  { value: 'number', label: 'Number' },
-  { value: 'currency', label: 'Currency ($)' },
-  { value: 'dropdown', label: 'Dropdown' },
-  { value: 'checkbox', label: 'Checkbox' },
-  { value: 'date', label: 'Date' },
+  { value: 'text', get label() { return tr("Text"); } },
+  { value: 'number', get label() { return tr("Number"); } },
+  { value: 'currency', get label() { return tr("Currency ($)"); } },
+  { value: 'dropdown', get label() { return tr("Dropdown"); } },
+  { value: 'checkbox', get label() { return tr("Checkbox"); } },
+  { value: 'date', get label() { return tr("Date"); } },
 ];
 
 export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
+  useUiLocale();
   const { data: definitions = [] } = useCustomFieldDefinitions(card.project_id);
   const { data: values = [] } = useCustomFieldValues(card.id);
   const setCustomFieldValue = useSetCustomFieldValue();
@@ -99,9 +101,7 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
     <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-white/[0.06]">
       <div className="flex items-center justify-between">
         <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-          <Sliders className="w-3.5 h-3.5 text-emerald-500" />
-          Custom Fields
-        </label>
+          <Sliders className="w-3.5 h-3.5 text-emerald-500" />{tr("Custom Fields")}</label>
         {!isCreatingField && (
           <button
             type="button"
@@ -109,7 +109,7 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
             className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 flex items-center gap-1 cursor-pointer transition-colors"
           >
             <Plus className="w-3 h-3" />
-            <span>Add Field</span>
+            <span>{tr("Add Field")}</span>
           </button>
         )}
       </div>
@@ -120,12 +120,10 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
           onSubmit={handleCreateFieldSubmit}
           className="p-3 bg-slate-50 dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] rounded-xl space-y-2 animate-in fade-in duration-150"
         >
-          <div className="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">
-            New Project Field
-          </div>
+          <div className="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">{tr("New Project Field")}</div>
           <Input
             type="text"
-            placeholder="Field Name (e.g. Environment, Impact)"
+            placeholder={tr("Field Name (e.g. Environment, Impact)")}
             value={newFieldName}
             onChange={(e) => setNewFieldName(e.target.value)}
             className="text-xs h-8"
@@ -140,7 +138,7 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
           {newFieldType === 'dropdown' && (
             <Input
               type="text"
-              placeholder="Comma-separated options (Dev, Staging, Prod)"
+              placeholder={tr("Comma-separated options (Dev, Staging, Prod)")}
               value={newFieldOptions}
               onChange={(e) => setNewFieldOptions(e.target.value)}
               className="text-xs h-8"
@@ -153,18 +151,14 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
               size="sm"
               onClick={() => setIsCreatingField(false)}
               className="h-7 text-xs"
-            >
-              Cancel
-            </Button>
+            >{tr("Cancel")}</Button>
             <Button
               type="submit"
               variant="primary"
               size="sm"
               isLoading={createDefinition.isPending}
               className="h-7 text-xs"
-            >
-              Create
-            </Button>
+            >{tr("Create")}</Button>
           </div>
         </form>
       )}
@@ -191,7 +185,7 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
                     type="text"
                     defaultValue={current?.text || ''}
                     onBlur={(e) => handleUpdateTextValue(def.id, e.target.value)}
-                    placeholder="Enter text..."
+                    placeholder={tr("Enter text...")}
                     className="text-xs h-8"
                   />
                 )}
@@ -201,21 +195,21 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
                     type="number"
                     defaultValue={current?.number ?? ''}
                     onBlur={(e) => handleUpdateNumberValue(def.id, e.target.value)}
-                    placeholder="Enter number..."
+                    placeholder={tr("Enter number...")}
                     className="text-xs h-8"
                   />
                 )}
 
                 {def.field_type === 'currency' && (
                   <div className="relative">
-                    <DollarSign className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
+                    <DollarSign className="w-3.5 h-3.5 absolute start-2.5 top-2.5 text-slate-400" />
                     <Input
                       type="number"
                       step="0.01"
                       defaultValue={current?.number ?? ''}
                       onBlur={(e) => handleUpdateNumberValue(def.id, e.target.value)}
                       placeholder="0.00"
-                      className="text-xs h-8 pl-8"
+                      className="text-xs h-8 ps-8"
                     />
                   </div>
                 )}
@@ -234,7 +228,7 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
                     value={current?.text || ''}
                     onChange={(val) => handleUpdateTextValue(def.id, val)}
                     options={[
-                      { value: '', label: 'Select option...' },
+                      { value: '', label: tr("Select option...") },
                       ...def.options.map((opt) => ({ value: opt, label: opt })),
                     ]}
                   />
@@ -259,7 +253,7 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
                     >
                       {current?.text === 'true' && <Check className="w-3 h-3 stroke-[3]" />}
                     </div>
-                    <span>{current?.text === 'true' ? 'Yes / Enabled' : 'No / Disabled'}</span>
+                    <span>{current?.text === 'true' ? tr("Yes / Enabled") : tr("No / Disabled")}</span>
                   </button>
                 )}
               </div>
@@ -268,9 +262,7 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
         </div>
       ) : (
         !isCreatingField && (
-          <div className="text-xs text-slate-400 dark:text-slate-500 italic py-1">
-            No custom fields configured for this project.
-          </div>
+          <div className="text-xs text-slate-400 dark:text-slate-500 italic py-1">{tr("No custom fields configured for this project.")}</div>
         )
       )}
     </div>

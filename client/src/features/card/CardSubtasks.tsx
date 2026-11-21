@@ -1,3 +1,5 @@
+import { formatNumber } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { ListTree, Unlink } from "lucide-react";
 import { Input, Button } from "@/components/ui";
@@ -11,6 +13,7 @@ import type { Card } from "@/types";
 import type { CardMetadata } from "@/types/enterprise";
 
 export function CardSubtasks({ card }: { card: Card }) {
+  useUiLocale();
   const { data: metadata = [] } = useEnterpriseResource<CardMetadata[]>(
       card.project_id,
       "metadata",
@@ -30,7 +33,7 @@ export function CardSubtasks({ card }: { card: Card }) {
       <div className="flex items-center justify-between">
         <h3 className="flex items-center gap-1.5 text-xs font-semibold text-secondary-foreground uppercase tracking-wider">
           <ListTree className="w-3.5 h-3.5 text-emerald-500" />
-          <span>Subtasks ({children.length})</span>
+          <span>{tr("Subtasks (")}{formatNumber(children.length)})</span>
         </h3>
       </div>
       <div className="space-y-1.5">
@@ -51,8 +54,8 @@ export function CardSubtasks({ card }: { card: Card }) {
               <Button
                 size="sm"
                 variant="ghost"
-                title="Unlink subtask from this parent task"
-                aria-label={`Unlink ${c.title}`}
+                title={tr("Unlink subtask from this parent task")}
+                aria-label={tr("Unlink {value0}", { value0: (c.title) })}
                 className="h-7 w-7 p-0 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 opacity-70 group-hover:opacity-100 transition-all shrink-0 cursor-pointer rounded-lg"
                 onClick={async (e) => {
                   e.stopPropagation();
@@ -98,8 +101,8 @@ export function CardSubtasks({ card }: { card: Card }) {
         }}
       >
         <Input
-          aria-label="Subtask title"
-          placeholder="Add a subtask…"
+          aria-label={tr("Subtask title")}
+          placeholder={tr("Add a subtask…")}
           required
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -108,9 +111,7 @@ export function CardSubtasks({ card }: { card: Card }) {
           type="submit"
           size="md"
           isLoading={create.isPending || link.isPending}
-        >
-          Add
-        </Button>
+        >{tr("Add")}</Button>
       </form>
       {error && (
         <p role="alert" className="text-xs text-rose-500">

@@ -1,7 +1,10 @@
+import { tr, useUiLocale } from "@/i18n";
 import React, { useEffect, useId, useRef, useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
 import { createPortal } from "react-dom";
+import { useMobileViewport } from "@/hooks/useMobileViewport";
+import { NativeBottomSheet } from "./NativeBottomSheet";
 
 const modalStack: string[] = [];
 const listeners = new Set<() => void>();
@@ -43,7 +46,9 @@ export const Modal = ({
   hideHeaderClose = false,
   closeButtonClassName,
 }: ModalProps) => {
+  useUiLocale();
   const modalId = useId();
+  const isMobile = useMobileViewport();
   const stackPosition = useSyncExternalStore(
     subscribe,
     () => modalStack.indexOf(modalId),
@@ -55,7 +60,7 @@ export const Modal = ({
     closeRef.current = onClose;
   }, [onClose]);
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || isMobile) return;
     const previousFocus =
       document.activeElement instanceof HTMLElement
         ? document.activeElement
@@ -119,9 +124,10 @@ export const Modal = ({
         document.body.style.overflow = previousBodyOverflow;
       if (previousFocus?.isConnected) previousFocus.focus();
     };
-  }, [isOpen, modalId]);
+  }, [isOpen, modalId, isMobile]);
 
   if (!isOpen) return null;
+  if (isMobile) return <NativeBottomSheet open={isOpen} onClose={onClose} title={title} description={description} header={header} contentClassName={contentClassName}>{children}</NativeBottomSheet>;
 
   const sizeClasses = {
     sm: "max-w-sm",
@@ -150,7 +156,7 @@ export const Modal = ({
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label={title || "Task details"}
+        aria-label={title || tr("Task details")}
         tabIndex={-1}
         className={cn(
           "relative z-10 w-full min-w-0 max-h-[calc(100dvh-2rem)] flex flex-col overflow-hidden rounded-3xl border border-slate-200/90 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10] shadow-2xl shadow-slate-900/10 dark:shadow-black/70 animate-in zoom-in-95 duration-200",
@@ -168,7 +174,7 @@ export const Modal = ({
               "absolute top-4 end-4 z-30 flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/90 dark:border-white/[0.06] bg-white dark:bg-[#101117] text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-white/[0.08] transition-all cursor-pointer focus:ring-2 focus:ring-emerald-500/40",
               closeButtonClassName,
             )}
-            aria-label="Close modal"
+            aria-label={tr("Close modal")}
           >
             <X className="w-4 h-4" />
           </button>

@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useCards } from "@/hooks/card/useCards";
 import { useParams } from "react-router";
 import React, { useState } from "react";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { useBoardStore } from "@/stores/board.store";
 
 export const BoardFilters: React.FC = () => {
+  useUiLocale();
   const { projectId = "" } = useParams();
   const [mobileExpanded, setMobileExpanded] = useState(false);
   const { data: cards = [] } = useCards({ project_id: projectId });
@@ -44,7 +46,7 @@ export const BoardFilters: React.FC = () => {
       <div className="flex items-center gap-2 w-full sm:w-auto">
         <div className="flex-1 sm:w-48 md:w-56">
           <Input
-            placeholder="Filter cards..."
+            placeholder={tr("Filter cards...")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -56,10 +58,10 @@ export const BoardFilters: React.FC = () => {
           variant={mobileExpanded || filterCount > 0 ? "secondary" : "outline"}
           onClick={() => setMobileExpanded(!mobileExpanded)}
           className="sm:hidden h-8.5 px-2.5 flex items-center gap-1.5 shrink-0"
-          title="Toggle filters"
+          title={tr("Toggle filters")}
         >
           <Filter className="w-3.5 h-3.5" />
-          <span className="text-xs">Filters</span>
+          <span className="text-xs">{tr("Filters")}</span>
           {filterCount > 0 && (
             <span className="w-4 h-4 rounded-full bg-emerald-500 text-white text-[10px] font-bold flex items-center justify-center">
               {filterCount}
@@ -73,7 +75,7 @@ export const BoardFilters: React.FC = () => {
             variant="ghost"
             onClick={resetFilters}
             className="sm:hidden text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 h-8.5 px-2 shrink-0"
-            title="Clear filters"
+            title={tr("Clear filters")}
           >
             <X className="w-3.5 h-3.5" />
           </Button>
@@ -93,23 +95,23 @@ export const BoardFilters: React.FC = () => {
             onChange={(val) => setFilterPriority(val)}
             size="sm"
             options={[
-              { label: "All Priorities", value: "all" },
-              { label: "Urgent", value: "urgent" },
-              { label: "High", value: "high" },
-              { label: "Medium", value: "medium" },
-              { label: "Low", value: "low" },
+              { label: tr("All Priorities"), value: "all" },
+              { label: tr("Urgent"), value: "urgent" },
+              { label: tr("High"), value: "high" },
+              { label: tr("Medium"), value: "medium" },
+              { label: tr("Low"), value: "low" },
             ]}
           />
         </div>
 
         <div className="w-[calc(50%-0.25rem)] sm:w-36">
           <Select
-            placeholder="All assignees"
+            placeholder={tr("All assignees")}
             value={selectedAssignee || ""}
             onChange={(v) => setAssignee(v || null)}
             size="sm"
             options={[
-              { value: "", label: "All assignees" },
+              { value: "", label: tr("All assignees") },
               ...assignees.map((a) => ({
                 value: a.user_id,
                 label: a.display_name,
@@ -120,12 +122,12 @@ export const BoardFilters: React.FC = () => {
 
         <div className="w-full sm:w-36">
           <Select
-            placeholder="All labels"
+            placeholder={tr("All labels")}
             value={selectedLabel || ""}
             onChange={(v) => setLabel(v || null)}
             size="sm"
             options={[
-              { value: "", label: "All labels" },
+              { value: "", label: tr("All labels") },
               ...labels.map((l) => ({ value: l.id, label: l.name })),
             ]}
           />
@@ -139,9 +141,7 @@ export const BoardFilters: React.FC = () => {
             onClick={resetFilters}
             className="hidden sm:inline-flex text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 h-8.5 px-2.5"
           >
-            <X className="w-3.5 h-3.5 mr-1" />
-            Clear
-          </Button>
+            <X className="w-3.5 h-3.5 me-1" />{tr("Clear")}</Button>
         )}
       </div>
     </div>

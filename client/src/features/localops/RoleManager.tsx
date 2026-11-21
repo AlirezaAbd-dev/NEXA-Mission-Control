@@ -1,3 +1,5 @@
+import { uiLabel } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { Button, Input, Modal, Checkbox, CustomSelect } from "@/components/ui";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
@@ -16,6 +18,7 @@ const capabilities = [
   "desk_agent",
 ];
 export function RoleManager({ projectId }: { projectId: string }) {
+  useUiLocale();
   const { data: session } = useLocalResource<Session>(projectId, "session");
   const { data: roles = [] } = useLocalResource<Role[]>(
     projectId,
@@ -50,7 +53,7 @@ export function RoleManager({ projectId }: { projectId: string }) {
   return (
     <section className="rounded-2xl border border-border bg-card p-5 space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="font-bold">Custom roles</h2>
+        <h2 className="font-bold">{tr("Custom roles")}</h2>
         <Button
           size="sm"
           onClick={() => {
@@ -59,15 +62,9 @@ export function RoleManager({ projectId }: { projectId: string }) {
             setPermissions(["edit", "move", "comment"]);
             setError("");
           }}
-        >
-          New role
-        </Button>
+        >{tr("New role")}</Button>
       </div>
-      <p className="text-sm text-muted-foreground">
-        Named task permissions further restrict the project member policy.
-        Administrators retain management access; viewers stay read-only. Desk
-        agent grants access to the service queue.
-      </p>
+      <p className="text-sm text-muted-foreground">{tr("Named task permissions further restrict the project member policy. Administrators retain management access; viewers stay read-only. Desk agent grants access to the service queue.")}</p>
       {roles.map((role) => (
         <div
           key={role.id}
@@ -76,7 +73,7 @@ export function RoleManager({ projectId }: { projectId: string }) {
           <span className="flex-1">
             {role.name}
             <span className="block text-xs text-muted-foreground">
-              {role.permissions.join(", ") || "View only"}
+              {role.permissions.join(", ") || tr("View only")}
             </span>
           </span>
           <Button
@@ -88,18 +85,12 @@ export function RoleManager({ projectId }: { projectId: string }) {
               setPermissions(role.permissions);
               setError("");
             }}
-          >
-            Edit
-          </Button>
-          <Button size="sm" variant="ghost" onClick={() => setDeleting(role)}>
-            Delete
-          </Button>
+          >{tr("Edit")}</Button>
+          <Button size="sm" variant="ghost" onClick={() => setDeleting(role)}>{tr("Delete")}</Button>
         </div>
       ))}
       {!roles.length && (
-        <p className="text-sm text-muted-foreground">
-          Create a role, then assign it to project members below.
-        </p>
+        <p className="text-sm text-muted-foreground">{tr("Create a role, then assign it to project members below.")}</p>
       )}
       {members
         .filter((m) => !["owner", "admin"].includes(m.role))
@@ -109,14 +100,14 @@ export function RoleManager({ projectId }: { projectId: string }) {
             className="grid sm:grid-cols-2 items-center gap-3"
           >
             <span>
-              {m.display_name} · {m.role}
+              {m.display_name} · {uiLabel(m.role)}
             </span>
             <CustomSelect
               value={
                 assignments.find((a) => a.user_id === m.user_id)?.role_id || ""
               }
               options={[
-                { value: "", label: "Use project member policy" },
+                { value: "", label: tr("Use project member policy") },
                 ...roles.map((r) => ({ value: r.id, label: r.name })),
               ]}
               onChange={(value) =>
@@ -135,11 +126,11 @@ export function RoleManager({ projectId }: { projectId: string }) {
       <Modal
         isOpen={editing !== undefined}
         onClose={() => setEditing(undefined)}
-        title="Custom role"
+        title={tr("Custom role")}
       >
         <div className="space-y-4">
           <Input
-            label="Name"
+            label={tr("Name")}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -147,7 +138,7 @@ export function RoleManager({ projectId }: { projectId: string }) {
             {capabilities.map((c) => (
               <Checkbox
                 key={c}
-                label={c.replace("_", " ")}
+                label={uiLabel(c)}
                 checked={permissions.includes(c)}
                 onChange={(v) =>
                   setPermissions(
@@ -168,16 +159,14 @@ export function RoleManager({ projectId }: { projectId: string }) {
             disabled={!name.trim()}
             isLoading={save.isPending}
             onClick={() => void submit()}
-          >
-            Save role
-          </Button>
+          >{tr("Save role")}</Button>
         </div>
       </Modal>
       <ConfirmModal
         isOpen={!!deleting}
         onClose={() => setDeleting(undefined)}
-        title="Delete custom role"
-        description="Assigned members will return to the project member policy."
+        title={tr("Delete custom role")}
+        description={tr("Assigned members will return to the project member policy.")}
         isDestructive
         onConfirm={() => {
           if (deleting)

@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useProductivity } from "@/hooks/productivity/useProductivity";
 interface Link {
   id: string;
@@ -13,14 +14,13 @@ export function CardDevelopment({
   projectId: string;
   cardId: string;
 }) {
+  useUiLocale();
   const { data: links = [] } = useProductivity<Link[]>(
     `projects/${projectId}/cards/${cardId}/development`,
   );
   return (
     <section className="pt-4 border-t border-slate-200 dark:border-white/[0.06] space-y-3">
-      <h3 className="text-xs uppercase font-semibold text-slate-500">
-        Development
-      </h3>
+      <h3 className="text-xs uppercase font-semibold text-slate-500">{tr("Development")}</h3>
       {links.map((l) => (
         <a
           key={l.id}
@@ -36,11 +36,7 @@ export function CardDevelopment({
         </a>
       ))}
       {!links.length && (
-        <p className="text-xs text-slate-500">
-          Link pull requests, builds and deployments through signed
-          GitHub/GitLab webhooks using CARD-{cardId} in the title, description
-          or branch.
-        </p>
+        <p className="text-xs text-slate-500">{tr("Link pull requests, builds and deployments through signed GitHub/GitLab webhooks using CARD-")}{cardId}{tr("in the title, description or branch.")}</p>
       )}
     </section>
   );

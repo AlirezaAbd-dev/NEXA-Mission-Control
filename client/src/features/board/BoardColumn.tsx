@@ -1,3 +1,5 @@
+import { formatNumber } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import React, { useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import {
@@ -38,6 +40,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
   draggingCardId,
   dropTarget,
 }) => {
+  useUiLocale();
   const [isAddingCard, setIsAddingCard] = useState(false);
   const [newCardTitle, setNewCardTitle] = useState("");
   const [cardError, setCardError] = useState<string | null>(null);
@@ -74,7 +77,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
     createCard.mutate(
       {
         column_id: column.id,
-        title: `${template.title} (Copy)`,
+        title: tr("{value0} (Copy)", { value0: (template.title) }),
         description: template.description || undefined,
         priority: template.priority,
         estimated_hours: template.estimated_hours || undefined,
@@ -103,7 +106,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
   const handleCreateCard = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCardTitle.trim()) {
-      setCardError("Card title cannot be empty");
+      setCardError(tr("Card title cannot be empty"));
       return;
     }
     setCardError(null);
@@ -154,11 +157,11 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
               {column.name}
             </h3>
             <span className="text-xs px-2 py-0.5 rounded-full bg-white dark:bg-[#101117] border border-slate-200 dark:border-white/[0.06] text-slate-500 dark:text-emerald-400 font-mono font-medium">
-              {cards.length}
+              {formatNumber(cards.length)}
               {column.wip_limit
-                ? ` · ${totalCount}/${column.wip_limit} WIP`
+                ? tr("· {value0}/{value1} WIP", { value0: (totalCount), value1: (column.wip_limit) })
                 : ""}
-              {exceeded ? " · Exceeded" : ""}
+              {exceeded ? tr("· Exceeded") : ""}
             </span>
           </div>
 
@@ -171,7 +174,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
                 setCardError(null);
                 setIsAddingCard(true);
               }}
-              title="Add card"
+              title={tr("Add card")}
             >
               <Plus className="w-4 h-4" />
             </Button>
@@ -181,15 +184,15 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
                 <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
               }
               items={[
-                {id:"rename",label:"Rename column",onClick:()=>setRenameOpen(true)},
+                {id:"rename",label:tr("Rename column"),onClick:()=>setRenameOpen(true)},
                 {
                   id: "wip",
-                  label: "Set WIP limit",
+                  label: tr("Set WIP limit"),
                   onClick: () => setWipOpen(true),
                 },
                 {
                   id: "delete",
-                  label: "Delete column",
+                  label: tr("Delete column"),
                   icon: <Trash2 className="w-4 h-4 text-rose-500" />,
                   danger: true,
                   onClick: () => setIsDeleteModalOpen(true),
@@ -205,11 +208,11 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
             onChange={setSort}
             size="sm"
             options={[
-              { value: "position", label: "Manual order" },
-              { value: "title", label: "Title A–Z" },
-              { value: "priority", label: "Priority" },
-              { value: "due", label: "Due date" },
-              { value: "created", label: "Created date" },
+              { value: "position", label: tr("Manual order") },
+              { value: "title", label: tr("Title A–Z") },
+              { value: "priority", label: tr("Priority") },
+              { value: "due", label: tr("Due date") },
+              { value: "created", label: tr("Created date") },
             ]}
           />
         </div>
@@ -242,7 +245,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
                   setNewCardTitle(e.target.value);
                   if (cardError) setCardError(null);
                 }}
-                placeholder="What needs to be done?"
+                placeholder={tr("What needs to be done?")}
                 error={cardError || undefined}
                 autoFocus
               />
@@ -251,24 +254,18 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
                   size="sm"
                   type="submit"
                   isLoading={createCard.isPending}
-                >
-                  Add Card
-                </Button>
+                >{tr("Add Card")}</Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => setIsAddingCard(false)}
-                >
-                  Cancel
-                </Button>
+                >{tr("Cancel")}</Button>
               </div>
 
               {templates.length > 0 && (
                 <div className="pt-2 border-t border-slate-100 dark:border-white/[0.06] space-y-1">
                   <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                    <FileText className="w-3 h-3 text-emerald-500" />
-                    Use Template:
-                  </div>
+                    <FileText className="w-3 h-3 text-emerald-500" />{tr("Use Template:")}</div>
                   <div className="flex flex-wrap gap-1">
                     {templates.map((tmpl) => (
                       <button
@@ -293,9 +290,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
               }}
               className="w-full flex items-center gap-1.5 py-1.5 px-3 rounded-xl text-xs font-medium text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-200/60 dark:hover:bg-white/[0.05] transition-colors"
             >
-              <Plus className="w-3.5 h-3.5 text-emerald-500" />
-              Add Card
-            </button>
+              <Plus className="w-3.5 h-3.5 text-emerald-500" />{tr("Add Card")}</button>
           )}
         </div>
       </div>
@@ -303,7 +298,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
       <Modal
         isOpen={wipOpen}
         onClose={() => setWipOpen(false)}
-        title="Work in progress limit"
+        title={tr("Work in progress limit")}
       >
         <form
           className="space-y-4"
@@ -319,13 +314,11 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
             type="number"
             min="0"
             max="1000"
-            label="Limit (0 = unlimited)"
+            label={tr("Limit (0 = unlimited)")}
             value={wip}
             onChange={(e) => setWip(e.target.value)}
           />
-          <Button type="submit" isLoading={updateColumn.isPending}>
-            Save limit
-          </Button>
+          <Button type="submit" isLoading={updateColumn.isPending}>{tr("Save limit")}</Button>
         </form>
       </Modal>
       {/* Custom Confirmation Modal replacing browser alert */}
@@ -333,9 +326,9 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleConfirmDelete}
-        title={`Delete column "${column.name}"?`}
-        description="Are you sure you want to delete this column? All cards located inside this column will be permanently unlinked."
-        confirmLabel="Delete Column"
+        title={tr("Delete column \"{value0}\"?", { value0: (column.name) })}
+        description={tr("Are you sure you want to delete this column? All cards located inside this column will be permanently unlinked.")}
+        confirmLabel={tr("Delete Column")}
         isDestructive={true}
         isLoading={deleteColumn.isPending}
       />

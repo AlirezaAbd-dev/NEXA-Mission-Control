@@ -1,3 +1,6 @@
+import { formatNumber } from "@/i18n";
+import { uiLabel } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { useParams } from "react-router";
 import { Button, Input, Textarea, CustomSelect, Modal } from "@/components/ui";
@@ -14,6 +17,7 @@ import { dateKey, addDays } from "@/features/views/boardDates";
 import { apiError } from "@/lib/apiError";
 import type { Sprint, Card } from "@/types";
 export function BacklogPage() {
+  useUiLocale();
   const { projectId = "" } = useParams(),
     { data: sprints = [] } = useSprints(projectId),
     { data: cards = [] } = useCards({ project_id: projectId }),
@@ -47,7 +51,7 @@ export function BacklogPage() {
       })),
     {
       id: "backlog",
-      name: "Product backlog",
+      name: tr("Product backlog"),
       sprint: null,
       cards: cards.filter((c) => !assigned.has(c.id)),
     },
@@ -57,19 +61,15 @@ export function BacklogPage() {
       <ViewTabs projectId={projectId} />
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">Backlog & sprints</h1>
-          <p className="text-sm text-slate-500">
-            Plan the next iteration and track delivery.
-          </p>
+          <h1 className="text-2xl font-bold">{tr("Backlog & sprints")}</h1>
+          <p className="text-sm text-slate-500">{tr("Plan the next iteration and track delivery.")}</p>
         </div>
         <Button
           onClick={() => {
             setCreating(true);
             setError("");
           }}
-        >
-          Create sprint
-        </Button>
+        >{tr("Create sprint")}</Button>
       </div>
       {error && (
         <p role="alert" className="text-rose-500">
@@ -78,13 +78,13 @@ export function BacklogPage() {
       )}
       {active && (
         <section className="p-5 rounded-xl border border-emerald-500/30 bg-emerald-500/10">
-          <h2 className="font-bold">{active.name} · Active sprint</h2>
+          <h2 className="font-bold">{active.name}{" "}{tr("· Active sprint")}</h2>
           <p className="text-sm text-slate-500 mt-1">
-            {active.goal} · Ends{" "}
+            {active.goal}{" "}{tr("· Ends")}{" "}
             {active.end_date?.slice(0, 10) || "unscheduled"}
           </p>
           <progress
-            aria-label="Sprint progress"
+            aria-label={tr("Sprint progress")}
             className="w-full h-2 mt-3 accent-teal-500"
             max={Math.max(1, active.card_ids.length)}
             value={
@@ -112,9 +112,7 @@ export function BacklogPage() {
               <div>
                 <h2 className="font-semibold">{group.name}</h2>
                 <p className="text-xs text-slate-500 mt-1">
-                  {group.cards.length} tasks · {points} story points · {done}{" "}
-                  points completed
-                </p>
+                  {formatNumber(group.cards.length)}{" "}{tr("tasks ·")}{" "}{formatNumber(points)}{" "}{tr("story points ·")}{" "}{formatNumber(done)}{" "}{tr("points completed")}</p>
               </div>
               {group.sprint && (
                 <Button
@@ -130,15 +128,13 @@ export function BacklogPage() {
                   }}
                 >
                   {group.sprint.status === "active"
-                    ? "Complete sprint"
-                    : "Start sprint"}
+                    ? tr("Complete sprint")
+                    : tr("Start sprint")}
                 </Button>
               )}
             </div>
             {group.cards.length === 0 ? (
-              <p className="p-6 text-sm text-slate-500">
-                No tasks yet. Move a task here from the backlog.
-              </p>
+              <p className="p-6 text-sm text-slate-500">{tr("No tasks yet. Move a task here from the backlog.")}</p>
             ) : (
               group.cards.map((c) => (
                 <div
@@ -148,21 +144,21 @@ export function BacklogPage() {
                   <button
                     type="button"
                     onClick={() => open(c.id)}
-                    className="flex-1 min-w-0 text-left font-medium text-xs sm:text-sm text-slate-800 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 break-words line-clamp-2 transition-colors cursor-pointer py-1"
+                    className="flex-1 min-w-0 text-start font-medium text-xs sm:text-sm text-slate-800 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 break-words line-clamp-2 transition-colors cursor-pointer py-1"
                     title={c.title}
                   >
                     {c.title}
                   </button>
                   <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
                     <span className="text-xs text-slate-500 font-mono">
-                      {c.story_points || 0} pts · {c.priority}
+                      {formatNumber(c.story_points || 0)}{" "}{tr("pts ·")}{" "}{uiLabel(c.priority)}
                     </span>
                     <CustomSelect
                       className="w-40 sm:w-44"
                       size="sm"
                       value={group.id}
                       options={[
-                        { value: "backlog", label: "Product backlog" },
+                        { value: "backlog", label: tr("Product backlog") },
                         ...sprints
                           .filter((s) => s.status !== "completed")
                           .map((s) => ({ value: s.id, label: s.name })),
@@ -197,18 +193,18 @@ export function BacklogPage() {
         <ResourceSection
           projectId={projectId}
           resource="epics"
-          title="Epics & initiatives"
+          title={tr("Epics & initiatives")}
         />
         <ResourceSection
           projectId={projectId}
           resource="releases"
-          title="Releases & versions"
+          title={tr("Releases & versions")}
         />
       </div>
       <Modal
         isOpen={creating}
         onClose={() => setCreating(false)}
-        title="Create sprint"
+        title={tr("Create sprint")}
       >
         <form
           className="space-y-4"
@@ -227,13 +223,13 @@ export function BacklogPage() {
           }}
         >
           <Input
-            label="Sprint name"
+            label={tr("Sprint name")}
             value={name}
             required
             onChange={(e) => setName(e.target.value)}
           />
           <Textarea
-            label="Sprint goal"
+            label={tr("Sprint goal")}
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
           />
@@ -242,16 +238,14 @@ export function BacklogPage() {
               {error}
             </p>
           )}
-          <Button type="submit" isLoading={create.isPending}>
-            Create sprint
-          </Button>
+          <Button type="submit" isLoading={create.isPending}>{tr("Create sprint")}</Button>
         </form>
       </Modal>
       <Modal
         isOpen={!!selected}
         onClose={() => setSelected(null)}
         title={
-          selected?.status === "active" ? "Complete sprint" : "Start sprint"
+          selected?.status === "active" ? tr("Complete sprint") : tr("Start sprint")
         }
       >
         <form
@@ -285,15 +279,12 @@ export function BacklogPage() {
         >
           {selected?.status === "active" ? (
             <>
-              <p className="text-sm text-slate-500">
-                Completed work stays in the sprint history. Unfinished tasks
-                move to the backlog or your chosen planned sprint.
-              </p>
+              <p className="text-sm text-slate-500">{tr("Completed work stays in the sprint history. Unfinished tasks move to the backlog or your chosen planned sprint.")}</p>
               <CustomSelect
-                label="Carry unfinished tasks to"
+                label={tr("Carry unfinished tasks to")}
                 value={carry}
                 options={[
-                  { value: "", label: "Product backlog" },
+                  { value: "", label: tr("Product backlog") },
                   ...sprints
                     .filter((s) => s.status === "planned")
                     .map((s) => ({ value: s.id, label: s.name })),
@@ -304,23 +295,23 @@ export function BacklogPage() {
           ) : (
             <>
               <Input
-                label="Start date"
+                label={tr("Start date")}
                 type="date"
                 required
                 value={start}
                 onChange={(e) => setStart(e.target.value)}
               />
               <CustomSelect
-                label="Duration"
+                label={tr("Duration")}
                 value={weeks}
                 onChange={setWeeks}
                 options={["1", "2", "3", "4"].map((value) => ({
                   value,
-                  label: `${value} weeks`,
+                  label: tr("{value0} weeks", { value0: (value) }),
                 }))}
               />
               <Textarea
-                label="Sprint goal"
+                label={tr("Sprint goal")}
                 value={goal}
                 onChange={(e) => setGoal(e.target.value)}
               />
@@ -332,7 +323,7 @@ export function BacklogPage() {
             </p>
           )}
           <Button type="submit" isLoading={transition.isPending}>
-            {selected?.status === "active" ? "Complete sprint" : "Start sprint"}
+            {selected?.status === "active" ? tr("Complete sprint") : tr("Start sprint")}
           </Button>
         </form>
       </Modal>

@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { Button, Modal, Checkbox, CustomSelect } from "@/components/ui";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
@@ -9,6 +10,7 @@ import { apiError } from "@/lib/apiError";
 import type { Session, TaskRule } from "./types";
 const capabilities = ["edit", "move", "archive", "comment", "upload"];
 export function TaskPermissionManager({ projectId }: { projectId: string }) {
+  useUiLocale();
   const { data: session } = useLocalResource<Session>(projectId, "session");
   const { data: rules = [] } = useLocalResource<TaskRule[]>(
     projectId,
@@ -40,7 +42,7 @@ export function TaskPermissionManager({ projectId }: { projectId: string }) {
   return (
     <section className="rounded-2xl border border-border bg-card p-5 space-y-4">
       <div className="flex justify-between gap-2">
-        <h2 className="font-bold">Task action permissions</h2>
+        <h2 className="font-bold">{tr("Task action permissions")}</h2>
         <Button
           size="sm"
           onClick={() => {
@@ -50,15 +52,9 @@ export function TaskPermissionManager({ projectId }: { projectId: string }) {
             setPermissions(capabilities);
             setError("");
           }}
-        >
-          Add rule
-        </Button>
+        >{tr("Add rule")}</Button>
       </div>
-      <p className="text-sm text-muted-foreground">
-        Restrict actions for one member on one task. Rules intersect with their
-        role and project policy. This controls editing and collaboration; it
-        does not hide the task from project members.
-      </p>
+      <p className="text-sm text-muted-foreground">{tr("Restrict actions for one member on one task. Rules intersect with their role and project policy. This controls editing and collaboration; it does not hide the task from project members.")}</p>
       {rules.map((r) => (
         <div
           key={r.card_id + r.user_id}
@@ -71,7 +67,7 @@ export function TaskPermissionManager({ projectId }: { projectId: string }) {
                 r.user_id}
             </p>
             <p className="text-xs text-muted-foreground">
-              {r.permissions.join(", ") || "No task actions"}
+              {r.permissions.join(", ") || tr("No task actions")}
             </p>
           </div>
           <Button
@@ -83,33 +79,27 @@ export function TaskPermissionManager({ projectId }: { projectId: string }) {
               setPermissions(r.permissions);
               setOpen(true);
             }}
-          >
-            Edit
-          </Button>
-          <Button size="sm" variant="ghost" onClick={() => setReset(r)}>
-            Reset
-          </Button>
+          >{tr("Edit")}</Button>
+          <Button size="sm" variant="ghost" onClick={() => setReset(r)}>{tr("Reset")}</Button>
         </div>
       ))}
       {!rules.length && (
-        <p className="text-sm text-muted-foreground">
-          Members currently inherit their project permissions.
-        </p>
+        <p className="text-sm text-muted-foreground">{tr("Members currently inherit their project permissions.")}</p>
       )}
       <Modal
         isOpen={open}
         onClose={() => setOpen(false)}
-        title="Task permissions"
+        title={tr("Task permissions")}
       >
         <div className="space-y-4">
           <CustomSelect
-            label="Task"
+            label={tr("Task")}
             value={card}
             onChange={setCard}
             options={cards.map((c) => ({ value: c.id, label: c.title }))}
           />
           <CustomSelect
-            label="Member"
+            label={tr("Member")}
             value={member}
             onChange={setMember}
             options={members
@@ -137,16 +127,14 @@ export function TaskPermissionManager({ projectId }: { projectId: string }) {
             disabled={!card || !member}
             isLoading={save.isPending}
             onClick={() => void submit()}
-          >
-            Save permissions
-          </Button>
+          >{tr("Save permissions")}</Button>
         </div>
       </Modal>
       <ConfirmModal
         isOpen={!!reset}
         onClose={() => setReset(undefined)}
-        title="Reset task permissions"
-        description="This member will inherit their role and project permissions for the task."
+        title={tr("Reset task permissions")}
+        description={tr("This member will inherit their role and project permissions for the task.")}
         onConfirm={() => {
           if (reset)
             save.mutate(

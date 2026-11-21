@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import React from "react";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,7 @@ export const Avatar = ({
   className,
   ...props
 }: AvatarProps) => {
+  useUiLocale();
   const sizeClasses = {
     xs: "w-5 h-5 text-[10px]",
     sm: "w-7 h-7 text-xs",
@@ -42,7 +44,7 @@ export const Avatar = ({
       {src ? (
         <img
           src={src}
-          alt={name || "Avatar"}
+          alt={name || tr("Avatar")}
           className="w-full h-full object-cover"
         />
       ) : (

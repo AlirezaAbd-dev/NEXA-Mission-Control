@@ -1,3 +1,6 @@
+import { uiLabel } from "@/i18n";
+import { formatNumber } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import React, { useState, useRef } from "react";
 import {
   DndContext,
@@ -41,6 +44,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   cards,
   projectId,
 }) => {
+  useUiLocale();
   const { data: preferences = {} } = usePreferences(projectId);
   const { data: epics = [] } = useEnterpriseResource(projectId, "epics");
   const { data: metadata = [] } = useEnterpriseResource<CardMetadata[]>(
@@ -189,14 +193,14 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     grouping === "priority"
       ? ["urgent", "high", "medium", "low", "no_priority"].map((id) => ({
           id,
-          name: id.replace("_", " "),
+          name: uiLabel(id),
           cards: filteredCards.filter((c) => c.priority === id),
         }))
       : grouping === "assignee"
         ? [
             {
               id: "unassigned",
-              name: "Unassigned",
+              name: tr("Unassigned"),
               cards: filteredCards.filter((c) => !c.assignees.length),
             },
             ...Array.from(
@@ -215,7 +219,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
           ? [
               {
                 id: "no-epic",
-                name: "No epic",
+                name: tr("No epic"),
                 cards: filteredCards.filter(
                   (c) => !metadata.find((m) => m.id === c.id)?.epic_id,
                 ),
@@ -228,9 +232,18 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 ),
               })),
             ]
-          : [{ id: "all", name: "All tasks", cards: filteredCards }];
+          : [{ id: "all", name: tr("All tasks"), cards: filteredCards }];
   return (
     <DndContext
+      accessibility={{
+        screenReaderInstructions: { draggable: tr("Press Space to pick up a task, use arrow keys to move it, press Space to drop it or Escape to cancel.") },
+        announcements: {
+          onDragStart: () => tr("Task picked up."),
+          onDragOver: ({ over }) => over ? tr("Task moved over a drop target.") : tr("Task is outside a drop target."),
+          onDragEnd: ({ over }) => over ? tr("Task dropped.") : tr("Task movement cancelled."),
+          onDragCancel: () => tr("Task movement cancelled."),
+        },
+      }}
       sensors={sensors}
       collisionDetection={collisionDetection}
       onDragStart={handleDragStart}
@@ -243,7 +256,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
         className={`flex-1 min-h-0 h-full flex flex-col ${
           grouping === "none"
             ? "overflow-hidden"
-            : "overflow-y-auto overscroll-contain pr-1 pb-10 space-y-6"
+            : "overflow-y-auto overscroll-contain pe-1 pb-10 space-y-6"
         }`}
       >
         {notice && (
@@ -277,12 +290,12 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                     )
                   }
                 >
-                  <span className="text-emerald-500 font-bold mr-1.5">
+                  <span className="text-emerald-500 font-bold me-1.5">
                     {collapsed.includes(lane.id) ? "▸" : "▾"}
                   </span>
                   <span>{lane.name}</span>
-                  <span className="ml-2 px-2 py-0.5 rounded-full text-xs bg-slate-100 dark:bg-[#101117] text-slate-600 dark:text-emerald-400 font-mono font-medium border border-slate-200/80 dark:border-white/[0.06]">
-                    {lane.cards.length}
+                  <span className="ms-2 px-2 py-0.5 rounded-full text-xs bg-slate-100 dark:bg-[#101117] text-slate-600 dark:text-emerald-400 font-mono font-medium border border-slate-200/80 dark:border-white/[0.06]">
+                    {formatNumber(lane.cards.length)}
                   </span>
                 </Button>
               </div>
@@ -325,7 +338,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                           <Input
                             value={newColumnName}
                             onChange={(e) => setNewColumnName(e.target.value)}
-                            placeholder="Column name (e.g. In Review)"
+                            placeholder={tr("Column name (e.g. In Review)")}
                             autoFocus
                           />
                           <div className="flex items-center gap-2">
@@ -333,16 +346,12 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                               size="sm"
                               type="submit"
                               isLoading={createColumn.isPending}
-                            >
-                              Add Column
-                            </Button>
+                            >{tr("Add Column")}</Button>
                             <Button
                               size="sm"
                               variant="ghost"
                               onClick={() => setIsAddingColumn(false)}
-                            >
-                              Cancel
-                            </Button>
+                            >{tr("Cancel")}</Button>
                           </div>
                         </form>
                       ) : (
@@ -351,9 +360,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                           className="w-full border-dashed h-12 flex items-center justify-center gap-2 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
                           onClick={() => setIsAddingColumn(true)}
                         >
-                          <Plus className="w-4 h-4" />
-                          Add another list
-                        </Button>
+                          <Plus className="w-4 h-4" />{tr("Add another list")}</Button>
                       )}
                     </div>
                   </>

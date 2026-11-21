@@ -1,3 +1,6 @@
+import { uiLabel } from "@/i18n";
+import { dateLocale } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useNavigate } from "react-router";
 import { useBoard } from "@/hooks/board/useBoard";
 
@@ -26,6 +29,7 @@ export function TicketConversation({
   canTriage: boolean;
   onClose: () => void;
 }) {
+  useUiLocale();
   const { data: messages = [], error: loadError } = useLocalResource<Message[]>(
       projectId,
       "tickets/" + ticket.id + "/messages",
@@ -57,27 +61,25 @@ export function TicketConversation({
       isOpen
       onClose={onClose}
       title={ticket.title}
-      description={"Requested by " + ticket.requester_name}
+      description={tr("Requested by") + ticket.requester_name}
       size="2xl"
     >
       <div className="space-y-5">
         <Markdown text={ticket.body} />
         <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-          <span>
-            First reply due: {new Date(ticket.response_due_at).toLocaleString()}
+          <span>{tr("First reply due:")}{new Date(ticket.response_due_at).toLocaleString(dateLocale())}
           </span>
-          <span>
-            Resolution due:{" "}
-            {new Date(ticket.resolution_due_at).toLocaleString()}
+          <span>{tr("Resolution due:")}{" "}
+            {new Date(ticket.resolution_due_at).toLocaleString(dateLocale())}
           </span>
         </div>
         {canTriage && (
           <div className="grid sm:grid-cols-3 gap-3">
             <CustomSelect
-              label="Status"
+              label={tr("Status")}
               value={ticket.status}
               options={["new", "open", "pending", "resolved", "closed"].map(
-                (x) => ({ value: x, label: x }),
+                (x) => ({ value: x, label: uiLabel(x)}),
               )}
               onChange={(status) =>
                 save.mutate({
@@ -92,7 +94,7 @@ export function TicketConversation({
               }
             />
             <CustomSelect
-              label="Priority"
+              label={tr("Priority")}
               value={ticket.priority}
               options={["urgent", "high", "medium", "low", "no_priority"].map(
                 (x) => ({ value: x, label: x.replace("_", " ") }),
@@ -110,10 +112,10 @@ export function TicketConversation({
               }
             />
             <CustomSelect
-              label="Agent"
+              label={tr("Agent")}
               value={ticket.assignee_id || ""}
               options={[
-                { value: "", label: "Unassigned" },
+                { value: "", label: tr("Unassigned") },
                 ...members.map((m) => ({
                   value: m.user_id,
                   label: m.display_name,
@@ -140,14 +142,12 @@ export function TicketConversation({
               onClick={() =>
                 navigate("/p/" + projectId + "/board?card=" + ticket.card_id)
               }
-            >
-              Open linked task
-            </Button>
+            >{tr("Open linked task")}</Button>
           ) : (
             canTriage && (
               <>
                 <CustomSelect
-                  placeholder="Task destination"
+                  placeholder={tr("Task destination")}
                   value={column}
                   onChange={setColumn}
                   options={(board?.columns || []).map((c) => ({
@@ -164,14 +164,12 @@ export function TicketConversation({
                       data: { column_id: column },
                     })
                   }
-                >
-                  Create linked task
-                </Button>
+                >{tr("Create linked task")}</Button>
               </>
             )
           )}
         </div>
-        <h3 className="font-semibold">Conversation</h3>
+        <h3 className="font-semibold">{tr("Conversation")}</h3>
         {loadError && (
           <p role="alert" className="text-danger">
             {apiError(loadError)}
@@ -188,27 +186,25 @@ export function TicketConversation({
             }
           >
             <p className="text-xs text-muted-foreground">
-              {m.author || "Former member"} ·{" "}
-              {new Date(m.created_at).toLocaleString()}
-              {m.internal ? " · Staff note" : ""}
+              {m.author || tr("Former member")} ·{" "}
+              {new Date(m.created_at).toLocaleString(dateLocale())}
+              {m.internal ? tr("· Staff note") : ""}
             </p>
             <Markdown text={m.body} />
           </div>
         ))}
         {!messages.length && (
-          <p className="text-sm text-muted-foreground">
-            No replies yet. Add context or ask a question below.
-          </p>
+          <p className="text-sm text-muted-foreground">{tr("No replies yet. Add context or ask a question below.")}</p>
         )}
         <Textarea
-          label={internal ? "Staff note" : "Reply"}
+          label={internal ? tr("Staff note") : tr("Reply")}
           rows={4}
           value={body}
           onChange={(e) => setBody(e.target.value)}
         />
         {canTriage && (
           <Checkbox
-            label="Internal note · desk agents only"
+            label={tr("Internal note · desk agents only")}
             checked={internal}
             onChange={setInternal}
           />
@@ -222,8 +218,7 @@ export function TicketConversation({
           disabled={!body.trim()}
           isLoading={save.isPending}
           onClick={() => void submit()}
-        >
-          Send {internal ? "note" : "reply"}
+        >{tr("Send")}{internal ? "note" : "reply"}
         </Button>
       </div>
     </Modal>

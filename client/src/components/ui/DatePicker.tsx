@@ -1,5 +1,8 @@
+import { responsivePortal } from "./responsivePortal";
+import { useMobileViewport } from "@/hooks/useMobileViewport";
+import { DirectionalIcon } from "@/components/ui/DirectionalIcon";
+import { tr, useUiLocale, dateLocale, getLocale } from "@/i18n";
 import React, { useEffect, useId, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -52,7 +55,7 @@ const formatNumber = (
   n: number,
   _locale?: string,
   options?: Intl.NumberFormatOptions,
-) => new Intl.NumberFormat("en-US", options).format(n);
+) => new Intl.NumberFormat(dateLocale(), options).format(n);
 const numberLocale = "en-US";
 
 const translations: Record<string, string> = {
@@ -63,7 +66,7 @@ const translations: Record<string, string> = {
   "common.today": "Today",
   "common.done": "Done",
 };
-const t = (key: string, fallback: string) => translations[key] || fallback;
+const t = (key: string, fallback: string) => tr(translations[key] || fallback);
 
 // Adapted from frontend/src/components/ui/date-picker.tsx; Gregorian only.
 export function DatePicker({
@@ -82,6 +85,8 @@ export function DatePicker({
   triggerClassName,
   ariaLabel,
 }: DatePickerProps) {
+  useUiLocale();
+  const isMobile = useMobileViewport();
   const generatedId = useId(),
     popoverId = useId();
   const inputId = id || generatedId;
@@ -175,7 +180,7 @@ export function DatePicker({
     };
   }, [isOpen, type, inputId]);
   const formattedDisplayValue = parsedDate
-    ? new Intl.DateTimeFormat("en-US", {
+    ? new Intl.DateTimeFormat(dateLocale(), {
         calendar: "gregory",
         year: "numeric",
         month: "short",
@@ -222,7 +227,7 @@ export function DatePicker({
     setViewYear(date.getFullYear());
     setViewMonth(date.getMonth() + 1);
   };
-  const monthName = EN_MONTH_NAMES[viewMonth - 1];
+  const monthName = tr(EN_MONTH_NAMES[viewMonth - 1]);
   const calendarGrid = useMemo(() => {
     const now = calendarValue(today),
       selected = parsedDate ? calendarValue(parsedDate) : "";
@@ -281,7 +286,7 @@ export function DatePicker({
     event.preventDefault();
     event.stopPropagation();
     const offset =
-      { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[event.key] ||
+      { ArrowLeft: getLocale() === "fa" ? 1 : -1, ArrowRight: getLocale() === "fa" ? -1 : 1, ArrowUp: -7, ArrowDown: 7 }[event.key] ||
       0;
     popoverRef.current
       ?.querySelector<HTMLButtonElement>(
@@ -309,7 +314,7 @@ export function DatePicker({
           type="button"
           id={inputId}
           data-date-trigger
-          aria-label={ariaLabel || label || placeholder || "Select date"}
+          aria-label={ariaLabel || label || placeholder || tr("Select date")}
           aria-haspopup="dialog"
           aria-expanded={isOpen}
           aria-controls={popoverId}
@@ -346,8 +351,8 @@ export function DatePicker({
                   }
                 }}
                 className="rounded-lg p-1 text-muted-foreground hover:bg-muted dark:hover:bg-white/10 hover:text-foreground cursor-pointer transition-colors"
-                aria-label="Clear date"
-                title="Clear date"
+                aria-label={tr("Clear date")}
+                title={tr("Clear date")}
               >
                 <X className="h-4 w-4" />
               </span>
@@ -359,8 +364,7 @@ export function DatePicker({
 
       {isOpen &&
         typeof document !== "undefined" &&
-        createPortal(
-          <div
+        responsivePortal(<div
             style={{
               position: "fixed",
               top: coords.top,
@@ -374,23 +378,23 @@ export function DatePicker({
               id={popoverId}
               data-floating-overlay
               role="dialog"
-              aria-label="Choose Gregorian date"
+              aria-label={tr("Choose Gregorian date")}
               onKeyDown={handleCalendarKey}
               className={cn(
-                "absolute start-0 w-full max-w-[calc(100vw-24px)] max-h-[calc(100dvh-24px)] overflow-y-auto rounded-2xl sm:rounded-3xl border border-border/80 bg-card/98 text-foreground p-4 shadow-2xl shadow-primary/10 backdrop-blur-2xl animate-in fade-in-50 zoom-in-95 duration-150 dark:border-white/12 dark:bg-[#101117]/98 dark:shadow-[0_20px_50px_rgba(0,0,0,0.8)]",
+                "absolute start-0 w-full max-w-[calc(100vw-24px)] max-h-[calc(100dvh-24px)] overflow-y-auto rounded-2xl sm:rounded-3xl border border-border/80 bg-card/98 text-foreground p-1 sm:p-4 shadow-2xl shadow-primary/10 backdrop-blur-2xl animate-in fade-in-50 zoom-in-95 duration-150 dark:border-white/12 dark:bg-[#101117]/98 dark:shadow-[0_20px_50px_rgba(0,0,0,0.8)]",
                 coords.isUp ? "origin-bottom" : "origin-top",
               )}
-              dir="ltr"
+              dir={getLocale() === "fa" ? "rtl" : "ltr"}
             >
               {/* Header Month / Year controls */}
               <div className="mb-3.5 flex items-center justify-between">
                 <button
                   type="button"
                   onClick={prevMonth}
-                  aria-label="Previous month"
+                  aria-label={tr("Previous month")}
                   className="flex h-8 w-8 items-center justify-center rounded-xl border border-border/70 bg-card/70 text-muted-foreground hover:bg-muted dark:border-white/10 dark:bg-black/40 dark:hover:bg-white/10 hover:text-foreground cursor-pointer transition-all active:scale-95 shadow-2xs"
                 >
-                  <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
+                  <DirectionalIcon icon={ChevronLeft} className="h-4 w-4" />
                 </button>
                 <div className="flex items-center gap-1.5 text-sm font-bold text-foreground">
                   <span>{monthName}</span>
@@ -403,10 +407,10 @@ export function DatePicker({
                 <button
                   type="button"
                   onClick={nextMonth}
-                  aria-label="Next month"
+                  aria-label={tr("Next month")}
                   className="flex h-8 w-8 items-center justify-center rounded-xl border border-border/70 bg-card/70 text-muted-foreground hover:bg-muted dark:border-white/10 dark:bg-black/40 dark:hover:bg-white/10 hover:text-foreground cursor-pointer transition-all active:scale-95 shadow-2xs"
                 >
-                  <ChevronRight className="h-4 w-4 rtl:rotate-180" />
+                  <DirectionalIcon icon={ChevronRight} className="h-4 w-4" />
                 </button>
               </div>
 
@@ -414,13 +418,13 @@ export function DatePicker({
               <div className="mb-2 grid grid-cols-7 text-center text-xs font-bold text-muted-foreground/70">
                 {weekdays.map((wd, i) => (
                   <div key={i} className="py-1">
-                    {wd}
+                    {tr(wd)}
                   </div>
                 ))}
               </div>
 
               {/* Days Grid */}
-              <div className="grid grid-cols-7 gap-1 text-center text-xs sm:text-sm">
+              <div className="grid grid-cols-7 gap-0 sm:gap-1 text-center text-xs sm:text-sm">
                 {calendarGrid.map((item, idx) => {
                   if (!item.isCurrentMonth) {
                     return <div key={idx} className="h-8 w-8 sm:h-9 sm:w-9" />;
@@ -435,7 +439,7 @@ export function DatePicker({
                         viewYear,
                         viewMonth - 1,
                         item.day,
-                      ).toLocaleDateString("en-US", { dateStyle: "full" })}
+                      ).toLocaleDateString(dateLocale(), { dateStyle: "full", calendar: "gregory" })}
                       aria-pressed={item.isSelected}
                       data-calendar-day={item.day}
                       className={cn(
@@ -468,7 +472,7 @@ export function DatePicker({
                         type="text"
                         inputMode="numeric"
                         pattern="[0-9]*"
-                        aria-label="Hour (00-23)"
+                        aria-label={tr("Hour (00-23)")}
                         maxLength={2}
                         value={pad2(selectedHours)}
                         onFocus={(e) => e.target.select()}
@@ -497,7 +501,7 @@ export function DatePicker({
                         type="text"
                         inputMode="numeric"
                         pattern="[0-9]*"
-                        aria-label="Minute (00-59)"
+                        aria-label={tr("Minute (00-59)")}
                         maxLength={2}
                         value={pad2(selectedMinutes)}
                         onFocus={(e) => e.target.select()}
@@ -527,7 +531,7 @@ export function DatePicker({
                   {/* Fast Quick-Select Presets */}
                   <div className="mt-2.5 flex items-center justify-between gap-1 overflow-x-auto pb-0.5" dir="ltr">
                     {[
-                      { label: "Now", getH: () => new Date().getHours(), getM: () => new Date().getMinutes() },
+                      { label: tr("Now"), getH: () => new Date().getHours(), getM: () => new Date().getMinutes() },
                       { label: "09:00", getH: () => 9, getM: () => 0 },
                       { label: "12:00", getH: () => 12, getM: () => 0 },
                       { label: "17:00", getH: () => 17, getM: () => 0 },
@@ -582,9 +586,7 @@ export function DatePicker({
                 </button>
               </div>
             </div>
-          </div>,
-          document.body,
-        )}
+          </div>, document.body, isMobile, close, tr("Select date"), "px-0")}
 
       {error && (
         <span className="text-xs font-semibold text-danger">{error}</span>
@@ -594,5 +596,6 @@ export function DatePicker({
 }
 
 export function DateTimePicker(props: Omit<DatePickerProps, "type">) {
+  useUiLocale();
   return <DatePicker {...props} type="datetime-local" />;
 }

@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { Modal, Button } from '@/components/ui';
 
 export interface ConfirmModalProps {
@@ -18,18 +19,17 @@ export const ConfirmModal = ({
   onConfirm,
   title,
   description,
-  confirmLabel = 'Confirm',
+  confirmLabel = tr('Confirm'),
   isDestructive = false,
   isLoading = false,
   error,
 }: ConfirmModalProps) => {
+  useUiLocale();
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} description={description} size="sm">
       {error && <p role="alert" className="mt-3 text-sm text-rose-600 dark:text-rose-400">{error}</p>}
-      <div className="flex justify-end gap-2 mt-6">
-        <Button variant="secondary" size="sm" onClick={onClose} disabled={isLoading}>
-          Cancel
-        </Button>
+      <div data-dialog-actions className="flex justify-end gap-2 mt-6">
+        <Button variant="secondary" size="sm" onClick={onClose} disabled={isLoading}>{tr("Cancel")}</Button>
         <Button
           variant={isDestructive ? 'danger' : 'primary'}
           size="sm"

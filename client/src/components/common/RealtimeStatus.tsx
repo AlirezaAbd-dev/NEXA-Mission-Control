@@ -1,13 +1,15 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useRealtimeState } from "@/hooks/realtime/useRealtime";
 
 export function RealtimeStatus() {
+  useUiLocale();
   const status = useRealtimeState((s) => s.status);
   const isLive = status === "live";
 
   return (
     <span
       role="status"
-      title={`Realtime: ${status}`}
+      title={tr("Realtime: {value0}", { value0: (status === "live" ? tr("Live") : status === "connecting" ? tr("Connecting…") : tr("Reconnecting…")) })}
       className={`inline-flex items-center gap-1.5 text-xs px-2 py-1 sm:px-2.5 rounded-full ${
         isLive
           ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
@@ -21,10 +23,10 @@ export function RealtimeStatus() {
       />
       <span className="hidden sm:inline">
         {status === "live"
-          ? "Live"
+          ? tr("Live")
           : status === "connecting"
-            ? "Connecting…"
-            : "Reconnecting…"}
+            ? tr("Connecting…")
+            : tr("Reconnecting…")}
       </span>
     </span>
   );

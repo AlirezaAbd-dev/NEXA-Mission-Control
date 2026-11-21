@@ -5,8 +5,13 @@ const test = require("node:test"),
   ts = require("typescript"),
   React = require("react"),
   render = require("react-dom/server").renderToStaticMarkup;
+const moduleCache = new Map();
 function load(path, clock = Date) {
+  const nodePath = require("node:path");
+  path = nodePath.resolve(path);
+  if (clock === Date && moduleCache.has(path)) return moduleCache.get(path).exports;
   const module = { exports: {} };
+  if (clock === Date) moduleCache.set(path, module);
   const code = ts.transpileModule(fs.readFileSync(path, "utf8"), {
     compilerOptions: {
       module: ts.ModuleKind.CommonJS,
@@ -15,7 +20,13 @@ function load(path, clock = Date) {
     },
   }).outputText;
   vm.runInNewContext(code, {
-    require,
+    require: id => {
+      if (!id.startsWith("@/") && !id.startsWith(".")) return require(id);
+      const base = id.startsWith("@/") ? nodePath.resolve("src", id.slice(2)) : nodePath.resolve(nodePath.dirname(path), id);
+      const file = [base, base + ".ts", base + ".tsx", nodePath.join(base, "index.ts")].find(f => fs.existsSync(f) && fs.statSync(f).isFile());
+      if (!file) throw new Error("Test module not found: " + id);
+      return load(file, clock);
+    },
     module,
     exports: module.exports,
     URL,
@@ -24,6 +35,69 @@ function load(path, clock = Date) {
   });
   return module.exports;
 }
+
+test("Persian UI translation interpolates values without translating user content", () => {
+  const i18n = load("src/i18n/index.ts");
+  try {
+    i18n.setLocale("fa");
+    assert.equal(i18n.tr("Notes"), "یادداشت‌ها");
+    assert.equal(i18n.tr("Assigned {value0}", { value0: "Done" }), "Done مسئول شد");
+    assert.equal(i18n.tr("{value0}m", { value0: 12 }), "۱۲ دقیقه");
+    assert.equal(i18n.tr("Custom user content نیم‌فاصله"), "Custom user content نیم‌فاصله");
+    i18n.setLocale("en");
+    assert.equal(i18n.tr("Assigned {value0}", { value0: "Done" }), "Assigned Done");
+    assert.equal(i18n.tr("Notes"), "Notes");
+  } finally { i18n.setLocale("en"); }
+});
+
+test("all Persian catalog entries preserve interpolation placeholders", () => {
+  const { fa } = load("src/i18n/fa.ts");
+  for (const [source, translation] of Object.entries(fa)) {
+    assert.ok(translation.trim(), source);
+    const parameters = text => [...text.matchAll(/\{(\w+)\}/g)].map(match => match[1]).sort();
+    assert.deepEqual(parameters(translation), parameters(source), source);
+  }
+});
+
+test("Persian dates stay Gregorian and enum labels keep API values separate", () => {
+  const i18n = load("src/i18n/index.ts");
+  try {
+    i18n.setLocale("fa");
+    assert.equal(new Intl.DateTimeFormat(i18n.dateLocale()).resolvedOptions().calendar, "gregory");
+    assert.equal(i18n.uiLabel("urgent"), "فوری");
+    assert.equal(i18n.uiLabel("viewer"), "مشاهده‌گر");
+    assert.equal(i18n.formatNumber(1234), "۱٬۲۳۴");
+  } finally { i18n.setLocale("en"); }
+});
+
+test("literal interface translation keys always have a Persian catalog entry", () => {
+  const { fa } = load("src/i18n/fa.ts");
+  const path = require("node:path");
+  const missing = [];
+  function scan(directory) {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const file = path.join(directory, entry.name);
+      if (entry.isDirectory()) { scan(file); continue; }
+      if (!/\.tsx?$/.test(file)) continue;
+      const source = ts.createSourceFile(file, fs.readFileSync(file, "utf8"), ts.ScriptTarget.Latest, true);
+      function visit(node) {
+        if (ts.isCallExpression(node) && node.expression.getText(source) === "tr" && node.arguments[0] && ts.isStringLiteral(node.arguments[0]) && !Object.hasOwn(fa, node.arguments[0].text)) missing.push(file + ": " + node.arguments[0].text);
+        ts.forEachChild(node, visit);
+      }
+      visit(source);
+    }
+  }
+  scan("src");
+  assert.deepEqual(missing, []);
+});
+
+test("Persian search accepts Arabic keyboard letter variants without removing ZWNJ", () => {
+  const { normalizeSearch } = load("src/i18n/index.ts");
+  const original = "مي‌توانيم كاربرد";
+  assert.equal(normalizeSearch(original), "می‌توانیم کاربرد");
+  assert.ok(normalizeSearch(original).includes("\u200c"));
+  assert.equal(original, "مي‌توانيم كاربرد");
+});
 
 test("new timers start at zero despite an eleven-minute browser clock offset or clock adjustment", () => {
   const server = Date.parse("2026-11-01T10:00:00Z");

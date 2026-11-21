@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { Button, Textarea, Modal, CustomSelect } from "@/components/ui";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
@@ -11,18 +12,19 @@ const templates = [
     schema: 1,
     name: "Escalate task",
     version: "1.0.0",
-    description: "Raise priority to urgent.",
+    get description() { return tr("Raise priority to urgent."); },
     actions: [{ type: "set_priority", value: "urgent" }],
   },
   {
     schema: 1,
     name: "Complete checklist",
     version: "1.0.0",
-    description: "Mark all checklist items as completed.",
+    get description() { return tr("Mark all checklist items as completed."); },
     actions: [{ type: "mark_checklist_done", value: "" }],
   },
 ];
 export function LocalPlugins({ projectId }: { projectId: string }) {
+  useUiLocale();
   const { data: session } = useLocalResource<Session>(projectId, "session"),
     { data: plugins = [] } = useLocalResource<Plugin[]>(
       projectId,
@@ -42,7 +44,7 @@ export function LocalPlugins({ projectId }: { projectId: string }) {
     try {
       const value: unknown = JSON.parse(manifest);
       if (!value || typeof value !== "object" || Array.isArray(value))
-        throw new Error("Use a JSON object");
+        throw new Error(tr("Use a JSON object"));
       await save.mutateAsync({ path: "plugins", data: { manifest: value } });
       setOpen(false);
       setError("");
@@ -55,26 +57,20 @@ export function LocalPlugins({ projectId }: { projectId: string }) {
   return (
     <section className="rounded-2xl border border-border bg-card p-5 space-y-4">
       <div className="flex justify-between gap-3">
-        <h2 className="font-bold">Local automation plugins</h2>
+        <h2 className="font-bold">{tr("Local automation plugins")}</h2>
         <Button
           size="sm"
           onClick={() => {
             setOpen(true);
             setError("");
           }}
-        >
-          Install manifest
-        </Button>
+        >{tr("Install manifest")}</Button>
       </div>
-      <p className="text-sm text-muted-foreground">
-        Install declarative automation bundles. Plugins run locally as
-        administrator-triggered task actions; scripts, network calls and
-        external API keys are unsupported.
-      </p>
+      <p className="text-sm text-muted-foreground">{tr("Install declarative automation bundles. Plugins run locally as administrator-triggered task actions; scripts, network calls and external API keys are unsupported.")}</p>
       <div className="flex flex-wrap gap-2">
         {templates.map((t) => (
           <Button
-            key={t.name}
+            key={tr(t.name)}
             size="sm"
             variant="outline"
             onClick={() => {
@@ -83,7 +79,7 @@ export function LocalPlugins({ projectId }: { projectId: string }) {
               setError("");
             }}
           >
-            {t.name}
+            {tr(t.name)}
           </Button>
         ))}
       </div>
@@ -93,7 +89,7 @@ export function LocalPlugins({ projectId }: { projectId: string }) {
           className="flex flex-wrap gap-2 items-center border-b border-border py-2"
         >
           <span className="flex-1">
-            {p.name} · {p.version} · {p.enabled ? "Enabled" : "Disabled"}
+            {p.name} · {p.version} · {p.enabled ? tr("Enabled") : tr("Disabled")}
           </span>
           <Button
             size="sm"
@@ -103,9 +99,7 @@ export function LocalPlugins({ projectId }: { projectId: string }) {
               setRun(p);
               setCard("");
             }}
-          >
-            Run
-          </Button>
+          >{tr("Run")}</Button>
           <Button
             size="sm"
             variant="ghost"
@@ -116,22 +110,20 @@ export function LocalPlugins({ projectId }: { projectId: string }) {
               })
             }
           >
-            {p.enabled ? "Disable" : "Enable"}
+            {p.enabled ? tr("Disable") : tr("Enable")}
           </Button>
-          <Button size="sm" variant="ghost" onClick={() => setRemove(p)}>
-            Uninstall
-          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setRemove(p)}>{tr("Uninstall")}</Button>
         </div>
       ))}
       <Modal
         isOpen={open}
         onClose={() => setOpen(false)}
-        title="Install local plugin"
+        title={tr("Install local plugin")}
         size="2xl"
       >
         <div className="space-y-4">
           <Textarea
-            label="Manifest JSON"
+            label={tr("Manifest JSON")}
             rows={16}
             value={manifest}
             onChange={(e) => setManifest(e.target.value)}
@@ -141,26 +133,22 @@ export function LocalPlugins({ projectId }: { projectId: string }) {
               {error}
             </p>
           )}
-          <Button isLoading={save.isPending} onClick={() => void install()}>
-            Install plugin
-          </Button>
+          <Button isLoading={save.isPending} onClick={() => void install()}>{tr("Install plugin")}</Button>
         </div>
       </Modal>
       <Modal
         isOpen={!!run}
         onClose={() => setRun(undefined)}
-        title={"Run " + (run?.name || "plugin")}
+        title={tr("Run") + (run?.name || "plugin")}
       >
         <div className="space-y-4">
           <CustomSelect
-            label="Task"
+            label={tr("Task")}
             value={card}
             onChange={setCard}
             options={cards.map((c) => ({ value: c.id, label: c.title }))}
           />
-          <p className="text-sm text-muted-foreground">
-            This applies the plugin's configured actions to the selected task.
-          </p>
+          <p className="text-sm text-muted-foreground">{tr("This applies the plugin's configured actions to the selected task.")}</p>
           <Button
             disabled={!card}
             isLoading={save.isPending}
@@ -174,16 +162,14 @@ export function LocalPlugins({ projectId }: { projectId: string }) {
                   { onSuccess: () => setRun(undefined) },
                 );
             }}
-          >
-            Run actions
-          </Button>
+          >{tr("Run actions")}</Button>
         </div>
       </Modal>
       <ConfirmModal
         isOpen={!!remove}
         onClose={() => setRemove(undefined)}
-        title="Uninstall plugin"
-        description="The plugin and its manual automation definition will be removed."
+        title={tr("Uninstall plugin")}
+        description={tr("The plugin and its manual automation definition will be removed.")}
         isDestructive
         onConfirm={() => {
           if (remove)

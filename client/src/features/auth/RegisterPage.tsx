@@ -1,3 +1,5 @@
+import { LanguageSwitcher } from "@/components/common/LanguageSwitcher";
+import { tr, useUiLocale } from "@/i18n";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useRegister } from "@/hooks/auth/useRegister";
@@ -13,6 +15,7 @@ import { ShieldCheck } from "lucide-react";
 import { NexaLogo } from "@/components/common/NexaLogo";
 
 export const RegisterPage = () => {
+  useUiLocale();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -59,47 +62,44 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen w-screen flex items-center justify-center p-4 bg-slate-50 dark:bg-[#070709] relative overflow-hidden">
+    <div className="h-[100dvh] w-screen flex items-start sm:items-center justify-center p-4 bg-slate-50 dark:bg-[#070709] relative overflow-y-auto overscroll-y-contain">
       {/* Decorative ambient gradient orbs */}
-      <div className="absolute top-1/4 -right-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 -end-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -start-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
-      <Card className="w-full max-w-md shadow-2xl border-slate-200/80 dark:border-white/[0.06] bg-white/95 dark:bg-[#0b0c10] backdrop-blur-md relative z-10">
+      <Card className="w-full shrink-0 max-w-md shadow-2xl border-slate-200/80 dark:border-white/[0.06] bg-white/95 dark:bg-[#0b0c10] backdrop-blur-md relative z-10">
         <CardHeader className="text-center pb-2">
           <div className="flex justify-center mb-3">
             <NexaLogo size={48} />
           </div>
           <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             NEXA{" "}
-            <span className="text-emerald-600 dark:text-emerald-400">
-              Mission Control
-            </span>
+            <span className="text-emerald-600 dark:text-emerald-400">{tr("Mission Control")}</span>
           </CardTitle>
-          <p className="text-xs text-slate-500 dark:text-slate-300 mt-1.5 font-medium">
-            Join your mission workspace and start building
-          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-300 mt-1.5 font-medium">{tr("Join your mission workspace and start building")}</p>
         </CardHeader>
 
         <CardContent>
+          <div className="flex justify-end mb-3"><LanguageSwitcher /></div>
           <form onSubmit={handleSubmit} className="space-y-3.5">
             {registerMutation.isError && (
               <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-600 dark:text-rose-400 font-medium">
                 {(registerMutation.error as any)?.response?.data?.error
-                  ?.message || "Registration failed"}
+                  ?.message || tr("Registration failed")}
               </div>
             )}
 
             <Input
               id="displayName"
-              label="Full Name"
-              placeholder="Alex Walker"
+              label={tr("Full Name")}
+              placeholder={tr("Alex Walker")}
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
             />
 
             <Input
               id="username"
-              label="Username"
+              label={tr("Username")}
               placeholder="alexw"
               value={username}
               error={formErrors.username}
@@ -113,8 +113,8 @@ export const RegisterPage = () => {
             <Input
               id="email"
               type="email"
-              label="Email Address"
-              placeholder="alex@company.com"
+              label={tr("Email Address")}
+              placeholder={tr("alex@company.com")}
               value={email}
               error={formErrors.email}
               onChange={(e) => {
@@ -127,8 +127,8 @@ export const RegisterPage = () => {
             <Input
               id="password"
               type="password"
-              label="Password"
-              placeholder="At least 6 characters"
+              label={tr("Password")}
+              placeholder={tr("At least 6 characters")}
               value={password}
               error={formErrors.password}
               onChange={(e) => {
@@ -143,25 +143,20 @@ export const RegisterPage = () => {
               variant="primary"
               className="w-full py-2.5 mt-2"
               isLoading={registerMutation.isPending}
-            >
-              Get Started Free
-            </Button>
+            >{tr("Get Started Free")}</Button>
 
             <div className="flex items-center justify-center gap-1.5 pt-1 text-xs text-slate-400 dark:text-slate-500">
               <ShieldCheck className="w-4 h-4 text-emerald-500" />
-              <span>Instant provisioning & workspace auto-setup</span>
+              <span>{tr("Instant provisioning & workspace auto-setup")}</span>
             </div>
 
             <div className="text-center pt-2 border-t border-slate-100 dark:border-white/[0.06]">
-              <span className="text-xs text-slate-500">
-                Already have an account?{" "}
+              <span className="text-xs text-slate-500">{tr("Already have an account?")}{" "}
               </span>
               <Link
                 to="/login"
                 className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
-              >
-                Sign in
-              </Link>
+              >{tr("Sign in")}</Link>
             </div>
           </form>
         </CardContent>

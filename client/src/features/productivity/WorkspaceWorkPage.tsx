@@ -1,3 +1,5 @@
+import { formatNumber } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { BoardGanttView } from "@/features/views/BoardGanttView";
 import { TeamCapacity } from "./TeamCapacity";
 import { useState } from "react";
@@ -10,6 +12,7 @@ import { BoardCalendarView } from "@/features/views/BoardCalendarView";
 import { PlannerPanel } from "./PlannerPanel";
 import type { WorkCard } from "@/types/productivity";
 export function WorkspaceWorkPage() {
+  useUiLocale();
   const { workspaceId = "" } = useParams(),
     {
       data: cards = [],
@@ -39,19 +42,17 @@ export function WorkspaceWorkPage() {
   return (
     <div className="p-6 space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">Workspace command center</h1>
-        <p className="text-slate-500">
-          Plan across projects and keep your personal work organized.
-        </p>
+        <h1 className="text-2xl font-bold">{tr("Workspace command center")}</h1>
+        <p className="text-slate-500">{tr("Plan across projects and keep your personal work organized.")}</p>
       </header>
       <nav className="flex flex-wrap gap-2">
         {[
-          ["work", "All projects"],
-          ["calendar", "Workspace calendar"],
-          ["timeline", "Portfolio timeline"],
-          ["workload", "Workload"],
-          ["inbox", "Inbox"],
-          ["planner", "Planner"],
+          ["work", tr("All projects")],
+          ["calendar", tr("Workspace calendar")],
+          ["timeline", tr("Portfolio timeline")],
+          ["workload", tr("Workload")],
+          ["inbox", tr("Inbox")],
+          ["planner", tr("Planner")],
         ].map(([id, label]) => (
           <Button
             key={id}
@@ -62,11 +63,9 @@ export function WorkspaceWorkPage() {
           </Button>
         ))}
       </nav>
-      {isLoading && <p>Loading workspace…</p>}
+      {isLoading && <p>{tr("Loading workspace…")}</p>}
       {error && (
-        <p role="alert" className="text-rose-500">
-          Could not load workspace work.
-        </p>
+        <p role="alert" className="text-rose-500">{tr("Could not load workspace work.")}</p>
       )}
       {tab === "inbox" ? (
         <InboxPanel workspaceId={workspaceId} />
@@ -76,7 +75,7 @@ export function WorkspaceWorkPage() {
         <>
           <div className="flex gap-3">
             <Input
-              placeholder="Search titles, assignees, types"
+              placeholder={tr("Search titles, assignees, types")}
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -90,14 +89,14 @@ export function WorkspaceWorkPage() {
                 setPage(0);
               }}
               options={[
-                { value: "", label: "All projects" },
+                { value: "", label: tr("All projects") },
                 ...projectOptions,
               ]}
             />
           </div>
           {tab === "timeline" ? (
             <BoardGanttView
-              title="Portfolio timeline"
+              title={tr("Portfolio timeline")}
               cards={filtered.map((c) => ({
                 ...c,
                 title: c.project_name + " · " + c.title,
@@ -110,16 +109,16 @@ export function WorkspaceWorkPage() {
             <TeamCapacity workspaceId={workspaceId} cards={filtered} />
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm" data-responsive-table>
                 <thead>
-                  <tr className="text-left text-slate-500">
+                  <tr className="text-start text-slate-500">
                     {[
-                      "Task",
-                      "Project",
-                      "Type",
-                      "Status",
-                      "Assignees",
-                      "Due",
+                      tr("Task"),
+                      tr("Project"),
+                      tr("Type"),
+                      tr("Status"),
+                      tr("Assignees"),
+                      tr("Due"),
                     ].map((t) => (
                       <th className="p-3" key={t}>
                         {t}
@@ -135,7 +134,7 @@ export function WorkspaceWorkPage() {
                         key={c.id}
                         className="border-t border-slate-200 dark:border-white/[0.06]"
                       >
-                        <td className="p-3">
+                        <td className="p-3" data-label={tr("Task")}>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -144,11 +143,11 @@ export function WorkspaceWorkPage() {
                             {c.title}
                           </Button>
                         </td>
-                        <td>{c.project_name}</td>
-                        <td>{c.work_type || "Task"}</td>
-                        <td>{c.status}</td>
-                        <td>{c.assignees || "Unassigned"}</td>
-                        <td>{c.due_date || "—"}</td>
+                        <td data-label={tr("Project")}>{c.project_name}</td>
+                        <td data-label={tr("Type")}>{c.work_type || tr("Task")}</td>
+                        <td data-label={tr("Status")}>{c.status}</td>
+                        <td data-label={tr("Assignees")}>{c.assignees || tr("Unassigned")}</td>
+                        <td data-label={tr("Due")}>{c.due_date || "—"}</td>
                       </tr>
                     ))}
                 </tbody>
@@ -160,20 +159,14 @@ export function WorkspaceWorkPage() {
                     variant="outline"
                     disabled={activePage === 0}
                     onClick={() => setPage(activePage - 1)}
-                  >
-                    Previous
-                  </Button>
-                  <span className="text-xs text-slate-500">
-                    Page {activePage + 1} of {pages} · {filtered.length} tasks
-                  </span>
+                  >{tr("Previous")}</Button>
+                  <span className="text-xs text-slate-500">{tr("Page")}{activePage + 1}{" "}{tr("of")}{" "}{pages} · {formatNumber(filtered.length)}{tr("tasks")}</span>
                   <Button
                     size="sm"
                     variant="outline"
                     disabled={activePage === pages - 1}
                     onClick={() => setPage(activePage + 1)}
-                  >
-                    Next
-                  </Button>
+                  >{tr("Next")}</Button>
                 </div>
               )}
             </div>

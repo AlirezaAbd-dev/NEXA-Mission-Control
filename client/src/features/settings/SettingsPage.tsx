@@ -1,3 +1,7 @@
+import { formatNumber } from "@/i18n";
+import { setLocale } from "@/i18n";
+import { uiLabel } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import React, { useState } from "react";
 import {
   Users,
@@ -55,6 +59,7 @@ const PRESET_COLORS = [
 ];
 
 export const SettingsPage: React.FC = () => {
+  const locale = useUiLocale();
   const { data: currentUser } = useCurrentUser();
   const {workspaces,currentWorkspaceId,currentWorkspace,selectWorkspace}=useActiveWorkspace();
 
@@ -241,18 +246,14 @@ export const SettingsPage: React.FC = () => {
       {/* Header & Workspace Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-white/[0.06]">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
-            Settings
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            Manage your profile, workspace, team, security, and preferences.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2.5">{tr("Settings")}</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{tr("Manage your profile, workspace, team, security, and preferences.")}</p>
         </div>
 
         {workspaces.length > 0 && (
           <div className="w-full sm:w-64">
             <CustomSelect
-              label="Active Workspace"
+              label={tr("Active Workspace")}
               value={currentWorkspaceId}
               options={workspaces.map((w) => ({ value: w.id, label: w.name }))}
               onChange={selectWorkspace}
@@ -263,7 +264,7 @@ export const SettingsPage: React.FC = () => {
 
       {/* Modern Responsive Tabs Navigation */}
       <div className="flex items-center gap-1.5 border-b border-slate-200/80 dark:border-white/[0.06] overflow-x-auto scrollbar-none pb-2 shrink-0">
-        <Button size="sm" variant={activeTab==="profile"?"secondary":"ghost"} onClick={()=>setActiveTab("profile")} aria-pressed={activeTab==="profile"}>My profile</Button>
+        <Button size="sm" variant={activeTab==="profile"?"secondary":"ghost"} onClick={()=>setActiveTab("profile")} aria-pressed={activeTab==="profile"}>{tr("My profile")}</Button>
         <button
           type="button"
           onClick={() => setActiveTab("workspace")}
@@ -274,7 +275,7 @@ export const SettingsPage: React.FC = () => {
           }`}
         >
           <Sliders className="w-3.5 h-3.5 shrink-0" />
-          <span>General & Appearance</span>
+          <span>{tr("General & Appearance")}</span>
         </button>
 
         <button
@@ -287,9 +288,9 @@ export const SettingsPage: React.FC = () => {
           }`}
         >
           <Tag className="w-3.5 h-3.5 shrink-0" />
-          <span>Labels</span>
+          <span>{tr("Labels")}</span>
           <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-200/60 dark:bg-[#183035] text-slate-700 dark:text-slate-300">
-            {labels.length}
+            {formatNumber(labels.length)}
           </span>
         </button>
 
@@ -303,9 +304,9 @@ export const SettingsPage: React.FC = () => {
           }`}
         >
           <Users className="w-3.5 h-3.5 shrink-0" />
-          <span>Team Members</span>
+          <span>{tr("Team Members")}</span>
           <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-200/60 dark:bg-[#183035] text-slate-700 dark:text-slate-300">
-            {members.length}
+            {formatNumber(members.length)}
           </span>
         </button>
 
@@ -319,7 +320,7 @@ export const SettingsPage: React.FC = () => {
           }`}
         >
           <Shield className="w-3.5 h-3.5 shrink-0" />
-          <span>Security & Access</span>
+          <span>{tr("Security & Access")}</span>
         </button>
       </div>
 
@@ -328,16 +329,14 @@ export const SettingsPage: React.FC = () => {
       {/* TAB 1: GENERAL & APPEARANCE */}
       {activeTab === "workspace" && (
         <div className="space-y-6">
+          <Card><CardContent className="p-5"><CustomSelect label={tr("Interface language")} value={locale} onChange={value => setLocale(value === "fa" ? "fa" : "en")} options={[{ value: "en", label: "English" }, { value: "fa", label: "فارسی" }]} /></CardContent></Card>
           {/* Workspace Settings (Rename & Info) */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-emerald-500" />
-                  Workspace Details
-                </span>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-[#101117] text-slate-600 dark:text-slate-300 font-mono">
-                  Role: {roleInWorkspace || "member"}
+                  <Sliders className="w-4 h-4 text-emerald-500" />{tr("Workspace Details")}</span>
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-[#101117] text-slate-600 dark:text-slate-300 font-mono">{tr("Role:")} {uiLabel(roleInWorkspace || "member")}
                 </span>
               </CardTitle>
             </CardHeader>
@@ -349,33 +348,28 @@ export const SettingsPage: React.FC = () => {
                   </div>
                 )}
                 {wsUpdateSuccess && (
-                  <div className="p-3 text-xs rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
-                    Workspace details updated successfully!
-                  </div>
+                  <div className="p-3 text-xs rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">{tr("Workspace details updated successfully!")}</div>
                 )}
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Workspace Name <span className="text-rose-500">*</span>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{tr("Workspace Name")}<span className="text-rose-500">*</span>
                   </label>
                   <Input
                     value={wsName}
                     onChange={(e) => setWsName(e.target.value)}
-                    placeholder="e.g. Acme Corporation"
+                    placeholder={tr("e.g. Acme Corporation")}
                     disabled={!canEditWorkspace || updateWorkspaceMutation.isPending}
                     required
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Description
-                  </label>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{tr("Description")}</label>
                   <textarea
                     value={wsDescription}
                     onChange={(e) => setWsDescription(e.target.value)}
                     rows={2}
-                    placeholder="Optional workspace description..."
+                    placeholder={tr("Optional workspace description...")}
                     disabled={!canEditWorkspace || updateWorkspaceMutation.isPending}
                     className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#070709] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none disabled:opacity-50"
                   />
@@ -389,16 +383,12 @@ export const SettingsPage: React.FC = () => {
                       size="sm"
                       isLoading={updateWorkspaceMutation.isPending}
                       disabled={!wsName.trim() || (wsName === currentWorkspace?.name && wsDescription === (currentWorkspace?.description || ""))}
-                    >
-                      Save Workspace
-                    </Button>
+                    >{tr("Save Workspace")}</Button>
                   </div>
                 )}
 
                 {!canEditWorkspace && (
-                  <p className="text-xs text-slate-400 italic">
-                    Only workspace owners and admins can rename or edit workspace details.
-                  </p>
+                  <p className="text-xs text-slate-400 italic">{tr("Only workspace owners and admins can rename or edit workspace details.")}</p>
                 )}
               </form>
             </CardContent>
@@ -408,19 +398,13 @@ export const SettingsPage: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-emerald-500" />
-                Appearance & Theme
-              </CardTitle>
+                <Sliders className="w-4 h-4 text-emerald-500" />{tr("Appearance & Theme")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#0e0f14] border border-slate-200/80 dark:border-white/[0.06]">
                 <div>
-                  <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                    Interface Theme
-                  </div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">
-                    Switch between cyber dark and high-contrast light mode
-                  </div>
+                  <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{tr("Interface Theme")}</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">{tr("Switch between cyber dark and high-contrast light mode")}</div>
                 </div>
                 <Button
                   variant="outline"
@@ -433,21 +417,19 @@ export const SettingsPage: React.FC = () => {
                   ) : (
                     <Sun className="w-4 h-4 text-amber-500" />
                   )}
-                  {theme === "dark" ? "Dark Mode" : "Light Mode"}
+                  {theme === "dark" ? tr("Dark Mode") : tr("Light Mode")}
                 </Button>
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#0e0f14] border border-slate-200/80 dark:border-white/[0.06]">
                 <div>
-                  <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                    Signed In As
-                  </div>
+                  <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{tr("Signed In As")}</div>
                   <div className="text-xs text-slate-500 dark:text-slate-400">
                     {currentUser?.display_name || currentUser?.username} ({currentUser?.email})
                   </div>
                 </div>
                 <span className="text-xs px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 font-mono font-semibold text-emerald-600 dark:text-emerald-400 uppercase">
-                  {currentUser?.role || "Member"}
+                  {uiLabel(currentUser?.role?.toLowerCase() || "member")}
                 </span>
               </div>
             </CardContent>
@@ -459,19 +441,13 @@ export const SettingsPage: React.FC = () => {
           <Card className="border-rose-500/30 dark:border-rose-500/20">
             <CardHeader>
               <CardTitle className="text-base text-rose-600 dark:text-rose-400 flex items-center gap-2">
-                <Trash2 className="w-4 h-4" />
-                Danger Zone
-              </CardTitle>
+                <Trash2 className="w-4 h-4" />{tr("Danger Zone")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-rose-500/5 border border-rose-500/15">
                 <div>
-                  <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                    Delete Workspace
-                  </div>
-                  <div className="text-xs text-slate-500">
-                    Permanently delete this workspace ({currentWorkspace?.name}), all of its projects, tasks, and data.
-                  </div>
+                  <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{tr("Delete Workspace")}</div>
+                  <div className="text-xs text-slate-500">{tr("Permanently delete this workspace (")}{currentWorkspace?.name}{tr("), all of its projects, tasks, and data.")}</div>
                 </div>
                 {canDeleteWorkspace ? (
                   <Button
@@ -482,13 +458,9 @@ export const SettingsPage: React.FC = () => {
                       setDeleteWsModalOpen(true);
                     }}
                     className="text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 cursor-pointer shrink-0"
-                  >
-                    Delete Workspace
-                  </Button>
+                  >{tr("Delete Workspace")}</Button>
                 ) : (
-                  <span className="text-xs text-slate-400 italic shrink-0">
-                    Only the workspace owner can delete this workspace
-                  </span>
+                  <span className="text-xs text-slate-400 italic shrink-0">{tr("Only the workspace owner can delete this workspace")}</span>
                 )}
               </div>
             </CardContent>
@@ -503,12 +475,9 @@ export const SettingsPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="text-base flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-emerald-500" />
-                  Workspace Labels ({labels.length})
+                  <Tag className="w-4 h-4 text-emerald-500" />{tr("Workspace Labels (")}{formatNumber(labels.length)})
                 </span>
-                <span className="text-xs font-normal text-slate-500">
-                  Labels are shared across all project boards in this workspace
-                </span>
+                <span className="text-xs font-normal text-slate-500">{tr("Labels are shared across all project boards in this workspace")}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -517,16 +486,14 @@ export const SettingsPage: React.FC = () => {
                 onSubmit={handleCreateLabel}
                 className="p-4 rounded-xl bg-slate-50 dark:bg-[#0e0f14] border border-slate-200/80 dark:border-white/[0.06] space-y-3"
               >
-                <div className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-                  Create New Label
-                </div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">{tr("Create New Label")}</div>
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <div className="flex-1">
                     <Input
                       value={newLabelName}
                       onChange={(e) => setNewLabelName(e.target.value)}
-                      placeholder="Label title (e.g. Bug, Feature, Urgent, High Priority)"
+                      placeholder={tr("Label title (e.g. Bug, Feature, Urgent, High Priority)")}
                       required
                     />
                   </div>
@@ -553,7 +520,7 @@ export const SettingsPage: React.FC = () => {
                         value={newLabelColor}
                         onChange={(e) => setNewLabelColor(e.target.value)}
                         className="w-6 h-6 rounded border-0 cursor-pointer p-0 bg-transparent"
-                        title="Custom color"
+                        title={tr("Custom color")}
                       />
                     </div>
 
@@ -564,9 +531,7 @@ export const SettingsPage: React.FC = () => {
                       isLoading={createLabel.isPending}
                       className="cursor-pointer"
                     >
-                      <Plus className="w-4 h-4 mr-1.5" />
-                      Add Label
-                    </Button>
+                      <Plus className="w-4 h-4 me-1.5" />{tr("Add Label")}</Button>
                   </div>
                 </div>
 
@@ -579,14 +544,10 @@ export const SettingsPage: React.FC = () => {
 
               {/* Labels List & Inline Editors */}
               <div className="space-y-2">
-                <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  Existing Labels
-                </div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">{tr("Existing Labels")}</div>
 
                 {labels.length === 0 ? (
-                  <div className="text-center py-8 text-slate-400 text-sm italic border border-dashed border-slate-200 dark:border-white/[0.06] rounded-xl">
-                    No labels created yet. Add your first label above.
-                  </div>
+                  <div className="text-center py-8 text-slate-400 text-sm italic border border-dashed border-slate-200 dark:border-white/[0.06] rounded-xl">{tr("No labels created yet. Add your first label above.")}</div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {labels.map((lbl) => {
@@ -609,7 +570,7 @@ export const SettingsPage: React.FC = () => {
                                 value={editName}
                                 onChange={(e) => setEditName(e.target.value)}
                                 className="h-8 text-xs flex-1"
-                                placeholder="Label name"
+                                placeholder={tr("Label name")}
                                 autoFocus
                               />
                             </div>
@@ -636,9 +597,7 @@ export const SettingsPage: React.FC = () => {
                                   onClick={cancelEditLabel}
                                   className="h-7 px-2 text-xs"
                                 >
-                                  <X className="w-3.5 h-3.5 mr-1" />
-                                  Cancel
-                                </Button>
+                                  <X className="w-3.5 h-3.5 me-1" />{tr("Cancel")}</Button>
                                 <Button
                                   type="button"
                                   size="sm"
@@ -647,9 +606,7 @@ export const SettingsPage: React.FC = () => {
                                   isLoading={updateLabel.isPending}
                                   className="h-7 px-2 text-xs"
                                 >
-                                  <Check className="w-3.5 h-3.5 mr-1" />
-                                  Save
-                                </Button>
+                                  <Check className="w-3.5 h-3.5 me-1" />{tr("Save")}</Button>
                               </div>
                             </div>
                           </div>
@@ -683,7 +640,7 @@ export const SettingsPage: React.FC = () => {
                               type="button"
                               onClick={() => startEditLabel(lbl)}
                               className="p-1.5 text-slate-400 hover:text-emerald-500 hover:bg-slate-100 dark:hover:bg-white/[0.05] rounded-md transition-colors cursor-pointer"
-                              title="Edit label"
+                              title={tr("Edit label")}
                             >
                               <Edit2 className="w-3.5 h-3.5" />
                             </button>
@@ -692,7 +649,7 @@ export const SettingsPage: React.FC = () => {
                               type="button"
                               onClick={() => setLabelToDelete(lbl)}
                               className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-white/[0.05] rounded-md transition-colors cursor-pointer"
-                              title="Delete label"
+                              title={tr("Delete label")}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -715,8 +672,7 @@ export const SettingsPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="text-base flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-emerald-500" />
-                  Workspace Team ({members.length})
+                  <Users className="w-4 h-4 text-emerald-500" />{tr("Workspace Team (")}{formatNumber(members.length)})
                 </span>
                 <span className="text-xs font-normal text-slate-500">
                   {currentWorkspace?.name}
@@ -739,15 +695,13 @@ export const SettingsPage: React.FC = () => {
                     value={memberRole}
                     onChange={setMemberRole}
                     options={[
-                      { value: "admin", label: "Admin" },
-                      { value: "member", label: "Member" },
-                      { value: "viewer", label: "Viewer" },
+                      { value: "admin", label: tr("Admin") },
+                      { value: "member", label: tr("Member") },
+                      { value: "viewer", label: tr("Viewer") },
                     ]}
                   />
                   <Button type="submit" size="sm" isLoading={addMember.isPending} className="cursor-pointer">
-                    <UserPlus className="w-4 h-4 mr-1.5" />
-                    Add Member
-                  </Button>
+                    <UserPlus className="w-4 h-4 me-1.5" />{tr("Add Member")}</Button>
                 </form>
               )}
 
@@ -786,7 +740,7 @@ export const SettingsPage: React.FC = () => {
                       options={(member.role === "owner"
                         ? ["owner"]
                         : ["admin", "member", "viewer"]
-                      ).map((value) => ({ value, label: value.charAt(0).toUpperCase() + value.slice(1) }))}
+                      ).map((value) => ({ value, label: uiLabel(value) }))}
                       onChange={(role) =>
                         setRoleChange({ email: member.email, role })
                       }
@@ -811,13 +765,13 @@ export const SettingsPage: React.FC = () => {
       <ConfirmModal
         isOpen={!!roleChange}
         onClose={() => setRoleChange(null)}
-        title="Change member permissions?"
+        title={tr("Change member permissions?")}
         description={
           roleChange
-            ? `${roleChange.email} will now have the '${roleChange.role}' role in this workspace.`
+            ? tr("{value0} will now have the '{value1}' role in this workspace.", { value0: (roleChange.email), value1: uiLabel(roleChange.role) })
             : ""
         }
-        confirmLabel="Update Role"
+        confirmLabel={tr("Update Role")}
         onConfirm={() =>
           roleChange &&
           addMember.mutate(roleChange, {
@@ -832,9 +786,9 @@ export const SettingsPage: React.FC = () => {
       <ConfirmModal
         isOpen={!!labelToDelete}
         onClose={() => setLabelToDelete(null)}
-        title={`Delete label "${labelToDelete?.name}"?`}
-        description="Are you sure you want to permanently delete this label? It will be removed from all cards using it."
-        confirmLabel="Delete Label"
+        title={tr("Delete label \"{value0}\"?", { value0: (labelToDelete?.name) })}
+        description={tr("Are you sure you want to permanently delete this label? It will be removed from all cards using it.")}
+        confirmLabel={tr("Delete Label")}
         isDestructive={true}
         onConfirm={handleDeleteLabelConfirm}
         isLoading={deleteLabel.isPending}
@@ -847,12 +801,12 @@ export const SettingsPage: React.FC = () => {
           setDeleteWsModalOpen(false);
           setWsDeleteError(null);
         }}
-        title={`Delete workspace "${currentWorkspace?.name}"?`}
+        title={tr("Delete workspace \"{value0}\"?", { value0: (currentWorkspace?.name) })}
         description={
           wsDeleteError ||
-          `Are you sure you want to permanently delete "${currentWorkspace?.name}" and all associated projects, tasks, boards, and attachments? This action cannot be undone.`
+          tr("Are you sure you want to permanently delete \"{value0}\" and all associated projects, tasks, boards, and attachments? This action cannot be undone.", { value0: (currentWorkspace?.name) })
         }
-        confirmLabel="Delete Workspace"
+        confirmLabel={tr("Delete Workspace")}
         isDestructive={true}
         onConfirm={handleDeleteWorkspaceConfirm}
         isLoading={deleteWorkspaceMutation.isPending}

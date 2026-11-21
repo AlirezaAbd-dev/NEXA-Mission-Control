@@ -1,3 +1,6 @@
+import { formatNumber } from "@/i18n";
+import { uiLabel } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useProject } from "@/hooks/project/useProject";
 import { useWorkspaceMembers } from "@/hooks/workspace/useWorkspaceMembers";
 import { useState } from "react";
@@ -20,6 +23,7 @@ export function BoardTableView({
   board: Board;
   projectId: string;
 }) {
+  useUiLocale();
   const { data: project } = useProject(projectId),
     { data: members = [] } = useWorkspaceMembers(project?.workspace_id);
   const update = useUpdateCard(projectId),
@@ -49,8 +53,8 @@ export function BoardTableView({
     <div className="space-y-3">
       <div className="flex flex-wrap gap-3">
         <Input
-          aria-label="Filter tasks"
-          placeholder="Filter tasks by title…"
+          aria-label={tr("Filter tasks")}
+          placeholder={tr("Filter tasks by title…")}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-sm"
@@ -61,12 +65,11 @@ export function BoardTableView({
           onChange={setSort}
           options={["title", "priority", "due_date"].map((value) => ({
             value,
-            label: `Sort by ${value.replace("_", " ")}`,
+            label: tr("Sort by {value0}", { value0: uiLabel(value) }),
           }))}
         />
         <span className="text-xs text-slate-500 self-center">
-          {visible.length} tasks · {selected.length} selected
-        </span>
+          {formatNumber(visible.length)}{" "}{tr("tasks ·")}{" "}{formatNumber(selected.length)}{tr("selected")}</span>
       </div>
       {error && (
         <p role="alert" className="text-sm text-rose-500">
@@ -77,7 +80,7 @@ export function BoardTableView({
         <div className="flex flex-wrap items-center gap-3 rounded-xl bg-emerald-500/10 p-3">
           <CustomSelect
             className="w-48"
-            placeholder="Move selected tasks"
+            placeholder={tr("Move selected tasks")}
             options={board.columns.map((c) => ({ value: c.id, label: c.name }))}
             onChange={(column_id) =>
               bulk.mutate(
@@ -91,8 +94,8 @@ export function BoardTableView({
           />
           <CustomSelect
             className="w-40"
-            placeholder="Set priority"
-            options={priorities.map((value) => ({ value, label: value }))}
+            placeholder={tr("Set priority")}
+            options={priorities.map((value) => ({ value, label: uiLabel(value)}))}
             onChange={(value) =>
               bulk.mutate(
                 { card_ids: selected, action: "priority", value },
@@ -102,7 +105,7 @@ export function BoardTableView({
           />
           <CustomSelect
             className="w-44"
-            placeholder="Assign selected tasks"
+            placeholder={tr("Assign selected tasks")}
             options={members.map((m) => ({
               value: m.user_id,
               label: m.display_name,
@@ -114,21 +117,17 @@ export function BoardTableView({
               )
             }
           />
-          <Button size="sm" variant="outline" onClick={() => setArchive(true)}>
-            Archive selected
-          </Button>
-          <Button size="sm" variant="ghost" onClick={() => setSelected([])}>
-            Clear
-          </Button>
+          <Button size="sm" variant="outline" onClick={() => setArchive(true)}>{tr("Archive selected")}</Button>
+          <Button size="sm" variant="ghost" onClick={() => setSelected([])}>{tr("Clear")}</Button>
         </div>
       )}
       <div className="overflow-auto rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10]">
-        <table className="w-full min-w-[960px] text-start text-sm">
+        <table className="w-full min-w-[960px] text-start text-sm" data-responsive-table>
           <thead className="bg-slate-50 dark:bg-[#101117] text-xs text-slate-500">
             <tr>
               <th className="p-3">
                 <Checkbox
-                  aria-label="Select all tasks"
+                  aria-label={tr("Select all tasks")}
                   checked={
                     visible.length > 0 && selected.length === visible.length
                   }
@@ -142,13 +141,13 @@ export function BoardTableView({
                 />
               </th>
               {[
-                "Task",
-                "Status",
-                "Priority",
-                "Points",
-                "Assignees",
-                "Due date",
-                "Labels",
+                tr("Task"),
+                tr("Status"),
+                tr("Priority"),
+                tr("Points"),
+                tr("Assignees"),
+                tr("Due date"),
+                tr("Labels"),
               ].map((s) => (
                 <th key={s} className="p-3 font-semibold text-start">
                   {s}
@@ -162,24 +161,22 @@ export function BoardTableView({
                 key={card.id}
                 className="border-t border-slate-100 dark:border-white/[0.06]"
               >
-                <td className="p-3">
+                <td className="p-3" data-label={tr("Select all tasks")}>
                   <Checkbox
-                    aria-label={`Select ${card.title}`}
+                    aria-label={tr("Select {value0}", { value0: (card.title) })}
                     checked={selected.includes(card.id)}
                     onChange={() => toggle(card.id)}
                   />
                 </td>
-                <td className="p-3 min-w-64">
+                <td className="p-3 min-w-64" data-label={tr("Task")}>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => open(card.id)}
                     className="text-emerald-600 dark:text-emerald-400"
-                  >
-                    Open
-                  </Button>
+                  >{tr("Open")}</Button>
                   <Input
-                    aria-label="Task title"
+                    aria-label={tr("Task title")}
                     key={card.title}
                     defaultValue={card.title}
                     onBlur={(e) => {
@@ -191,7 +188,7 @@ export function BoardTableView({
                     }}
                   />
                 </td>
-                <td className="p-3 w-44">
+                <td className="p-3 w-44" data-label={tr("Status")}>
                   <CustomSelect
                     value={card.column_id}
                     options={board.columns.map((c) => ({
@@ -203,21 +200,21 @@ export function BoardTableView({
                     }
                   />
                 </td>
-                <td className="p-3 w-40">
+                <td className="p-3 w-40" data-label={tr("Priority")}>
                   <CustomSelect
                     value={card.priority}
                     options={priorities.map((value) => ({
                       value,
-                      label: value.replace("_", " "),
+                      label: uiLabel(value),
                     }))}
                     onChange={(priority) =>
                       save(card.id, { id: card.id, priority })
                     }
                   />
                 </td>
-                <td className="p-3 w-24">
+                <td className="p-3 w-24" data-label={tr("Points")}>
                   <Input
-                    aria-label="Story points"
+                    aria-label={tr("Story points")}
                     type="number"
                     min="0"
                     key={card.story_points}
@@ -232,13 +229,13 @@ export function BoardTableView({
                     }
                   />
                 </td>
-                <td className="p-3 text-xs">
+                <td className="p-3 text-xs" data-label={tr("Assignees")}>
                   {card.assignees.map((a) => a.display_name).join(", ") ||
-                    "Unassigned"}
+                    tr("Unassigned")}
                 </td>
-                <td className="p-3">
+                <td className="p-3" data-label={tr("Due date")}>
                   <Input
-                    aria-label="Due date"
+                    aria-label={tr("Due date")}
                     type="date"
                     value={card.due_date?.slice(0, 10) || ""}
                     onChange={(e) =>
@@ -246,7 +243,7 @@ export function BoardTableView({
                     }
                   />
                 </td>
-                <td className="p-3">
+                <td className="p-3" data-label={tr("Labels")}>
                   <div className="flex gap-1 flex-wrap">
                     {card.labels.map((l) => (
                       <LabelBadge key={l.id} name={l.name} color={l.color} />
@@ -258,17 +255,15 @@ export function BoardTableView({
           </tbody>
         </table>
         {visible.length === 0 && (
-          <p className="p-10 text-center text-slate-500">
-            No matching tasks. Add a task on the board or adjust your filter.
-          </p>
+          <p className="p-10 text-center text-slate-500">{tr("No matching tasks. Add a task on the board or adjust your filter.")}</p>
         )}
       </div>
       <ConfirmModal
         isOpen={archive}
         onClose={() => setArchive(false)}
-        title="Archive selected tasks?"
-        description="You can restore these tasks in Project settings."
-        confirmLabel="Archive"
+        title={tr("Archive selected tasks?")}
+        description={tr("You can restore these tasks in Project settings.")}
+        confirmLabel={tr("Archive")}
         onConfirm={() =>
           bulk.mutate(
             { card_ids: selected, action: "archive" },

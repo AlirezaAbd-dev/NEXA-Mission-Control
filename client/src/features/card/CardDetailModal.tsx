@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { CardSubtasks } from "./CardSubtasks";
 import { CardNotes } from "./CardNotes";
 import React from "react";
@@ -16,6 +17,7 @@ import { useBoard } from "@/hooks/board/useBoard";
 import { useUiStore } from "@/stores/ui.store";
 
 export const CardDetailModal: React.FC = () => {
+  useUiLocale();
   const activeCardId = useUiStore((s) => s.activeCardId);
   const closeCardModal = useUiStore((s) => s.closeCardModal);
   const [activeTab, setActiveTab] = React.useState<"comments" | "activity">(
@@ -41,14 +43,12 @@ export const CardDetailModal: React.FC = () => {
       contentClassName="p-0 sm:p-0 flex flex-col overflow-hidden"
     >
       {isLoading || !card ? (
-        <div className="p-12 text-center text-slate-500 animate-pulse">
-          Loading card details...
-        </div>
+        <div className="p-12 text-center text-slate-500 animate-pulse">{tr("Loading card details...")}</div>
       ) : (
         <div className="flex flex-col flex-1 min-w-0 min-h-0">
           <div
             role="group"
-            aria-label="Task sections"
+            aria-label={tr("Task sections")}
             className="flex gap-1 border-b border-border bg-muted/20 px-4 py-2 lg:hidden"
           >
             <Button
@@ -56,18 +56,14 @@ export const CardDetailModal: React.FC = () => {
               size="sm"
               aria-pressed={pane === "details"}
               onClick={() => setPane("details")}
-            >
-              Details & activity
-            </Button>
+            >{tr("Details & activity")}</Button>
             <Button
               data-task-properties
               variant={pane === "properties" ? "secondary" : "ghost"}
               size="sm"
               aria-pressed={pane === "properties"}
               onClick={() => setPane("properties")}
-            >
-              Properties
-            </Button>
+            >{tr("Properties")}</Button>
           </div>
 
           {/* Main Body */}
@@ -75,7 +71,7 @@ export const CardDetailModal: React.FC = () => {
             {/* Left Column (Main content) */}
             <div
               role="region"
-              aria-label="Task details and activity"
+              aria-label={tr("Task details and activity")}
               className={
                 "min-w-0 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 lg:p-8 space-y-6 lg:block " +
                 (pane === "details" ? "block" : "hidden")
@@ -99,10 +95,8 @@ export const CardDetailModal: React.FC = () => {
                         ? "text-emerald-600 dark:text-emerald-400 font-bold"
                         : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                     }`}
-                  >
-                    Comments
-                    {activeTab === "comments" && (
-                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500 rounded-full" />
+                  >{tr("Comments")}{activeTab === "comments" && (
+                      <span className="absolute bottom-0 start-0 end-0 h-0.5 bg-emerald-500 rounded-full" />
                     )}
                   </button>
 
@@ -114,10 +108,8 @@ export const CardDetailModal: React.FC = () => {
                         ? "text-emerald-600 dark:text-emerald-400 font-bold"
                         : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                     }`}
-                  >
-                    Audit History
-                    {activeTab === "activity" && (
-                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500 rounded-full" />
+                  >{tr("Audit History")}{activeTab === "activity" && (
+                      <span className="absolute bottom-0 start-0 end-0 h-0.5 bg-emerald-500 rounded-full" />
                     )}
                   </button>
                 </div>
@@ -132,7 +124,7 @@ export const CardDetailModal: React.FC = () => {
 
             {/* Right Column (1/3 width) */}
             <aside
-              aria-label="Task properties"
+              aria-label={tr("Task properties")}
               className={
                 "min-w-0 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 bg-muted/20 lg:border-s border-border lg:block " +
                 (pane === "properties" ? "block" : "hidden")

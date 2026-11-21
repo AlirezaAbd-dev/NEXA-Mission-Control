@@ -1,3 +1,5 @@
+import { dateLocale } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { Button, Input, CustomSelect } from "@/components/ui";
 import { useProductivity } from "@/hooks/productivity/useProductivity";
@@ -5,6 +7,7 @@ import { useProductivityMutation } from "@/hooks/productivity/useProductivityMut
 import { apiError } from "@/lib/apiError";
 import type { PlannerSlot, WorkCard } from "@/types/productivity";
 export function PlannerPanel({ cards }: { cards: WorkCard[] }) {
+  useUiLocale();
   const { data: slots = [] } =
       useProductivity<PlannerSlot[]>("personal/planner"),
     save = useProductivityMutation();
@@ -15,23 +18,20 @@ export function PlannerPanel({ cards }: { cards: WorkCard[] }) {
     [error, setError] = useState("");
   return (
     <section className="space-y-4">
-      <h2 className="text-xl font-semibold">Personal Planner</h2>
-      <p className="text-sm text-slate-500">
-        Reserve focus time for a task or a personal activity. Times use your
-        device timezone.
-      </p>
+      <h2 className="text-xl font-semibold">{tr("Personal Planner")}</h2>
+      <p className="text-sm text-slate-500">{tr("Reserve focus time for a task or a personal activity. Times use your device timezone.")}</p>
       <div className="grid md:grid-cols-2 gap-3 max-w-3xl">
         <Input
-          label="Activity"
+          label={tr("Activity")}
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
         <CustomSelect
           searchable
-          label="Linked task"
+          label={tr("Linked task")}
           value={card}
           options={[
-            { value: "", label: "Personal activity" },
+            { value: "", label: tr("Personal activity") },
             ...cards.map((c) => ({
               value: c.id,
               label: `${c.project_name} · ${c.title}`,
@@ -44,13 +44,13 @@ export function PlannerPanel({ cards }: { cards: WorkCard[] }) {
         />
         <Input
           type="datetime-local"
-          label="Start"
+          label={tr("Start")}
           value={start}
           onChange={(e) => setStart(e.target.value)}
         />
         <Input
           type="datetime-local"
-          label="End"
+          label={tr("End")}
           value={end}
           onChange={(e) => setEnd(e.target.value)}
         />
@@ -73,9 +73,7 @@ export function PlannerPanel({ cards }: { cards: WorkCard[] }) {
               setError(apiError(e));
             }
           }}
-        >
-          Reserve focus time
-        </Button>
+        >{tr("Reserve focus time")}</Button>
       </div>
       {error && (
         <p role="alert" className="text-rose-500">
@@ -85,12 +83,12 @@ export function PlannerPanel({ cards }: { cards: WorkCard[] }) {
       {slots.map((s) => (
         <div
           key={s.id}
-          className="border-l-4 border-emerald-500 bg-emerald-500/5 p-4 rounded-r-xl"
+          className="border-s-4 border-emerald-500 bg-emerald-500/5 p-4 rounded-e-xl"
         >
           <h3 className="font-semibold">{s.title}</h3>
           <p className="text-sm text-slate-500">
-            {new Date(s.start_at).toLocaleString()} →{" "}
-            {new Date(s.end_at).toLocaleString()}
+            {new Date(s.start_at).toLocaleString(dateLocale())} →{" "}
+            {new Date(s.end_at).toLocaleString(dateLocale())}
           </p>
         </div>
       ))}

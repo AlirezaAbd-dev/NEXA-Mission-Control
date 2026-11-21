@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { Button, Modal } from "@/components/ui";
 import { useCards } from "@/hooks/card/useCards";
@@ -12,6 +13,7 @@ export function ReleaseChangelog({
   id: string;
   name: string;
 }) {
+  useUiLocale();
   const { data: cards = [] } = useCards({ project_id: projectId }),
     { data: metadata = [] } = useEnterpriseResource<CardMetadata[]>(
       projectId,
@@ -21,16 +23,14 @@ export function ReleaseChangelog({
   const tasks = cards.filter(
     (c) => metadata.find((m) => m.id === c.id)?.release_id === id,
   );
-  const text = `# ${name}\n\n${tasks.length ? tasks.map((c) => `- ${c.title} (CARD-${c.id})`).join("\n") : "No tasks are linked to this release yet."}`;
+  const text = `# ${name}\n\n${tasks.length ? tasks.map((c) => `- ${c.title} (CARD-${c.id})`).join("\n") : tr("No tasks are linked to this release yet.")}`;
   return (
     <>
-      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
-        Changelog
-      </Button>
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)}>{tr("Changelog")}</Button>
       <Modal
         isOpen={open}
         onClose={() => setOpen(false)}
-        title={`${name} changelog`}
+        title={tr("{value0} changelog", { value0: (name) })}
       >
         <pre className="text-xs whitespace-pre-wrap max-h-80 overflow-auto">
           {text}
@@ -48,9 +48,7 @@ export function ReleaseChangelog({
             link.click();
             setTimeout(() => URL.revokeObjectURL(url), 1000);
           }}
-        >
-          Download Markdown
-        </Button>
+        >{tr("Download Markdown")}</Button>
       </Modal>
     </>
   );

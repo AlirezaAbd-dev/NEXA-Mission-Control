@@ -1,3 +1,6 @@
+import { formatNumber } from "@/i18n";
+import { dateLocale } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useRef, useState } from "react";
 import { Paperclip, Upload, FileText } from "lucide-react";
 import { Button } from "@/components/ui";
@@ -15,6 +18,7 @@ export function CardAttachments({
   card: Card;
   projectId: string;
 }) {
+  useUiLocale();
   const { data: files = [], error: loadError } = useAttachments(
       projectId,
       card.id,
@@ -29,19 +33,18 @@ export function CardAttachments({
     <section className="space-y-3">
       <div className="flex justify-between items-center">
         <h3 className="flex gap-2 text-sm font-semibold">
-          <Paperclip size={16} />
-          Attachments · {files.length}
+          <Paperclip size={16} />{tr("Attachments ·")}{formatNumber(files.length)}
         </h3>
         <input
           ref={input}
           className="hidden"
           type="file"
-          aria-label="Attach a file"
+          aria-label={tr("Attach a file")}
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) {
               if (file.size > 10 * 1024 * 1024)
-                setError("Choose a file up to 10 MB.");
+                setError(tr("Choose a file up to 10 MB."));
               else
                 upload.mutate(file, {
                   onError: (e) => setError(apiError(e)),
@@ -57,9 +60,7 @@ export function CardAttachments({
           onClick={() => input.current?.click()}
           isLoading={upload.isPending}
         >
-          <Upload size={14} />
-          Attach
-        </Button>
+          <Upload size={14} />{tr("Attach")}</Button>
       </div>
       {(error || loadError) && (
         <p role="alert" className="text-xs text-rose-500">
@@ -91,8 +92,8 @@ export function CardAttachments({
               {file.filename}
             </a>
             <p className="text-[10px] text-slate-500">
-              {Math.ceil(file.file_size / 1024)} KB ·{" "}
-              {new Date(file.created_at).toLocaleDateString()}
+              {Math.ceil(file.file_size / 1024)}{" "}{tr("KB ·")}{" "}
+              {new Date(file.created_at).toLocaleDateString(dateLocale())}
             </p>
           </div>
           {file.mime_type.startsWith("image/") && (
@@ -103,29 +104,24 @@ export function CardAttachments({
                 update.mutate({ id: card.id, cover_url: file.file_path })
               }
             >
-              {card.cover_url === file.file_path ? "Cover" : "Use as cover"}
+              {card.cover_url === file.file_path ? tr("Cover") : tr("Use as cover")}
             </Button>
           )}
           <Button
             size="sm"
             variant="ghost"
             onClick={() => setDeleting(file.id)}
-          >
-            Remove
-          </Button>
+          >{tr("Remove")}</Button>
         </article>
       ))}
       {files.length === 0 && (
-        <p className="text-xs text-slate-500">
-          Attach documents or images to keep your task context together. Maximum
-          file size: 10 MB.
-        </p>
+        <p className="text-xs text-slate-500">{tr("Attach documents or images to keep your task context together. Maximum file size: 10 MB.")}</p>
       )}
       <ConfirmModal
         isOpen={!!deleting}
         onClose={() => setDeleting(undefined)}
-        title="Remove this attachment?"
-        description="The file and its attachment record will be removed."
+        title={tr("Remove this attachment?")}
+        description={tr("The file and its attachment record will be removed.")}
         isDestructive
         onConfirm={() =>
           deleting &&

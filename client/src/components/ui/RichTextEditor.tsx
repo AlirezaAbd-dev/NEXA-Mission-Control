@@ -1,3 +1,4 @@
+import { formatNumber, tr, useUiLocale } from "@/i18n";
 import React, { useRef, useState, useEffect } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -67,27 +68,28 @@ export interface RichTextEditorProps {
 }
 
 const COLOR_PALETTE = [
-  { label: "Default", color: "inherit" },
-  { label: "Teal (Brand)", color: "#0d9488" },
-  { label: "Cyan", color: "#06b6d4" },
-  { label: "Blue", color: "#3b82f6" },
-  { label: "Indigo", color: "#6366f1" },
-  { label: "Purple", color: "#a855f7" },
-  { label: "Rose", color: "#f43f5e" },
-  { label: "Amber", color: "#f59e0b" },
-  { label: "Emerald", color: "#10b981" },
+  { get label() { return tr("Default"); }, color: "inherit" },
+  { get label() { return tr("Teal (Brand)"); }, color: "#0d9488" },
+  { get label() { return tr("Cyan"); }, color: "#06b6d4" },
+  { get label() { return tr("Blue"); }, color: "#3b82f6" },
+  { get label() { return tr("Indigo"); }, color: "#6366f1" },
+  { get label() { return tr("Purple"); }, color: "#a855f7" },
+  { get label() { return tr("Rose"); }, color: "#f43f5e" },
+  { get label() { return tr("Amber"); }, color: "#f59e0b" },
+  { get label() { return tr("Emerald"); }, color: "#10b981" },
 ];
 
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   content,
   onChange,
-  placeholder = "Write a rich description… (supports markdown, pasting images, tables, code)",
+  placeholder = tr("Write a rich description… (supports markdown, pasting images, tables, code)"),
   editable = true,
   onImageUpload,
   minHeight = "180px",
   className,
-  ariaLabel = "Rich text content",
+  ariaLabel = tr("Rich text content"),
 }) => {
+  useUiLocale();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [linkModalOpen, setLinkModalOpen] = useState(false);
@@ -223,6 +225,14 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   });
 
   // Sync content when modified externally
+  useEffect(() => {
+    if (!editor) return;
+    editor.setOptions({ editorProps: { ...editor.options.editorProps, attributes: { class: "tiptap-content focus:outline-none min-h-[160px]", "aria-label": ariaLabel, dir: "auto" } } });
+    const extension = editor.extensionManager.extensions.find(item => item.name === "placeholder");
+    if (extension) extension.options.placeholder = placeholder;
+    editor.view.dispatch(editor.state.tr);
+  }, [editor, placeholder, ariaLabel]);
+
   useEffect(() => {
     if (editor && content !== editor.getHTML()) {
       if (!content && editor.isEmpty) return;
@@ -366,10 +376,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <div className="flex flex-wrap items-center gap-1 border-b border-border/60 bg-muted/40 dark:border-white/8 dark:bg-black/30 p-1.5 text-xs select-none sticky top-0 z-10 backdrop-blur-md">
           <EditorDirectionControls editor={editor} />
           {/* Text Style: Headings */}
-          <div className="flex items-center gap-0.5 border-r border-border/60 dark:border-white/10 pe-1.5 me-0.5">
+          <div className="flex items-center gap-0.5 border-e border-border/60 dark:border-white/10 pe-1.5 me-0.5">
             <button
               type="button"
-              title="Heading 1"
+              title={tr("Heading 1")}
               onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
               className={cn(
                 "rounded-lg p-1.5 font-bold transition-colors cursor-pointer",
@@ -382,7 +392,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Heading 2"
+              title={tr("Heading 2")}
               onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
               className={cn(
                 "rounded-lg p-1.5 font-bold transition-colors cursor-pointer",
@@ -395,7 +405,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Heading 3"
+              title={tr("Heading 3")}
               onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
               className={cn(
                 "rounded-lg p-1.5 font-bold transition-colors cursor-pointer",
@@ -409,10 +419,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </div>
 
           {/* Formatting: Bold, Italic, Underline, Strike, Code, Sub, Super, Highlight */}
-          <div className="flex items-center gap-0.5 border-r border-border/60 dark:border-white/10 pe-1.5 me-0.5">
+          <div className="flex items-center gap-0.5 border-e border-border/60 dark:border-white/10 pe-1.5 me-0.5">
             <button
               type="button"
-              title="Bold (Ctrl+B)"
+              title={tr("Bold (Ctrl+B)")}
               onClick={() => editor.chain().focus().toggleBold().run()}
               className={cn(
                 "rounded-lg p-1.5 font-bold transition-colors cursor-pointer",
@@ -425,7 +435,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Italic (Ctrl+I)"
+              title={tr("Italic (Ctrl+I)")}
               onClick={() => editor.chain().focus().toggleItalic().run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -438,7 +448,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Underline (Ctrl+U)"
+              title={tr("Underline (Ctrl+U)")}
               onClick={() => editor.chain().focus().toggleUnderline().run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -451,7 +461,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Strikethrough"
+              title={tr("Strikethrough")}
               onClick={() => editor.chain().focus().toggleStrike().run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -464,7 +474,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Subscript"
+              title={tr("Subscript")}
               onClick={() => editor.chain().focus().toggleSubscript().run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -477,7 +487,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Superscript"
+              title={tr("Superscript")}
               onClick={() => editor.chain().focus().toggleSuperscript().run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -490,7 +500,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Inline Code"
+              title={tr("Inline Code")}
               onClick={() => editor.chain().focus().toggleCode().run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -503,7 +513,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Highlight"
+              title={tr("Highlight")}
               onClick={() => editor.chain().focus().toggleHighlight().run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -519,7 +529,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             <div className="relative">
               <button
                 type="button"
-                title="Text Color"
+                title={tr("Text Color")}
                 onClick={() => setColorMenuOpen(!colorMenuOpen)}
                 className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted dark:hover:bg-white/10 hover:text-foreground transition-colors cursor-pointer"
               >
@@ -554,7 +564,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             {/* Clear Formatting */}
             <button
               type="button"
-              title="Clear Formatting"
+              title={tr("Clear Formatting")}
               onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}
               className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted dark:hover:bg-white/10 hover:text-foreground transition-colors cursor-pointer"
             >
@@ -563,10 +573,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </div>
 
           {/* Alignment: Left, Center, Right, Justify */}
-          <div className="flex items-center gap-0.5 border-r border-border/60 dark:border-white/10 pe-1.5 me-0.5">
+          <div className="flex items-center gap-0.5 border-e border-border/60 dark:border-white/10 pe-1.5 me-0.5">
             <button
               type="button"
-              title="Align Left"
+              title={tr("Align Left")}
               onClick={() => editor.chain().focus().setTextAlign("left").run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -579,7 +589,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Align Center"
+              title={tr("Align Center")}
               onClick={() => editor.chain().focus().setTextAlign("center").run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -592,7 +602,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Align Right"
+              title={tr("Align Right")}
               onClick={() => editor.chain().focus().setTextAlign("right").run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -605,7 +615,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Justify"
+              title={tr("Justify")}
               onClick={() => editor.chain().focus().setTextAlign("justify").run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -619,10 +629,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </div>
 
           {/* Lists: Bullet, Numbered, Checklist */}
-          <div className="flex items-center gap-0.5 border-r border-border/60 dark:border-white/10 pe-1.5 me-0.5">
+          <div className="flex items-center gap-0.5 border-e border-border/60 dark:border-white/10 pe-1.5 me-0.5">
             <button
               type="button"
-              title="Bullet List"
+              title={tr("Bullet List")}
               onClick={() => editor.chain().focus().toggleBulletList().run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -635,7 +645,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Numbered List"
+              title={tr("Numbered List")}
               onClick={() => editor.chain().focus().toggleOrderedList().run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -648,7 +658,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Task Checklist"
+              title={tr("Task Checklist")}
               onClick={() => editor.chain().focus().toggleTaskList().run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -662,10 +672,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </div>
 
           {/* Inserts: Blockquote, CodeBlock, Table, Divider */}
-          <div className="flex items-center gap-0.5 border-r border-border/60 dark:border-white/10 pe-1.5 me-0.5">
+          <div className="flex items-center gap-0.5 border-e border-border/60 dark:border-white/10 pe-1.5 me-0.5">
             <button
               type="button"
-              title="Blockquote"
+              title={tr("Blockquote")}
               onClick={() => editor.chain().focus().toggleBlockquote().run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -678,7 +688,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Code Block"
+              title={tr("Code Block")}
               onClick={() => editor.chain().focus().toggleCodeBlock().run()}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer",
@@ -691,7 +701,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Insert Table (3x3)"
+              title={tr("Insert Table (3x3)")}
               onClick={() =>
                 editor
                   .chain()
@@ -705,7 +715,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Horizontal Divider"
+              title={tr("Horizontal Divider")}
               onClick={() => editor.chain().focus().setHorizontalRule().run()}
               className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted dark:hover:bg-white/10 hover:text-foreground transition-colors cursor-pointer"
             >
@@ -714,10 +724,10 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           </div>
 
           {/* Links & Rich Images */}
-          <div className="flex items-center gap-0.5 border-r border-border/60 dark:border-white/10 pe-1.5 me-0.5">
+          <div className="flex items-center gap-0.5 border-e border-border/60 dark:border-white/10 pe-1.5 me-0.5">
             <button
               type="button"
-              title="Add or Edit Link (Ctrl+K)"
+              title={tr("Add or Edit Link (Ctrl+K)")}
               onClick={handleOpenLinkModal}
               className={cn(
                 "rounded-lg p-1.5 transition-colors cursor-pointer flex items-center gap-1",
@@ -727,12 +737,12 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               )}
             >
               <Link2 className="h-3.5 w-3.5" />
-              <span className="text-[11px] hidden sm:inline">Link</span>
+              <span className="text-[11px] hidden sm:inline">{tr("Link")}</span>
             </button>
 
             <button
               type="button"
-              title="Upload / Embed Image"
+              title={tr("Upload / Embed Image")}
               disabled={isUploading}
               onClick={() => fileInputRef.current?.click()}
               className="rounded-lg p-1.5 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/15 transition-colors cursor-pointer flex items-center gap-1 font-semibold"
@@ -742,7 +752,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
               ) : (
                 <ImageIcon className="h-3.5 w-3.5" />
               )}
-              <span className="text-[11px] hidden sm:inline">Image</span>
+              <span className="text-[11px] hidden sm:inline">{tr("Image")}</span>
             </button>
           </div>
 
@@ -750,7 +760,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           <div className="flex items-center gap-0.5 ms-auto">
             <button
               type="button"
-              title="Undo (Ctrl+Z)"
+              title={tr("Undo (Ctrl+Z)")}
               disabled={!editor.can().undo()}
               onClick={() => editor.chain().focus().undo().run()}
               className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted dark:hover:bg-white/10 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
@@ -759,7 +769,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </button>
             <button
               type="button"
-              title="Redo (Ctrl+Y)"
+              title={tr("Redo (Ctrl+Y)")}
               disabled={!editor.can().redo()}
               onClick={() => editor.chain().focus().redo().run()}
               className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted dark:hover:bg-white/10 hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
@@ -775,22 +785,16 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         <div className="p-3 border-b border-border/80 bg-muted/70 dark:bg-black/50 space-y-2 text-xs backdrop-blur-md animate-in fade-in duration-150">
           <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground">
             <span className="flex items-center gap-1 text-primary">
-              <Link2 className="h-3 w-3" />
-              Insert / Edit Link
-            </span>
-            <span className="text-[10px] text-muted-foreground/80 font-normal">
-              Press Enter to save · Esc to close
-            </span>
+              <Link2 className="h-3 w-3" />{tr("Insert / Edit Link")}</span>
+            <span className="text-[10px] text-muted-foreground/80 font-normal">{tr("Press Enter to save · Esc to close")}</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <div className="space-y-1">
-              <label className="text-[10px] font-semibold text-muted-foreground uppercase">
-                Display Text
-              </label>
+              <label className="text-[10px] font-semibold text-muted-foreground uppercase">{tr("Display Text")}</label>
               <input
                 type="text"
-                placeholder="e.g. Click here, Documentation, Figma"
+                placeholder={tr("e.g. Click here, Documentation, Figma")}
                 value={linkText}
                 onChange={(e) => setLinkText(e.target.value)}
                 onKeyDown={(e) => {
@@ -807,9 +811,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
             </div>
 
             <div className="space-y-1">
-              <label className="text-[10px] font-semibold text-muted-foreground uppercase">
-                Link URL
-              </label>
+              <label className="text-[10px] font-semibold text-muted-foreground uppercase">{tr("Link URL")}</label>
               <input
                 type="url"
                 placeholder="https://example.com/page"
@@ -835,9 +837,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
                 type="button"
                 onClick={handleRemoveLink}
                 className="text-[11px] text-rose-500 hover:underline font-semibold cursor-pointer"
-              >
-                Remove Link
-              </button>
+              >{tr("Remove Link")}</button>
             ) : (
               <span />
             )}
@@ -847,16 +847,12 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
                 type="button"
                 onClick={() => setLinkModalOpen(false)}
                 className="rounded-lg px-2.5 py-1 text-muted-foreground hover:text-foreground cursor-pointer text-xs"
-              >
-                Cancel
-              </button>
+              >{tr("Cancel")}</button>
               <button
                 type="button"
                 onClick={handleAddLink}
                 className="rounded-lg px-3 py-1 bg-primary text-primary-foreground font-semibold cursor-pointer shadow-xs text-xs"
-              >
-                Save Link
-              </button>
+              >{tr("Save Link")}</button>
             </div>
           </div>
         </div>
@@ -878,50 +874,40 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       {/* Table controls helper toolbar (shows when table is selected) */}
       {editable && editor.isActive("table") && (
         <div className="flex flex-wrap items-center gap-1.5 border-t border-border/60 bg-muted/30 px-3 py-1.5 text-[11px] text-muted-foreground">
-          <span className="font-bold text-foreground">Table:</span>
+          <span className="font-bold text-foreground">{tr("Table:")}</span>
           <button
             type="button"
             onClick={() => editor.chain().focus().addColumnAfter().run()}
             className="rounded px-1.5 py-0.5 hover:bg-muted dark:hover:bg-white/10"
-          >
-            + Col
-          </button>
+          >{tr("+ Col")}</button>
           <button
             type="button"
             onClick={() => editor.chain().focus().deleteColumn().run()}
             className="rounded px-1.5 py-0.5 hover:bg-muted dark:hover:bg-white/10 text-rose-500"
-          >
-            - Col
-          </button>
+          >{tr("- Col")}</button>
           <button
             type="button"
             onClick={() => editor.chain().focus().addRowAfter().run()}
             className="rounded px-1.5 py-0.5 hover:bg-muted dark:hover:bg-white/10"
-          >
-            + Row
-          </button>
+          >{tr("+ Row")}</button>
           <button
             type="button"
             onClick={() => editor.chain().focus().deleteRow().run()}
             className="rounded px-1.5 py-0.5 hover:bg-muted dark:hover:bg-white/10 text-rose-500"
-          >
-            - Row
-          </button>
+          >{tr("- Row")}</button>
           <button
             type="button"
             onClick={() => editor.chain().focus().deleteTable().run()}
             className="rounded px-1.5 py-0.5 hover:bg-muted dark:hover:bg-white/10 text-rose-600 font-semibold"
-          >
-            Delete Table
-          </button>
+          >{tr("Delete Table")}</button>
         </div>
       )}
 
       {/* Status Bar / Word & Character Count */}
       <div className="flex items-center justify-between border-t border-border/60 bg-muted/20 dark:border-white/5 px-3 py-1.5 text-[11px] text-muted-foreground">
         <div className="flex items-center gap-3">
-          <span>{wordCount} words</span>
-          <span>{charCount} characters</span>
+          <span>{formatNumber(wordCount)}{" "}{tr("words")}</span>
+          <span>{formatNumber(charCount)}{" "}{tr("characters")}</span>
         </div>
 
         <button
@@ -932,12 +918,12 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
           {copied ? (
             <>
               <Check className="h-3 w-3 text-emerald-500" />
-              <span className="text-emerald-500 font-semibold">Copied!</span>
+              <span className="text-emerald-500 font-semibold">{tr("Copied!")}</span>
             </>
           ) : (
             <>
               <Copy className="h-3 w-3" />
-              <span>Copy text</span>
+              <span>{tr("Copy text")}</span>
             </>
           )}
         </button>

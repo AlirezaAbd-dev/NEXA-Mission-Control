@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useState, type ReactNode } from "react";
 import { Button, Modal, CustomSelect } from "@/components/ui";
 import { useProject } from "@/hooks/project/useProject";
@@ -14,6 +15,7 @@ interface Mirror {
   priority: string;
 }
 export function MirroredTasks({ projectId, actions }: { projectId: string; actions?: ReactNode }) {
+  useUiLocale();
   const { data: project } = useProject(projectId),
     { data: mirrors = [] } = useProductivity<Mirror[]>(
       `projects/${projectId}/mirrors`,
@@ -30,12 +32,8 @@ export function MirroredTasks({ projectId, actions }: { projectId: string; actio
     <section className="min-w-0 space-y-2 shrink-0">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <h2 className="text-xs uppercase font-semibold text-slate-500">
-            Mirrored tasks
-          </h2>
-          <Button size="sm" variant="ghost" onClick={() => setModal(true)}>
-            Mirror a task
-          </Button>
+          <h2 className="text-xs uppercase font-semibold text-slate-500">{tr("Mirrored tasks")}</h2>
+          <Button size="sm" variant="ghost" onClick={() => setModal(true)}>{tr("Mirror a task")}</Button>
         </div>
         {actions && <div className="shrink-0">{actions}</div>}
       </div>
@@ -55,17 +53,13 @@ export function MirroredTasks({ projectId, actions }: { projectId: string; actio
       <Modal
         isOpen={modal}
         onClose={() => setModal(false)}
-        title="Mirror a task from another project"
+        title={tr("Mirror a task from another project")}
       >
         <div className="space-y-4">
-          <p className="text-sm text-slate-500">
-            This displays the same task here. Edits update its source
-            everywhere; its workflow stays in the source project. Viewers also
-            need access to that project.
-          </p>
+          <p className="text-sm text-slate-500">{tr("This displays the same task here. Edits update its source everywhere; its workflow stays in the source project. Viewers also need access to that project.")}</p>
           <CustomSelect
             searchable
-            label="Source task"
+            label={tr("Source task")}
             value={source}
             options={work
               .filter((c) => c.project_id !== projectId)
@@ -86,9 +80,7 @@ export function MirroredTasks({ projectId, actions }: { projectId: string; actio
                 { onSuccess: () => setModal(false) },
               )
             }
-          >
-            Add mirror
-          </Button>
+          >{tr("Add mirror")}</Button>
         </div>
       </Modal>
     </section>

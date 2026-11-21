@@ -1,4 +1,7 @@
-"use client";
+import { responsivePortal } from "./responsivePortal";
+import { useMobileViewport } from "@/hooks/useMobileViewport";
+import { tr, useUiLocale } from "@/i18n";
+
 
 import {
   Children,
@@ -12,7 +15,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { createPortal } from "react-dom";
 import { Link } from "react-router";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -50,6 +52,8 @@ export function Dropdown({
   onOpenChange?: (open: boolean) => void;
   className?: string;
 }) {
+  useUiLocale();
+
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen ?? internalOpen;
   const setOpen = useCallback(
@@ -84,6 +88,8 @@ export function DropdownTrigger({
   disabled?: boolean;
   "aria-label"?: string;
 }) {
+  useUiLocale();
+
   const { open, setOpen, triggerId, contentId } = useDropdownContext();
 
   return (
@@ -120,12 +126,14 @@ export function DropdownTrigger({
 }
 
 export function DropdownBackdrop() {
+  useUiLocale();
+
   const { setOpen } = useDropdownContext();
   return (
     <button
       type="button"
       tabIndex={-1}
-      aria-label="Close dropdown"
+      aria-label={tr("Close dropdown")}
       onClick={() => setOpen(false)}
       className="fixed inset-0 z-40 cursor-default bg-transparent"
     />
@@ -143,6 +151,9 @@ export function DropdownContent({
   align?: "start" | "end" | "center";
   minWidth?: string;
 }) {
+  useUiLocale();
+  const isMobile = useMobileViewport();
+
   const { open, setOpen, contentId, triggerId } = useDropdownContext();
   useMenuKeyboard(open, triggerId, contentId, () => setOpen(false));
   const [coords, setCoords] = useState<{
@@ -274,7 +285,7 @@ export function DropdownContent({
   );
 
   if (typeof document === "undefined") return content;
-  return createPortal(content, document.body);
+  return responsivePortal(content, document.body, isMobile, () => setOpen(false), tr("Open actions"));
 }
 
 export function DropdownItem({
@@ -298,6 +309,8 @@ export function DropdownItem({
   closeOnSelect?: boolean;
   icon?: typeof Check;
 }) {
+  useUiLocale();
+
   const { setOpen } = useDropdownContext();
   const isDanger = danger || variant === "danger";
 
@@ -335,6 +348,8 @@ export function DropdownItem({
 }
 
 export function DropdownSeparator({ className }: { className?: string }) {
+  useUiLocale();
+
   return (
     <div
       className={cn("-mx-1 my-1 h-px bg-border/60 dark:bg-white/10", className)}
@@ -349,6 +364,8 @@ export function DropdownLabel({
   children: ReactNode;
   className?: string;
 }) {
+  useUiLocale();
+
   return (
     <div
       className={cn(
@@ -372,6 +389,8 @@ export function DropdownLinkItem({
   className?: string;
   icon?: typeof Check;
 }) {
+  useUiLocale();
+
   const { setOpen } = useDropdownContext();
 
   return (
@@ -406,6 +425,8 @@ export function SelectOption(_props: {
   disabled?: boolean;
   children?: ReactNode;
 }) {
+  useUiLocale();
+
   return null;
 }
 
@@ -475,6 +496,9 @@ export function Select({
   "aria-label"?: string;
   size?: "default" | "sm";
 }) {
+  useUiLocale();
+  const isMobile = useMobileViewport();
+
   const [open, setOpen] = useState(false);
   const triggerId = useId();
   const listId = useId();
@@ -591,8 +615,7 @@ export function Select({
 
         {open &&
           (typeof document !== "undefined"
-            ? createPortal(
-                <div
+            ? responsivePortal(<div
                   style={{
                     position: "fixed",
                     top: coords.top,
@@ -603,7 +626,7 @@ export function Select({
                 >
                   <button
                     type="button"
-                    aria-label="Close"
+                    aria-label={tr("Close")}
                     className="fixed inset-0 z-40 cursor-default bg-transparent w-full h-full"
                     onClick={() => setOpen(false)}
                   />
@@ -650,9 +673,7 @@ export function Select({
                       </li>
                     ))}
                   </ul>
-                </div>,
-                document.body,
-              )
+                </div>, document.body, isMobile, () => setOpen(false), typeof label === "string" ? label : ariaLabel || placeholder || tr("Select an option"))
             : null)}
       </div>
       {error && (

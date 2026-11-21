@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import React, { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
@@ -29,6 +30,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
   onClose,
   project,
 }) => {
+  useUiLocale();
   const [name, setName] = useState(project.name);
   const [description, setDescription] = useState(project.description || "");
   const [color, setColor] = useState(project.color || "#2dd4bf");
@@ -50,7 +52,7 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) {
-      setError("Project name cannot be empty");
+      setError(tr("Project name cannot be empty"));
       return;
     }
     setError(null);
@@ -80,8 +82,8 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="Edit Project"
-      description={`Update settings for project (${project.identifier})`}
+      title={tr("Edit Project")}
+      description={tr("Update settings for project ({value0})", { value0: (project.identifier) })}
       size="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -92,35 +94,30 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
         )}
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-            Project Name <span className="text-rose-500">*</span>
+          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{tr("Project Name")}<span className="text-rose-500">*</span>
           </label>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Mobile App"
+            placeholder={tr("e.g. Mobile App")}
             required
             autoFocus
           />
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-            Description
-          </label>
+          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{tr("Description")}</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
-            placeholder="Optional project purpose, goals, or notes..."
+            placeholder={tr("Optional project purpose, goals, or notes...")}
             className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#070709] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-            Accent Color
-          </label>
+          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{tr("Accent Color")}</label>
           <div className="flex items-center gap-2 flex-wrap">
             {PRESET_COLORS.map((c) => (
               <button
@@ -146,18 +143,14 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
             size="sm"
             onClick={onClose}
             disabled={updateProject.isPending}
-          >
-            Cancel
-          </Button>
+          >{tr("Cancel")}</Button>
           <Button
             type="submit"
             variant="primary"
             size="sm"
             isLoading={updateProject.isPending}
             disabled={!name.trim()}
-          >
-            Save Changes
-          </Button>
+          >{tr("Save Changes")}</Button>
         </div>
       </form>
     </Modal>

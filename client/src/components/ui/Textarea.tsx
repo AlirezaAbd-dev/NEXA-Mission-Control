@@ -26,6 +26,7 @@ export const Textarea = ({
         </label>
       )}
       <textarea
+        dir="auto"
         ref={ref}
         id={id}
         className={cn(

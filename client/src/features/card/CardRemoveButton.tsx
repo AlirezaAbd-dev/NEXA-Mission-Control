@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { Trash2 } from "lucide-react";
 import { Button, Modal } from "@/components/ui";
@@ -12,6 +13,7 @@ export function CardRemoveButton({
   card: Card;
   onRemoved?: () => void;
 }) {
+  useUiLocale();
   const remove = useDeleteCard(card.project_id);
   const [open, setOpen] = useState(false);
   const close = () => {
@@ -29,17 +31,11 @@ export function CardRemoveButton({
           setOpen(true);
         }}
       >
-        <Trash2 size={13} />
-        Remove task
-      </Button>
-      <Modal isOpen={open} onClose={close} title="Remove this task?" size="sm">
+        <Trash2 size={13} />{tr("Remove task")}</Button>
+      <Modal isOpen={open} onClose={close} title={tr("Remove this task?")} size="sm">
         <div className="space-y-4">
           <p className="text-sm break-words font-semibold">{card.title}</p>
-          <p className="text-sm text-muted-foreground">
-            This task will be removed from active views and moved to the
-            archive. You can restore it from Project settings → Archive &amp;
-            restore.
-          </p>
+          <p className="text-sm text-muted-foreground">{tr("This task will be removed from active views and moved to the archive. You can restore it from Project settings → Archive &amp; restore.")}</p>
           {remove.error && (
             <p role="alert" className="text-sm text-danger">
               {apiError(remove.error)}
@@ -51,9 +47,7 @@ export function CardRemoveButton({
               size="sm"
               onClick={close}
               disabled={remove.isPending}
-            >
-              Cancel
-            </Button>
+            >{tr("Cancel")}</Button>
             <Button
               variant="danger"
               size="sm"
@@ -66,9 +60,7 @@ export function CardRemoveButton({
                   },
                 })
               }
-            >
-              Remove task
-            </Button>
+            >{tr("Remove task")}</Button>
           </div>
         </div>
       </Modal>

@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import { RoleManager } from "@/features/localops/RoleManager";
 import { TaskPermissionManager } from "@/features/localops/TaskPermissionManager";
 import { LocalPlugins } from "@/features/localops/LocalPlugins";
@@ -16,15 +17,14 @@ import { ArchiveCenter } from "./ArchiveCenter";
 import { IntegrationSettings } from "./IntegrationSettings";
 import { AuditLog } from "./AuditLog";
 export function GovernancePage() {
+  useUiLocale();
   const { projectId = "" } = useParams();
   return (
     <div className="p-4 md:p-6 space-y-5 min-h-full flex-1 flex flex-col">
       <ViewTabs projectId={projectId} />
       <div>
-        <h1 className="text-2xl font-bold">Project settings</h1>
-        <p className="text-sm text-slate-500">
-          Keep your work connected, portable, and accountable.
-        </p>
+        <h1 className="text-2xl font-bold">{tr("Project settings")}</h1>
+        <p className="text-sm text-slate-500">{tr("Keep your work connected, portable, and accountable.")}</p>
       </div>
       <ProjectDangerZone projectId={projectId} />
       <div className="grid lg:grid-cols-2 gap-5">
@@ -33,7 +33,7 @@ export function GovernancePage() {
         <ResourceSection
           projectId={projectId}
           resource="documents"
-          title="Documents, designs & cloud files"
+          title={tr("Documents, designs & cloud files")}
         />
         <IntegrationSettings projectId={projectId} />
       </div>

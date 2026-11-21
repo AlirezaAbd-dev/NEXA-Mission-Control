@@ -1,3 +1,5 @@
+import { uiLabel } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { Button, Input, CustomSelect, Modal } from "@/components/ui";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
@@ -8,6 +10,7 @@ import { useBoard } from "@/hooks/board/useBoard";
 import { useAuthStore } from "@/stores/auth.store";
 import { apiError } from "@/lib/apiError";
 export function IntegrationSettings({ projectId }: { projectId: string }) {
+  useUiLocale();
   const { data: items = [], error: loadError } = useEnterpriseResource(
       projectId,
       "integrations",
@@ -28,10 +31,8 @@ export function IntegrationSettings({ projectId }: { projectId: string }) {
   return (
     <section className="p-5 rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] space-y-4">
       <div className="flex justify-between">
-        <h2 className="font-semibold">Integrations</h2>
-        <Button size="sm" variant="outline" onClick={() => setModal(true)}>
-          Add integration
-        </Button>
+        <h2 className="font-semibold">{tr("Integrations")}</h2>
+        <Button size="sm" variant="outline" onClick={() => setModal(true)}>{tr("Add integration")}</Button>
       </div>
       {loadError && (
         <p role="alert" className="text-sm text-rose-500">
@@ -47,9 +48,7 @@ export function IntegrationSettings({ projectId }: { projectId: string }) {
             <p className="text-sm font-medium">
               {i.name} · {i.kind}
             </p>
-            <Button size="sm" variant="ghost" onClick={() => setId(i.id)}>
-              Remove
-            </Button>
+            <Button size="sm" variant="ghost" onClick={() => setId(i.id)}>{tr("Remove")}</Button>
           </div>
           {["github", "gitlab", "email"].includes(i.kind || "") && (
             <code className="block text-[10px] break-all text-slate-500">
@@ -62,14 +61,12 @@ export function IntegrationSettings({ projectId }: { projectId: string }) {
         </div>
       ))}
       {items.length === 0 && !loadError && (
-        <p className="text-sm text-slate-500">
-          Connect commit webhooks, email intake, or team alerts.
-        </p>
+        <p className="text-sm text-slate-500">{tr("Connect commit webhooks, email intake, or team alerts.")}</p>
       )}
       <Modal
         isOpen={modal}
         onClose={() => setModal(false)}
-        title="Connect integration"
+        title={tr("Connect integration")}
       >
         <form
           className="space-y-4"
@@ -101,22 +98,22 @@ export function IntegrationSettings({ projectId }: { projectId: string }) {
           }}
         >
           <Input
-            label="Name"
+            label={tr("Name")}
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <CustomSelect
-            label="Provider"
+            label={tr("Provider")}
             value={kind}
             onChange={setKind}
             options={["github", "gitlab", "email", "slack", "discord"].map(
-              (value) => ({ value, label: value }),
+              (value) => ({ value, label: uiLabel(value)}),
             )}
           />
           {outbound ? (
             <Input
-              label="Official webhook URL"
+              label={tr("Official webhook URL")}
               type="url"
               required
               value={url}
@@ -124,7 +121,7 @@ export function IntegrationSettings({ projectId }: { projectId: string }) {
             />
           ) : (
             <Input
-              label="Signing secret / GitLab whsec_ token"
+              label={tr("Signing secret / GitLab whsec_ token")}
               type="password"
               minLength={32}
               required
@@ -136,7 +133,7 @@ export function IntegrationSettings({ projectId }: { projectId: string }) {
           {kind === "email" && (
             <>
               <CustomSelect
-                label="Target column"
+                label={tr("Target column")}
                 value={column}
                 onChange={setColumn}
                 options={
@@ -144,40 +141,28 @@ export function IntegrationSettings({ projectId }: { projectId: string }) {
                   []
                 }
               />
-              <p className="text-xs text-slate-500">
-                Send signed JSON from your mail gateway with subject, text, and
-                from fields.
-              </p>
+              <p className="text-xs text-slate-500">{tr("Send signed JSON from your mail gateway with subject, text, and from fields.")}</p>
             </>
           )}
           {kind === "gitlab" && (
-            <p className="text-xs text-slate-500">
-              Generate a signing token in GitLab’s webhook settings and paste
-              its whsec_ value here. Enable push events.
-            </p>
+            <p className="text-xs text-slate-500">{tr("Generate a signing token in GitLab’s webhook settings and paste its whsec_ value here. Enable push events.")}</p>
           )}
           {kind === "github" && (
-            <p className="text-xs text-slate-500">
-              Enable push events and use CARD- plus at least eight characters
-              from the full task UUID in commit messages. Add #done to complete
-              it.
-            </p>
+            <p className="text-xs text-slate-500">{tr("Enable push events and use CARD- plus at least eight characters from the full task UUID in commit messages. Add #done to complete it.")}</p>
           )}
           {error && (
             <p className="text-sm text-rose-500" role="alert">
               {error}
             </p>
           )}
-          <Button type="submit" isLoading={save.isPending}>
-            Connect
-          </Button>
+          <Button type="submit" isLoading={save.isPending}>{tr("Connect")}</Button>
         </form>
       </Modal>
       <ConfirmModal
         isOpen={!!id}
         onClose={() => setId(undefined)}
-        title="Remove integration?"
-        description="The webhook endpoint will stop accepting events."
+        title={tr("Remove integration?")}
+        description={tr("The webhook endpoint will stop accepting events.")}
         isDestructive
         onConfirm={() =>
           id &&

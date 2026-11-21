@@ -1,3 +1,4 @@
+import { tr, useUiLocale } from "@/i18n";
 import type { ReactNode } from "react";
 import {
   Dropdown as NexaDropdown,
@@ -24,12 +25,13 @@ export function Dropdown({
   align = "right",
   className,
 }: DropdownProps) {
+  useUiLocale();
   return (
     <NexaDropdown>
       <DropdownTrigger
         showChevron={false}
         className="border-0 p-1 shadow-none bg-transparent"
-        aria-label="Open actions"
+        aria-label={tr("Open actions")}
       >
         {trigger}
       </DropdownTrigger>

@@ -1,20 +1,18 @@
+import { tr, useUiLocale } from "@/i18n";
 import { useState } from "react";
 import { Button } from "@/components/ui";
 import { useAuthStore } from "@/stores/auth.store";
 import { useNotificationPreferences } from "@/hooks/notification/useDesktopNotifications";
 export function DesktopNotificationSettings() {
+  useUiLocale();
   const user = useAuthStore((s) => s.user?.id) || "",
     enabled = useNotificationPreferences((s) => !!s.enabled[user]),
     setEnabled = useNotificationPreferences((s) => s.setEnabled),
     [message, setMessage] = useState("");
   return (
     <section className="p-5 border rounded-xl border-slate-200 dark:border-white/[0.06] space-y-3">
-      <h2 className="font-semibold">Desktop notifications</h2>
-      <p className="text-sm text-slate-500">
-        Receive mentions, assignments, watched comments and reminders when this
-        app is open in a background tab. Notifications use this browser’s
-        permission.
-      </p>
+      <h2 className="font-semibold">{tr("Desktop notifications")}</h2>
+      <p className="text-sm text-slate-500">{tr("Receive mentions, assignments, watched comments and reminders when this app is open in a background tab. Notifications use this browser’s permission.")}</p>
       <Button
         variant="outline"
         onClick={async () => {
@@ -23,7 +21,7 @@ export function DesktopNotificationSettings() {
             return;
           }
           if (typeof Notification === "undefined") {
-            setMessage("This browser does not support desktop notifications.");
+            setMessage(tr("This browser does not support desktop notifications."));
             return;
           }
           const permission = await Notification.requestPermission();
@@ -36,12 +34,12 @@ export function DesktopNotificationSettings() {
         }}
       >
         {enabled
-          ? "Disable desktop notifications"
-          : "Enable desktop notifications"}
+          ? tr("Disable desktop notifications")
+          : tr("Enable desktop notifications")}
       </Button>
       {message && (
         <p role="status" className="text-sm text-slate-500">
-          {message}
+          {tr(message)}
         </p>
       )}
     </section>

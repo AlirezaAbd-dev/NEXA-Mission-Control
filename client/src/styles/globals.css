@@ -456,3 +456,37 @@ html.dark {
   background-color: rgba(16, 185, 129, 0.15) !important;
   color: #6ee7b7 !important;
 }
+
+/* Locale-aware typography and mobile touch geometry. */
+html[lang="fa"] { --font-sans: "Vazirmatn", system-ui, sans-serif; }
+html[lang="fa"] body { line-height: 1.75; }
+html[lang="fa"] .tracking-wider, html[lang="fa"] .tracking-widest { letter-spacing: normal; }
+html, body, #root { max-inline-size: 100%; }
+[dir="auto"], bdi { unicode-bidi: plaintext; }
+[dir="ltr"] code, pre, kbd { direction: ltr; unicode-bidi: isolate; }
+@media (max-width: 767px) {
+  html, body { overflow: hidden; overscroll-behavior: none; }
+  button, [role="button"] { min-height: 44px; min-width: 44px; touch-action: manipulation; }
+  input, textarea, select { font-size: 16px !important; }
+  html[lang="fa"] [class*="text-[10px]"], html[lang="fa"] [class*="text-[9px]"] { font-size: 11px; }
+  button:active, [role="button"]:active { scale: .98; }
+}
+
+@media (max-width: 767px) {
+  [data-mobile-popup] > * { position: relative !important; inset: auto !important; inline-size: 100% !important; max-inline-size: 100% !important; max-block-size: none !important; transform: none !important; }
+  [data-mobile-popup] [data-floating-overlay] { position: relative !important; inset: auto !important; inline-size: 100% !important; max-inline-size: 100% !important; max-block-size: none !important; box-shadow: none !important; }
+  [data-mobile-popup] .fixed.inset-0 { display: none; }
+  [data-mobile-popup] input { font-size: 16px !important; }
+  [data-responsive-table] { display: block; min-inline-size: 0 !important; inline-size: 100%; }
+  [data-responsive-table] thead { display: none; }
+  [data-responsive-table] tbody { display: grid; gap: 1rem; inline-size: 100%; }
+  [data-responsive-table] tbody tr { display: flex; flex-direction: column; border: 1px solid var(--color-border); border-radius: 1rem; background: var(--color-card); padding: .75rem; }
+  [data-responsive-table] td { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; min-inline-size: 0 !important; inline-size: 100% !important; padding: .5rem; }
+  [data-responsive-table] td::before { content: attr(data-label); flex-basis: 100%; font-size: .75rem; color: var(--color-muted-foreground); }
+  [data-responsive-table] td > * { max-inline-size: 100%; }
+}
+
+@media (max-width: 767px) {
+  [data-native-sheet] [data-dialog-actions], [data-native-sheet] form > .flex.justify-end:last-child { position: sticky; bottom: 0; background: var(--color-card); padding-block: .75rem; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + .75rem); z-index: 2; }
+  [data-native-sheet] { scroll-padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 4rem); }
+}

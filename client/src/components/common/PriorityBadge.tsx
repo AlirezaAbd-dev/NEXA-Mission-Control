@@ -1,3 +1,5 @@
+import { DirectionalIcon } from "@/components/ui/DirectionalIcon";
+import { tr, useUiLocale } from "@/i18n";
 import { getPriorityColor } from "@/lib/utils";
 import {
   AlertCircle,
@@ -16,6 +18,7 @@ export const PriorityBadge = ({
   priority,
   showIcon = true,
 }: PriorityBadgeProps) => {
+  useUiLocale();
   const getIcon = () => {
     switch (priority.toLowerCase()) {
       case "urgent":
@@ -23,7 +26,7 @@ export const PriorityBadge = ({
       case "high":
         return <ArrowUp className="w-3 h-3 text-orange-500" />;
       case "medium":
-        return <ArrowRight className="w-3 h-3 text-yellow-500" />;
+        return <DirectionalIcon icon={ArrowRight} className="w-3 h-3 text-yellow-500" />;
       case "low":
         return <ArrowDown className="w-3 h-3 text-emerald-500" />;
       default:
@@ -32,8 +35,8 @@ export const PriorityBadge = ({
   };
 
   const formatText = (p: string) => {
-    if (p === "no_priority") return "None";
-    return p.charAt(0).toUpperCase() + p.slice(1);
+    if (p === "no_priority") return tr("None");
+    return tr(p.charAt(0).toUpperCase() + p.slice(1));
   };
 
   return (

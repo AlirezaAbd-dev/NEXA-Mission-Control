@@ -1,9 +1,12 @@
+import { formatNumber } from "@/i18n";
+import { tr, useUiLocale } from "@/i18n";
 import { useProductivity } from "@/hooks/productivity/useProductivity";
 interface Report {
   cycles: { id: string; title: string; hours: number; resolved_at: string }[];
   flow: { day: string; status: string; status_type: string; count: number }[];
 }
 export function FlowReports({ projectId }: { projectId: string }) {
+  useUiLocale();
   const { data } = useProductivity<Report>(`projects/${projectId}/reports`);
   const samples = (data?.cycles || [])
     .map((c) => c.hours)
@@ -36,22 +39,19 @@ export function FlowReports({ projectId }: { projectId: string }) {
   );
   return (
     <section className="space-y-4">
-      <h2 className="text-lg font-semibold">Flow & cycle-time reports</h2>
+      <h2 className="text-lg font-semibold">{tr("Flow & cycle-time reports")}</h2>
       <div className="flex flex-wrap gap-6 text-sm">
-        <span>Median cycle time: {percentile(0.5)} hours</span>
-        <span>85th percentile: {percentile(0.85)} hours</span>
-        <span>{samples.length} completed samples</span>
+        <span>{tr("Median cycle time:")}{" "}{percentile(0.5)}{" "}{tr("hours")}</span>
+        <span>{tr("85th percentile:")}{" "}{percentile(0.85)}{" "}{tr("hours")}</span>
+        <span>{formatNumber(samples.length)}{" "}{tr("completed samples")}</span>
       </div>
-      <p className="text-xs text-slate-500">
-        History starts when tracking is enabled. Cycle time starts at the first
-        recorded active state, falling back to task creation.
-      </p>
+      <p className="text-xs text-slate-500">{tr("History starts when tracking is enabled. Cycle time starts at the first recorded active state, falling back to task creation.")}</p>
       <div className="rounded-xl border border-slate-200 dark:border-white/[0.06] p-4">
-        <h3 className="font-semibold">Cumulative flow · last 30 days</h3>
+        <h3 className="font-semibold">{tr("Cumulative flow · last 30 days")}</h3>
         <svg
           viewBox="0 0 720 260"
           role="img"
-          aria-label="Cumulative flow chart"
+          aria-label={tr("Cumulative flow chart")}
         >
           {states.map((state, i) => {
             const lower = states.slice(0, i);
@@ -84,11 +84,11 @@ export function FlowReports({ projectId }: { projectId: string }) {
         <p className="text-sm">{states.join(" · ")}</p>
       </div>
       <div className="rounded-xl border border-slate-200 dark:border-white/[0.06] p-4">
-        <h3 className="font-semibold">Cycle-time scatter chart</h3>
+        <h3 className="font-semibold">{tr("Cycle-time scatter chart")}</h3>
         <svg
           viewBox="0 0 720 200"
           role="img"
-          aria-label="Cycle-time scatter chart"
+          aria-label={tr("Cycle-time scatter chart")}
         >
           {(data?.cycles || [])
             .slice()
@@ -102,15 +102,12 @@ export function FlowReports({ projectId }: { projectId: string }) {
                 fill="#0d9488"
               >
                 <title>
-                  {c.title}: {c.hours.toFixed(1)} hours
-                </title>
+                  {c.title}: {c.hours.toFixed(1)}{tr("hours")}</title>
               </circle>
             ))}
         </svg>
         {!samples.length && (
-          <p className="text-slate-500 text-sm">
-            Complete tasks to collect cycle-time samples.
-          </p>
+          <p className="text-slate-500 text-sm">{tr("Complete tasks to collect cycle-time samples.")}</p>
         )}
       </div>
     </section>
