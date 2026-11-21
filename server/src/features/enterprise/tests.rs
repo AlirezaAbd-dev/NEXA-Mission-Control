@@ -2322,3 +2322,37 @@ async fn timers_report_server_time_for_new_and_resumed_sessions_without_changing
     assert!(TimeLogService::get_active_timer(&s,"c1","owner").await.unwrap().is_none());
     assert_eq!(sqlx::query_scalar::<_,i64>("SELECT count(*) FROM time_logs").fetch_one(&s.pool).await.unwrap(),0);
 }
+
+#[tokio::test]
+async fn new_tasks_prepend_manual_order_after_reordering_and_ignore_archived_positions() {
+    use crate::features::card::service::CardService;
+    let s=fixture().await;
+    sqlx::query("UPDATE cards SET position=-700.5 WHERE id='c1'").execute(&s.pool).await.unwrap();
+    sqlx::query("UPDATE cards SET column_id='todo',position=-999999,archived_at='now' WHERE id='c2'").execute(&s.pool).await.unwrap();
+    let create=|title:&str|serde_json::from_value(json!({"project_id":"p","column_id":"todo","title":title})).unwrap();
+    let first=CardService::create(&s,"member",create("First new task")).await.unwrap();
+    assert!(first.position < -700.5); assert!(first.position > -999999.0);
+    let second=CardService::create(&s,"member",create("Second new task")).await.unwrap();
+    assert!(second.position < first.position);
+    let ids:Vec<String>=sqlx::query_scalar("SELECT id FROM cards WHERE column_id='todo' AND archived_at IS NULL ORDER BY position,created_at,id").fetch_all(&s.pool).await.unwrap();
+    assert_eq!(ids,vec![second.id,first.id,"c1".into()]);
+    assert_eq!(sqlx::query_scalar::<_,f64>("SELECT position FROM cards WHERE id='c1'").fetch_one(&s.pool).await.unwrap(),-700.5);
+    for user in ["viewer","other"] { assert!(CardService::create(&s,user,create("Forbidden")).await.is_err()); }
+    let explicit=CardService::create(&s,"member",serde_json::from_value(json!({"project_id":"p","column_id":"todo","title":"Explicit placement","position":321.25})).unwrap()).await.unwrap();
+    assert_eq!(explicit.position,321.25);
+    let empty=CardService::create(&s,"member",serde_json::from_value(json!({"project_id":"p","column_id":"done","title":"Empty column"})).unwrap()).await.unwrap();
+    assert_eq!(empty.position,0.0);
+}
+
+#[tokio::test]
+async fn new_tasks_prepend_when_position_precision_is_exhausted_and_preserve_existing_order() {
+    use crate::features::card::service::CardService;
+    let s=fixture().await;
+    sqlx::query("UPDATE cards SET position=-1e300,column_id='todo'").execute(&s.pool).await.unwrap();
+    let before:Vec<String>=sqlx::query_scalar("SELECT id FROM cards ORDER BY position,created_at,id").fetch_all(&s.pool).await.unwrap();
+    let created=CardService::create(&s,"member",serde_json::from_value(json!({"project_id":"p","column_id":"todo","title":"New top"})).unwrap()).await.unwrap();
+    let rows:Vec<(String,f64)>=sqlx::query_as("SELECT id,position FROM cards ORDER BY position,created_at,id").fetch_all(&s.pool).await.unwrap();
+    assert_eq!(rows[0].0,created.id);
+    assert_eq!(rows.iter().skip(1).map(|r|r.0.clone()).collect::<Vec<_>>(),before);
+    assert!(rows.windows(2).all(|p|p[0].1 < p[1].1));
+}

@@ -112,7 +112,7 @@ impl CardService {
         let id = Uuid::now_v7().to_string();
         let now = Utc::now().to_rfc3339();
         let priority = req.priority.unwrap_or_else(|| "no_priority".to_string());
-        let position = req.position.unwrap_or(1000.0);
+        let position = req.position;
 
         CardRepository::create(
             &state.pool,

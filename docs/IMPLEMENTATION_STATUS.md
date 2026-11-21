@@ -1,5 +1,11 @@
 # Enterprise implementation report
 
+## New tasks at the top of manual order
+
+Shared across all business activities: task creation without an explicit position now inserts before the first active task in the destination column, rather than using the fixed position 1000. This covers inline creation, template copies, and quick-create through the existing API. Manual sorting therefore shows the new task first; other sort modes retain their sorting rules. Explicit API positions remain supported. Existing authorization, project/column validation, historical records, and customer-AI behavior are unchanged.
+
+Insertion and placement share one transaction, with the write lock acquired before reading existing positions. Archived tasks do not influence placement. Existing active-task order is preserved, including a spacing recovery for exhausted floating-point positions. No UI, dependency, or schema changes are required. Regression checks cover negative/fractional positions, consecutive additions, empty columns, archived exclusions, explicit positions, denied roles, and spacing recovery. Full backend validation passes 65 tests.
+
 ## Timer clock synchronization fix
 
 Time tracking is shared across all business activities, with existing API permissions and ownership unchanged. Active-timer responses now include `server_now` alongside the persisted `started_at`. The client derives elapsed duration from those two server timestamps, anchors it to `performance.now()` on receipt, and advances it without using the computer's wall clock. Polls and returning to the page re-anchor running sessions. Initial loading/synchronization failures disable the toggle and offer retry instead of treating an unknown timer as stopped.

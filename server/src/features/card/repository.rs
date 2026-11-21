@@ -371,7 +371,7 @@ impl CardRepository {
         title: &str,
         description: Option<&str>,
         priority: &str,
-        position: f64,
+        position: Option<f64>,
         creator_id: Option<&str>,
         due_date: Option<&str>,
         start_date: Option<&str>,
@@ -381,6 +381,7 @@ impl CardRepository {
         now: &str,
     ) -> Result<Card, AppError> {
         let tmpl_val = if is_template { 1 } else { 0 };
+        let mut tx = pool.begin().await?;
         sqlx::query(
             r#"
             INSERT INTO cards (id, project_id, column_id, title, description, priority, position,
@@ -394,7 +395,7 @@ impl CardRepository {
         .bind(title)
         .bind(description)
         .bind(priority)
-        .bind(position)
+        .bind(position.unwrap_or(0.0))
         .bind(creator_id)
         .bind(due_date)
         .bind(start_date)
@@ -402,8 +403,30 @@ impl CardRepository {
         .bind(tmpl_val)
         .bind(story_points)
         .bind(now)
-        .execute(pool)
+        .execute(&mut *tx)
         .await?;
+
+        if position.is_none() {
+            // The insert acquires SQLite's writer lock before reading the first
+            // position, so concurrent creates cannot select the same top slot.
+            let first: Option<f64> = sqlx::query_scalar("SELECT position FROM cards WHERE column_id=? AND id!=? AND archived_at IS NULL ORDER BY position,created_at,id LIMIT 1")
+                .bind(column_id).bind(id).fetch_optional(&mut *tx).await?;
+            let top = first.map_or(0.0, |p| p - 1024.0);
+            if top.is_finite() && first.is_none_or(|p| top < p) {
+                sqlx::query("UPDATE cards SET position=? WHERE id=?")
+                    .bind(top).bind(id).execute(&mut *tx).await?;
+            } else {
+                // Restore spacing when floating-point precision is exhausted,
+                // preserving the relative order of existing active tasks.
+                let ids: Vec<String> = sqlx::query_scalar("SELECT id FROM cards WHERE column_id=? AND id!=? AND archived_at IS NULL ORDER BY position,created_at,id")
+                    .bind(column_id).bind(id).fetch_all(&mut *tx).await?;
+                for (index, card) in ids.iter().enumerate() {
+                    sqlx::query("UPDATE cards SET position=? WHERE id=?")
+                        .bind((index + 1) as f64 * 1024.0).bind(card).execute(&mut *tx).await?;
+                }
+            }
+        }
+        tx.commit().await?;
 
         let created = Self::find_by_id(pool, id)
             .await?
