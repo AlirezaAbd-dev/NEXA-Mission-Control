@@ -8,6 +8,10 @@ on:
       - 'v*.*.*'
   workflow_dispatch:
 
+concurrency:
+  group: mission-control-release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build-and-push:
     name: Build & Push Docker Image
@@ -20,15 +24,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Free Disk Space on Runner
+      - name: Check runner disk space
+        run: df -h / "$RUNNER_TEMP"
+
+      - name: Isolate Docker registry credentials
+        shell: bash
         run: |
-          echo "=== Disk space before cleanup ==="
-          df -h
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost 2>/dev/null || true
-          docker builder prune -f 2>/dev/null || true
-          docker image prune -f 2>/dev/null || true
-          echo "=== Disk space after cleanup ==="
-          df -h
+          config_dir=$(mktemp -d "${RUNNER_TEMP}/nexa-docker.XXXXXXXX")
+          printf 'DOCKER_CONFIG=%s\n' "$config_dir" >> "$GITHUB_ENV"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
