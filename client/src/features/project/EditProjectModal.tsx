@@ -88,13 +88,13 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="p-3 text-xs rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400">
+          <div className="p-3 text-xs rounded-xl bg-danger/10 border border-danger/20 text-danger">
             {error}
           </div>
         )}
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{tr("Project Name")}<span className="text-rose-500">*</span>
+          <label className="text-xs font-semibold text-foreground">{tr("Project Name")}<span className="text-danger">*</span>
           </label>
           <Input
             value={name}
@@ -106,18 +106,19 @@ export const EditProjectModal: React.FC<EditProjectModalProps> = ({
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{tr("Description")}</label>
+          <label className="text-xs font-semibold text-foreground">{tr("Description")}</label>
           <textarea
+            data-nexa-field=""
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
             placeholder={tr("Optional project purpose, goals, or notes...")}
-            className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#070709] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none"
+            className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--nexa-field-border)] bg-[var(--nexa-field-fill)] text-foreground placeholder:text-muted-foreground focus:outline-none resize-none"
           />
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{tr("Accent Color")}</label>
+          <label className="text-xs font-semibold text-foreground">{tr("Accent Color")}</label>
           <div className="flex items-center gap-2 flex-wrap">
             {PRESET_COLORS.map((c) => (
               <button

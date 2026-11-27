@@ -63,14 +63,14 @@ export function CardAttachments({
           <Upload size={14} />{tr("Attach")}</Button>
       </div>
       {(error || loadError) && (
-        <p role="alert" className="text-xs text-rose-500">
+        <p role="alert" className="text-xs text-danger">
           {error || apiError(loadError)}
         </p>
       )}
       {files.map((file) => (
         <article
           key={file.id}
-          className="flex flex-wrap gap-3 items-center rounded-lg bg-slate-50 dark:bg-[#101117] p-3"
+          className="flex flex-wrap gap-3 items-center rounded-xl bg-[var(--nexa-surface-l2)] border border-[var(--nexa-divider)] p-3"
         >
           {file.mime_type.startsWith("image/") ? (
             <a href={file.file_path} target="_blank" rel="noreferrer">
@@ -81,17 +81,17 @@ export function CardAttachments({
               />
             </a>
           ) : (
-            <FileText className="text-emerald-500" size={28} />
+            <FileText className="text-primary" size={28} />
           )}
           <div className="flex-1 min-w-0">
             <a
               href={file.file_path}
               download={file.filename}
-              className="text-xs text-emerald-600 dark:text-emerald-300 break-all"
+              className="text-xs text-primary hover:underline break-all"
             >
               {file.filename}
             </a>
-            <p className="text-[10px] text-slate-500">
+            <p className="text-[10px] text-muted-foreground">
               {Math.ceil(file.file_size / 1024)}{" "}{tr("KB ·")}{" "}
               {new Date(file.created_at).toLocaleDateString(dateLocale())}
             </p>
@@ -115,7 +115,7 @@ export function CardAttachments({
         </article>
       ))}
       {files.length === 0 && (
-        <p className="text-xs text-slate-500">{tr("Attach documents or images to keep your task context together. Maximum file size: 10 MB.")}</p>
+        <p className="text-xs text-muted-foreground">{tr("Attach documents or images to keep your task context together. Maximum file size: 10 MB.")}</p>
       )}
       <ConfirmModal
         isOpen={!!deleting}

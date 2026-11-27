@@ -290,11 +290,11 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                     )
                   }
                 >
-                  <span className="text-emerald-500 font-bold me-1.5">
+                  <span className="text-primary font-bold me-1.5">
                     {collapsed.includes(lane.id) ? "▸" : "▾"}
                   </span>
                   <span>{lane.name}</span>
-                  <span className="ms-2 px-2 py-0.5 rounded-full text-xs bg-slate-100 dark:bg-[#101117] text-slate-600 dark:text-emerald-400 font-mono font-medium border border-slate-200/80 dark:border-white/[0.06]">
+                  <span className="ms-2 px-2 py-0.5 rounded-full text-xs bg-[var(--nexa-surface-l2)] text-primary font-mono font-medium border border-[var(--nexa-divider)]">
                     {formatNumber(lane.cards.length)}
                   </span>
                 </Button>
@@ -333,7 +333,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                       {isAddingColumn ? (
                         <form
                           onSubmit={handleAddColumn}
-                          className="p-3 bg-white dark:bg-[#0b0c10] border border-slate-200/90 dark:border-white/[0.06] rounded-2xl shadow-sm space-y-2"
+                          className="p-3 bg-[var(--nexa-surface-l1)] border border-[var(--nexa-divider)] rounded-2xl shadow-sm space-y-2"
                         >
                           <Input
                             value={newColumnName}
@@ -357,7 +357,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                       ) : (
                         <Button
                           variant="outline"
-                          className="w-full border-dashed h-12 flex items-center justify-center gap-2 text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+                          className="w-full border-dashed h-12 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground"
                           onClick={() => setIsAddingColumn(true)}
                         >
                           <Plus className="w-4 h-4" />{tr("Add another list")}</Button>

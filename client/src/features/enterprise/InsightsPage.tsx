@@ -73,10 +73,10 @@ export function InsightsPage() {
         ].map(([label, value]) => (
           <section
             key={label}
-            className="p-5 rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06]"
+            className="p-5 rounded-2xl bg-[var(--nexa-surface-l1)] border border-[var(--nexa-divider)]"
           >
-            <p className="text-sm text-slate-500">{label}</p>
-            <p className="text-3xl font-bold text-emerald-600 dark:text-emerald-400 mt-2">
+            <p className="text-sm text-muted-foreground">{label}</p>
+            <p className="text-3xl font-bold text-primary mt-2">
               {typeof value === "number" ? formatNumber(value) : value}
             </p>
           </section>
@@ -198,9 +198,9 @@ function ChartPanel({
 }) {
   useUiLocale();
   return (
-    <section className="p-5 rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10]">
+    <section className="p-5 rounded-2xl border border-[var(--nexa-divider)] bg-[var(--nexa-surface-l1)]">
       <h2 className="font-semibold">{title}</h2>
-      <p className="text-xs text-slate-500 mt-1 mb-4">{subtitle}</p>
+      <p className="text-xs text-muted-foreground mt-1 mb-4">{subtitle}</p>
       {children}
     </section>
   );

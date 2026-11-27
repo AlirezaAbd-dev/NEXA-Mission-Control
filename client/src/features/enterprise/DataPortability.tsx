@@ -14,9 +14,9 @@ export function DataPortability({ projectId }: { projectId: string }) {
     [confirm, setConfirm] = useState(false),
     [message, setMessage] = useState("");
   return (
-    <section className="p-5 rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] space-y-4">
+    <section className="p-5 rounded-2xl bg-[var(--nexa-surface-l1)] border border-[var(--nexa-divider)] space-y-4">
       <h2 className="font-semibold">{tr("Export & import")}</h2>
-      <p className="text-xs text-slate-500">{tr("Export your board or bring in tasks from Trello. Import creates new tasks and lists.")}</p>
+      <p className="text-xs text-muted-foreground">{tr("Export your board or bring in tasks from Trello. Import creates new tasks and lists.")}</p>
       <div className="flex gap-2">
         <Button
           size="sm"

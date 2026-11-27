@@ -48,27 +48,27 @@ export function ResourceSection({
     setError("");
   };
   return (
-    <section className="rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10] p-5 space-y-4">
+    <section className="rounded-2xl border border-[var(--nexa-divider)] bg-[var(--nexa-surface-l1)] p-5 space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="font-bold">{title}</h2>
         <Button size="sm" variant="outline" onClick={() => edit()}> {tr("Add {value0}", { value0: uiLabel(resource) })}
         </Button>
       </div>
       {loadError && (
-        <p role="alert" className="text-rose-500">
+        <p role="alert" className="text-danger">
           {apiError(loadError)}
         </p>
       )}
       {isLoading ? (
-        <div className="h-24 animate-pulse bg-slate-100 dark:bg-[#101117] rounded-lg" />
+        <div className="h-24 animate-pulse bg-[var(--nexa-surface-l2)] rounded-xl" />
       ) : items.length === 0 ? (
-        <p className="text-sm text-slate-500">{tr("No {value0} yet. Add one to organize your project.", { value0: uiLabel(resource) })}</p>
+        <p className="text-sm text-muted-foreground">{tr("No {value0} yet. Add one to organize your project.", { value0: uiLabel(resource) })}</p>
       ) : (
         <div className="space-y-2">
           {items.map((item) => (
             <div
               key={item.id}
-              className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-lg bg-slate-50 dark:bg-[#101117]"
+              className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-[var(--nexa-surface-l2)]"
             >
               <div className="space-y-1">
                 {item.url ? (
@@ -76,14 +76,14 @@ export function ResourceSection({
                     href={item.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-emerald-600 dark:text-emerald-300 font-medium"
+                    className="text-primary hover:underline font-medium"
                   >
                     {item.name} ↗
                   </a>
                 ) : (
                   <span className="font-medium text-sm">{item.name}</span>
                 )}
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-muted-foreground">
                   {item.summary || item.description || item.kind}{" "}
                   {item.target_date && `· ${item.target_date}`}{" "}
                   {item.total !== undefined &&
@@ -92,7 +92,7 @@ export function ResourceSection({
                 </p>
                 {item.total !== undefined && (
                   <progress
-                    className="w-40 h-1.5 accent-teal-500"
+                    className="w-40 h-1.5 accent-primary"
                     max={Math.max(1, item.total)}
                     value={item.done || 0}
                     aria-label={tr("{value0} progress", { value0: (item.name) })}

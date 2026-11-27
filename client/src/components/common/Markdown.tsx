@@ -24,7 +24,7 @@ function inline(text: string, depth = 0): React.ReactNode[] {
       result.push(
         <code
           key={key}
-          className="rounded bg-slate-200/60 dark:bg-[#101117] px-1 font-mono text-xs"
+          className="rounded bg-[var(--nexa-surface-l2)] px-1 font-mono text-xs"
         >
           {token.slice(1, -1)}
         </code>,
@@ -41,7 +41,7 @@ function inline(text: string, depth = 0): React.ReactNode[] {
       result.push(
         <span
           key={key}
-          className="rounded bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 px-1"
+          className="rounded bg-primary/10 text-primary px-1"
         >
           {token}
         </span>,
@@ -57,7 +57,7 @@ function inline(text: string, depth = 0): React.ReactNode[] {
             href={url}
             target="_blank"
             rel="noreferrer"
-            className="text-emerald-600 dark:text-emerald-400 underline"
+            className="text-primary underline"
           >
             {inline(label, depth + 1)}
           </a>
@@ -84,7 +84,7 @@ export function Markdown({ text }: { text: string }) {
       blocks.push(
         <pre
           key={i}
-          className="overflow-auto rounded-lg bg-slate-100 dark:bg-[#070709] p-3 text-xs font-mono"
+          className="overflow-auto rounded-xl bg-[var(--nexa-surface-l2)] border border-[var(--nexa-divider)] p-3 text-xs font-mono"
         >
           <code>{code.join("\n")}</code>
         </pre>,

@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="manifest" href="/manifest.webmanifest"/>
-    <meta name="theme-color" content="#070709"/>
+    <meta name="theme-color" content="#0b0d11"/>
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -19,14 +19,22 @@
           const theme = localStorage.getItem('mission_control_theme') || localStorage.getItem(legacyPrefix + '_theme');
           if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+            document.documentElement.style.colorScheme = 'dark';
           } else {
             document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
+            document.documentElement.style.colorScheme = 'light';
+          }
+          const palette = localStorage.getItem('mission_control_ui_theme');
+          if (palette && palette !== 'teal') {
+            document.documentElement.setAttribute('data-ui-theme', palette);
           }
         } catch (_) {}
       })();
     </script>
   </head>
-  <body>
+  <body data-nexa-surface="app">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

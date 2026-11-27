@@ -54,14 +54,14 @@ export const CardComments: React.FC<CardCommentsProps> = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
-        <MessageSquare className="w-4 h-4 text-slate-400" />
+      <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+        <MessageSquare className="w-4 h-4 text-muted-foreground" />
         <span>{tr("Activity & Comments (")}{formatNumber(comments.length)})</span>
       </div>
 
       {/* New Comment Input */}
       {error && (
-        <p role="alert" className="text-xs text-rose-500">
+        <p role="alert" className="text-xs text-danger">
           {error}
         </p>
       )}
@@ -93,9 +93,9 @@ export const CardComments: React.FC<CardCommentsProps> = ({
 
       {/* Comment List */}
       {isLoading ? (
-        <div className="text-xs text-slate-400 animate-pulse">{tr("Loading comments...")}</div>
+        <div className="text-xs text-muted-foreground animate-pulse">{tr("Loading comments...")}</div>
       ) : comments.length === 0 ? (
-        <div className="text-xs text-slate-400 italic py-2">{tr("No comments yet.")}</div>
+        <div className="text-xs text-muted-foreground italic py-2">{tr("No comments yet.")}</div>
       ) : (
         <div className="space-y-3 pt-2">
           {comments.map((comment) => (
@@ -201,7 +201,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
   return (
     <>
-      <div className="group relative flex items-start gap-3 p-3 rounded-xl bg-slate-50/50 dark:bg-[#0e0f14] border border-slate-200/60 dark:border-white/[0.06] transition-colors hover:border-slate-300 dark:hover:border-emerald-500/30">
+      <div className="group relative flex items-start gap-3 p-3 rounded-xl bg-[var(--nexa-surface-l2)] border border-[var(--nexa-divider)] transition-colors hover:border-primary/30">
         <UserAvatar
           displayName={comment.author_name}
           avatarUrl={comment.author_avatar}
@@ -212,15 +212,15 @@ const CommentItem: React.FC<CommentItemProps> = ({
           {/* Header: Author + Timestamp + Actions */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0 flex-wrap">
-              <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
+              <span className="text-xs font-semibold text-foreground truncate">
                 {comment.author_name}
               </span>
-              <span className="text-[11px] text-slate-400">
+              <span className="text-[11px] text-muted-foreground">
                 {formatRelativeTime(comment.created_at)}
               </span>
               {comment.edited_at && (
                 <span
-                  className="text-[10px] text-slate-400 dark:text-slate-500 italic select-none"
+                  className="text-[10px] text-muted-foreground italic select-none"
                   title={
                     comment.edited_at
                       ? tr("Edited {value0}", { value0: (formatRelativeTime(comment.edited_at)) })
@@ -229,7 +229,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                 >{tr("· edited")}</span>
               )}
               {comment.is_internal && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium border border-amber-500/20">{tr("Internal")}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-warning/10 text-warning font-medium border border-warning/20">{tr("Internal")}</span>
               )}
             </div>
 
@@ -240,7 +240,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                   <button
                     type="button"
                     onClick={handleStartEdit}
-                    className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-white/[0.05] transition-colors cursor-pointer"
+                    className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-[var(--nexa-surface-l3)] transition-colors cursor-pointer"
                     title={tr("Edit comment")}
                   >
                     <Edit2 className="w-3.5 h-3.5" />
@@ -250,7 +250,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                   <button
                     type="button"
                     onClick={() => setDeleteModalOpen(true)}
-                    className="p-1 rounded-md text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                    className="p-1 rounded-md text-muted-foreground hover:text-danger hover:bg-danger/10 transition-colors cursor-pointer"
                     title={tr("Delete comment")}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -264,7 +264,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
           {isEditing ? (
             <div className="space-y-2 pt-1">
               {editError && (
-                <p role="alert" className="text-xs text-rose-500">
+                <p role="alert" className="text-xs text-danger">
                   {editError}
                 </p>
               )}
@@ -278,7 +278,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                 className="w-full resize-none text-sm"
               />
               <div className="flex items-center justify-between gap-2 pt-1">
-                <span className="text-[10px] text-slate-400 hidden sm:inline">{tr("Esc to cancel · ⌘+Enter to save")}</span>
+                <span className="text-[10px] text-muted-foreground hidden sm:inline">{tr("Esc to cancel · ⌘+Enter to save")}</span>
                 <div className="flex items-center gap-1.5 ms-auto">
                   <Button
                     type="button"
@@ -301,7 +301,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
               </div>
             </div>
           ) : (
-            <div className="text-sm text-slate-700 dark:text-slate-300">
+            <div className="text-sm text-foreground">
               <Markdown text={comment.body} />
             </div>
           )}
@@ -318,7 +318,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                       emoji: reaction.emoji,
                     })
                   }
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-slate-100 dark:bg-[#101117] hover:bg-slate-200 dark:hover:bg-white/[0.08] text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-white/[0.06] transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-[var(--nexa-surface-l3)] hover:bg-[var(--nexa-surface-l1)] text-foreground border border-[var(--nexa-divider)] transition-colors cursor-pointer"
                 >
                   <span>{reaction.emoji}</span>
                   <span className="text-[11px] font-medium">{formatNumber(reaction.count)}</span>

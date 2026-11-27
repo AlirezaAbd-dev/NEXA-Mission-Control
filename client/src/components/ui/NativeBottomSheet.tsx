@@ -13,7 +13,7 @@ export function NativeBottomSheet({ open, onClose, title, description, header, c
   return <Drawer.Root open={open} onOpenChange={value => { if (!value) onClose(); }} repositionInputs shouldScaleBackground={false}>
     <Drawer.Portal>
       <Drawer.Overlay style={{ zIndex: layer }} className="fixed inset-0 bg-black/60 backdrop-blur-md" />
-      <Drawer.Content style={{ zIndex: layer + 1 }} data-native-sheet className={cn("fixed inset-x-0 bottom-0 flex max-h-[92dvh] flex-col rounded-t-2xl border-t border-border bg-card text-foreground outline-none", header && "h-[92dvh]")} aria-describedby={undefined}>
+      <Drawer.Content style={{ zIndex: layer + 1 }} data-native-sheet data-nexa-sheet="" className={cn("fixed inset-x-0 bottom-0 flex max-h-[92dvh] flex-col rounded-t-2xl border-t border-[var(--nexa-divider)] bg-[var(--nexa-surface-l1)] text-foreground outline-none", header && "h-[92dvh]")} aria-describedby={undefined}>
         <div className="mx-auto mt-3 mb-2 h-1.5 w-10 shrink-0 rounded-full bg-muted-foreground/40" />
         <div className="flex shrink-0 items-center justify-between gap-3 px-4 pb-2 border-b border-border">
           <div className="min-w-0"><Drawer.Title className={header ? "sr-only" : "font-semibold text-base leading-relaxed"}>{title || tr("Task details")}</Drawer.Title>{description && <Drawer.Description className="text-sm text-muted-foreground mt-1">{description}</Drawer.Description>}</div>

@@ -147,7 +147,7 @@ export const Modal = ({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-900/40 dark:bg-black/75 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        className="fixed inset-0 bg-black/60 md:backdrop-blur-md transition-opacity animate-in fade-in duration-200"
         onClick={onClose}
       />
 
@@ -157,9 +157,10 @@ export const Modal = ({
         role="dialog"
         aria-modal="true"
         aria-label={title || tr("Task details")}
+        data-nexa-modal-card=""
         tabIndex={-1}
         className={cn(
-          "relative z-10 w-full min-w-0 max-h-[calc(100dvh-2rem)] flex flex-col overflow-hidden rounded-3xl border border-slate-200/90 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10] shadow-2xl shadow-slate-900/10 dark:shadow-black/70 animate-in zoom-in-95 duration-200",
+          "relative z-10 w-full min-w-0 max-h-[calc(100dvh-2rem)] flex flex-col overflow-hidden rounded-2xl bg-[var(--nexa-surface-l1)] text-foreground shadow-2xl animate-in zoom-in-95 duration-200",
           sizeClasses[size],
           className,
         )}
@@ -170,8 +171,9 @@ export const Modal = ({
           <button
             type="button"
             onClick={onClose}
+            data-nexa-modal-close=""
             className={cn(
-              "absolute top-4 end-4 z-30 flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200/90 dark:border-white/[0.06] bg-white dark:bg-[#101117] text-slate-500 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-white/[0.08] transition-all cursor-pointer focus:ring-2 focus:ring-emerald-500/40",
+              "absolute top-4 end-4 z-30 flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--nexa-surface-l2)] text-muted-foreground hover:text-foreground hover:bg-[var(--nexa-surface-hover)] transition-all cursor-pointer focus-visible:outline-2 focus-visible:outline-[var(--nexa-focus-outer)]",
               closeButtonClassName,
             )}
             aria-label={tr("Close modal")}
@@ -181,14 +183,17 @@ export const Modal = ({
         )}
 
         {(title || description) && (
-          <div className="shrink-0 border-b border-slate-100 dark:border-white/[0.06] bg-slate-50/70 dark:bg-[#0b0c10]/80 px-6 py-4 pe-16">
+          <div
+            data-nexa-modal-header=""
+            className="shrink-0 border-b border-[var(--nexa-divider)] bg-[var(--nexa-surface-l1)] px-6 py-4 pe-16"
+          >
             {title && (
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              <h3 className="text-lg font-bold tracking-tight text-foreground">
                 {title}
               </h3>
             )}
             {description && (
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {description}
               </p>
             )}

@@ -92,10 +92,10 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
   };
 
   return (
-    <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-white/[0.06]">
+    <div className="space-y-3 pt-3 border-t border-[var(--nexa-divider)]">
       <div className="flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
-          <Link2 className="w-3.5 h-3.5 text-emerald-500" />{tr("Linked Cards & Dependencies (")}{formatNumber(links.length)})
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+          <Link2 className="w-3.5 h-3.5 text-primary" />{tr("Linked Cards & Dependencies (")}{formatNumber(links.length)})
         </h3>
         {!isAdding && (
           <Button
@@ -103,7 +103,7 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
             variant="ghost"
             size="sm"
             onClick={() => setIsAdding(true)}
-            className="h-7 text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 flex items-center gap-1 cursor-pointer"
+            className="h-7 text-xs text-primary hover:opacity-80 flex items-center gap-1 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>{tr("Add Link")}</span>
@@ -115,11 +115,11 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
       {isAdding && (
         <form
           onSubmit={handleAddLink}
-          className="p-3 bg-slate-50 dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] rounded-xl space-y-2.5 animate-in fade-in duration-150"
+          className="p-3 bg-[var(--nexa-surface-l2)] border border-[var(--nexa-divider)] rounded-xl space-y-2.5 animate-in fade-in duration-150"
         >
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             <div>
-              <label className="text-[10px] font-semibold uppercase text-slate-400 block mb-1">{tr("Relationship")}</label>
+              <label className="text-[10px] font-semibold uppercase text-muted-foreground block mb-1">{tr("Relationship")}</label>
               <CustomSelect
                 value={selectedLinkType}
                 onChange={setSelectedLinkType}
@@ -127,7 +127,7 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="text-[10px] font-semibold uppercase text-slate-400 block mb-1">{tr("Target Task")}</label>
+              <label className="text-[10px] font-semibold uppercase text-muted-foreground block mb-1">{tr("Target Task")}</label>
               <CustomSelect
                 value={targetCardId}
                 onChange={setTargetCardId}
@@ -166,7 +166,7 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
             return (
               <div
                 key={link.id}
-                className="group flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-[#0b0c10] hover:bg-slate-100 dark:hover:bg-white/[0.05] border border-slate-200/80 dark:border-white/[0.06] transition-all"
+                className="group flex items-center justify-between p-2 rounded-lg bg-[var(--nexa-surface-l2)] hover:bg-[var(--nexa-surface-l3)] border border-[var(--nexa-divider)] transition-all"
               >
                 <div className="flex items-center gap-2.5 flex-1 min-w-0">
                   <span
@@ -178,10 +178,10 @@ export const CardDependencies: React.FC<CardDependenciesProps> = ({ card }) => {
                   <button
                     type="button"
                     onClick={() => openCardModal(link.target_card_id)}
-                    className="text-xs font-medium text-slate-800 dark:text-slate-200 hover:text-emerald-500 dark:hover:text-emerald-400 truncate text-start cursor-pointer flex items-center gap-1"
+                    className="text-xs font-medium text-foreground hover:text-primary truncate text-start cursor-pointer flex items-center gap-1"
                   >
                     <span>{link.target_card_title}</span>
-                    <DirectionalIcon icon={ArrowRight} className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-emerald-500" />
+                    <DirectionalIcon icon={ArrowRight} className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
                   </button>
                 </div>
 

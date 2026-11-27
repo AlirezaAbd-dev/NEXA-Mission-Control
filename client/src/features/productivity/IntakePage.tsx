@@ -18,13 +18,13 @@ export function IntakePage() {
     [done, setDone] = useState(false),
     [error, setError] = useState("");
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-[#070709] text-slate-900 dark:text-slate-100 p-6">
-      <div className="max-w-xl mx-auto space-y-5 p-6 rounded-xl border border-slate-200 dark:border-white/[0.06]">
+    <main className="min-h-screen bg-[var(--nexa-surface-l0)] text-foreground p-6">
+      <div className="max-w-xl mx-auto space-y-5 p-6 rounded-2xl bg-[var(--nexa-surface-l1)] border border-[var(--nexa-divider)]">
         <h1 className="text-2xl font-bold">{form?.name || tr("Request form")}</h1>
         {loadError ? (
           <p role="alert">{tr("This request form is unavailable.")}</p>
         ) : done ? (
-          <p role="status" className="text-emerald-600">{tr("Your request has been submitted.")}</p>
+          <p role="status" className="text-primary">{tr("Your request has been submitted.")}</p>
         ) : (
           <>
             <Input
@@ -42,7 +42,7 @@ export function IntakePage() {
               onChange={(e) => setDescription(e.target.value)}
             />
             {error && (
-              <p role="alert" className="text-rose-500">
+              <p role="alert" className="text-danger">
                 {error}
               </p>
             )}

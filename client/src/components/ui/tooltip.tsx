@@ -145,8 +145,9 @@ export function Tooltip({
                         ? "translate(0%, 0%)"
                         : "translate(-100%, 0%)",
             }}
+            data-nexa-tooltip-surface=""
             className={cn(
-              "fixed z-[9999] min-w-48 max-w-xs rounded-xl border border-border/80 bg-popover/95 p-2.5 text-xs font-normal leading-relaxed text-popover-foreground shadow-2xl backdrop-blur-md dark:border-white/15 dark:bg-[#071b1e]/98 dark:text-gray-100 animate-in fade-in-50 zoom-in-95 pointer-events-none",
+              "fixed z-[9999] min-w-48 max-w-xs rounded-xl p-2.5 text-xs font-normal leading-relaxed bg-[var(--nexa-popup-fill)] text-foreground shadow-2xl animate-in fade-in-50 zoom-in-95 pointer-events-none",
               className,
             )}
           >

@@ -29,6 +29,9 @@ const queryClient = new QueryClient({
 export const App: React.FC = () => {
   useUiLocale();
   const theme = useUiStore((s) => s.theme);
+  const uiTheme = useUiStore((s) => s.uiTheme);
+  const previewUiTheme = useUiStore((s) => s.previewUiTheme);
+  const effectiveUiTheme = previewUiTheme ?? uiTheme;
 
   useEffect(() => {
     const root = document.documentElement;
@@ -43,11 +46,20 @@ export const App: React.FC = () => {
     }
   }, [theme]);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    if (effectiveUiTheme === "teal") {
+      root.removeAttribute("data-ui-theme");
+    } else {
+      root.setAttribute("data-ui-theme", effectiveUiTheme);
+    }
+  }, [effectiveUiTheme]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <Suspense
         fallback={
-          <div className="p-8 animate-pulse text-slate-500">{tr("Loading Mission Control…")}</div>
+          <div className="p-8 animate-pulse text-muted-foreground">{tr("Loading Mission Control…")}</div>
         }
       >
         <RouterProvider router={router} />

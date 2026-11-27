@@ -98,15 +98,15 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
   };
 
   return (
-    <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-white/[0.06]">
+    <div className="space-y-3 pt-3 border-t border-[var(--nexa-divider)]">
       <div className="flex items-center justify-between">
-        <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-          <Sliders className="w-3.5 h-3.5 text-emerald-500" />{tr("Custom Fields")}</label>
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+          <Sliders className="w-3.5 h-3.5 text-primary" />{tr("Custom Fields")}</label>
         {!isCreatingField && (
           <button
             type="button"
             onClick={() => setIsCreatingField(true)}
-            className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 flex items-center gap-1 cursor-pointer transition-colors"
+            className="text-[11px] font-medium text-primary hover:opacity-80 flex items-center gap-1 cursor-pointer transition-colors"
           >
             <Plus className="w-3 h-3" />
             <span>{tr("Add Field")}</span>
@@ -118,9 +118,9 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
       {isCreatingField && (
         <form
           onSubmit={handleCreateFieldSubmit}
-          className="p-3 bg-slate-50 dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] rounded-xl space-y-2 animate-in fade-in duration-150"
+          className="p-3 bg-[var(--nexa-surface-l2)] border border-[var(--nexa-divider)] rounded-xl space-y-2 animate-in fade-in duration-150"
         >
-          <div className="text-xs font-semibold text-slate-700 dark:text-slate-200 mb-1">{tr("New Project Field")}</div>
+          <div className="text-xs font-semibold text-foreground mb-1">{tr("New Project Field")}</div>
           <Input
             type="text"
             placeholder={tr("Field Name (e.g. Environment, Impact)")}
@@ -172,10 +172,10 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
             return (
               <div key={def.id} className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                  <span className="text-xs font-medium text-foreground">
                     {def.name}
                   </span>
-                  <span className="text-[10px] text-slate-400 uppercase">
+                  <span className="text-[10px] text-muted-foreground uppercase">
                     {def.field_type}
                   </span>
                 </div>
@@ -202,7 +202,7 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
 
                 {def.field_type === 'currency' && (
                   <div className="relative">
-                    <DollarSign className="w-3.5 h-3.5 absolute start-2.5 top-2.5 text-slate-400" />
+                    <DollarSign className="w-3.5 h-3.5 absolute start-2.5 top-2.5 text-muted-foreground" />
                     <Input
                       type="number"
                       step="0.01"
@@ -240,15 +240,15 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
                     onClick={() => handleToggleCheckbox(def.id, current?.text)}
                     className={`flex items-center gap-2 p-2 rounded-lg border text-xs w-full transition-all cursor-pointer ${
                       current?.text === 'true'
-                        ? 'bg-emerald-500/10 border-emerald-500/40 text-emerald-600 dark:text-emerald-400 font-semibold'
-                        : 'bg-slate-50 dark:bg-[#0b0c10] border-slate-200 dark:border-white/[0.06] text-slate-500'
+                        ? 'bg-primary/10 border-primary/40 text-primary font-semibold'
+                        : 'bg-[var(--nexa-surface-l2)] border-[var(--nexa-divider)] text-muted-foreground'
                     }`}
                   >
                     <div
                       className={`w-4 h-4 rounded border flex items-center justify-center ${
                         current?.text === 'true'
-                          ? 'bg-emerald-500 border-emerald-500 text-slate-950'
-                          : 'border-slate-300 dark:border-border'
+                          ? 'bg-primary border-primary text-primary-foreground'
+                          : 'border-[var(--nexa-divider)]'
                       }`}
                     >
                       {current?.text === 'true' && <Check className="w-3 h-3 stroke-[3]" />}
@@ -262,7 +262,7 @@ export const CardCustomFields: React.FC<CardCustomFieldsProps> = ({ card }) => {
         </div>
       ) : (
         !isCreatingField && (
-          <div className="text-xs text-slate-400 dark:text-slate-500 italic py-1">{tr("No custom fields configured for this project.")}</div>
+          <div className="text-xs text-muted-foreground italic py-1">{tr("No custom fields configured for this project.")}</div>
         )
       )}
     </div>

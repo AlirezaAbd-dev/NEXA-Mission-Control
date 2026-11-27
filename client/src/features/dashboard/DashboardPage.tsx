@@ -13,6 +13,7 @@ import { useUiStore } from "@/stores/ui.store";
 import { useCreateNote } from "@/hooks/notes/useNotes";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { StatCard } from "@/components/ui/StatCard";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
 import { EditProjectModal } from "@/features/project/EditProjectModal";
 import { apiError } from "@/lib/apiError";
@@ -57,9 +58,9 @@ function WorkspaceOverview({ workspace, name, role }: { workspace: string; name:
   return <div className="p-3 sm:p-6 space-y-6 max-w-7xl mx-auto w-full min-w-0">
     <header className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 border-b border-border pb-5">
       <div className="min-w-0"><p className="text-xs text-primary font-medium mb-1 break-words" dir="auto">{name}</p><h1 className="text-2xl sm:text-3xl font-bold">{tr("Welcome back,")}{" "}{user?.display_name || user?.username || tr("Commander")}</h1><p className="text-sm text-muted-foreground mt-2">{tr("Your work, priorities, and team progress in one place.")}</p></div>
-      <div className="flex flex-wrap gap-2 shrink-0">
-        <Button variant="ghost" size="icon" aria-label={tr("Refresh dashboard")} disabled={query.isFetching || !workspace} onClick={() => void query.refetch()}><RefreshCw size={16} className={query.isFetching ? "animate-spin" : ""} /></Button>
-        <Link to={workPath} className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm hover:bg-muted focus-visible:outline-2 focus-visible:outline-primary"><CalendarDays size={15} />{tr("Planner")}</Link>
+      <div data-nexa-header-controls="" className="flex flex-wrap gap-2 shrink-0">
+        <Button variant="ghost" size="icon" className="nexa-header-icon nexa-tonal-action" aria-label={tr("Refresh dashboard")} disabled={query.isFetching || !workspace} onClick={() => void query.refetch()}><RefreshCw size={16} className={query.isFetching ? "animate-spin" : ""} /></Button>
+        <Link to={workPath} className="inline-flex items-center gap-2 rounded-xl nexa-action nexa-tonal-action px-3 text-sm font-semibold text-foreground transition-colors"><CalendarDays size={15} />{tr("Planner")}</Link>
         <Button variant="outline" size="sm" isLoading={createNote.isPending} disabled={createNote.isPending || !workspace} onClick={() => createNote.mutate({ title: tr("Untitled note") }, { onSuccess: note => navigate(notesPath + "?" + new URLSearchParams({ scope: "personal", note: note.id })) })}><NotebookPen size={15} />{tr("Write a note")}</Button>
         {!!writable.length && <Button size="sm" onClick={() => setCreate(true)}><Plus size={15} />{tr("Create task")}</Button>}
       </div>
@@ -70,12 +71,34 @@ function WorkspaceOverview({ workspace, name, role }: { workspace: string; name:
     {query.error && <div role="alert" className="rounded-xl border border-danger/30 p-4 text-sm space-y-2"><p className="text-danger">{apiError(query.error)}</p><Button variant="outline" size="sm" onClick={() => void query.refetch()}>{tr("Retry dashboard")}</Button></div>}
     {data && <>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {[
-          { label: tr("Active projects"), value: data.summary.projects, icon: FolderKanban, detail: tr("Projects you can access"), color: "text-primary" },
-          { label: tr("Open tasks"), value: data.summary.pending, icon: Clock, detail: tr("{value0} assigned to you", { value0: data.summary.mine }), color: "text-primary" },
-          { label: tr("Overdue tasks"), value: data.summary.overdue, icon: AlertCircle, detail: tr("Unfinished work before today"), color: "text-danger" },
-          { label: tr("Completed tasks"), value: data.summary.completed, icon: CheckCircle2, detail: tr("Of {value0} active tasks", { value0: data.summary.tasks }), color: "text-emerald-600 dark:text-emerald-400" },
-        ].map(item => <Card key={item.label} className="p-4 sm:p-5"><div className="flex justify-between gap-2 text-muted-foreground"><span className="text-xs font-medium">{item.label}</span><item.icon size={18} className={item.color} /></div><p className="text-3xl font-bold tabular-nums mt-3">{item.value.toLocaleString(dateLocale())}</p><p className="text-xs text-muted-foreground mt-1">{item.detail}</p></Card>)}
+        <StatCard
+          title={tr("Active projects")}
+          value={data.summary.projects.toLocaleString(dateLocale())}
+          subtitle={tr("Projects you can access")}
+          icon={FolderKanban}
+          variant="primary"
+        />
+        <StatCard
+          title={tr("Open tasks")}
+          value={data.summary.pending.toLocaleString(dateLocale())}
+          subtitle={tr("{value0} assigned to you", { value0: data.summary.mine })}
+          icon={Clock}
+          variant="info"
+        />
+        <StatCard
+          title={tr("Overdue tasks")}
+          value={data.summary.overdue.toLocaleString(dateLocale())}
+          subtitle={tr("Unfinished work before today")}
+          icon={AlertCircle}
+          variant="danger"
+        />
+        <StatCard
+          title={tr("Completed tasks")}
+          value={data.summary.completed.toLocaleString(dateLocale())}
+          subtitle={tr("Of {value0} active tasks", { value0: data.summary.tasks })}
+          icon={CheckCircle2}
+          variant="success"
+        />
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] gap-4">
         <Panel title={tr("My tasks")} description={tr("Assigned to you · up to 6 tasks per group")} action={<Link className="text-xs text-primary hover:underline" to={workPath}>{tr("Open work hub →")}</Link>}>

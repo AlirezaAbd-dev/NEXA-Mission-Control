@@ -27,7 +27,7 @@ export const ConfirmModal = ({
   useUiLocale();
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} description={description} size="sm">
-      {error && <p role="alert" className="mt-3 text-sm text-rose-600 dark:text-rose-400">{error}</p>}
+      {error && <p role="alert" className="mt-3 text-sm text-danger">{error}</p>}
       <div data-dialog-actions className="flex justify-end gap-2 mt-6">
         <Button variant="secondary" size="sm" onClick={onClose} disabled={isLoading}>{tr("Cancel")}</Button>
         <Button

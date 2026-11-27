@@ -146,7 +146,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         <div className="grid grid-cols-2 gap-2">
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <Hash className="w-3.5 h-3.5 text-emerald-500" />{tr("Points")}</label>
+              <Hash className="w-3.5 h-3.5 text-primary" />{tr("Points")}</label>
             <Input
               type="number"
               aria-label={tr("Story points")}
@@ -161,7 +161,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
 
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-emerald-500" />{tr("Est. Hours")}</label>
+              <Clock className="w-3.5 h-3.5 text-primary" />{tr("Est. Hours")}</label>
             <Input
               type="number"
               aria-label={tr("Estimated hours")}
@@ -178,7 +178,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         {/* Assignees */}
         <div data-shortcut="assignees" className="space-y-1.5">
           <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <UserCheck className="w-3.5 h-3.5 text-emerald-500" />{tr("Assignees")}</label>
+            <UserCheck className="w-3.5 h-3.5 text-primary" />{tr("Assignees")}</label>
           <div className="flex flex-wrap gap-1.5">
             {members.map((member) => {
               const isAssigned = card.assignees.some(
@@ -192,8 +192,8 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
                   onClick={() => toggleAssignee(member.user_id)}
                   className={`text-xs px-2.5 py-1 rounded-full border transition-all cursor-pointer ${
                     isAssigned
-                      ? "bg-emerald-600 text-white border-emerald-600 dark:bg-emerald-500 dark:text-slate-950 font-semibold"
-                      : "bg-slate-100 dark:bg-[#101117] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/[0.06] hover:border-emerald-500/40"
+                      ? "bg-primary text-primary-foreground border-primary font-semibold"
+                      : "bg-[var(--nexa-surface-l2)] text-muted-foreground border-[var(--nexa-divider)] hover:border-primary/40 hover:text-foreground"
                   }`}
                 >
                   {member.display_name || member.username}
@@ -206,7 +206,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         {/* Labels */}
         <div data-shortcut="labels" className="space-y-1.5">
           <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Tag className="w-3.5 h-3.5 text-emerald-500" />{tr("Labels")}</label>
+            <Tag className="w-3.5 h-3.5 text-primary" />{tr("Labels")}</label>
           {workspaceLabels.length === 0 && (
             <p className="text-xs text-muted-foreground">{tr("No labels configured.")}</p>
           )}
@@ -225,7 +225,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
                       : "transparent",
                     borderColor: hasLabel
                       ? lbl.color
-                      : "var(--color-border, #183035)",
+                      : "var(--nexa-divider)",
                     color: hasLabel ? lbl.color : "inherit",
                   }}
                 >
@@ -254,7 +254,7 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
         {/* Due Date */}
         <div data-shortcut="due" className="space-y-1.5">
           <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-emerald-500" />{tr("Due Date")}</label>
+            <Calendar className="w-3.5 h-3.5 text-primary" />{tr("Due Date")}</label>
           <Input
             aria-label={tr("Due date")}
             type="date"
@@ -265,28 +265,28 @@ export const CardSidebar: React.FC<CardSidebarProps> = ({
 
         <CardTimer cardId={card.id} />
 
-        <details className="rounded-xl border border-border p-3">
+        <details className="rounded-xl border border-[var(--nexa-divider)] p-3">
           <summary className="cursor-pointer text-sm font-semibold text-foreground">{tr("Workflow & advanced settings")}</summary>
           <div className="space-y-4 pt-4">
             {/* Template Toggle */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-secondary-foreground uppercase tracking-wider flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-emerald-500" />{tr("Template")}</label>
+                <FileText className="w-3.5 h-3.5 text-primary" />{tr("Template")}</label>
               <button
                 type="button"
                 onClick={handleToggleTemplate}
                 className={`w-full text-xs p-2 rounded-lg border font-medium flex items-center justify-between transition-all cursor-pointer ${
                   card.is_template
-                    ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-600 dark:text-emerald-400 font-semibold"
-                    : "bg-slate-50 dark:bg-[#0b0c10] border-slate-200 dark:border-white/[0.06] text-slate-600 dark:text-slate-300 hover:border-emerald-500/30"
+                    ? "bg-primary/10 border-primary/40 text-primary font-semibold"
+                    : "bg-[var(--nexa-surface-l2)] border-[var(--nexa-divider)] text-muted-foreground hover:border-primary/30"
                 }`}
               >
                 <span>{tr("Mark as Reusable Template")}</span>
                 <span
                   className={`w-4 h-4 rounded-full border flex items-center justify-center text-[10px] ${
                     card.is_template
-                      ? "bg-emerald-500 border-emerald-500 text-slate-950 font-bold"
-                      : "border-slate-300 dark:border-border"
+                      ? "bg-primary border-primary text-primary-foreground font-bold"
+                      : "border-[var(--nexa-divider)]"
                   }`}
                 >
                   {card.is_template ? "✓" : ""}

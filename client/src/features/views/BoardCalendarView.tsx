@@ -82,16 +82,16 @@ export function BoardCalendarView({
         </div>
       </div>
       {error && (
-        <p role="alert" className="text-rose-500 text-sm">
+        <p role="alert" className="text-danger text-sm">
           {error}
         </p>
       )}
       <div className="overflow-x-auto">
-        <div className="min-w-0 grid grid-cols-7 border border-slate-200 dark:border-white/[0.06] rounded-xl overflow-hidden bg-white dark:bg-[#0b0c10]">
+        <div className="min-w-0 grid grid-cols-7 border border-[var(--nexa-divider)] rounded-2xl overflow-hidden bg-[var(--nexa-surface-l1)]">
           {[tr("Sun"), tr("Mon"), tr("Tue"), tr("Wed"), tr("Thu"), tr("Fri"), tr("Sat")].map((day) => (
             <div
               key={day}
-              className="p-1 sm:p-3 text-xs text-center bg-slate-50 dark:bg-[#101117] text-slate-500"
+              className="p-1 sm:p-3 text-xs text-center bg-[var(--nexa-surface-l2)] text-muted-foreground"
             >
               {day}
             </div>
@@ -113,10 +113,10 @@ export function BoardCalendarView({
                       onError: (e) => setError(apiError(e)),
                     });
                 }}
-                className={`p-2 min-h-32 border-t border-e border-slate-200 dark:border-white/[0.06] ${today ? "bg-emerald-500/10" : ""} ${date.getMonth() !== current.getMonth() && mode === "month" ? "opacity-50" : ""}`}
+                className={`p-2 min-h-32 border-t border-e border-[var(--nexa-divider)] ${today ? "bg-primary/10" : ""} ${date.getMonth() !== current.getMonth() && mode === "month" ? "opacity-50" : ""}`}
               >
                 <span
-                  className={`text-xs font-semibold ${today ? "text-emerald-500" : "text-slate-500"}`}
+                  className={`text-xs font-semibold ${today ? "text-primary" : "text-muted-foreground"}`}
                 >
                   {date.getDate()}
                 </span>
@@ -138,7 +138,7 @@ export function BoardCalendarView({
                           e.dataTransfer.setData("text/plain", c.id)
                         }
                         onClick={() => open(c.id)}
-                        className="block w-full truncate text-start bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs"
+                        className="block w-full truncate text-start bg-primary/10 text-primary text-xs"
                         title={`${c.title} · ${parseDay(c.due_date || key).toLocaleDateString(dateLocale())}`}
                       >
                         {c.title}
@@ -150,7 +150,7 @@ export function BoardCalendarView({
           })}
         </div>
       </div>
-      <p className="text-xs text-slate-500">{tr("Drag a task to a date to move its entire date range. Open a task to change its details.")}</p>
+      <p className="text-xs text-muted-foreground">{tr("Drag a task to a date to move its entire date range. Open a task to change its details.")}</p>
     </div>
   );
 }

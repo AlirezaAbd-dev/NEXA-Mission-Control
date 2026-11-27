@@ -53,15 +53,15 @@ export const ProjectDangerZone: React.FC<ProjectDangerZoneProps> = ({
 
   return (
     <>
-      <section className="p-5 border rounded-xl space-y-4 border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10]">
+      <section className="p-5 border rounded-2xl space-y-4 border-[var(--nexa-divider)] bg-[var(--nexa-surface-l1)]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
               <span
                 className="w-3 h-3 rounded-full shrink-0 shadow-xs"
                 style={{ backgroundColor: project.color || "#2dd4bf" }}
               />{tr("Project Details & Actions")}</h2>
-            <p className="text-sm text-slate-500">{tr("Manage project name, description, accent color, or permanently delete this project.")}</p>
+            <p className="text-sm text-muted-foreground">{tr("Manage project name, description, accent color, or permanently delete this project.")}</p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
@@ -72,17 +72,17 @@ export const ProjectDangerZone: React.FC<ProjectDangerZoneProps> = ({
                 onClick={() => setEditOpen(true)}
                 className="flex items-center gap-1.5 cursor-pointer"
               >
-                <Edit2 className="w-3.5 h-3.5 text-emerald-500" />
+                <Edit2 className="w-3.5 h-3.5 text-primary" />
                 <span>{tr("Edit Project")}</span>
               </Button>
             )}
 
             {canDelete && (
               <Button
-                variant="outline"
+                variant="danger"
                 size="sm"
                 onClick={() => setDeleteOpen(true)}
-                className="flex items-center gap-1.5 text-rose-600 dark:text-rose-400 border-rose-500/20 hover:bg-rose-500/10 cursor-pointer"
+                className="flex items-center gap-1.5 cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>{tr("Delete Project")}</span>
@@ -92,7 +92,7 @@ export const ProjectDangerZone: React.FC<ProjectDangerZoneProps> = ({
         </div>
 
         {!canEdit && (
-          <div className="text-xs text-slate-400 italic">{tr("You have viewer or member permissions. Only workspace owners and admins can edit or delete this project.")}</div>
+          <div className="text-xs text-muted-foreground italic">{tr("You have viewer or member permissions. Only workspace owners and admins can edit or delete this project.")}</div>
         )}
       </section>
 

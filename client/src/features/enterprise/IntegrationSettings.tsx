@@ -29,20 +29,20 @@ export function IntegrationSettings({ projectId }: { projectId: string }) {
     [id, setId] = useState<string>();
   const outbound = ["slack", "discord"].includes(kind);
   return (
-    <section className="p-5 rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] space-y-4">
+    <section className="p-5 rounded-2xl bg-[var(--nexa-surface-l1)] border border-[var(--nexa-divider)] space-y-4">
       <div className="flex justify-between">
         <h2 className="font-semibold">{tr("Integrations")}</h2>
         <Button size="sm" variant="outline" onClick={() => setModal(true)}>{tr("Add integration")}</Button>
       </div>
       {loadError && (
-        <p role="alert" className="text-sm text-rose-500">
+        <p role="alert" className="text-sm text-danger">
           {apiError(loadError)}
         </p>
       )}
       {items.map((i) => (
         <div
           key={i.id}
-          className="p-3 rounded-lg bg-slate-50 dark:bg-[#101117] space-y-2"
+          className="p-3 rounded-xl bg-[var(--nexa-surface-l2)] space-y-2"
         >
           <div className="flex justify-between">
             <p className="text-sm font-medium">
@@ -51,7 +51,7 @@ export function IntegrationSettings({ projectId }: { projectId: string }) {
             <Button size="sm" variant="ghost" onClick={() => setId(i.id)}>{tr("Remove")}</Button>
           </div>
           {["github", "gitlab", "email"].includes(i.kind || "") && (
-            <code className="block text-[10px] break-all text-slate-500">
+            <code className="block text-[10px] break-all text-muted-foreground">
               {window.location.origin}/api/v1/integrations/
               {i.kind === "email"
                 ? `email/${i.id}`
@@ -61,7 +61,7 @@ export function IntegrationSettings({ projectId }: { projectId: string }) {
         </div>
       ))}
       {items.length === 0 && !loadError && (
-        <p className="text-sm text-slate-500">{tr("Connect commit webhooks, email intake, or team alerts.")}</p>
+        <p className="text-sm text-muted-foreground">{tr("Connect commit webhooks, email intake, or team alerts.")}</p>
       )}
       <Modal
         isOpen={modal}

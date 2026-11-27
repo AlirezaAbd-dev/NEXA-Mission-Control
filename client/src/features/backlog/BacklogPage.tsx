@@ -62,7 +62,7 @@ export function BacklogPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">{tr("Backlog & sprints")}</h1>
-          <p className="text-sm text-slate-500">{tr("Plan the next iteration and track delivery.")}</p>
+          <p className="text-sm text-muted-foreground">{tr("Plan the next iteration and track delivery.")}</p>
         </div>
         <Button
           onClick={() => {
@@ -72,20 +72,20 @@ export function BacklogPage() {
         >{tr("Create sprint")}</Button>
       </div>
       {error && (
-        <p role="alert" className="text-rose-500">
+        <p role="alert" className="text-danger">
           {error}
         </p>
       )}
       {active && (
-        <section className="p-5 rounded-xl border border-emerald-500/30 bg-emerald-500/10">
+        <section className="p-5 rounded-2xl border border-primary/30 bg-primary/10">
           <h2 className="font-bold">{active.name}{" "}{tr("· Active sprint")}</h2>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             {active.goal}{" "}{tr("· Ends")}{" "}
             {active.end_date?.slice(0, 10) || "unscheduled"}
           </p>
           <progress
             aria-label={tr("Sprint progress")}
-            className="w-full h-2 mt-3 accent-teal-500"
+            className="w-full h-2 mt-3 accent-primary"
             max={Math.max(1, active.card_ids.length)}
             value={
               cards.filter(
@@ -106,12 +106,12 @@ export function BacklogPage() {
         return (
           <section
             key={group.id}
-            className="rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10] overflow-visible"
+            className="rounded-2xl border border-[var(--nexa-divider)] bg-[var(--nexa-surface-l1)] overflow-visible"
           >
-            <div className="p-4 flex flex-wrap justify-between gap-3 bg-slate-50 dark:bg-[#101117] rounded-t-xl">
+            <div className="p-4 flex flex-wrap justify-between gap-3 bg-[var(--nexa-surface-l2)] rounded-t-2xl">
               <div>
                 <h2 className="font-semibold">{group.name}</h2>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-muted-foreground mt-1">
                   {formatNumber(group.cards.length)}{" "}{tr("tasks ·")}{" "}{formatNumber(points)}{" "}{tr("story points ·")}{" "}{formatNumber(done)}{" "}{tr("points completed")}</p>
               </div>
               {group.sprint && (
@@ -134,23 +134,23 @@ export function BacklogPage() {
               )}
             </div>
             {group.cards.length === 0 ? (
-              <p className="p-6 text-sm text-slate-500">{tr("No tasks yet. Move a task here from the backlog.")}</p>
+              <p className="p-6 text-sm text-muted-foreground">{tr("No tasks yet. Move a task here from the backlog.")}</p>
             ) : (
               group.cards.map((c) => (
                 <div
                   key={c.id}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 p-3 border-t border-slate-100 dark:border-white/[0.06] hover:bg-slate-50/50 dark:hover:bg-white/[0.05]/40 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 p-3 border-t border-[var(--nexa-divider)] hover:bg-[var(--nexa-surface-l2)] transition-colors"
                 >
                   <button
                     type="button"
                     onClick={() => open(c.id)}
-                    className="flex-1 min-w-0 text-start font-medium text-xs sm:text-sm text-slate-800 dark:text-slate-100 hover:text-emerald-600 dark:hover:text-emerald-400 break-words line-clamp-2 transition-colors cursor-pointer py-1"
+                    className="flex-1 min-w-0 text-start font-medium text-xs sm:text-sm text-foreground hover:text-primary break-words line-clamp-2 transition-colors cursor-pointer py-1"
                     title={c.title}
                   >
                     {c.title}
                   </button>
                   <div className="flex items-center gap-2.5 shrink-0 self-end sm:self-auto">
-                    <span className="text-xs text-slate-500 font-mono">
+                    <span className="text-xs text-muted-foreground font-mono">
                       {formatNumber(c.story_points || 0)}{" "}{tr("pts ·")}{" "}{uiLabel(c.priority)}
                     </span>
                     <CustomSelect

@@ -39,22 +39,22 @@ export const NotificationBell = () => {
   }, [isOpen]);
 
   const panel = (
-          <div ref={panelRef} className="fixed inset-x-2.5 top-14 mt-1.5 sm:absolute sm:inset-x-auto sm:end-0 sm:top-auto sm:mt-2 w-auto sm:w-80 max-h-[min(520px,calc(100dvh-5rem))] bg-white dark:bg-[#0b0c10] border border-slate-200/90 dark:border-white/[0.06] rounded-2xl shadow-2xl p-4 z-50 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-white/[0.06] shrink-0">
-              <h4 className="text-xs font-semibold text-slate-900 dark:text-slate-100">{tr("Notifications (")}{unreadCount})
+          <div ref={panelRef} data-nexa-popup-surface="" className="fixed inset-x-2.5 top-14 mt-1.5 sm:absolute sm:inset-x-auto sm:end-0 sm:top-auto sm:mt-2 w-auto sm:w-80 max-h-[min(520px,calc(100dvh-5rem))] bg-[var(--nexa-popup-fill)] text-foreground rounded-2xl p-4 z-50 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--nexa-divider)] shrink-0">
+              <h4 className="text-xs font-bold text-foreground">{tr("Notifications (")}{unreadCount})
               </h4>
               {unreadCount > 0 && (
                 <button
                   onClick={() => markAllRead.mutate()}
-                  className="text-[11px] text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 font-medium cursor-pointer"
+                  className="text-[11px] text-primary hover:underline flex items-center gap-1 font-semibold cursor-pointer"
                 >
                   <CheckCheck className="w-3.5 h-3.5" />{tr("Mark all read")}</button>
               )}
             </div>
 
-            <div className="flex-1 max-h-[min(380px,calc(100dvh-10rem))] overflow-y-auto divide-y divide-slate-100 dark:divide-white/[0.06] mt-2 pe-1">
+            <div className="flex-1 max-h-[min(380px,calc(100dvh-10rem))] overflow-y-auto divide-y divide-[var(--nexa-divider)] mt-2 pe-1">
               {notifications.length === 0 ? (
-                <p className="text-xs text-slate-400 text-center py-6">{tr("No notifications")}</p>
+                <p className="text-xs text-muted-foreground text-center py-6">{tr("No notifications")}</p>
               ) : (
                 notifications.map((n) => (
                   <div
@@ -66,10 +66,10 @@ export const NotificationBell = () => {
                         setIsOpen(false);
                       }
                     }}
-                    className={`py-2 px-1.5 text-xs cursor-pointer hover:bg-slate-50 dark:hover:bg-white/[0.05] rounded-xl transition-colors ${
+                    className={`py-2.5 px-2 text-xs cursor-pointer hover:bg-[var(--nexa-surface-hover)] rounded-xl transition-colors ${
                       !n.read_at
-                        ? "font-medium text-slate-900 dark:text-slate-100"
-                        : "text-slate-500 dark:text-slate-400"
+                        ? "font-semibold text-foreground"
+                        : "text-muted-foreground"
                     }`}
                   >
                     <p className="break-words line-clamp-2">
@@ -77,7 +77,7 @@ export const NotificationBell = () => {
                         ? n.payload.message
                         : n.type_}
                     </p>
-                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                    <span className="text-[10px] text-muted-foreground block mt-0.5">
                       {formatDateTime(n.created_at)}
                     </span>
                   </div>
@@ -90,13 +90,14 @@ export const NotificationBell = () => {
   return (
     <div className="relative" ref={containerRef}>
       <button
+        type="button"
         aria-label={tr("Notifications (") + unreadCount + ")"}
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-muted rounded-lg transition-colors"
+        className="relative flex nexa-header-icon nexa-tonal-action items-center justify-center rounded-xl text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
       >
         <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
-          <span className="absolute top-1.5 end-1.5 w-2 h-2 bg-red-500 rounded-full" />
+          <span className="absolute top-1.5 end-1.5 w-2 h-2 bg-danger rounded-full" />
         )}
       </button>
 

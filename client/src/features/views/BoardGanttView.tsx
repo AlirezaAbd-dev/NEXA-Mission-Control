@@ -86,7 +86,7 @@ export function BoardGanttView({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold">{title}</h2>
-          <p className="text-xs text-slate-500">{tr("Drag bars to move tasks; drag the end handle to change duration.")}</p>
+          <p className="text-xs text-muted-foreground">{tr("Drag bars to move tasks; drag the end handle to change duration.")}</p>
         </div>
         <CustomSelect
           className="w-36"
@@ -109,9 +109,9 @@ export function BoardGanttView({
           <p className="text-sm text-slate-500 mt-2">{tr("Add start and due dates from the table or task detail view.")}</p>
         </div>
       ) : (
-        <div className="flex rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10] overflow-hidden">
-          <div className="w-52 shrink-0 border-e border-slate-200 dark:border-white/[0.06]">
-            <div className="h-[50px] p-4 text-xs text-slate-500">{tr("Task")}</div>
+        <div className="flex rounded-2xl border border-[var(--nexa-divider)] bg-[var(--nexa-surface-l1)] overflow-hidden">
+          <div className="w-52 shrink-0 border-e border-[var(--nexa-divider)]">
+            <div className="h-[50px] p-4 text-xs text-muted-foreground">{tr("Task")}</div>
             {scheduled.map((c) => (
               <Button
                 key={c.id}

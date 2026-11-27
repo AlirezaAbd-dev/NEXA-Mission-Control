@@ -7,10 +7,12 @@ import { TopBar } from "./TopBar";
 import { CommandPalette } from "@/components/common/CommandPalette";
 import { CardDetailModal } from "@/features/card/CardDetailModal";
 import { useAuthStore } from "@/stores/auth.store";
+import { useUiStore } from "@/stores/ui.store";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 
 export const AppLayout = () => {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const sidebarCollapsed = useUiStore((s) => s.sidebarCollapsed);
   useRealtime();
   useDesktopNotifications();
   useCurrentUser(); // Bootstrap current user profile
@@ -20,13 +22,21 @@ export const AppLayout = () => {
   }
 
   return (
-    <div className="fixed inset-0 flex h-[100dvh] w-screen overflow-hidden bg-slate-50 dark:bg-[#070709] text-slate-900 dark:text-slate-100">
-      <Sidebar />
-      <div className="flex flex-col flex-1 h-screen h-[100dvh] overflow-hidden min-w-0 bg-slate-50/50 dark:bg-[#070709]/50">
-        <TopBar />
-        <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col">
-          <Outlet />
-        </main>
+    <div
+      data-nexa-surface="app"
+      className="fixed inset-0 h-[100dvh] w-screen overflow-hidden bg-[var(--nexa-surface-l0)] text-foreground"
+    >
+      <div
+        data-nexa-shell={sidebarCollapsed ? "collapsed" : "expanded"}
+        className="relative flex h-full w-full overflow-hidden"
+      >
+        <Sidebar />
+        <div className="nexa-shell-main flex flex-col flex-1 h-full overflow-hidden min-w-0 transition-[padding] duration-300 motion-reduce:transition-none">
+          <TopBar />
+          <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col">
+            <Outlet />
+          </main>
+        </div>
       </div>
 
       <CommandPalette />

@@ -13,3 +13,5 @@ export * from "./Checkbox";
 export * from "./DatePicker";
 export * from "./SearchableSelect";
 export * from "./RichTextEditor";
+export * from "./Tabs";
+export * from "./StatCard";

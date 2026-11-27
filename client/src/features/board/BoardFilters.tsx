@@ -63,7 +63,7 @@ export const BoardFilters: React.FC = () => {
           <Filter className="w-3.5 h-3.5" />
           <span className="text-xs">{tr("Filters")}</span>
           {filterCount > 0 && (
-            <span className="w-4 h-4 rounded-full bg-emerald-500 text-white text-[10px] font-bold flex items-center justify-center">
+            <span className="w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
               {filterCount}
             </span>
           )}
@@ -74,7 +74,7 @@ export const BoardFilters: React.FC = () => {
             size="sm"
             variant="ghost"
             onClick={resetFilters}
-            className="sm:hidden text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 h-8.5 px-2 shrink-0"
+            className="sm:hidden text-xs text-muted-foreground hover:text-foreground h-8.5 px-2 shrink-0"
             title={tr("Clear filters")}
           >
             <X className="w-3.5 h-3.5" />
@@ -139,7 +139,7 @@ export const BoardFilters: React.FC = () => {
             size="sm"
             variant="ghost"
             onClick={resetFilters}
-            className="hidden sm:inline-flex text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 h-8.5 px-2.5"
+            className="hidden sm:inline-flex text-xs text-muted-foreground hover:text-foreground h-8.5 px-2.5"
           >
             <X className="w-3.5 h-3.5 me-1" />{tr("Clear")}</Button>
         )}

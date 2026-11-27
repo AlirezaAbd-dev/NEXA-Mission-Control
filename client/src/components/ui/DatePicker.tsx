@@ -377,11 +377,12 @@ export function DatePicker({
               ref={popoverRef}
               id={popoverId}
               data-floating-overlay
+              data-nexa-popup-surface=""
               role="dialog"
               aria-label={tr("Choose Gregorian date")}
               onKeyDown={handleCalendarKey}
               className={cn(
-                "absolute start-0 w-full max-w-[calc(100vw-24px)] max-h-[calc(100dvh-24px)] overflow-y-auto rounded-2xl sm:rounded-3xl border border-border/80 bg-card/98 text-foreground p-1 sm:p-4 shadow-2xl shadow-primary/10 backdrop-blur-2xl animate-in fade-in-50 zoom-in-95 duration-150 dark:border-white/12 dark:bg-[#101117]/98 dark:shadow-[0_20px_50px_rgba(0,0,0,0.8)]",
+                "absolute start-0 w-full max-w-[calc(100vw-24px)] max-h-[calc(100dvh-24px)] overflow-y-auto rounded-2xl sm:rounded-3xl border border-[var(--nexa-divider)] bg-[var(--nexa-popup-fill)] text-foreground p-1 sm:p-4 shadow-2xl animate-in fade-in-50 zoom-in-95 duration-150",
                 coords.isUp ? "origin-bottom" : "origin-top",
               )}
               dir={getLocale() === "fa" ? "rtl" : "ltr"}

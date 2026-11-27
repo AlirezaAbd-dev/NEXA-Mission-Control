@@ -68,16 +68,16 @@ export function BoardTableView({
             label: tr("Sort by {value0}", { value0: uiLabel(value) }),
           }))}
         />
-        <span className="text-xs text-slate-500 self-center">
+        <span className="text-xs text-muted-foreground self-center">
           {formatNumber(visible.length)}{" "}{tr("tasks ·")}{" "}{formatNumber(selected.length)}{tr("selected")}</span>
       </div>
       {error && (
-        <p role="alert" className="text-sm text-rose-500">
+        <p role="alert" className="text-sm text-danger">
           {error}
         </p>
       )}
       {selected.length > 0 && (
-        <div className="flex flex-wrap items-center gap-3 rounded-xl bg-emerald-500/10 p-3">
+        <div className="flex flex-wrap items-center gap-3 rounded-xl bg-primary/10 border border-primary/20 p-3">
           <CustomSelect
             className="w-48"
             placeholder={tr("Move selected tasks")}
@@ -121,9 +121,9 @@ export function BoardTableView({
           <Button size="sm" variant="ghost" onClick={() => setSelected([])}>{tr("Clear")}</Button>
         </div>
       )}
-      <div className="overflow-auto rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10]">
-        <table className="w-full min-w-[960px] text-start text-sm" data-responsive-table>
-          <thead className="bg-slate-50 dark:bg-[#101117] text-xs text-slate-500">
+      <div className="overflow-auto rounded-2xl border border-[var(--nexa-divider)] bg-[var(--nexa-surface-l1)]">
+        <table data-nexa-table="" className="w-full min-w-[960px] text-start text-sm" data-responsive-table>
+          <thead className="bg-[var(--nexa-surface-l2)] text-xs text-muted-foreground">
             <tr>
               <th className="p-3">
                 <Checkbox
@@ -159,7 +159,7 @@ export function BoardTableView({
             {visible.map((card) => (
               <tr
                 key={card.id}
-                className="border-t border-slate-100 dark:border-white/[0.06]"
+                className="border-t border-[var(--nexa-divider)]"
               >
                 <td className="p-3" data-label={tr("Select all tasks")}>
                   <Checkbox
@@ -173,7 +173,7 @@ export function BoardTableView({
                     variant="ghost"
                     size="sm"
                     onClick={() => open(card.id)}
-                    className="text-emerald-600 dark:text-emerald-400"
+                    className="text-primary"
                   >{tr("Open")}</Button>
                   <Input
                     aria-label={tr("Task title")}

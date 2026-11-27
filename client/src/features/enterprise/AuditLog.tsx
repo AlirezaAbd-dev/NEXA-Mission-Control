@@ -15,10 +15,10 @@ export function AuditLog({ projectId }: { projectId: string }) {
     "audit",
   );
   return (
-    <section className="p-5 rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06]">
+    <section className="p-5 rounded-2xl bg-[var(--nexa-surface-l1)] border border-[var(--nexa-divider)]">
       <h2 className="font-semibold mb-4">{tr("Security & activity audit")}</h2>
       {error && (
-        <p role="alert" className="text-sm text-rose-500">
+        <p role="alert" className="text-sm text-danger">
           {apiError(error)}
         </p>
       )}
@@ -26,13 +26,13 @@ export function AuditLog({ projectId }: { projectId: string }) {
         {entries.map((e) => (
           <div
             key={e.id}
-            className="border-b border-slate-100 dark:border-white/[0.06] pb-3"
+            className="border-b border-[var(--nexa-divider)] pb-3"
           >
             <p className="text-xs font-medium">
               {e.actor_name || tr("System")} ·{" "}
               {auditSummary(e.action, auditPayload(e.payload))}
             </p>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               {new Date(e.created_at).toLocaleString(dateLocale())}
             </p>
             {!!auditPayload(e.payload).task_title && (
@@ -44,7 +44,7 @@ export function AuditLog({ projectId }: { projectId: string }) {
           </div>
         ))}
         {entries.length === 0 && !error && (
-          <p className="text-sm text-slate-500">{tr("Project changes will appear here.")}</p>
+          <p className="text-sm text-muted-foreground">{tr("Project changes will appear here.")}</p>
         )}
       </div>
     </section>

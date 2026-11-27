@@ -115,18 +115,18 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         />
       );
     return (
-      <div className="flex flex-col gap-1.5 w-full">
+      <div className="flex min-w-0 flex-col gap-2 w-full">
         {label && (
           <label
             htmlFor={inputId}
-            className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 tracking-tight text-start inline-flex items-center gap-1.5"
+            className="text-field-label font-medium text-foreground text-start inline-flex items-center gap-1.5"
           >
             <span>
               {typeof label === "string" ? label.replace(/\s*\*$/, "") : label}
             </span>
             {props.required && (
               <span
-                className="text-rose-500 font-bold text-xs"
+                className="text-danger font-bold text-xs"
                 aria-hidden="true"
               >
                 *
@@ -137,17 +137,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         <div
           dir={containerDir}
+          data-nexa-field=""
+          data-invalid={error || props["aria-invalid"] === true || props["aria-invalid"] === "true" ? "true" : undefined}
           className={cn(
-            "group relative flex items-center w-full h-11 rounded-xl sm:rounded-2xl border transition-all duration-200 shadow-2xs overflow-hidden",
-            "border-slate-200/90 bg-white text-slate-900 hover:border-slate-300 focus-within:border-emerald-600 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-600/10",
-            "dark:border-white/10 dark:bg-black/35 dark:text-slate-100 dark:shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)] dark:hover:border-white/20 dark:focus-within:border-emerald-400 dark:focus-within:bg-black/50 dark:focus-within:ring-4 dark:focus-within:ring-emerald-500/20",
-            props.disabled && "cursor-not-allowed opacity-50 bg-slate-100 dark:bg-muted/40",
-            error &&
-              "border-rose-500 focus-within:border-rose-500 focus-within:ring-rose-500/15 dark:border-rose-500 dark:focus-within:border-rose-500 dark:focus-within:ring-rose-500/25",
+            "group relative flex items-center w-full h-11 rounded-xl border transition-all duration-200 overflow-hidden",
+            "bg-[var(--nexa-field-fill)] border-[var(--nexa-field-border)] text-foreground",
+            props.disabled && "cursor-not-allowed opacity-50",
+            error && "border-danger",
           )}
         >
           {Icon && (
-            <div className="ps-4 pe-2 text-slate-400 group-focus-within:text-emerald-600 dark:text-muted-foreground/80 dark:group-focus-within:text-emerald-400 transition-colors flex items-center justify-center shrink-0 pointer-events-none">
+            <div className="ps-4 pe-2 text-muted-foreground group-focus-within:text-primary transition-colors flex items-center justify-center shrink-0 pointer-events-none">
               <Icon className="h-4.5 w-4.5" />
             </div>
           )}
@@ -161,7 +161,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             type={inputType}
             id={inputId}
             className={cn(
-              "h-full w-full flex-1 bg-transparent text-sm sm:text-base font-normal outline-none border-0 ring-0 focus:ring-0 focus:outline-none text-slate-900 placeholder:text-slate-400 dark:text-slate-100 dark:placeholder:text-white/30",
+              "h-full w-full flex-1 bg-transparent text-sm sm:text-base font-normal outline-none border-0 ring-0 focus:ring-0 focus:outline-none text-foreground placeholder:text-muted-foreground",
               hasLeading ? "ps-1.5" : "ps-4",
               hasTrailing ? "pe-1.5" : "pe-4",
               isPassword && "text-start",

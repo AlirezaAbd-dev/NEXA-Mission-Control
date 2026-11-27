@@ -1,21 +1,36 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "default" | "glass" | "glow" | "subtle";
+}
+
 export const Card = ({
   className,
   children,
+  variant = "default",
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      "relative rounded-2xl sm:rounded-3xl bg-white dark:bg-[#0b0c10] border border-slate-200/80 dark:border-white/[0.06] shadow-sm hover:border-emerald-500/30 dark:hover:border-emerald-500/30 transition-all duration-300 text-slate-900 dark:text-slate-100",
-      className,
-    )}
-    {...props}
-  >
-    {children}
-  </div>
-);
+}: CardProps) => {
+  const variantClass = {
+    default: "bg-card text-foreground transition-colors",
+    glass:
+      "bg-glass-bg backdrop-blur-2xl border border-glass-border shadow-lg shadow-black/5 text-foreground",
+    glow:
+      "bg-card border border-primary/20 shadow-md shadow-primary/5 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30 transition-all duration-300 text-foreground",
+    subtle: "bg-muted/50 text-foreground",
+  }[variant];
+
+  return (
+    <div
+      data-nexa-card="md"
+      data-nexa-card-variant={variant}
+      className={cn("relative rounded-2xl", variantClass, className)}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+};
 
 export const CardHeader = ({
   className,
@@ -37,7 +52,7 @@ export const CardTitle = ({
 }: React.HTMLAttributes<HTMLHeadingElement>) => (
   <h3
     className={cn(
-      "font-semibold leading-none tracking-tight text-base text-slate-900 dark:text-slate-100",
+      "font-bold leading-none tracking-tight text-sm sm:text-base text-foreground",
       className,
     )}
     {...props}
@@ -53,7 +68,7 @@ export const CardDescription = ({
 }: React.HTMLAttributes<HTMLParagraphElement>) => (
   <p
     className={cn(
-      "text-xs text-slate-500 dark:text-slate-400 leading-relaxed",
+      "text-xs text-muted-foreground leading-relaxed",
       className,
     )}
     {...props}

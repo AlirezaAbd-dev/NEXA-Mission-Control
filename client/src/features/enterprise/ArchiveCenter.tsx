@@ -45,15 +45,15 @@ export function ArchiveCenter({
 
   return (
     <section
-      className={`rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] ${
+      className={`rounded-2xl bg-[var(--nexa-surface-l1)] border border-[var(--nexa-divider)] ${
         compact ? "p-4 space-y-3" : "p-5 space-y-4"
       }`}
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Archive size={18} className="text-emerald-600 dark:text-emerald-400" />
-          <h2 className="font-semibold text-slate-900 dark:text-slate-100">{tr("Archived tasks")}</h2>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-medium">
+          <Archive size={18} className="text-primary" />
+          <h2 className="font-semibold text-foreground">{tr("Archived tasks")}</h2>
+          <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--nexa-surface-l2)] text-muted-foreground font-medium">
             {formatNumber(cards.length)}
           </span>
         </div>
@@ -63,7 +63,7 @@ export function ArchiveCenter({
         <div className="relative">
           <Search
             size={14}
-            className="absolute start-3 top-1/2 -translate-y-1/2 text-slate-400"
+            className="absolute start-3 top-1/2 -translate-y-1/2 text-muted-foreground"
           />
           <Input
             placeholder={tr("Search archived tasks...")}
@@ -75,27 +75,27 @@ export function ArchiveCenter({
       )}
 
       {isLoading ? (
-        <p className="text-sm text-slate-500 animate-pulse py-4 text-center">{tr("Loading archived tasks...")}</p>
+        <p className="text-sm text-muted-foreground animate-pulse py-4 text-center">{tr("Loading archived tasks...")}</p>
       ) : loadError ? (
         <div role="alert" className="space-y-2 text-sm text-danger">
           <p>{apiError(loadError)}</p>
           <Button size="sm" variant="outline" onClick={() => void refetch()}>{tr("Retry")}</Button>
         </div>
       ) : cards.length === 0 ? (
-        <div className="py-8 text-center text-slate-500 space-y-1">
-          <Archive size={28} className="mx-auto text-slate-400/60 mb-2" />
+        <div className="py-8 text-center text-muted-foreground space-y-1">
+          <Archive size={28} className="mx-auto text-muted-foreground/60 mb-2" />
           <p className="text-sm font-medium">{tr("No archived tasks")}</p>
-          <p className="text-xs text-slate-400">{tr("Removed tasks move here and can be restored until permanently deleted by an owner or admin.")}</p>
+          <p className="text-xs text-muted-foreground">{tr("Removed tasks move here and can be restored until permanently deleted by an owner or admin.")}</p>
         </div>
       ) : filteredCards.length === 0 ? (
-        <p className="text-xs text-slate-500 py-4 text-center">{tr("No tasks matching \"")}{search}"
+        <p className="text-xs text-muted-foreground py-4 text-center">{tr("No tasks matching \"")}{search}"
         </p>
       ) : (
         <div className="space-y-2 max-h-[60vh] overflow-y-auto pe-1">
           {filteredCards.map((c) => (
             <div
               key={c.id}
-              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2.5 rounded-lg border border-slate-100 dark:border-[#162a2e] bg-slate-50/50 dark:bg-[#091417] hover:border-emerald-500/30 transition-colors"
+              className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2.5 rounded-xl border border-[var(--nexa-divider)] bg-[var(--nexa-surface-l2)] hover:border-primary/30 transition-colors"
             >
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">

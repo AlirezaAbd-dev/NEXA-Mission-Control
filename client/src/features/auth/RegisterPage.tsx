@@ -62,28 +62,28 @@ export const RegisterPage = () => {
   };
 
   return (
-    <div className="h-[100dvh] w-screen flex items-start sm:items-center justify-center p-4 bg-slate-50 dark:bg-[#070709] relative overflow-y-auto overscroll-y-contain">
+    <div className="h-[100dvh] w-screen flex items-start sm:items-center justify-center p-4 bg-[var(--nexa-surface-l0)] relative overflow-y-auto overscroll-y-contain">
       {/* Decorative ambient gradient orbs */}
-      <div className="absolute top-1/4 -end-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -start-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 -end-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -start-32 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
-      <Card className="w-full shrink-0 max-w-md shadow-2xl border-slate-200/80 dark:border-white/[0.06] bg-white/95 dark:bg-[#0b0c10] backdrop-blur-md relative z-10">
+      <Card className="w-full shrink-0 max-w-md shadow-2xl relative z-10">
         <CardHeader className="text-center pb-2">
           <div className="flex justify-center mb-3">
             <NexaLogo size={48} />
           </div>
-          <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+          <CardTitle className="text-2xl font-bold text-foreground tracking-tight">
             NEXA{" "}
-            <span className="text-emerald-600 dark:text-emerald-400">{tr("Mission Control")}</span>
+            <span className="text-primary">{tr("Mission Control")}</span>
           </CardTitle>
-          <p className="text-xs text-slate-500 dark:text-slate-300 mt-1.5 font-medium">{tr("Join your mission workspace and start building")}</p>
+          <p className="text-xs text-muted-foreground mt-1.5 font-medium">{tr("Join your mission workspace and start building")}</p>
         </CardHeader>
 
         <CardContent>
           <div className="flex justify-end mb-3"><LanguageSwitcher /></div>
           <form onSubmit={handleSubmit} className="space-y-3.5">
             {registerMutation.isError && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-600 dark:text-rose-400 font-medium">
+              <div className="p-3 bg-[var(--nexa-status-danger-surface)] rounded-xl text-xs text-[var(--nexa-status-danger-text)] font-medium">
                 {(registerMutation.error as any)?.response?.data?.error
                   ?.message || tr("Registration failed")}
               </div>
@@ -145,17 +145,17 @@ export const RegisterPage = () => {
               isLoading={registerMutation.isPending}
             >{tr("Get Started Free")}</Button>
 
-            <div className="flex items-center justify-center gap-1.5 pt-1 text-xs text-slate-400 dark:text-slate-500">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            <div className="flex items-center justify-center gap-1.5 pt-1 text-xs text-muted-foreground">
+              <ShieldCheck className="w-4 h-4 text-primary" />
               <span>{tr("Instant provisioning & workspace auto-setup")}</span>
             </div>
 
-            <div className="text-center pt-2 border-t border-slate-100 dark:border-white/[0.06]">
-              <span className="text-xs text-slate-500">{tr("Already have an account?")}{" "}
+            <div className="text-center pt-2 border-t border-[var(--nexa-divider)]">
+              <span className="text-xs text-muted-foreground">{tr("Already have an account?")}{" "}
               </span>
               <Link
                 to="/login"
-                className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
+                className="text-xs font-semibold text-primary hover:underline"
               >{tr("Sign in")}</Link>
             </div>
           </form>

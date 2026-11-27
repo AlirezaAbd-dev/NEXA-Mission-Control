@@ -19,33 +19,36 @@ export const Button = ({
   ...props
 }: ButtonProps & { ref?: React.Ref<HTMLButtonElement> }) => {
   const baseStyles =
-    "inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:ring-offset-1 dark:focus:ring-offset-[#070709] disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.98] cursor-pointer";
+    "inline-flex items-center justify-center rounded-xl font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-50 disabled:pointer-events-none select-none active:scale-[0.98] whitespace-nowrap shrink-0 cursor-pointer";
 
   const variants = {
-    primary:
-      "bg-emerald-600 hover:bg-emerald-500 text-white dark:bg-emerald-500 dark:hover:bg-emerald-400 dark:text-[#070709] shadow-xs active:bg-emerald-700 dark:active:bg-emerald-300 font-semibold cursor-pointer",
-    secondary:
-      "bg-slate-100 hover:bg-slate-200/80 text-slate-800 border border-slate-200/80 dark:border-transparent dark:bg-[#101117] dark:hover:bg-white/[0.08] dark:text-slate-200 font-medium cursor-pointer",
-    ghost:
-      "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/[0.05] dark:hover:text-slate-100 cursor-pointer",
-    outline:
-      "border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 dark:border-white/[0.06] dark:bg-transparent dark:text-slate-300 dark:hover:bg-white/[0.05] dark:hover:border-emerald-500/30 cursor-pointer",
-    danger:
-      "bg-rose-600 hover:bg-rose-500 text-white dark:bg-rose-500/20 dark:text-rose-400 dark:border dark:border-rose-500/30 dark:hover:bg-rose-500/30 cursor-pointer",
+    primary: "bg-primary text-primary-foreground hover:bg-primary/90",
+    secondary: "bg-muted text-foreground hover:bg-muted/80",
+    ghost: "text-foreground hover:bg-muted",
+    outline: "bg-muted text-foreground hover:bg-muted/80",
+    danger: "bg-danger text-destructive-foreground hover:bg-danger/90",
   };
 
   const sizes = {
-    sm: "h-8 px-3 text-xs gap-2",
-    md: "h-9 px-4 text-sm gap-2",
-    lg: "h-10 px-5 text-sm gap-2",
-    icon: "p-2 text-sm",
+    icon: "h-11 w-11 p-0 text-sm",
+    sm: "h-11 sm:h-9 px-3 text-sm gap-2",
+    md: "h-11 px-4 text-sm gap-2",
+    lg: "h-12 px-5 text-base gap-2",
   };
 
   return (
     <button
       ref={ref}
       disabled={disabled || isLoading}
-      className={cn(baseStyles, variants[variant], sizes[size], className)}
+      className={cn(
+        baseStyles,
+        "nexa-action",
+        `nexa-action-${variant}`,
+        size === "icon" && "nexa-action-icon",
+        variants[variant],
+        sizes[size],
+        className,
+      )}
       {...props}
     >
       {isLoading && <Loader2 className="w-4 h-4 animate-spin text-current" />}

@@ -14,15 +14,15 @@ import { Button } from "@/components/ui/Button";
 import { ColumnOrderModal } from "./ColumnOrderModal";
 
 export const boardThemes: Record<string, string> = {
-  petrol: "bg-slate-50 dark:bg-[#070709]",
-  teal: "bg-slate-50 dark:bg-[#070709]",
-  ocean: "bg-slate-50 dark:bg-[#070709]",
-  emerald: "bg-slate-50 dark:bg-[#070709]",
-  sunset: "bg-slate-50 dark:bg-[#070709]",
-  midnight: "bg-slate-50 dark:bg-[#070709]",
-  purple: "bg-slate-50 dark:bg-[#070709]",
-  slate: "bg-slate-50 dark:bg-[#070709]",
-  neutral: "bg-slate-50 dark:bg-[#070709]",
+  petrol: "bg-[var(--nexa-surface-l0)]",
+  teal: "bg-[var(--nexa-surface-l0)]",
+  ocean: "bg-[var(--nexa-surface-l0)]",
+  emerald: "bg-[var(--nexa-surface-l0)]",
+  sunset: "bg-[var(--nexa-surface-l0)]",
+  midnight: "bg-[var(--nexa-surface-l0)]",
+  purple: "bg-[var(--nexa-surface-l0)]",
+  slate: "bg-[var(--nexa-surface-l0)]",
+  neutral: "bg-[var(--nexa-surface-l0)]",
 };
 
 export const BoardPage: React.FC = () => {

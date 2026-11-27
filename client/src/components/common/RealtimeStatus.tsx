@@ -10,15 +10,15 @@ export function RealtimeStatus() {
     <span
       role="status"
       title={tr("Realtime: {value0}", { value0: (status === "live" ? tr("Live") : status === "connecting" ? tr("Connecting…") : tr("Reconnecting…")) })}
-      className={`inline-flex items-center gap-1.5 text-xs px-2 py-1 sm:px-2.5 rounded-full ${
+      className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${
         isLive
-          ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
-          : "text-amber-600 dark:text-amber-400 bg-amber-500/10"
+          ? "bg-[var(--nexa-status-success-surface)] text-[var(--nexa-status-success-text)]"
+          : "bg-[var(--nexa-status-warning-surface)] text-[var(--nexa-status-warning-text)]"
       }`}
     >
       <span
-        className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-          isLive ? "bg-emerald-500 animate-pulse" : "bg-amber-500"
+        className={`w-1.5 h-1.5 rounded-full shrink-0 bg-current ${
+          isLive ? "animate-pulse" : ""
         }`}
       />
       <span className="hidden sm:inline">

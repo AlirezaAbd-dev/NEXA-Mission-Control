@@ -6,21 +6,14 @@
   --font-sans:
     "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
-  /* NEXA Brand tokens: Rich Cyber Emerald */
-  --color-primary-hover: #059669;
-  --color-accent-teal: #10b981;
-  --color-accent-gold: #c59b51;
-
-  /* NEXA Cyber Surfaces: light-dark adapted */
-  --color-surface-50: #fafbfc;
-  --color-surface-100: #f4f4f5;
-  --color-surface-200: #e4e4e7;
-  --color-surface-300: #d4d4d8;
-
-  --color-surface-700: #1c1d24;
-  --color-surface-800: #101117;
-  --color-surface-900: #0b0c10;
-  --color-surface-950: #070709;
+  --text-field-label: 0.875rem;
+  --text-field-label--line-height: 1.25rem;
+  --text-section-title: 1.125rem;
+  --text-section-title--line-height: 1.75rem;
+  --text-page-title: 1.5rem;
+  --text-page-title--line-height: 2rem;
+  --text-help: 0.75rem;
+  --text-help--line-height: 1.125rem;
 
   /* Priority system */
   --color-priority-urgent: #ef4444;
@@ -34,6 +27,12 @@
   --radius-md: 0.5rem;
   --radius-lg: 0.625rem;
   --radius-xl: 0.75rem;
+
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
 }
 
 :root {
@@ -49,55 +48,34 @@ html.dark {
 }
 
 /* ─────────────────────────────────────────────
-   Breakpoints
-   ───────────────────────────────────────────── */
-@theme {
-  --breakpoint-sm: 640px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-  --breakpoint-xl: 1280px;
-  --breakpoint-2xl: 1536px;
-}
-
-/* ─────────────────────────────────────────────
    Design tokens — light-dark(روشن, تیره)
    ───────────────────────────────────────────── */
 @theme {
-  /* 1. Surfaces (Smooth velvety canvas, deep cohesive dark mode surfaces) */
-  --color-app-bg: light-dark(#fafbfc, #070709);
-  --color-app-surface: light-dark(#ffffff, #0b0c10);
-  --color-app-overlay: light-dark(#ffffff, #101117);
+  /* 1. Surfaces */
+  --color-app-bg: light-dark(#fafbfc, #101217);
+  --color-app-surface: light-dark(#ffffff, #161921);
+  --color-app-overlay: light-dark(#ffffff, #202530);
 
-  /* 2. Brand & AI (Rich, Velvety Cyber Emerald) */
+  /* 2. Brand & AI */
   --color-app-accent: light-dark(#059669, #10b981);
   --color-app-ai: light-dark(#059669, #10b981);
   --color-accent: light-dark(#059669, #10b981);
 
-  /* 3. Typography (Crisp, comfortable high-readability slate) */
-  --color-app-text-main: light-dark(#09090b, #f4f4f5);
-  --color-app-text-secondary: light-dark(#27272a, #a1a1aa);
-  --color-app-text-muted: light-dark(#52525b, #71717a);
+  /* 3. Typography */
+  --color-app-text-main: light-dark(#09090b, #f8fafc);
+  --color-app-text-secondary: light-dark(#27272a, #d4d4d8);
+  --color-app-text-muted: light-dark(#52525b, #a1a1aa);
 
-  /* 4. UI chrome (Soft hairline borders, low contrast) */
-  --color-app-border: light-dark(rgba(15, 23, 42, 0.08), rgba(255, 255, 255, 0.055));
-  --color-app-hover: light-dark(rgba(5, 150, 105, 0.04), rgba(16, 185, 129, 0.06));
-  --color-app-muted: light-dark(#f4f4f5, #0f1015);
+  /* 4. UI chrome */
+  --color-app-border: light-dark(rgba(15, 23, 42, 0.06), rgba(255, 255, 255, 0.11));
+  --color-app-hover: light-dark(rgba(5, 150, 105, 0.04), rgba(16, 185, 129, 0.08));
+  --color-app-muted: light-dark(#f4f4f5, #1c202a);
   --color-app-accent-fg: light-dark(#ffffff, #ffffff);
   --color-app-accent-light: light-dark(rgba(5, 150, 105, 0.08), rgba(16, 185, 129, 0.12));
   --color-app-ai-light: light-dark(rgba(5, 150, 105, 0.08), rgba(16, 185, 129, 0.12));
-  --color-app-sidebar: light-dark(#ffffff, #070709);
+  --color-app-sidebar: light-dark(#ffffff, #101217);
 
-  /* 5. Chat bubbles */
-  --color-chat-incoming-bg: light-dark(#f4f4f5, #0f1015);
-  --color-chat-incoming-text: light-dark(#09090b, #f4f4f5);
-  --color-chat-operator-bg: light-dark(#ecfdf5, #063522);
-  --color-chat-operator-edge: light-dark(#a7f3d0, #047857);
-  --color-chat-operator-text: light-dark(#04603c, #a7f3d0);
-  --color-chat-ai-bg: light-dark(#f0fdf4, #063522);
-  --color-chat-ai-edge: light-dark(#bbf7d0, #047857);
-  --color-chat-ai-text: light-dark(#166534, #6ee7b7);
-
-  /* 6. Status */
+  /* 5. Status */
   --color-app-success: light-dark(#059669, #10b981);
   --color-app-success-light: light-dark(#d1fae5, #064e3b);
   --color-app-warning: light-dark(#d97706, #f59e0b);
@@ -106,21 +84,21 @@ html.dark {
   --color-app-danger-light: light-dark(#fee2e2, #7f1d1d);
   --color-app-info: light-dark(#0284c7, #38bdf8);
   --color-app-info-light: light-dark(#f0f9ff, #0c2b4e);
-  --color-app-input: light-dark(#ffffff, #0a0b0e);
+  --color-app-input: light-dark(#ffffff, #13161d);
 
-  /* 7. Glass */
+  /* 6. Glass */
   --color-glass-bg: light-dark(
     rgba(255, 255, 255, 0.88),
-    rgba(11, 12, 16, 0.94)
+    rgba(22, 25, 33, 0.94)
   );
   --color-glass-border: light-dark(
-    rgba(15, 23, 42, 0.08),
-    rgba(255, 255, 255, 0.055)
+    rgba(15, 23, 42, 0.06),
+    rgba(255, 255, 255, 0.11)
   );
 }
 
 /* ─────────────────────────────────────────────
-   Tailwind aliases
+   Tailwind semantic aliases
    ───────────────────────────────────────────── */
 @theme inline {
   --color-background: var(--color-app-bg);
@@ -148,29 +126,480 @@ html.dark {
   --color-warning-light: var(--color-app-warning-light);
   --color-danger: var(--color-app-danger);
   --color-danger-light: var(--color-app-danger-light);
+  --color-destructive: var(--color-app-danger);
+  --color-destructive-foreground: var(--color-app-accent-fg);
   --color-info: var(--color-app-info);
   --color-info-light: var(--color-app-info-light);
 
-  --color-sidebar: var(--color-app-surface);
+  --color-sidebar: var(--color-app-sidebar);
   --color-sidebar-active: var(--color-app-accent);
-
-  --color-chat-incoming: var(--color-chat-incoming-bg);
-  --color-chat-incoming-foreground: var(--color-chat-incoming-text);
-  --color-chat-operator: var(--color-chat-operator-bg);
-  --color-chat-operator-border: var(--color-chat-operator-edge);
-  --color-chat-operator-foreground: var(--color-chat-operator-text);
-  --color-chat-ai: var(--color-chat-ai-bg);
-  --color-chat-ai-border: var(--color-chat-ai-edge);
-  --color-chat-ai-foreground: var(--color-chat-ai-text);
+  --color-glass-bg: var(--color-glass-bg);
+  --color-glass-border: var(--color-glass-border);
 }
 
+/* ─────────────────────────────────────────────
+   Authenticated NEXA Panel Theme ([data-nexa-surface="app"])
+   ───────────────────────────────────────────── */
+:root {
+  --scrollbar-track: light-dark(#f1f5f9, #101217);
+  --scrollbar-thumb: light-dark(#94a3b8, #2b3835);
+  --scrollbar-thumb-hover: light-dark(#64748b, #10b981);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+html:has([data-nexa-surface="app"]) {
+  --nexa-surface-l0: light-dark(#f5f7f8, #0b0d11);
+  --scrollbar-track: var(--nexa-surface-l0);
+  --scrollbar-thumb: light-dark(
+    color-mix(in srgb, var(--nexa-action-primary-bg) 65%, black),
+    var(--nexa-action-primary-bg)
+  );
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--scrollbar-thumb) 88%, light-dark(black, white));
+}
+
+html:has([data-nexa-surface="app"]),
+[data-nexa-palette-preview] {
+  --nexa-action-primary-bg: light-dark(#047857, #34d399);
+  --nexa-action-primary-fg: light-dark(#fff, #0b0d11);
+}
+
+[data-nexa-surface="app"],
+[data-nexa-palette-preview] {
+  --nexa-action-danger-bg: light-dark(#b91c1c, #f87171);
+  --nexa-action-danger-fg: light-dark(#fff, #0b0d11);
+  --nexa-action-state-mix: light-dark(#000, #fff);
+  --nexa-action-primary-bg-hover: color-mix(in srgb, var(--nexa-action-primary-bg) 92%, var(--nexa-action-state-mix));
+  --nexa-action-primary-bg-active: color-mix(in srgb, var(--nexa-action-primary-bg) 84%, var(--nexa-action-state-mix));
+  --nexa-action-danger-bg-hover: color-mix(in srgb, var(--nexa-action-danger-bg) 92%, var(--nexa-action-state-mix));
+  --nexa-action-danger-bg-active: color-mix(in srgb, var(--nexa-action-danger-bg) 84%, var(--nexa-action-state-mix));
+
+  /* Neutral surface ramp */
+  --nexa-surface-l0: light-dark(#f5f7f8, #0b0d11);
+  --nexa-surface-l1: light-dark(#fff, #13161c);
+  --nexa-surface-l2: light-dark(#edf1f3, #1b2028);
+  --nexa-surface-l3: light-dark(#f0f3f5, #1c212a);
+  --nexa-secondary-fill: light-dark(#e8edf1, #1b2028);
+  --nexa-secondary-hover: light-dark(#dce4ea, #242b36);
+  --nexa-surface-hover: var(--nexa-secondary-hover);
+  --nexa-divider: light-dark(rgb(15 23 42 / 8%), rgb(248 250 252 / 10%));
+  --nexa-elevation-subtle: 0 2px 8px rgb(15 23 42 / 5%);
+  --nexa-field-fill: light-dark(#f1f4f7, #1c212a);
+  --nexa-field-border: light-dark(rgb(15 23 42 / 10%), rgb(255 255 255 / 6%));
+  --nexa-field-border-hover: light-dark(rgb(15 23 42 / 18%), rgb(255 255 255 / 14%));
+  --nexa-brand-main: var(--nexa-action-primary-bg);
+  --nexa-brand-highlight: color-mix(in srgb, var(--nexa-brand-main) 82%, white);
+  --nexa-brand-lowlight: color-mix(in srgb, var(--nexa-brand-main) 76%, var(--color-app-text-main));
+  --nexa-brand-surface: color-mix(in srgb, var(--nexa-surface-l1) 87%, var(--nexa-brand-main));
+  --nexa-brand-surface-deep: color-mix(in srgb, var(--nexa-surface-l1) 73%, var(--nexa-brand-main));
+  --nexa-accent-ink: var(--nexa-brand-lowlight);
+  --nexa-field-focus: var(--nexa-accent-ink);
+  --nexa-field-focus-halo: color-mix(in srgb, var(--nexa-field-focus) 15%, transparent);
+  --nexa-choice-track: light-dark(#e8edf1, #0b0d11);
+  --nexa-choice-pill: light-dark(#fff, #1e2530);
+  --nexa-choice-fill: light-dark(#f1f4f7, #191e26);
+  --nexa-choice-hover: light-dark(#e8edf1, #1f2530);
+  --nexa-choice-selected: color-mix(in srgb, var(--nexa-choice-fill) 91%, var(--nexa-action-primary-bg));
+  --nexa-choice-selected-ring: color-mix(in srgb, var(--nexa-field-focus) 35%, transparent);
+  --nexa-popup-fill: light-dark(#fff, #1b2028);
+  --nexa-popup-ring: light-dark(rgb(15 23 42 / 10%), rgb(255 255 255 / 8%));
+  --nexa-popup-shadow: 0 18px 40px light-dark(rgb(15 23 42 / 16%), rgb(0 0 0 / 46%));
+  --nexa-action-bar-fill: light-dark(rgb(255 255 255 / 85%), rgb(19 22 28 / 85%));
+  --nexa-action-bar-ring: light-dark(rgb(15 23 42 / 8%), rgb(255 255 255 / 7%));
+  --nexa-control-contrast-border: light-dark(#83888d, #696e75);
+  --nexa-focus-inner: light-dark(#fff, #111827);
+  --nexa-focus-outer: var(--nexa-accent-ink);
+  --nexa-status-success-surface: light-dark(#dcfce7, #123323);
+  --nexa-status-success-text: light-dark(#166534, #86efac);
+  --nexa-status-warning-surface: light-dark(#fef3c7, #3b2b12);
+  --nexa-status-warning-text: light-dark(#78350f, #fde68a);
+  --nexa-status-danger-surface: light-dark(#fee2e2, #401c22);
+  --nexa-status-danger-text: light-dark(#991b1b, #fca5a5);
+  --nexa-status-info-surface: light-dark(#e0f2fe, #142c40);
+  --nexa-status-info-text: light-dark(#075985, #bae6fd);
+  --nexa-status-neutral-surface: var(--nexa-surface-l2);
+  --nexa-status-neutral-text: var(--color-app-text-main);
+
+  --color-app-bg: var(--nexa-surface-l0);
+  --color-app-surface: var(--nexa-surface-l1);
+  --color-app-overlay: var(--nexa-surface-l1);
+  --color-app-sidebar: var(--nexa-surface-l1);
+  --color-app-muted: var(--nexa-surface-l2);
+  --color-app-hover: var(--nexa-surface-hover);
+  --color-app-input: var(--nexa-surface-l3);
+  --color-app-border: var(--nexa-divider);
+  --color-app-accent: var(--nexa-action-primary-bg);
+  --color-app-accent-fg: var(--nexa-action-primary-fg);
+  --color-app-accent-light: var(--nexa-brand-surface);
+  --color-accent: var(--nexa-brand-main);
+  --color-app-ai: var(--nexa-accent-ink);
+  --color-app-ai-light: var(--nexa-brand-surface);
+  --scrollbar-track: var(--nexa-surface-l0);
+  --scrollbar-thumb: light-dark(#94a3b8, #525863);
+  --scrollbar-thumb-hover: light-dark(#64748b, #737c89);
+  --color-app-success: var(--nexa-status-success-text);
+  --color-app-warning: var(--nexa-status-warning-text);
+  --color-app-danger: var(--nexa-status-danger-text);
+  --color-app-info: var(--nexa-status-info-text);
+}
+
+html.dark [data-nexa-surface="app"] {
+  --nexa-elevation-subtle: inset 0 1px 0 rgb(248 250 252 / 5%);
+}
+
+html[data-ui-theme="neutral"]:has([data-nexa-surface="app"]),
+[data-nexa-palette-preview="neutral"] {
+  --nexa-action-primary-bg: light-dark(#18181b, #e4e4e7);
+}
+
+html[data-ui-theme="amber"]:has([data-nexa-surface="app"]),
+[data-nexa-palette-preview="amber"] {
+  --nexa-action-primary-bg: light-dark(#f5c542, #f5c542);
+  --nexa-action-primary-fg: light-dark(#111318, #0b0d11);
+}
+
+html[data-ui-theme="amber"] [data-nexa-surface="app"],
+[data-nexa-palette-preview="amber"] {
+  --nexa-brand-lowlight: light-dark(#745000, color-mix(in srgb, var(--nexa-brand-main) 76%, var(--color-app-text-main)));
+}
+
+html[data-ui-theme="blue"]:has([data-nexa-surface="app"]),
+[data-nexa-palette-preview="blue"] {
+  --nexa-action-primary-bg: light-dark(#2563eb, #60a5fa);
+}
+
+html[data-ui-theme="indigo"]:has([data-nexa-surface="app"]),
+[data-nexa-palette-preview="indigo"] {
+  --nexa-action-primary-bg: light-dark(#4f46e5, #818cf8);
+}
+
+html[data-ui-theme="violet"]:has([data-nexa-surface="app"]),
+[data-nexa-palette-preview="violet"] {
+  --nexa-action-primary-bg: light-dark(#6d28d9, #a78bfa);
+}
+
+html[data-ui-theme="rose"]:has([data-nexa-surface="app"]),
+[data-nexa-palette-preview="rose"] {
+  --nexa-action-primary-bg: light-dark(#be123c, #fb7185);
+}
+
+html[data-ui-theme="pink"]:has([data-nexa-surface="app"]),
+[data-nexa-palette-preview="pink"] {
+  --nexa-action-primary-bg: light-dark(#9d174d, #f29cb0);
+}
+
+html[data-ui-theme="brown"]:has([data-nexa-surface="app"]),
+[data-nexa-palette-preview="brown"] {
+  --nexa-action-primary-bg: light-dark(#c2410c, #fb923c);
+}
+
+@layer utilities {
+  :where([data-nexa-surface="app"]) .text-primary {
+    color: var(--nexa-accent-ink);
+  }
+
+  @media (hover: hover) {
+    :where([data-nexa-surface="app"]) .hover\:text-primary:hover,
+    :where([data-nexa-surface="app"]) .group:hover .group-hover\:text-primary {
+      color: var(--nexa-accent-ink);
+    }
+  }
+}
+
+/* ─────────────────────────────────────────────
+   NEXA Component Primitives & Shell Rules
+   ───────────────────────────────────────────── */
+[data-nexa-surface="app"] .nexa-action-primary {
+  --nexa-button-bg: var(--nexa-action-primary-bg);
+  --nexa-button-fg: var(--nexa-action-primary-fg);
+  --nexa-button-hover: var(--nexa-action-primary-bg-hover);
+  --nexa-button-active: var(--nexa-action-primary-bg-active);
+}
+
+[data-nexa-surface="app"] .nexa-action-danger {
+  --nexa-button-bg: var(--nexa-action-danger-bg);
+  --nexa-button-fg: var(--nexa-action-danger-fg);
+  --nexa-button-hover: var(--nexa-action-danger-bg-hover);
+  --nexa-button-active: var(--nexa-action-danger-bg-active);
+}
+
+[data-nexa-surface="app"] :is(.nexa-action-primary, .nexa-action-danger) {
+  background-color: var(--nexa-button-bg);
+  color: var(--nexa-button-fg);
+}
+
+@media (hover: hover) {
+  [data-nexa-surface="app"] :is(.nexa-action-primary, .nexa-action-danger):hover:not(:disabled, [aria-disabled="true"]) {
+    background-color: var(--nexa-button-hover);
+  }
+}
+
+[data-nexa-surface="app"] :is(.nexa-action-primary, .nexa-action-danger):active:not(:disabled, [aria-disabled="true"]) {
+  background-color: var(--nexa-button-active);
+}
+
+[data-nexa-surface="app"] :is(.nexa-action-secondary, .nexa-action-outline):not([data-nexa-choice]) {
+  background-color: var(--nexa-secondary-fill);
+  color: var(--color-app-text-main);
+  border: 0;
+  box-shadow: none;
+}
+
+@media (hover: hover) {
+  [data-nexa-surface="app"] :is(.nexa-action-secondary, .nexa-action-outline, .nexa-action-ghost):hover:not(:disabled, [aria-disabled="true"], [data-nexa-choice], [data-nexa-filter-chip]) {
+    background-color: var(--nexa-secondary-hover);
+  }
+}
+
+[data-nexa-surface="app"] :is(.nexa-action, [data-nexa-toggle]):focus-visible {
+  outline: 2px solid var(--nexa-focus-outer);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--nexa-focus-inner);
+}
+
+[data-nexa-surface="app"] [data-nexa-field] {
+  background-color: var(--nexa-field-fill);
+  border: 1px solid var(--nexa-field-border);
+  border-radius: 0.75rem;
+  box-shadow: none;
+}
+
+[data-nexa-surface="app"] :is(button[data-nexa-field], [data-nexa-field]:has(> input:not([type="file"]))) {
+  min-height: 2.75rem;
+}
+
+@media (hover: hover) {
+  [data-nexa-surface="app"] [data-nexa-field]:hover:not([data-invalid="true"], :disabled, :has(:disabled)) {
+    border-color: var(--nexa-field-border-hover);
+  }
+}
+
+[data-nexa-surface="app"] [data-nexa-field]:focus-within {
+  border-color: color-mix(in srgb, var(--nexa-field-focus) 38%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--nexa-field-focus) 10%, transparent);
+}
+
+[data-nexa-surface="app"] [data-nexa-field]:is(:focus-visible, :has(:focus-visible)) {
+  outline: none;
+}
+
+[data-nexa-surface="app"] [data-nexa-field][data-invalid="true"] {
+  border-color: var(--nexa-status-danger-text);
+}
+
+[data-nexa-surface="app"] [data-nexa-tab][aria-selected="true"] {
+  background-color: var(--nexa-action-primary-bg);
+  color: var(--nexa-action-primary-fg);
+  box-shadow: none;
+}
+
+[data-nexa-surface="app"] [data-nexa-tab="underline"][aria-selected="true"] {
+  border-block-end-color: transparent;
+  border-radius: 0.5rem;
+}
+
+[data-nexa-surface="app"] [data-nexa-tab]:focus-visible {
+  outline: 2px solid var(--nexa-brand-lowlight);
+  outline-offset: 1px;
+}
+
+[data-nexa-surface="app"] [data-nexa-badge] {
+  background: var(--nexa-badge-fill, var(--nexa-status-neutral-surface));
+  color: var(--nexa-badge-ink, var(--nexa-status-neutral-text));
+  border-color: var(--nexa-badge-border, transparent);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+[data-nexa-surface="app"] [data-nexa-badge="primary"] {
+  --nexa-badge-fill: var(--nexa-brand-surface);
+  --nexa-badge-ink: var(--nexa-brand-lowlight);
+}
+
+[data-nexa-surface="app"] [data-nexa-badge="secondary"] {
+  --nexa-badge-fill: var(--nexa-surface-l2);
+  --nexa-badge-ink: var(--color-app-text-main);
+}
+
+[data-nexa-surface="app"] [data-nexa-badge="outline"] {
+  --nexa-badge-fill: var(--nexa-surface-l1);
+  --nexa-badge-border: var(--nexa-divider);
+}
+
+[data-nexa-surface="app"] [data-nexa-badge="success"] {
+  --nexa-badge-fill: var(--nexa-status-success-surface);
+  --nexa-badge-ink: var(--nexa-status-success-text);
+}
+
+[data-nexa-surface="app"] [data-nexa-badge="warning"] {
+  --nexa-badge-fill: var(--nexa-status-warning-surface);
+  --nexa-badge-ink: var(--nexa-status-warning-text);
+}
+
+[data-nexa-surface="app"] [data-nexa-badge="danger"] {
+  --nexa-badge-fill: var(--nexa-status-danger-surface);
+  --nexa-badge-ink: var(--nexa-status-danger-text);
+}
+
+[data-nexa-surface="app"] [data-nexa-badge="info"] {
+  --nexa-badge-fill: var(--nexa-status-info-surface);
+  --nexa-badge-ink: var(--nexa-status-info-text);
+}
+
+/* Floating shell & inset sidebar */
+[data-nexa-surface="app"] [data-nexa-shell] {
+  --nexa-shell-inset: 16px;
+  --nexa-sidebar-width: 280px;
+}
+
+[data-nexa-surface="app"] [data-nexa-shell="collapsed"] {
+  --nexa-sidebar-width: 72px;
+}
+
+[data-nexa-surface="app"] [data-nexa-sidebar] {
+  background-color: var(--nexa-surface-l1);
+  border: 0;
+}
+
+@media (min-width: 1024px) {
+  [data-nexa-surface="app"] [data-nexa-sidebar] {
+    inset-block: var(--nexa-shell-inset);
+    inset-inline-start: var(--nexa-shell-inset);
+    width: var(--nexa-sidebar-width);
+    height: auto;
+    border-radius: 1rem;
+    box-shadow: var(--nexa-elevation-subtle);
+  }
+
+  [data-nexa-surface="app"] .nexa-shell-main {
+    padding-inline-start: calc(var(--nexa-sidebar-width) + var(--nexa-shell-inset));
+  }
+}
+
+@media (min-width: 1920px) {
+  [data-nexa-surface="app"] [data-nexa-shell] {
+    --nexa-shell-inset: 24px;
+  }
+}
+
+[data-nexa-surface="app"] :is([data-nexa-card-variant="default"], [data-nexa-stat-card]) {
+  background-color: var(--nexa-surface-l1);
+  border: 0;
+  box-shadow: var(--nexa-elevation-subtle);
+}
+
+[data-nexa-surface="app"] [data-nexa-card-variant="subtle"] {
+  background-color: var(--nexa-surface-l2);
+  border: 0;
+  box-shadow: none;
+}
+
+[data-nexa-surface="app"] :is(.nexa-tonal, .nexa-tonal-action) {
+  background-color: var(--nexa-surface-l2);
+  border: 0;
+  box-shadow: none;
+}
+
+@media (hover: hover) {
+  [data-nexa-surface="app"] .nexa-tonal-action:hover:not(:disabled) {
+    background-color: var(--nexa-surface-hover);
+  }
+}
+
+[data-nexa-surface="app"] :is(.nexa-tonal-action, [data-nexa-sidebar] a):focus-visible {
+  outline: 2px solid var(--nexa-focus-outer);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--nexa-focus-inner);
+}
+
+[data-nexa-surface="app"] :is([data-nexa-popup-surface], [data-nexa-tooltip-surface]) {
+  background: var(--nexa-popup-fill);
+  color: var(--color-app-text-main);
+  border: 0;
+  border-radius: 0.75rem;
+  box-shadow: 0 0 0 1px var(--nexa-popup-ring), var(--nexa-popup-shadow);
+  backdrop-filter: none;
+}
+
+[data-nexa-surface="app"] [data-nexa-modal-card] {
+  background: var(--nexa-surface-l1);
+  border: 0;
+  border-radius: 1rem;
+  box-shadow: 0 0 0 1px var(--nexa-popup-ring), var(--nexa-popup-shadow);
+  backdrop-filter: none;
+}
+
+[data-nexa-surface="app"] [data-nexa-modal-header] {
+  background: var(--nexa-surface-l1);
+  border-color: var(--nexa-divider);
+  backdrop-filter: none;
+}
+
+[data-nexa-surface="app"] [data-nexa-modal-close] {
+  background: var(--nexa-surface-l2);
+  border: 0;
+  box-shadow: none;
+}
+
+[data-nexa-surface="app"] [data-nexa-sheet] {
+  background: var(--nexa-surface-l1);
+  color: var(--color-app-text-main);
+  border-color: var(--nexa-divider);
+}
+
+[data-nexa-surface="app"] [data-nexa-table] {
+  background: var(--nexa-surface-l1);
+  border: 0;
+  box-shadow: var(--nexa-elevation-subtle);
+}
+
+[data-nexa-surface="app"] [data-nexa-table-head] {
+  background-color: var(--nexa-surface-l2);
+  border-color: var(--nexa-divider);
+}
+
+[data-nexa-surface="app"] [data-nexa-choice="card"]:not(.nexa-theme-card) {
+  background-color: var(--nexa-choice-fill);
+}
+
+[data-nexa-surface="app"] [data-nexa-choice="card"]:not(.nexa-theme-card):is(:has(input:checked), [aria-pressed="true"]) {
+  background-color: var(--nexa-choice-selected);
+  box-shadow: inset 0 0 0 1px var(--nexa-choice-selected-ring);
+}
+
+/* Header controls uniform baseline */
+[data-nexa-surface="app"] [data-nexa-header-controls] {
+  --nexa-header-control-height: 2.25rem;
+}
+
+@media (width < 768px), (pointer: coarse) {
+  [data-nexa-surface="app"] [data-nexa-header-controls] {
+    --nexa-header-control-height: 2.75rem;
+  }
+}
+
+[data-nexa-surface="app"] [data-nexa-header-controls]
+  :is(button, a.nexa-action):not([role^="menuitem"]) {
+  block-size: var(--nexa-header-control-height);
+  min-block-size: var(--nexa-header-control-height);
+  padding-block: 0;
+}
+
+[data-nexa-surface="app"] [data-nexa-header-controls] :is(.nexa-action-icon, .nexa-header-icon) {
+  inline-size: var(--nexa-header-control-height);
+  min-inline-size: var(--nexa-header-control-height);
+  flex: none;
+  padding-inline: 0;
+}
+
+/* ─────────────────────────────────────────────
+   Base & Scrollbars
+   ───────────────────────────────────────────── */
 @layer base {
   * {
     border-color: var(--color-app-border);
-  }
-
-  .dark * {
-    border-color: rgba(255, 255, 255, 0.055);
   }
 
   body {
@@ -182,81 +611,56 @@ html.dark {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-
-  .dark body {
-    background-color: #070709;
-    color: #f4f4f5;
-  }
 }
 
-/* NEXA Glassmorphism */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+* {
+  -webkit-tap-highlight-color: transparent !important;
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 
-.dark .glass-panel {
-  background: rgba(11, 12, 16, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+a, button, input, select, textarea, [role="button"], .touch-manipulation {
+  touch-action: manipulation;
 }
 
-/* Sleek Cyber Scrollbars */
-*::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-*::-webkit-scrollbar-track {
-  background: transparent;
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
 }
 
-*::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.3);
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border: 2px solid var(--scrollbar-track);
   border-radius: 9999px;
 }
 
-.dark *::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
 }
 
-*::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.6);
-}
-
-.dark *::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 185, 129, 0.4);
-}
-
-*::-webkit-scrollbar-button {
+::-webkit-scrollbar-button {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
 }
 
-*::-webkit-scrollbar-corner {
-  background: transparent;
+::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track);
 }
 
-/* Firefox scrollbars */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(148, 163, 184, 0.3) transparent;
-}
-
-.dark * {
-  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
-}
-
-/* Scrollbar utilities */
-.no-scrollbar::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
 }
 
-.no-scrollbar {
+.no-scrollbar,
+.scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -332,7 +736,7 @@ html.dark {
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: inline-start;
-  color: #71717a;
+  color: var(--color-muted-foreground);
   pointer-events: none;
   height: 0;
   font-style: italic;
@@ -365,7 +769,7 @@ html.dark {
 .tiptap-content blockquote,
 .ProseMirror blockquote,
 .prose blockquote {
-  border-inline-start: 3px solid #10b981 !important;
+  border-inline-start: 3px solid var(--color-primary) !important;
   padding-inline-start: 0.85rem !important;
   margin-top: 0.5rem !important;
   margin-bottom: 0.5rem !important;
@@ -377,14 +781,8 @@ html.dark {
 .ProseMirror hr,
 .prose hr {
   border: 0 !important;
-  border-top: 1px solid rgba(148, 163, 184, 0.2) !important;
+  border-top: 1px solid var(--color-border) !important;
   margin: 1.25rem 0 !important;
-}
-
-.dark .tiptap-content hr,
-.dark .ProseMirror hr,
-.dark .prose hr {
-  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
 
 .tiptap-content ul[data-type="taskList"],
@@ -410,7 +808,7 @@ html.dark {
 
 .tiptap-content ul[data-type="taskList"] li > label input[type="checkbox"],
 .ProseMirror ul[data-type="taskList"] li > label input[type="checkbox"] {
-  accent-color: #10b981;
+  accent-color: var(--color-primary);
   width: 1rem;
   height: 1rem;
   cursor: pointer;
@@ -419,17 +817,11 @@ html.dark {
 .tiptap-content a,
 .ProseMirror a,
 .prose a {
-  color: #10b981 !important;
+  color: var(--nexa-accent-ink, var(--color-primary)) !important;
   font-weight: 600 !important;
   text-decoration: underline !important;
   text-underline-offset: 3px !important;
   transition: all 0.15s ease-in-out;
-}
-
-.dark .tiptap-content a,
-.dark .ProseMirror a,
-.dark .prose a {
-  color: #34d399 !important;
 }
 
 .tiptap-content a:hover,
@@ -442,19 +834,12 @@ html.dark {
 .tiptap-content code:not(pre code),
 .ProseMirror code:not(pre code),
 .prose code:not(pre code) {
-  background-color: rgba(16, 185, 129, 0.1) !important;
-  color: #059669 !important;
+  background-color: var(--nexa-brand-surface, rgba(16, 185, 129, 0.12)) !important;
+  color: var(--nexa-accent-ink, #059669) !important;
   font-family: monospace !important;
   font-size: 0.85em !important;
   padding: 0.15rem 0.35rem !important;
   border-radius: 0.375rem !important;
-}
-
-.dark .tiptap-content code:not(pre code),
-.dark .ProseMirror code:not(pre code),
-.dark .prose code:not(pre code) {
-  background-color: rgba(16, 185, 129, 0.15) !important;
-  color: #6ee7b7 !important;
 }
 
 /* Locale-aware typography and mobile touch geometry. */
@@ -480,13 +865,13 @@ html, body, #root { max-inline-size: 100%; }
   [data-responsive-table] { display: block; min-inline-size: 0 !important; inline-size: 100%; }
   [data-responsive-table] thead { display: none; }
   [data-responsive-table] tbody { display: grid; gap: 1rem; inline-size: 100%; }
-  [data-responsive-table] tbody tr { display: flex; flex-direction: column; border: 1px solid var(--color-border); border-radius: 1rem; background: var(--color-card); padding: .75rem; }
+  [data-responsive-table] tbody tr { display: flex; flex-direction: column; border: 0; border-radius: 1rem; background: var(--nexa-surface-l1, var(--color-card)); box-shadow: var(--nexa-elevation-subtle); padding: .75rem; }
   [data-responsive-table] td { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; min-inline-size: 0 !important; inline-size: 100% !important; padding: .5rem; }
   [data-responsive-table] td::before { content: attr(data-label); flex-basis: 100%; font-size: .75rem; color: var(--color-muted-foreground); }
   [data-responsive-table] td > * { max-inline-size: 100%; }
 }
 
 @media (max-width: 767px) {
-  [data-native-sheet] [data-dialog-actions], [data-native-sheet] form > .flex.justify-end:last-child { position: sticky; bottom: 0; background: var(--color-card); padding-block: .75rem; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + .75rem); z-index: 2; }
+  [data-native-sheet] [data-dialog-actions], [data-native-sheet] form > .flex.justify-end:last-child { position: sticky; bottom: 0; background: var(--nexa-surface-l1, var(--color-card)); padding-block: .75rem; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + .75rem); z-index: 2; }
   [data-native-sheet] { scroll-padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 4rem); }
 }

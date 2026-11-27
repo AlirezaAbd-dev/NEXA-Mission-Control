@@ -23,8 +23,8 @@ export const CardVoteButton: React.FC<CardVoteButtonProps> = ({ card }) => {
       disabled={toggleVote.isPending}
       className={`text-xs px-2.5 py-1 rounded-lg border font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
         hasVoted
-          ? 'bg-amber-500/15 border-amber-500/40 text-amber-600 dark:text-amber-400 font-semibold'
-          : 'bg-slate-100 dark:bg-[#101117] border-slate-200 dark:border-white/[0.06] text-slate-600 dark:text-slate-300 hover:border-amber-500/30 hover:text-amber-500'
+          ? 'bg-warning/15 border-warning/40 text-warning font-semibold'
+          : 'bg-[var(--nexa-surface-l2)] border-[var(--nexa-divider)] text-muted-foreground hover:border-warning/30 hover:text-warning'
       }`}
       title={hasVoted ? tr("Remove your vote") : tr("Upvote / Kudos this card")}
     >

@@ -110,7 +110,7 @@ export function AutomationPage() {
         <Button onClick={() => edit()}>{tr("Create rule")}</Button>
       </div>
       {error && (
-        <p role="alert" className="text-rose-500">
+        <p role="alert" className="text-danger">
           {error}
         </p>
       )}
@@ -118,18 +118,18 @@ export function AutomationPage() {
         {rules.map((r) => (
           <section
             key={r.id}
-            className="p-5 rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200 dark:border-white/[0.06] space-y-3"
+            className="p-5 rounded-2xl bg-[var(--nexa-surface-l1)] border border-[var(--nexa-divider)] space-y-3"
           >
             <div className="flex justify-between">
               <h2 className="font-semibold">{r.name}</h2>
-              <span className="text-xs text-emerald-600 dark:text-emerald-400">
+              <span className="text-xs text-primary">
                 {r.is_active ? tr("Active") : tr("Paused")}
               </span>
             </div>
-            <p className="text-sm text-slate-500">{tr("When")}{r.trigger_type?.replaceAll("_", " ")} →{" "}
+            <p className="text-sm text-muted-foreground">{tr("When")}{r.trigger_type?.replaceAll("_", " ")} →{" "}
               {r.action_type?.replaceAll("_", " ")}
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-muted-foreground">
               {r.runs || 0}{tr("successful runs")}</p>
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={() => edit(r)}>{tr("Edit")}</Button>
@@ -151,9 +151,9 @@ export function AutomationPage() {
         ))}
       </div>
       {rules.length === 0 && (
-        <div className="p-12 text-center border border-dashed rounded-xl border-slate-300 dark:border-white/[0.06]">
+        <div className="p-12 text-center border border-dashed rounded-2xl border-[var(--nexa-divider)]">
           <h2 className="font-semibold">{tr("Let your board do the routine work")}</h2>
-          <p className="text-sm text-slate-500 mt-2">{tr("Create a rule to assign tasks, change priority, add labels, or archive completed work.")}</p>
+          <p className="text-sm text-muted-foreground mt-2">{tr("Create a rule to assign tasks, change priority, add labels, or archive completed work.")}</p>
         </div>
       )}
       <Modal

@@ -25,6 +25,7 @@ import { UserAvatar } from "@/components/common/UserAvatar";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
 import { AuthenticatorSettings } from "./AuthenticatorSettings";
 import { DesktopNotificationSettings } from "./DesktopNotificationSettings";
+import { ThemePicker } from "./ThemePicker";
 import { PersonalTokens } from "@/features/enterprise/PersonalTokens";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
 import { useActiveWorkspace } from "@/hooks/workspace/useActiveWorkspace";
@@ -244,10 +245,10 @@ export const SettingsPage: React.FC = () => {
   return (
     <div className="min-h-full flex-1 flex flex-col p-4 sm:p-6 space-y-5 max-w-5xl mx-auto w-full">
       {/* Header & Workspace Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200 dark:border-white/[0.06]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-[var(--nexa-divider)]">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2.5">{tr("Settings")}</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{tr("Manage your profile, workspace, team, security, and preferences.")}</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2.5">{tr("Settings")}</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">{tr("Manage your profile, workspace, team, security, and preferences.")}</p>
         </div>
 
         {workspaces.length > 0 && (
@@ -263,15 +264,32 @@ export const SettingsPage: React.FC = () => {
       </div>
 
       {/* Modern Responsive Tabs Navigation */}
-      <div className="flex items-center gap-1.5 border-b border-slate-200/80 dark:border-white/[0.06] overflow-x-auto scrollbar-none pb-2 shrink-0">
-        <Button size="sm" variant={activeTab==="profile"?"secondary":"ghost"} onClick={()=>setActiveTab("profile")} aria-pressed={activeTab==="profile"}>{tr("My profile")}</Button>
+      <div role="tablist" className="flex items-center gap-1.5 border-b border-[var(--nexa-divider)] overflow-x-auto scrollbar-none pb-2 shrink-0">
         <button
           type="button"
+          role="tab"
+          data-nexa-tab="default"
+          aria-selected={activeTab === "profile"}
+          onClick={() => setActiveTab("profile")}
+          className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl shrink-0 whitespace-nowrap transition-all cursor-pointer ${
+            activeTab === "profile"
+              ? "font-bold"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          }`}
+        >
+          <span>{tr("My profile")}</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          data-nexa-tab="default"
+          aria-selected={activeTab === "workspace"}
           onClick={() => setActiveTab("workspace")}
           className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl shrink-0 whitespace-nowrap transition-all cursor-pointer ${
             activeTab === "workspace"
-              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 shadow-2xs font-bold"
-              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] border border-transparent"
+              ? "font-bold"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
           }`}
         >
           <Sliders className="w-3.5 h-3.5 shrink-0" />
@@ -280,43 +298,52 @@ export const SettingsPage: React.FC = () => {
 
         <button
           type="button"
+          role="tab"
+          data-nexa-tab="default"
+          aria-selected={activeTab === "labels"}
           onClick={() => setActiveTab("labels")}
           className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl shrink-0 whitespace-nowrap transition-all cursor-pointer ${
             activeTab === "labels"
-              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 shadow-2xs font-bold"
-              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] border border-transparent"
+              ? "font-bold"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
           }`}
         >
           <Tag className="w-3.5 h-3.5 shrink-0" />
           <span>{tr("Labels")}</span>
-          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-200/60 dark:bg-[#183035] text-slate-700 dark:text-slate-300">
+          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-black/10 dark:bg-white/15">
             {formatNumber(labels.length)}
           </span>
         </button>
 
         <button
           type="button"
+          role="tab"
+          data-nexa-tab="default"
+          aria-selected={activeTab === "members"}
           onClick={() => setActiveTab("members")}
           className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl shrink-0 whitespace-nowrap transition-all cursor-pointer ${
             activeTab === "members"
-              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 shadow-2xs font-bold"
-              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] border border-transparent"
+              ? "font-bold"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
           }`}
         >
           <Users className="w-3.5 h-3.5 shrink-0" />
           <span>{tr("Team Members")}</span>
-          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-200/60 dark:bg-[#183035] text-slate-700 dark:text-slate-300">
+          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-black/10 dark:bg-white/15">
             {formatNumber(members.length)}
           </span>
         </button>
 
         <button
           type="button"
+          role="tab"
+          data-nexa-tab="default"
+          aria-selected={activeTab === "security"}
           onClick={() => setActiveTab("security")}
           className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl shrink-0 whitespace-nowrap transition-all cursor-pointer ${
             activeTab === "security"
-              ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/25 shadow-2xs font-bold"
-              : "text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100/80 dark:hover:bg-white/[0.05] border border-transparent"
+              ? "font-bold"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
           }`}
         >
           <Shield className="w-3.5 h-3.5 shrink-0" />
@@ -329,30 +356,31 @@ export const SettingsPage: React.FC = () => {
       {/* TAB 1: GENERAL & APPEARANCE */}
       {activeTab === "workspace" && (
         <div className="space-y-6">
+          <ThemePicker />
           <Card><CardContent className="p-5"><CustomSelect label={tr("Interface language")} value={locale} onChange={value => setLocale(value === "fa" ? "fa" : "en")} options={[{ value: "en", label: "English" }, { value: "fa", label: "فارسی" }]} /></CardContent></Card>
           {/* Workspace Settings (Rename & Info) */}
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-emerald-500" />{tr("Workspace Details")}</span>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-[#101117] text-slate-600 dark:text-slate-300 font-mono">{tr("Role:")} {uiLabel(roleInWorkspace || "member")}
+                  <Sliders className="w-4 h-4 text-primary" />{tr("Workspace Details")}</span>
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-[var(--nexa-surface-l2)] text-muted-foreground font-mono">{tr("Role:")} {uiLabel(roleInWorkspace || "member")}
                 </span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <form onSubmit={handleUpdateWorkspace} className="space-y-4">
                 {wsUpdateError && (
-                  <div className="p-3 text-xs rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400">
+                  <div className="p-3 text-xs rounded-xl bg-[var(--nexa-status-danger-surface)] text-[var(--nexa-status-danger-text)]">
                     {wsUpdateError}
                   </div>
                 )}
                 {wsUpdateSuccess && (
-                  <div className="p-3 text-xs rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">{tr("Workspace details updated successfully!")}</div>
+                  <div className="p-3 text-xs rounded-xl bg-[var(--nexa-status-success-surface)] text-[var(--nexa-status-success-text)]">{tr("Workspace details updated successfully!")}</div>
                 )}
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{tr("Workspace Name")}<span className="text-rose-500">*</span>
+                  <label className="text-field-label font-medium text-foreground">{tr("Workspace Name")}<span className="text-danger">*</span>
                   </label>
                   <Input
                     value={wsName}
@@ -364,14 +392,15 @@ export const SettingsPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{tr("Description")}</label>
+                  <label className="text-field-label font-medium text-foreground">{tr("Description")}</label>
                   <textarea
+                    data-nexa-field=""
                     value={wsDescription}
                     onChange={(e) => setWsDescription(e.target.value)}
                     rows={2}
                     placeholder={tr("Optional workspace description...")}
                     disabled={!canEditWorkspace || updateWorkspaceMutation.isPending}
-                    className="w-full px-3 py-2 text-sm rounded-xl border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#070709] text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 resize-none disabled:opacity-50"
+                    className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-[var(--nexa-field-border)] bg-[var(--nexa-field-fill)] text-foreground placeholder:text-muted-foreground focus:outline-none resize-none disabled:opacity-50"
                   />
                 </div>
 
@@ -388,7 +417,7 @@ export const SettingsPage: React.FC = () => {
                 )}
 
                 {!canEditWorkspace && (
-                  <p className="text-xs text-slate-400 italic">{tr("Only workspace owners and admins can rename or edit workspace details.")}</p>
+                  <p className="text-xs text-muted-foreground italic">{tr("Only workspace owners and admins can rename or edit workspace details.")}</p>
                 )}
               </form>
             </CardContent>
@@ -398,13 +427,13 @@ export const SettingsPage: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-emerald-500" />{tr("Appearance & Theme")}</CardTitle>
+                <Sliders className="w-4 h-4 text-primary" />{tr("Appearance & Theme")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#0e0f14] border border-slate-200/80 dark:border-white/[0.06]">
+              <div className="flex items-center justify-between p-3.5 rounded-xl bg-[var(--nexa-surface-l2)] border border-[var(--nexa-divider)]">
                 <div>
-                  <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{tr("Interface Theme")}</div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">{tr("Switch between cyber dark and high-contrast light mode")}</div>
+                  <div className="text-sm font-semibold text-foreground">{tr("Interface Theme")}</div>
+                  <div className="text-xs text-muted-foreground">{tr("Switch between cyber dark and high-contrast light mode")}</div>
                 </div>
                 <Button
                   variant="outline"
@@ -413,22 +442,22 @@ export const SettingsPage: React.FC = () => {
                   className="flex items-center gap-2 cursor-pointer"
                 >
                   {theme === "dark" ? (
-                    <Moon className="w-4 h-4 text-emerald-400" />
+                    <Moon className="w-4 h-4 text-primary" />
                   ) : (
-                    <Sun className="w-4 h-4 text-amber-500" />
+                    <Sun className="w-4 h-4 text-warning" />
                   )}
                   {theme === "dark" ? tr("Dark Mode") : tr("Light Mode")}
                 </Button>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#0e0f14] border border-slate-200/80 dark:border-white/[0.06]">
+              <div className="flex items-center justify-between p-3.5 rounded-xl bg-[var(--nexa-surface-l2)] border border-[var(--nexa-divider)]">
                 <div>
-                  <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{tr("Signed In As")}</div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">
+                  <div className="text-sm font-semibold text-foreground">{tr("Signed In As")}</div>
+                  <div className="text-xs text-muted-foreground">
                     {currentUser?.display_name || currentUser?.username} ({currentUser?.email})
                   </div>
                 </div>
-                <span className="text-xs px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 font-mono font-semibold text-emerald-600 dark:text-emerald-400 uppercase">
+                <span className="text-xs px-2.5 py-1 rounded-md bg-primary/10 border border-primary/25 font-mono font-semibold text-primary uppercase">
                   {uiLabel(currentUser?.role?.toLowerCase() || "member")}
                 </span>
               </div>
@@ -438,29 +467,29 @@ export const SettingsPage: React.FC = () => {
           <DesktopNotificationSettings />
 
           {/* Danger Zone: Workspace Deletion */}
-          <Card className="border-rose-500/30 dark:border-rose-500/20">
+          <Card className="border-danger/30">
             <CardHeader>
-              <CardTitle className="text-base text-rose-600 dark:text-rose-400 flex items-center gap-2">
+              <CardTitle className="text-base text-danger flex items-center gap-2">
                 <Trash2 className="w-4 h-4" />{tr("Danger Zone")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-rose-500/5 border border-rose-500/15">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-xl bg-danger/5 border border-danger/20">
                 <div>
-                  <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{tr("Delete Workspace")}</div>
-                  <div className="text-xs text-slate-500">{tr("Permanently delete this workspace (")}{currentWorkspace?.name}{tr("), all of its projects, tasks, and data.")}</div>
+                  <div className="text-sm font-semibold text-foreground">{tr("Delete Workspace")}</div>
+                  <div className="text-xs text-muted-foreground">{tr("Permanently delete this workspace (")}{currentWorkspace?.name}{tr("), all of its projects, tasks, and data.")}</div>
                 </div>
                 {canDeleteWorkspace ? (
                   <Button
-                    variant="outline"
+                    variant="danger"
                     size="sm"
                     onClick={() => {
                       setWsDeleteError(null);
                       setDeleteWsModalOpen(true);
                     }}
-                    className="text-rose-600 dark:text-rose-400 border-rose-500/30 hover:bg-rose-500/10 cursor-pointer shrink-0"
+                    className="cursor-pointer shrink-0"
                   >{tr("Delete Workspace")}</Button>
                 ) : (
-                  <span className="text-xs text-slate-400 italic shrink-0">{tr("Only the workspace owner can delete this workspace")}</span>
+                  <span className="text-xs text-muted-foreground italic shrink-0">{tr("Only the workspace owner can delete this workspace")}</span>
                 )}
               </div>
             </CardContent>
@@ -475,18 +504,18 @@ export const SettingsPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="text-base flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-emerald-500" />{tr("Workspace Labels (")}{formatNumber(labels.length)})
+                  <Tag className="w-4 h-4 text-primary" />{tr("Workspace Labels (")}{formatNumber(labels.length)})
                 </span>
-                <span className="text-xs font-normal text-slate-500">{tr("Labels are shared across all project boards in this workspace")}</span>
+                <span className="text-xs font-normal text-muted-foreground">{tr("Labels are shared across all project boards in this workspace")}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Create New Label Form */}
               <form
                 onSubmit={handleCreateLabel}
-                className="p-4 rounded-xl bg-slate-50 dark:bg-[#0e0f14] border border-slate-200/80 dark:border-white/[0.06] space-y-3"
+                className="p-4 rounded-xl bg-[var(--nexa-surface-l2)] border border-[var(--nexa-divider)] space-y-3"
               >
-                <div className="text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">{tr("Create New Label")}</div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{tr("Create New Label")}</div>
 
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <div className="flex-1">
@@ -500,7 +529,7 @@ export const SettingsPage: React.FC = () => {
 
                   {/* Color picker & presets */}
                   <div className="flex items-center gap-2 flex-wrap">
-                    <div className="flex items-center gap-1.5 p-1 rounded-lg border border-slate-200 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10]">
+                    <div className="flex items-center gap-1.5 p-1 rounded-lg border border-[var(--nexa-divider)] bg-[var(--nexa-surface-l1)]">
                       {PRESET_COLORS.slice(0, 7).map((color) => (
                         <button
                           key={color}
@@ -508,7 +537,7 @@ export const SettingsPage: React.FC = () => {
                           onClick={() => setNewLabelColor(color)}
                           className={`w-6 h-6 rounded-md transition-all cursor-pointer ${
                             newLabelColor === color
-                              ? "ring-2 ring-emerald-500 scale-110"
+                              ? "ring-2 ring-primary scale-110"
                               : "hover:scale-105 opacity-80 hover:opacity-100"
                           }`}
                           style={{ backgroundColor: color }}
@@ -536,7 +565,7 @@ export const SettingsPage: React.FC = () => {
                 </div>
 
                 {labelError && (
-                  <p role="alert" className="text-xs text-rose-500 font-medium">
+                  <p role="alert" className="text-xs text-danger font-medium">
                     {labelError}
                   </p>
                 )}
@@ -544,10 +573,10 @@ export const SettingsPage: React.FC = () => {
 
               {/* Labels List & Inline Editors */}
               <div className="space-y-2">
-                <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">{tr("Existing Labels")}</div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{tr("Existing Labels")}</div>
 
                 {labels.length === 0 ? (
-                  <div className="text-center py-8 text-slate-400 text-sm italic border border-dashed border-slate-200 dark:border-white/[0.06] rounded-xl">{tr("No labels created yet. Add your first label above.")}</div>
+                  <div className="text-center py-8 text-muted-foreground text-sm italic border border-dashed border-[var(--nexa-divider)] rounded-xl">{tr("No labels created yet. Add your first label above.")}</div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     {labels.map((lbl) => {
@@ -557,7 +586,7 @@ export const SettingsPage: React.FC = () => {
                         return (
                           <div
                             key={lbl.id}
-                            className="p-3 rounded-xl border-2 border-emerald-500/50 bg-white dark:bg-[#0b0c10] shadow-sm space-y-2"
+                            className="p-3 rounded-xl border-2 border-primary/50 bg-[var(--nexa-surface-l1)] shadow-sm space-y-2"
                           >
                             <div className="flex items-center gap-2">
                               <input
@@ -616,7 +645,7 @@ export const SettingsPage: React.FC = () => {
                       return (
                         <div
                           key={lbl.id}
-                          className="flex items-center justify-between p-2.5 rounded-xl border border-slate-200/80 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10] hover:border-emerald-500/40 transition-all group"
+                          className="flex items-center justify-between p-2.5 rounded-xl border border-[var(--nexa-divider)] bg-[var(--nexa-surface-l1)] hover:border-primary/40 transition-all group"
                         >
                           <div className="flex items-center gap-2.5 min-w-0">
                             <span
@@ -639,7 +668,7 @@ export const SettingsPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => startEditLabel(lbl)}
-                              className="p-1.5 text-slate-400 hover:text-emerald-500 hover:bg-slate-100 dark:hover:bg-white/[0.05] rounded-md transition-colors cursor-pointer"
+                              className="p-1.5 text-muted-foreground hover:text-primary hover:bg-[var(--nexa-surface-l2)] rounded-md transition-colors cursor-pointer"
                               title={tr("Edit label")}
                             >
                               <Edit2 className="w-3.5 h-3.5" />
@@ -648,7 +677,7 @@ export const SettingsPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => setLabelToDelete(lbl)}
-                              className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-slate-100 dark:hover:bg-white/[0.05] rounded-md transition-colors cursor-pointer"
+                              className="p-1.5 text-muted-foreground hover:text-danger hover:bg-[var(--nexa-surface-l2)] rounded-md transition-colors cursor-pointer"
                               title={tr("Delete label")}
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -672,9 +701,9 @@ export const SettingsPage: React.FC = () => {
             <CardHeader>
               <CardTitle className="text-base flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-emerald-500" />{tr("Workspace Team (")}{formatNumber(members.length)})
+                  <Users className="w-4 h-4 text-primary" />{tr("Workspace Team (")}{formatNumber(members.length)})
                 </span>
-                <span className="text-xs font-normal text-slate-500">
+                <span className="text-xs font-normal text-muted-foreground">
                   {currentWorkspace?.name}
                 </span>
               </CardTitle>
@@ -706,12 +735,12 @@ export const SettingsPage: React.FC = () => {
               )}
 
               {memberError && (
-                <p role="alert" className="text-sm text-rose-500 font-medium">
+                <p role="alert" className="text-sm text-danger font-medium">
                   {memberError}
                 </p>
               )}
 
-              <div className="divide-y divide-slate-200 dark:divide-white/[0.06] pt-2">
+              <div className="divide-y divide-[var(--nexa-divider)] pt-2">
                 {members.map((member) => (
                   <div
                     key={member.id}
@@ -724,10 +753,10 @@ export const SettingsPage: React.FC = () => {
                         size="md"
                       />
                       <div className="min-w-0">
-                        <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
+                        <div className="text-sm font-semibold text-foreground truncate">
                           {member.display_name || member.username}
                         </div>
-                        <div className="text-xs text-slate-500 truncate">{member.email}</div>
+                        <div className="text-xs text-muted-foreground truncate">{member.email}</div>
                       </div>
                     </div>
 

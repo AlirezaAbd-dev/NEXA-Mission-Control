@@ -40,7 +40,7 @@ export function CommandPalette() {
       <div className="space-y-3">
         <Button size="sm" variant="outline" onClick={() => { setOpen(false); navigate("/notes"); }}>{tr("Open Notes · personal and workspace notebooks")}</Button>
         <div className="flex gap-2 items-center">
-          <Search size={18} className="text-slate-500" />
+          <Search size={18} className="text-muted-foreground" />
           <Input
             aria-label={tr("Search tasks")}
             autoFocus
@@ -66,33 +66,33 @@ export function CommandPalette() {
             }}
           />
         </div>
-        <p className="text-[10px] text-slate-500">{tr("Combine priority:, status:, assignee:, label:, project:, and overdue: filters. ↑↓ to navigate · Enter to open.")}</p>
+        <p className="text-[10px] text-muted-foreground">{tr("Combine priority:, status:, assignee:, label:, project:, and overdue: filters. ↑↓ to navigate · Enter to open.")}</p>
         {error && (
-          <p role="alert" className="text-xs text-rose-500">
+          <p role="alert" className="text-xs text-danger">
             {apiError(error)}
           </p>
         )}
         <div className="max-h-80 overflow-auto space-y-1">
           {isLoading ? (
-            <p className="p-6 animate-pulse text-xs text-slate-500">{tr("Searching…")}</p>
+            <p className="p-6 animate-pulse text-xs text-muted-foreground">{tr("Searching…")}</p>
           ) : query.trim().length < 2 ? (
-            <p className="p-6 text-xs text-slate-500 text-center">{tr("Type at least two characters to search.")}</p>
+            <p className="p-6 text-xs text-muted-foreground text-center">{tr("Type at least two characters to search.")}</p>
           ) : results.length === 0 ? (
-            <p className="p-6 text-xs text-slate-500 text-center">{tr("No matching tasks. Try a different query or filter.")}</p>
+            <p className="p-6 text-xs text-muted-foreground text-center">{tr("No matching tasks. Try a different query or filter.")}</p>
           ) : (
             results.map((item, i) => (
               <Button
                 key={item.card_id}
                 variant="ghost"
                 onMouseEnter={() => setHighlighted(i)}
-                className={`w-full h-auto justify-between p-3 text-start ${highlighted === i ? "bg-emerald-500/10" : ""}`}
+                className={`w-full h-auto justify-between p-3 text-start ${highlighted === i ? "bg-[var(--nexa-choice-selected)]" : ""}`}
                 onClick={() => select(item.card_id)}
               >
                 <span>
-                  <span className="block text-sm font-medium">
+                  <span className="block text-sm font-medium text-foreground">
                     {item.title}
                   </span>
-                  <span className="block text-xs text-slate-500">
+                  <span className="block text-xs text-muted-foreground">
                     {item.project_name}
                   </span>
                 </span>

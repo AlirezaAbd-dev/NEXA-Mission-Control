@@ -116,13 +116,14 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
         <div className="flex items-center gap-1.5 w-full">
           {/* Search bar */}
           <div className="flex-1 min-w-0 relative">
-            <Search className="w-3.5 h-3.5 absolute start-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <Search className="w-3.5 h-3.5 absolute start-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
             <input
+              data-nexa-field=""
               type="text"
               placeholder={tr("Search cards...")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-8.5 ps-8 pe-2 text-xs rounded-xl bg-white dark:bg-[#0b0c10] border border-slate-200/90 dark:border-white/[0.06] text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-colors shadow-2xs"
+              className="w-full h-8.5 ps-8 pe-2 text-xs rounded-xl bg-[var(--nexa-field-fill)] border border-[var(--nexa-field-border)] text-foreground placeholder:text-muted-foreground focus:outline-none transition-colors"
             />
           </div>
 
@@ -133,14 +134,14 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             onClick={() => setFilterModalOpen(true)}
             className={`h-8.5 px-2.5 text-xs flex items-center gap-1.5 shrink-0 ${
               filterCount > 0
-                ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400 font-semibold"
+                ? "border-primary/40 text-primary font-semibold"
                 : ""
             }`}
           >
             <Filter className="w-3.5 h-3.5" />
             <span>{tr("Filters")}</span>
             {filterCount > 0 && (
-              <span className="w-4 h-4 rounded-full bg-emerald-500 text-white text-[10px] font-bold flex items-center justify-center">
+              <span className="w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
                 {filterCount}
               </span>
             )}
@@ -157,7 +158,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             onClick={() => setViewModalOpen(true)}
             className={`h-8.5 px-2.5 text-xs flex items-center gap-1.5 shrink-0 ${
               pref.grouping && pref.grouping !== "none"
-                ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400 font-semibold"
+                ? "border-primary/40 text-primary font-semibold"
                 : ""
             }`}
             title={tr("Swimlanes and board settings")}
@@ -182,7 +183,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
           >
             <Star
               className={`w-3.5 h-3.5 ${
-                pref.starred ? "fill-amber-400 text-amber-500" : "text-slate-400"
+                pref.starred ? "fill-warning text-warning" : "text-muted-foreground"
               }`}
             />
           </Button>
@@ -192,31 +193,31 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
         {hasActiveFilters && (
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5 text-xs">
             {searchQuery && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-200/80 dark:bg-[#101117] text-slate-700 dark:text-slate-200 text-[11px] font-medium shrink-0">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--nexa-surface-l2)] text-foreground text-[11px] font-medium shrink-0">
                 <span className="truncate max-w-[120px]">"{searchQuery}"</span>
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
-                  className="hover:text-rose-500 p-0.5"
+                  className="hover:text-danger p-0.5"
                 >
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
             {filterPriority !== "all" && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300 text-[11px] font-medium shrink-0 capitalize">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-warning/15 border border-warning/30 text-warning text-[11px] font-medium shrink-0 capitalize">
                 <span>{uiLabel(filterPriority)}</span>
                 <button
                   type="button"
                   onClick={() => setFilterPriority("all")}
-                  className="hover:text-rose-500 p-0.5"
+                  className="hover:text-danger p-0.5"
                 >
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
             {selectedAssignee && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 text-[11px] font-medium shrink-0">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary/15 border border-primary/30 text-primary text-[11px] font-medium shrink-0">
                 <span className="truncate max-w-[120px]">
                   {assignees.find((a) => a.user_id === selectedAssignee)
                     ?.display_name || tr("Assignee")}
@@ -224,21 +225,21 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
                 <button
                   type="button"
                   onClick={() => setAssignee(null)}
-                  className="hover:text-rose-500 p-0.5"
+                  className="hover:text-danger p-0.5"
                 >
                   <X className="w-3 h-3" />
                 </button>
               </span>
             )}
             {selectedLabel && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-cyan-500/15 border border-cyan-500/30 text-cyan-700 dark:text-cyan-300 text-[11px] font-medium shrink-0">
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-info/15 border border-info/30 text-info text-[11px] font-medium shrink-0">
                 <span className="truncate max-w-[120px]">
                   {labels.find((l) => l.id === selectedLabel)?.name || tr("Label")}
                 </span>
                 <button
                   type="button"
                   onClick={() => setLabel(null)}
-                  className="hover:text-rose-500 p-0.5"
+                  className="hover:text-danger p-0.5"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -247,7 +248,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             <button
               type="button"
               onClick={resetFilters}
-              className="text-[11px] text-slate-500 hover:text-rose-500 dark:hover:text-rose-400 underline font-medium ms-1 shrink-0 cursor-pointer"
+              className="text-[11px] text-muted-foreground hover:text-danger underline font-medium ms-1 shrink-0 cursor-pointer"
             >{tr("Clear all")}</button>
           </div>
         )}
@@ -314,7 +315,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
               size="sm"
               variant="ghost"
               onClick={resetFilters}
-              className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 h-8.5 px-2.5"
+              className="text-xs text-muted-foreground hover:text-foreground h-8.5 px-2.5"
             >
               <X className="w-3.5 h-3.5 me-1" />{tr("Clear")}</Button>
           )}
@@ -334,7 +335,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             <Star
               size={14}
               className={
-                pref.starred ? "fill-amber-400 text-amber-500" : ""
+                pref.starred ? "fill-warning text-warning" : ""
               }
             />
           </Button>
@@ -390,7 +391,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             size="sm"
             variant="outline"
             onClick={() => setArchiveModalOpen(true)}
-            className="text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400"
+            className="text-muted-foreground hover:text-primary"
           >
             <Archive size={14} />{tr("Archive")}</Button>
         </div>
@@ -406,7 +407,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
         <div className="p-4 space-y-4">
           {/* Priority Filter */}
           <div className="space-y-2">
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">{tr("Priority")}</span>
+            <span className="text-xs font-semibold text-foreground block">{tr("Priority")}</span>
             <div className="flex flex-wrap gap-1.5">
               {[
                 { value: "all", label: tr("All") },
@@ -421,8 +422,8 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
                   onClick={() => setFilterPriority(p.value)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
                     filterPriority === p.value
-                      ? "bg-emerald-500 text-white font-semibold shadow-xs"
-                      : "bg-slate-100 dark:bg-[#101117] text-slate-700 dark:text-slate-300 hover:bg-slate-200/80"
+                      ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                      : "bg-[var(--nexa-surface-l2)] text-foreground hover:bg-[var(--nexa-surface-l3)]"
                   }`}
                 >
                   {p.label}
@@ -433,7 +434,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
 
           {/* Assignee Filter */}
           <div className="space-y-2">
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">{tr("Assignee")}</span>
+            <span className="text-xs font-semibold text-foreground block">{tr("Assignee")}</span>
             <Select
               placeholder={tr("All assignees")}
               value={selectedAssignee || ""}
@@ -451,7 +452,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
 
           {/* Label Filter */}
           <div className="space-y-2">
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">{tr("Label")}</span>
+            <span className="text-xs font-semibold text-foreground block">{tr("Label")}</span>
             <Select
               placeholder={tr("All labels")}
               value={selectedLabel || ""}
@@ -465,7 +466,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
           </div>
 
           {/* Modal Actions */}
-          <div className="pt-2 flex items-center justify-between border-t border-slate-100 dark:border-white/[0.06]">
+          <div className="pt-2 flex items-center justify-between border-t border-[var(--nexa-divider)]">
             <Button
               variant="ghost"
               size="sm"
@@ -473,7 +474,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
                 resetFilters();
                 setFilterModalOpen(false);
               }}
-              className="text-xs text-rose-500 hover:text-rose-600"
+              className="text-xs text-danger hover:text-danger"
             >{tr("Reset Filters")}</Button>
             <Button
               variant="primary"
@@ -494,7 +495,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
         <div className="p-4 space-y-4">
           {/* Grouping / Swimlanes */}
           <div className="space-y-2">
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">{tr("Group by (Swimlanes)")}</span>
+            <span className="text-xs font-semibold text-foreground block">{tr("Group by (Swimlanes)")}</span>
             <div className="grid grid-cols-2 gap-1.5">
               {[
                 { value: "none", label: tr("No swimlanes") },
@@ -508,8 +509,8 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
                   onClick={() => save.mutate({ ...pref, grouping: opt.value })}
                   className={`p-2 rounded-xl text-xs font-medium text-center transition-all ${
                     (pref.grouping || "none") === opt.value
-                      ? "bg-emerald-500 text-white font-semibold shadow-xs"
-                      : "bg-slate-100 dark:bg-[#101117] text-slate-700 dark:text-slate-300 hover:bg-slate-200/80"
+                      ? "bg-primary text-primary-foreground font-semibold shadow-xs"
+                      : "bg-[var(--nexa-surface-l2)] text-foreground hover:bg-[var(--nexa-surface-l3)]"
                   }`}
                 >
                   {opt.label}
@@ -520,7 +521,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
 
           {/* Background Theme */}
           <div className="space-y-2">
-            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">{tr("Background Theme")}</span>
+            <span className="text-xs font-semibold text-foreground block">{tr("Background Theme")}</span>
             <div className="grid grid-cols-3 gap-1.5">
               {themeOptions.map((t) => (
                 <button
@@ -529,8 +530,8 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
                   onClick={() => save.mutate({ ...pref, background: t.value })}
                   className={`p-2 rounded-xl text-[11px] font-medium flex items-center gap-1.5 transition-all border ${
                     (pref.background || "petrol") === t.value
-                      ? "border-emerald-500 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold"
-                      : "border-slate-200/80 dark:border-white/[0.06] bg-white dark:bg-[#0b0c10] text-slate-600 dark:text-slate-400"
+                      ? "border-primary bg-primary/10 text-primary font-semibold"
+                      : "border-[var(--nexa-divider)] bg-[var(--nexa-surface-l1)] text-muted-foreground"
                   }`}
                 >
                   <span
@@ -544,7 +545,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
           </div>
 
           {/* Quick Actions */}
-          <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-white/[0.06]">
+          <div className="space-y-2 pt-2 border-t border-[var(--nexa-divider)]">
             <Button
               variant="outline"
               size="sm"

@@ -1,11 +1,14 @@
-import React from 'react';
+import React from "react";
 
 interface NexaLogoProps {
   className?: string;
   size?: number;
 }
 
-export const NexaLogo: React.FC<NexaLogoProps> = ({ className = '', size = 32 }) => {
+export const NexaLogo: React.FC<NexaLogoProps> = ({
+  className = "",
+  size = 32,
+}) => {
   return (
     <svg
       width={size}
@@ -16,54 +19,51 @@ export const NexaLogo: React.FC<NexaLogoProps> = ({ className = '', size = 32 })
       className={className}
     >
       <defs>
-        <linearGradient id="nexa-grad-main" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#34d399" />
-          <stop offset="50%" stopColor="#10b981" />
-          <stop offset="100%" stopColor="#064e3b" />
+        <linearGradient
+          id="nexa-grad-main"
+          x1="0"
+          y1="0"
+          x2="64"
+          y2="64"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0%" stopColor="var(--nexa-brand-highlight, #34d399)" />
+          <stop offset="50%" stopColor="var(--nexa-brand-main, #10b981)" />
+          <stop offset="100%" stopColor="var(--nexa-brand-lowlight, #064e3b)" />
         </linearGradient>
-        <linearGradient id="nexa-grad-accent" x1="64" y1="0" x2="0" y2="64" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#6ee7b7" />
-          <stop offset="100%" stopColor="#059669" />
+        <linearGradient
+          id="nexa-grad-accent"
+          x1="64"
+          y1="0"
+          x2="0"
+          y2="64"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0%" stopColor="var(--nexa-brand-highlight, #6ee7b7)" />
+          <stop offset="100%" stopColor="var(--nexa-brand-main, #059669)" />
         </linearGradient>
-        <filter id="nexa-glow" x="-10%" y="-10%" width="120%" height="120%" filterUnits="userSpaceOnUse">
-          <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#10b981" floodOpacity="0.25" />
-        </filter>
       </defs>
 
-      {/* Futuristic NEXA Geometric Hex-Diamond Container */}
       <rect
         x="6"
         y="6"
         width="52"
         height="52"
         rx="14"
-        fill="#0b0c10"
+        fill="var(--nexa-brand-surface, #0b0c10)"
         stroke="url(#nexa-grad-main)"
         strokeWidth="2.5"
-        filter="url(#nexa-glow)"
       />
 
-      {/* Forward Cyber Flight / Task Flow Wings forming 'N' & Compass Arrow */}
-      {/* Left Pillar */}
-      <path
-        d="M19 44V20L28 35V44H19Z"
-        fill="url(#nexa-grad-main)"
+      <path d="M19 44V20L28 35V44H19Z" fill="url(#nexa-grad-main)" />
+      <path d="M26 23L45 44H37L19 23H26Z" fill="url(#nexa-grad-accent)" />
+      <path d="M36 20H45V44L36 29V20Z" fill="url(#nexa-grad-main)" />
+      <circle
+        cx="32"
+        cy="32"
+        r="2.5"
+        fill="var(--nexa-brand-highlight, #34d399)"
       />
-
-      {/* Cyber Diagonal Flow */}
-      <path
-        d="M26 23L45 44H37L19 23H26Z"
-        fill="url(#nexa-grad-accent)"
-      />
-
-      {/* Right Mission Control Pillar & Orbit Accent */}
-      <path
-        d="M36 20H45V44L36 29V20Z"
-        fill="url(#nexa-grad-main)"
-      />
-
-      {/* Central Cyber Core Pulse Dot */}
-      <circle cx="32" cy="32" r="2.5" fill="#34d399" />
     </svg>
   );
 };

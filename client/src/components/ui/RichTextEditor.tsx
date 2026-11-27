@@ -149,20 +149,20 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
         resizable: true,
         HTMLAttributes: {
           class:
-            "w-full my-3 border-collapse border border-slate-200 dark:border-white/10 rounded-lg overflow-hidden text-sm",
+            "w-full my-3 border-collapse border border-[var(--nexa-divider)] rounded-lg overflow-hidden text-sm",
         },
       }),
       TableRow,
       TableHeader.configure({
         HTMLAttributes: {
           class:
-            "border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-[#101117] font-bold p-2 text-start",
+            "border border-[var(--nexa-divider)] bg-[var(--nexa-surface-l2)] font-bold p-2 text-start",
         },
       }),
       TableCell.configure({
         HTMLAttributes: {
           class:
-            "border border-slate-200 dark:border-white/10 p-2 text-start align-top",
+            "border border-[var(--nexa-divider)] p-2 text-start align-top",
         },
       }),
       TaskList.configure({

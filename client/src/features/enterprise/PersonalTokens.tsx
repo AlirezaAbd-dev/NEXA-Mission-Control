@@ -22,16 +22,16 @@ export function PersonalTokens() {
     [error, setError] = useState(""),
     [showMcpModal, setShowMcpModal] = useState(false);
   return (
-    <section className="rounded-xl border border-slate-200 dark:border-white/[0.06] p-5 bg-white dark:bg-[#0b0c10] space-y-4">
+    <section className="rounded-2xl border border-[var(--nexa-divider)] p-5 bg-[var(--nexa-surface-l1)] space-y-4">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-semibold">{tr("Personal API tokens")}</h2>
-          <p className="text-xs text-slate-500">{tr("Tokens use your current workspace permissions. Use them with scripts or the Mission Control MCP Server.")}</p>
+          <p className="text-xs text-muted-foreground">{tr("Tokens use your current workspace permissions. Use them with scripts or the Mission Control MCP Server.")}</p>
         </div>
         <Button
           size="sm"
           variant="outline"
-          className="flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+          className="flex items-center gap-1.5 text-xs text-info border-info/30 hover:bg-info/10"
           onClick={() => setShowMcpModal(true)}
         >
           <Cpu className="w-3.5 h-3.5" />{tr("MCP Manual & Setup")}</Button>

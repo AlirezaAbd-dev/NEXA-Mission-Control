@@ -24,9 +24,9 @@ export function CalendarPage() {
     >
       <ViewTabs projectId={projectId} />
       {error ? (
-        <p role="alert" className="text-rose-500 font-semibold text-sm">{tr("Could not load tasks. Please retry.")}</p>
+        <p role="alert" className="text-danger font-semibold text-sm">{tr("Could not load tasks. Please retry.")}</p>
       ) : isLoading || !board ? (
-        <div className="h-64 animate-pulse rounded-2xl bg-slate-200/50 dark:bg-[#101117]/60" />
+        <div className="h-64 animate-pulse rounded-2xl bg-[var(--nexa-surface-l2)]" />
       ) : (
         <BoardCalendarView cards={cards} projectId={projectId} />
       )}

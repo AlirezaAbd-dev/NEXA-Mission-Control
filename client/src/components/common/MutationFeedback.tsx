@@ -14,7 +14,8 @@ export function MutationFeedback() {
   return message ? (
     <aside
       role="alert"
-      className="fixed bottom-5 end-5 z-[100] max-w-md p-4 rounded-xl bg-white dark:bg-[#0b0c10] text-rose-600 dark:text-rose-300 border border-rose-500/30 shadow-xl flex items-start gap-3"
+      data-nexa-popup-surface=""
+      className="fixed bottom-5 end-5 z-[100] max-w-md p-4 rounded-xl bg-[var(--nexa-popup-fill)] text-danger border border-danger/30 shadow-xl flex items-start gap-3"
     >
       <p className="text-sm">{message}</p>
       <Button

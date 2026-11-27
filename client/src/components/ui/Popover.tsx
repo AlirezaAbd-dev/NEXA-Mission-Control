@@ -51,8 +51,9 @@ export const Popover = ({
 
       {isOpen && (
         <div
+          data-nexa-popup-surface=""
           className={cn(
-            "absolute z-50 mt-2 p-3 bg-white dark:bg-card border border-slate-200 dark:border-border rounded-xl shadow-xl animate-in fade-in zoom-in-95 duration-100 max-w-[calc(100vw-2rem)]",
+            "absolute z-50 mt-2 p-3 bg-[var(--nexa-popup-fill)] text-foreground rounded-xl animate-in fade-in zoom-in-95 duration-100 max-w-[calc(100vw-2rem)]",
             alignClasses[align],
             className,
           )}

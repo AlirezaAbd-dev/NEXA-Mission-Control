@@ -1584,5 +1584,9 @@ export const fa: Record<string, string> = {
   "Label added": "افزودن برچسب",
   "Days in done": "روزهای سپری‌شده در انجام‌شده",
   "Schedule": "زمان‌بندی",
-  "Manual": "دستی"
+  "Manual": "دستی",
+  "Collapse sidebar": "جمع کردن نوار کناری",
+  "Expand sidebar": "باز کردن نوار کناری",
+  "Dashboard Color Palette": "پالت رنگ داشبورد",
+  "Choose your preferred NEXA color theme with live preview.": "تم رنگی دلخواه نکسای خود را با پیش‌نمایش زنده انتخاب کنید."
 };
