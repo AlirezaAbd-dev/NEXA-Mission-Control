@@ -1,7 +1,7 @@
 import { formatNumber } from "@/i18n";
 import { tr, useUiLocale } from "@/i18n";
 import { useNow } from "@/hooks/useNow";
-import React from "react";
+import React, { useId } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
@@ -33,6 +33,7 @@ interface CardItemProps {
 
 export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, boardDragging = false, laneId, highlighted, onMove }) => {
   useUiLocale();
+  const titleId = useId();
   const now = useNow();
   const openCardModal = useUiStore((s) => s.openCardModal);
 
@@ -54,6 +55,8 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
     },
   });
 
+  const { onKeyDown: _keyboardDrag, ...pointerDragListeners } = listeners ?? {};
+
   const style: React.CSSProperties = {
     transform: preview || boardDragging ? undefined : CSS.Translate.toString(transform),
     transition: preview || boardDragging ? undefined : transition,
@@ -73,8 +76,11 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
       data-drag-preview={preview ? "" : undefined}
       style={style}
       aria-hidden={preview || undefined}
-      className={`rounded-xl bg-[var(--nexa-surface-l1)] overflow-hidden border border-[var(--nexa-divider)] group focus-within:ring-1 focus-within:ring-primary/60 ${highlighted ? "ring-2 ring-primary/60" : ""}`}
+      className={`relative min-w-0 rounded-xl bg-[var(--nexa-surface-l1)] overflow-hidden border border-[var(--nexa-divider)] group focus-within:ring-1 focus-within:ring-primary/60 ${highlighted ? "ring-2 ring-primary/60" : ""}`}
     >
+      {!preview && <Button type="button" variant="ghost" aria-labelledby={titleId} {...pointerDragListeners}
+        onClick={() => openCardModal(card.id)}
+        className="absolute inset-0 z-10 h-full w-full cursor-grab p-0 hover:bg-transparent! active:cursor-grabbing active:scale-none" />}
       {/* Trello Card Cover */}
       {hasCoverColor && (
         <div
@@ -87,7 +93,8 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
         <div className="h-28 w-full overflow-hidden border-b border-[var(--nexa-divider)] bg-[var(--nexa-surface-l2)]">
           <img
             src={card.cover_url!}
-            alt={card.title}
+            alt=""
+            draggable={false}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </div>
@@ -112,15 +119,12 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
         )}
         {/* Title */}
         <div className="flex items-start gap-1">
-          <h4 className="min-w-0 flex-1">
-            {preview ? <span dir="auto" className="break-words text-sm font-semibold">{card.title}</span> :
-              <Button type="button" variant="ghost" onClick={() => openCardModal(card.id)}
-                className="h-auto min-h-11 w-full justify-start px-1 py-1 text-start text-sm font-semibold leading-relaxed">
-                <span dir="auto" className="min-w-0 break-words [overflow-wrap:anywhere]">{card.title}</span>
-              </Button>}
+          <h4 id={titleId} dir="auto" className="min-w-0 flex-1 wrap-anywhere px-1 py-1 text-start text-sm font-semibold leading-relaxed">
+            {card.title}
           </h4>
-          {!preview && <div className="flex shrink-0 items-center">
+          {!preview && <div className="relative z-20 flex shrink-0 items-center">
             <Button type="button" variant="ghost" size="icon" ref={setActivatorNodeRef} {...attributes} {...listeners}
+              onClick={() => openCardModal(card.id)}
               className="size-11 sm:size-8 touch-none cursor-grab p-1 text-foreground/75"
               aria-label={tr("Drag task: {title}", { title: card.title })}><GripVertical size={16} aria-hidden="true" /></Button>
             {onMove && <Dropdown ariaLabel={tr("Task actions: {title}", { title: card.title })}
