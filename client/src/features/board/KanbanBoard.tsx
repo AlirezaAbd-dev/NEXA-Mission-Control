@@ -1,4 +1,4 @@
-import { uiLabel } from "@/i18n";
+import { getLocale, normalizeSearch, uiLabel } from "@/i18n";
 import { formatNumber } from "@/i18n";
 import { tr, useUiLocale } from "@/i18n";
 import React, { useState, useRef } from "react";
@@ -26,7 +26,8 @@ import { apiError } from "@/lib/apiError";
 import { Plus } from "lucide-react";
 import { BoardColumn } from "./BoardColumn";
 import { CardItem } from "./CardItem";
-import { Button } from "@/components/ui/Button";
+import { Button, CustomSelect, Modal } from "@/components/ui";
+import { useMobileViewport } from "@/hooks/useMobileViewport";
 import { Input } from "@/components/ui/Input";
 import { useCreateColumn } from "@/hooks/board/useCreateColumn";
 import { useMoveCard } from "@/hooks/card/useMoveCard";
@@ -37,14 +38,30 @@ interface KanbanBoardProps {
   board: Board;
   cards: Card[];
   projectId: string;
+  onAdd: (columnId: string) => void;
+  createdTask: Card | null;
 }
 
 export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   board,
   cards,
-  projectId,
+  projectId, onAdd, createdTask,
 }) => {
   useUiLocale();
+  const isMobile = useMobileViewport();
+  const [selectedColumn, setSelectedColumn] = useState("");
+  const [moving, setMoving] = useState<Card | null>(null);
+  const [destination, setDestination] = useState("");
+  const [moveError, setMoveError] = useState("");
+  const swipe = useRef<{ x: number; y: number } | null>(null);
+  const columns = board.columns;
+  const mobileColumn = columns.find(column => column.id === selectedColumn) || columns[0];
+  const shownColumns = isMobile && mobileColumn ? [mobileColumn] : columns;
+  const [lastCreated, setLastCreated] = useState(createdTask?.id);
+  if (createdTask && lastCreated !== createdTask.id) {
+    setLastCreated(createdTask.id);
+    setSelectedColumn(createdTask.column_id);
+  }
   const { data: preferences = {} } = usePreferences(projectId);
   const { data: epics = [] } = useEnterpriseResource(projectId, "epics");
   const { data: metadata = [] } = useEnterpriseResource<CardMetadata[]>(
@@ -86,6 +103,10 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
   );
 
   // Filter cards based on search and priority
+  const columnCounts = new Map<string, number>();
+  for (const card of visibleCards) {
+    columnCounts.set(card.column_id, (columnCounts.get(card.column_id) || 0) + 1);
+  }
   const filteredCards = visibleCards.filter((card) => {
     if (
       selectedAssignee &&
@@ -95,9 +116,9 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     if (selectedLabel && !card.labels.some((l) => l.id === selectedLabel))
       return false;
     if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      const matchTitle = card.title.toLowerCase().includes(q);
-      const matchDesc = card.description?.toLowerCase().includes(q);
+      const q = normalizeSearch(searchQuery);
+      const matchTitle = normalizeSearch(card.title).includes(q);
+      const matchDesc = normalizeSearch(card.description || "").includes(q);
       if (!matchTitle && !matchDesc) return false;
     }
     if (filterPriority !== "all" && card.priority !== filterPriority) {
@@ -267,6 +288,11 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
             {notice}
           </p>
         )}
+        {isMobile && <div className="mb-2 flex shrink-0 items-center gap-2">
+          <CustomSelect className="min-w-0 flex-1" ariaLabel={tr("Board column")} value={mobileColumn?.id}
+            options={columns.map(column => ({ value: column.id, label: column.name }))} onChange={setSelectedColumn} disabled={!columns.length} />
+          <Button type="button" variant="outline" size="icon" aria-label={tr("Add another list")} onClick={() => setIsAddingColumn(true)}><Plus size={16} /></Button>
+        </div>}
         {lanes.map((lane) => (
           <section
             key={lane.id}
@@ -302,13 +328,33 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
             )}
             {!collapsed.includes(lane.id) && (
               <div
-                className={`flex gap-3 sm:gap-4 overflow-x-auto pb-3 select-none scroll-smooth snap-x snap-mandatory sm:snap-none ${
+                onTouchStart={event => {
+                  const target = event.target;
+                  if (!isMobile || event.touches.length !== 1 || !(target instanceof Element) || target.closest("button, input, a")) {
+                    swipe.current = null;
+                    return;
+                  }
+                  swipe.current = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+                }}
+                onTouchCancel={() => { swipe.current = null; }}
+                onTouchEnd={event => {
+                  const start = swipe.current;
+                  swipe.current = null;
+                  if (!start || !mobileColumn || !event.changedTouches.length || activeCard) return;
+                  const dx = event.changedTouches[0].clientX - start.x;
+                  const dy = event.changedTouches[0].clientY - start.y;
+                  if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+                  const step = (dx < 0 ? 1 : -1) * (getLocale() === "fa" ? -1 : 1);
+                  const next = columns[columns.findIndex(column => column.id === mobileColumn.id) + step];
+                  if (next) setSelectedColumn(next.id);
+                }}
+                className={`flex gap-3 pb-2 max-md:touch-pan-y md:gap-4 md:overflow-x-auto ${
                   grouping === "none"
                     ? "flex-1 min-h-0 h-full items-stretch"
                     : "items-start min-h-[140px]"
                 }`}
               >
-                {board.columns.map((column) => {
+                {shownColumns.map((column) => {
                   const colCards = lane.cards
                     .filter((c) => c.column_id === column.id)
                     .sort((a, b) => a.position - b.position);
@@ -320,57 +366,55 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                       laneId={lane.id}
                       cards={colCards}
                       projectId={projectId}
+                      totalCount={columnCounts.get(column.id) || 0}
+                      highlightedTaskId={createdTask?.id}
+                      onAdd={() => onAdd(column.id)}
+                      onMoveTask={columns.length > 1 ? card => { setDestination(""); setMoveError(""); setMoving(card); } : undefined}
                       draggingCardId={activeCard?.id}
                       dropTarget={dropTarget?.columnId === column.id && dropTarget.laneId === lane.id ? dropTarget : null}
                     />
                   );
                 })}
 
-                {lane.id === lanes[0].id && (
-                  <>
-                    {/* Add Column Box */}
-                    <div className="w-[88vw] max-w-[340px] sm:w-72 md:w-80 shrink-0 snap-center sm:snap-align-none self-start">
-                      {isAddingColumn ? (
-                        <form
-                          onSubmit={handleAddColumn}
-                          className="p-3 bg-[var(--nexa-surface-l1)] border border-[var(--nexa-divider)] rounded-2xl shadow-sm space-y-2"
-                        >
-                          <Input
-                            value={newColumnName}
-                            onChange={(e) => setNewColumnName(e.target.value)}
-                            placeholder={tr("Column name (e.g. In Review)")}
-                            autoFocus
-                          />
-                          <div className="flex items-center gap-2">
-                            <Button
-                              size="sm"
-                              type="submit"
-                              isLoading={createColumn.isPending}
-                            >{tr("Add Column")}</Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => setIsAddingColumn(false)}
-                            >{tr("Cancel")}</Button>
-                          </div>
-                        </form>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          className="w-full border-dashed h-12 flex items-center justify-center gap-2 text-muted-foreground hover:text-foreground"
-                          onClick={() => setIsAddingColumn(true)}
-                        >
-                          <Plus className="w-4 h-4" />{tr("Add another list")}</Button>
-                      )}
-                    </div>
-                  </>
-                )}
+                {!isMobile && lane.id === lanes[0].id && <Button type="button" variant="outline" className="shrink-0 self-start border-dashed" onClick={() => setIsAddingColumn(true)}>
+                  <Plus size={15} aria-hidden="true" />{tr("Add another list")}
+                </Button>}
               </div>
             )}
           </section>
         ))}
       </div>
 
+      <Modal isOpen={isAddingColumn} title={tr("Add Column")} onClose={() => setIsAddingColumn(false)} size="sm">
+        <form onSubmit={handleAddColumn} className="space-y-3">
+          <Input label={tr("Column name (e.g. In Review)")} value={newColumnName} onChange={event => setNewColumnName(event.target.value)} autoFocus required />
+          <Button type="submit" isLoading={createColumn.isPending} disabled={!newColumnName.trim()}>{tr("Add Column")}</Button>
+        </form>
+      </Modal>
+      {moving && <Modal isOpen title={tr("Move to column")} onClose={() => { if (!moveCard.isPending) setMoving(null); }} size="sm">
+        <form className="space-y-3" onSubmit={event => {
+          event.preventDefault();
+          if (!destination || destination === moving.column_id || moveCard.isPending) return;
+          setMoveError("");
+          moveCard.mutate({ id: moving.id, column_id: destination, position: 0, placement: { before_id: null } }, {
+            onSuccess: () => {
+              setNotice(tr("Task moved to {column}.", { column: columns.find(column => column.id === destination)?.name || "" }));
+              setSelectedColumn(destination);
+              setMoving(null);
+            },
+            onError: error => setMoveError(apiError(error)),
+          });
+        }}>
+          <p dir="auto" className="break-words text-sm font-semibold">{moving.title}</p>
+          <CustomSelect label={tr("Column")} value={destination} onChange={setDestination}
+            options={columns.filter(column => column.id !== moving.column_id).map(column => ({ value: column.id, label: column.name }))} disabled={moveCard.isPending} />
+          {moveError && <p role="alert" className="text-sm text-danger">{moveError}</p>}
+          <div data-dialog-actions className="flex justify-end gap-2">
+            <Button type="button" variant="ghost" disabled={moveCard.isPending} onClick={() => setMoving(null)}>{tr("Cancel")}</Button>
+            <Button type="submit" disabled={!destination} isLoading={moveCard.isPending}>{tr("Move task")}</Button>
+          </div>
+        </form>
+      </Modal>}
       <DragOverlay dropAnimation={null}>
         {activeCard ? <CardItem card={activeCard} preview /> : null}
       </DragOverlay>

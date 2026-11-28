@@ -6,6 +6,7 @@ import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { CommandPalette } from "@/components/common/CommandPalette";
 import { CardDetailModal } from "@/features/card/CardDetailModal";
+import { ReleaseUpdateBanner } from "@/components/common/ReleaseUpdateBanner";
 import { useAuthStore } from "@/stores/auth.store";
 import { useUiStore } from "@/stores/ui.store";
 import { useCurrentUser } from "@/hooks/auth/useCurrentUser";
@@ -33,6 +34,7 @@ export const AppLayout = () => {
         <Sidebar />
         <div className="nexa-shell-main flex flex-col flex-1 h-full overflow-hidden min-w-0 transition-[padding] duration-300 motion-reduce:transition-none">
           <TopBar />
+          <ReleaseUpdateBanner />
           <main className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col">
             <Outlet />
           </main>

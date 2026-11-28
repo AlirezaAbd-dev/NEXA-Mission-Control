@@ -6,7 +6,7 @@ import {
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { Plus, MoreHorizontal, Trash2, FileText } from "lucide-react";
+import { Plus, MoreHorizontal, Trash2, ArrowDownWideNarrow } from "lucide-react";
 import { CardDropPlaceholder } from "./CardDropPlaceholder";
 import type { CardDropTarget } from "./cardDrop";
 import { ColumnRenameModal } from "./ColumnRenameModal";
@@ -18,8 +18,6 @@ import { Modal } from "@/components/ui/Modal";
 import { CustomSelect } from "@/components/ui/CustomSelect";
 import { useUpdateColumn } from "@/hooks/board/useUpdateColumn";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
-import { useCreateCard } from "@/hooks/card/useCreateCard";
-import { useCards } from "@/hooks/card/useCards";
 import { useDeleteColumn } from "@/hooks/board/useDeleteColumn";
 import type { BoardColumn as IBoardColumn, Card } from "@/types";
 
@@ -30,6 +28,10 @@ interface BoardColumnProps {
   laneId?: string;
   draggingCardId?: string;
   dropTarget?: CardDropTarget | null;
+  totalCount: number;
+  highlightedTaskId?: string;
+  onAdd: () => void;
+  onMoveTask?: (task: Card) => void;
 }
 
 export const BoardColumn: React.FC<BoardColumnProps> = ({
@@ -38,15 +40,21 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
   projectId,
   laneId,
   draggingCardId,
-  dropTarget,
+  dropTarget, totalCount, highlightedTaskId, onAdd, onMoveTask,
 }) => {
   useUiLocale();
-  const [isAddingCard, setIsAddingCard] = useState(false);
-  const [newCardTitle, setNewCardTitle] = useState("");
-  const [cardError, setCardError] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const [sort, setSort] = useState("position");
+  const [sortOpen, setSortOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const sortOptions = [
+    { value: "position", label: tr("Manual order") },
+    { value: "title", label: tr("Title A–Z") },
+    { value: "priority", label: tr("Priority") },
+    { value: "due", label: tr("Due date") },
+    { value: "created", label: tr("Created date") },
+  ];
   const [renameOpen,setRenameOpen] = useState(false);
   const [wipOpen, setWipOpen] = useState(false);
   const [wip, setWip] = useState(String(column.wip_limit || 0));
@@ -64,36 +72,12 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
             : a.position - b.position,
   );
 
-  const createCard = useCreateCard(projectId);
   const deleteColumn = useDeleteColumn(projectId);
-  const { data: allProjectCards = [] } = useCards({ project_id: projectId });
-  const totalCount = allProjectCards.filter(
-    (c) => c.column_id === column.id,
-  ).length;
   const exceeded = !!column.wip_limit && totalCount > column.wip_limit;
-  const templates = allProjectCards.filter((c) => c.is_template);
-
-  const handleCreateFromTemplate = (template: Card) => {
-    createCard.mutate(
-      {
-        column_id: column.id,
-        title: tr("{value0} (Copy)", { value0: (template.title) }),
-        description: template.description || undefined,
-        priority: template.priority,
-        estimated_hours: template.estimated_hours || undefined,
-        story_points: template.story_points || undefined,
-        label_ids: template.labels.map((l) => l.id),
-      },
-      {
-        onSuccess: () => {
-          setIsAddingCard(false);
-        },
-      },
-    );
-  };
 
   const { setNodeRef, isOver } = useDroppable({
     id: laneId ? `${column.id}::${laneId}` : column.id,
+    disabled: collapsed,
     data: {
       type: "column",
       column,
@@ -102,33 +86,6 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
   });
 
   const cardIds = sortedCards.map((card) => laneId ? card.id+"::"+laneId : card.id);
-
-  const handleCreateCard = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newCardTitle.trim()) {
-      setCardError(tr("Card title cannot be empty"));
-      return;
-    }
-    setCardError(null);
-
-    createCard.mutate(
-      {
-        column_id: column.id,
-        title: newCardTitle.trim(),
-      },
-      {
-        onSuccess: () => {
-          setNewCardTitle("");
-          setIsAddingCard(false);
-        },
-        onError: (err: any) => {
-          setCardError(
-            err?.response?.data?.error?.message || "Failed to create card",
-          );
-        },
-      },
-    );
-  };
 
   const handleConfirmDelete = () => {
     deleteColumn.mutate(column.id, {
@@ -142,7 +99,7 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
       <div
         ref={setNodeRef}
         data-column-id={column.id}
-        className={`w-[88vw] max-w-[340px] sm:w-72 md:w-80 shrink-0 snap-center sm:snap-align-none flex flex-col h-full min-h-[min(540px,calc(100dvh-180px))] sm:min-h-0 rounded-2xl bg-[var(--nexa-surface-l2)]/75 transition-colors shadow-[var(--nexa-elevation-subtle)] ${
+        className={`w-full ${collapsed ? "md:w-44 self-start" : "md:w-80 h-full"} shrink-0 flex min-h-0 flex-col rounded-xl bg-[var(--nexa-surface-l2)]/75 transition-colors shadow-[var(--nexa-elevation-subtle)] ${
           exceeded
             ? "ring-2 ring-warning/50"
             : isOver
@@ -151,9 +108,9 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
         }`}
       >
         {/* Column Header */}
-        <div className="p-3.5 pb-2.5 flex items-center justify-between gap-2 border-b border-[var(--nexa-divider)]">
+        <div className="px-3 py-1.5 flex items-center justify-between gap-2 border-b border-[var(--nexa-divider)]">
           <div className="flex items-center gap-2 min-w-0">
-            <h3 className="font-semibold text-sm text-foreground truncate">
+            <h3 dir="auto" className="font-semibold text-sm text-foreground truncate">
               {column.name}
             </h3>
             <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--nexa-surface-l1)] text-primary font-mono font-semibold">
@@ -169,21 +126,22 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
             <Button
               size="icon"
               variant="ghost"
-              className="w-7 h-7 text-muted-foreground hover:text-foreground"
-              onClick={() => {
-                setCardError(null);
-                setIsAddingCard(true);
-              }}
-              title={tr("Add card")}
+              className="size-8 shrink-0 text-muted-foreground hover:text-foreground"
+              onClick={onAdd}
+              aria-label={tr("Add task to {column}", { column: column.name })}
+              title={tr("Add task to {column}", { column: column.name })}
             >
               <Plus className="w-4 h-4" />
             </Button>
 
             <Dropdown
+              ariaLabel={tr("Column actions: {column}", { column: column.name })}
               trigger={
                 <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
               }
               items={[
+                { id: "sort", label: tr("Sort tasks"), onClick: () => setSortOpen(true) },
+                { id: "collapse", label: collapsed ? tr("Expand column") : tr("Collapse column"), onClick: () => setCollapsed(value => !value) },
                 {id:"rename",label:tr("Rename column"),onClick:()=>setRenameOpen(true)},
                 {
                   id: "wip",
@@ -202,22 +160,12 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
           </div>
         </div>
 
-        <div className="px-3 pb-2">
-          <CustomSelect
-            value={sort}
-            onChange={setSort}
-            size="sm"
-            options={[
-              { value: "position", label: tr("Manual order") },
-              { value: "title", label: tr("Title A–Z") },
-              { value: "priority", label: tr("Priority") },
-              { value: "due", label: tr("Due date") },
-              { value: "created", label: tr("Created date") },
-            ]}
-          />
-        </div>
-        {/* Cards List Container */}
-        <div className="flex-1 min-h-0 p-2 space-y-2 overflow-y-auto max-h-[calc(100dvh-200px)] sm:max-h-none">
+        {sort !== "position" && !collapsed && <Button type="button" variant="ghost" size="sm" className="self-start mx-2" onClick={() => setSortOpen(true)}>
+          <ArrowDownWideNarrow size={14} aria-hidden="true" />{sortOptions.find(option => option.value === sort)?.label}
+        </Button>}
+        {collapsed ? <Button type="button" variant="ghost" size="sm" className="m-2" onClick={() => setCollapsed(false)}>{tr("Expand column")}</Button> : (
+        <div className="flex-1 min-h-0 space-y-2 overflow-y-auto overscroll-y-contain p-2" aria-label={column.name}>
+          {!cards.length && <p className="px-2 py-4 text-sm text-foreground/75">{tr("No tasks in this column.")}</p>}
           <SortableContext
             items={cardIds}
             strategy={verticalListSortingStrategy}
@@ -225,76 +173,18 @@ export const BoardColumn: React.FC<BoardColumnProps> = ({
             {sortedCards.map((card) => (
               <React.Fragment key={card.id}>
                 {dropTarget?.beforeId === card.id && <CardDropPlaceholder />}
-                <CardItem card={card} laneId={laneId} boardDragging={!!draggingCardId} />
+                <CardItem card={card} laneId={laneId} boardDragging={!!draggingCardId} highlighted={highlightedTaskId === card.id} onMove={onMoveTask ? () => onMoveTask(card) : undefined} />
               </React.Fragment>
             ))}
             {dropTarget && !dropTarget.beforeId && <CardDropPlaceholder />}
           </SortableContext>
         </div>
 
-        {/* Add Card Form / Button */}
-        <div className="p-2 pt-0">
-          {isAddingCard ? (
-            <form
-              onSubmit={handleCreateCard}
-              className="space-y-2 bg-[var(--nexa-surface-l1)] p-2.5 rounded-xl shadow-[var(--nexa-elevation-subtle)]"
-            >
-              <Input
-                value={newCardTitle}
-                onChange={(e) => {
-                  setNewCardTitle(e.target.value);
-                  if (cardError) setCardError(null);
-                }}
-                placeholder={tr("What needs to be done?")}
-                error={cardError || undefined}
-                autoFocus
-              />
-              <div className="flex items-center gap-2 pt-1">
-                <Button
-                  size="sm"
-                  type="submit"
-                  isLoading={createCard.isPending}
-                >{tr("Add Card")}</Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setIsAddingCard(false)}
-                >{tr("Cancel")}</Button>
-              </div>
-
-              {templates.length > 0 && (
-                <div className="pt-2 border-t border-[var(--nexa-divider)] space-y-1">
-                  <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                    <FileText className="w-3 h-3 text-primary" />{tr("Use Template:")}</div>
-                  <div className="flex flex-wrap gap-1">
-                    {templates.map((tmpl) => (
-                      <button
-                        key={tmpl.id}
-                        type="button"
-                        onClick={() => handleCreateFromTemplate(tmpl)}
-                        className="text-[11px] px-2 py-0.5 rounded-md bg-[var(--nexa-brand-surface)] text-primary hover:opacity-90 transition-opacity truncate max-w-[180px] cursor-pointer"
-                        title={tmpl.title}
-                      >
-                        {tmpl.title}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </form>
-          ) : (
-            <button
-              onClick={() => {
-                setCardError(null);
-                setIsAddingCard(true);
-              }}
-              className="w-full flex items-center gap-1.5 py-2 px-3 rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-[var(--nexa-surface-hover)] transition-colors cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5 text-primary" />{tr("Add Card")}</button>
-          )}
-        </div>
+        )}
       </div>
-
+      <Modal isOpen={sortOpen} title={tr("Sort tasks")} onClose={() => setSortOpen(false)} size="sm">
+        <CustomSelect label={tr("Sort tasks")} value={sort} options={sortOptions} onChange={value => { setSort(value); setSortOpen(false); }} />
+      </Modal>
       <Modal
         isOpen={wipOpen}
         onClose={() => setWipOpen(false)}

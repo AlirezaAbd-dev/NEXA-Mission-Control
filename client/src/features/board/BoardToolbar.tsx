@@ -1,7 +1,7 @@
-import { uiLabel } from "@/i18n";
+import { formatNumber, uiLabel } from "@/i18n";
+import type { ReactNode } from "react";
 import { tr, useUiLocale } from "@/i18n";
 import React, { useState } from "react";
-import { useParams } from "react-router";
 import {
   Search,
   Filter,
@@ -10,9 +10,10 @@ import {
   X,
   Bookmark,
   Archive,
-  Check,
+  MoreHorizontal,
+  Plus,
 } from "lucide-react";
-import { Button, Input, Select, CustomSelect, Modal } from "@/components/ui";
+import { Button, Input, Select, CustomSelect, Modal, Dropdown } from "@/components/ui";
 import { ArchiveCenter } from "@/features/enterprise/ArchiveCenter";
 import { useCards } from "@/hooks/card/useCards";
 import { useBoardStore } from "@/stores/board.store";
@@ -24,6 +25,10 @@ import { apiError } from "@/lib/apiError";
 
 interface BoardToolbarProps {
   projectId: string;
+  onAdd: () => void;
+  onOrder?: () => void;
+  onMirror: () => void;
+  mirrorShortcut?: ReactNode;
 }
 
 const themeOptions = [
@@ -38,7 +43,7 @@ const themeOptions = [
   { value: "neutral", get label() { return tr("Neutral Minimal"); }, color: "#090b0d" },
 ];
 
-export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
+export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId, onAdd, onOrder, onMirror, mirrorShortcut }) => {
   useUiLocale();
   const { data: cards = [] } = useCards({ project_id: projectId });
   const { data: pref = {} } = usePreferences(projectId);
@@ -60,6 +65,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
   // Modals state
   const [filterModalOpen, setFilterModalOpen] = useState(false);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [savedViewsOpen, setSavedViewsOpen] = useState(false);
   const [saveViewModalOpen, setSaveViewModalOpen] = useState(false);
   const [archiveModalOpen, setArchiveModalOpen] = useState(false);
   const [newViewName, setNewViewName] = useState("");
@@ -79,8 +85,6 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
     !!selectedAssignee,
     !!selectedLabel,
   ].filter(Boolean).length;
-
-  const hasActiveFilters = !!searchQuery || filterCount > 0;
 
   const handleSaveView = () => {
     if (!newViewName.trim()) {
@@ -109,293 +113,61 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
     );
   };
 
+  const filterChips = [
+    filterPriority !== "all" && { label: uiLabel(filterPriority), remove: () => setFilterPriority("all") },
+    selectedAssignee && { label: assignees.find(item => item.user_id === selectedAssignee)?.display_name || tr("Assignee"), remove: () => setAssignee(null) },
+    selectedLabel && { label: labels.find(item => item.id === selectedLabel)?.name || tr("Label"), remove: () => setLabel(null) },
+  ].filter(item => !!item);
   return (
-    <div className="w-full shrink-0 space-y-2 pb-1">
-      {/* ─── Mobile Toolbar (Screen < sm) ─── */}
-      <div className="flex sm:hidden flex-col gap-2">
-        <div className="flex items-center gap-1.5 w-full">
-          {/* Search bar */}
-          <div className="flex-1 min-w-0 relative">
-            <Search className="w-3.5 h-3.5 absolute start-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-            <input
-              data-nexa-field=""
-              type="text"
-              placeholder={tr("Search cards...")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-8.5 ps-8 pe-2 text-xs rounded-xl bg-[var(--nexa-field-fill)] border border-[var(--nexa-field-border)] text-foreground placeholder:text-muted-foreground focus:outline-none transition-colors"
-            />
-          </div>
-
-          {/* Filters Modal Trigger */}
-          <Button
-            size="sm"
-            variant={filterCount > 0 ? "secondary" : "outline"}
-            onClick={() => setFilterModalOpen(true)}
-            className={`h-8.5 px-2.5 text-xs flex items-center gap-1.5 shrink-0 ${
-              filterCount > 0
-                ? "border-primary/40 text-primary font-semibold"
-                : ""
-            }`}
-          >
-            <Filter className="w-3.5 h-3.5" />
-            <span>{tr("Filters")}</span>
-            {filterCount > 0 && (
-              <span className="w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
-                {filterCount}
-              </span>
-            )}
-          </Button>
-
-          {/* Display & Swimlanes Trigger */}
-          <Button
-            size="sm"
-            variant={
-              pref.grouping && pref.grouping !== "none"
-                ? "secondary"
-                : "outline"
-            }
-            onClick={() => setViewModalOpen(true)}
-            className={`h-8.5 px-2.5 text-xs flex items-center gap-1.5 shrink-0 ${
-              pref.grouping && pref.grouping !== "none"
-                ? "border-primary/40 text-primary font-semibold"
-                : ""
-            }`}
-            title={tr("Swimlanes and board settings")}
-          >
-            <SlidersHorizontal className="w-3.5 h-3.5" />
-            <span className="capitalize">
-              {pref.grouping && pref.grouping !== "none"
-                ? uiLabel(pref.grouping)
-                : tr("View")}
-            </span>
-          </Button>
-
-          {/* Star Board Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              save.mutate({ ...pref, starred: !pref.starred })
-            }
-            className="h-8.5 px-2 shrink-0"
-            title={pref.starred ? tr("Starred board") : tr("Star board")}
-          >
-            <Star
-              className={`w-3.5 h-3.5 ${
-                pref.starred ? "fill-warning text-warning" : "text-muted-foreground"
-              }`}
-            />
-          </Button>
-        </div>
-
-        {/* Active Filter Chips Ribbon on Mobile */}
-        {hasActiveFilters && (
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5 text-xs">
-            {searchQuery && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[var(--nexa-surface-l2)] text-foreground text-[11px] font-medium shrink-0">
-                <span className="truncate max-w-[120px]">"{searchQuery}"</span>
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="hover:text-danger p-0.5"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
-            )}
-            {filterPriority !== "all" && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-warning/15 border border-warning/30 text-warning text-[11px] font-medium shrink-0 capitalize">
-                <span>{uiLabel(filterPriority)}</span>
-                <button
-                  type="button"
-                  onClick={() => setFilterPriority("all")}
-                  className="hover:text-danger p-0.5"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
-            )}
-            {selectedAssignee && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary/15 border border-primary/30 text-primary text-[11px] font-medium shrink-0">
-                <span className="truncate max-w-[120px]">
-                  {assignees.find((a) => a.user_id === selectedAssignee)
-                    ?.display_name || tr("Assignee")}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setAssignee(null)}
-                  className="hover:text-danger p-0.5"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
-            )}
-            {selectedLabel && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-info/15 border border-info/30 text-info text-[11px] font-medium shrink-0">
-                <span className="truncate max-w-[120px]">
-                  {labels.find((l) => l.id === selectedLabel)?.name || tr("Label")}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setLabel(null)}
-                  className="hover:text-danger p-0.5"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={resetFilters}
-              className="text-[11px] text-muted-foreground hover:text-danger underline font-medium ms-1 shrink-0 cursor-pointer"
-            >{tr("Clear all")}</button>
-          </div>
-        )}
+    <div className="min-w-0 shrink-0 space-y-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="min-w-0 basis-full sm:min-w-40 sm:flex-1"><Input icon={Search} className="w-full min-h-11"
+          aria-label={tr("Search tasks...")} placeholder={tr("Search tasks...")} value={searchQuery}
+          onChange={event => setSearchQuery(event.target.value)} /></div>
+        <Button type="button" variant={filterCount ? "secondary" : "outline"} size="sm" onClick={() => setFilterModalOpen(true)}>
+          <Filter size={15} aria-hidden="true" />{tr("Filters")}{filterCount ? ` (${formatNumber(filterCount)})` : ""}
+        </Button>
+        <Button type="button" variant="outline" size="sm" aria-label={tr("Saved views")} title={tr("Saved views")} onClick={() => { setSaveViewError(""); setSavedViewsOpen(true); }}>
+          <Bookmark size={15} aria-hidden="true" /><span className="hidden min-[380px]:inline">{tr("Saved views")}</span>
+        </Button>
+        {mirrorShortcut}
+        <Dropdown ariaLabel={tr("Board actions")} trigger={<MoreHorizontal size={18} aria-hidden="true" />} items={[
+          { id: "display", label: tr("Board View & Swimlanes"), icon: <SlidersHorizontal size={15} />, onClick: () => setViewModalOpen(true) },
+          { id: "mirror", label: tr("Mirrored tasks"), onClick: onMirror },
+          ...(onOrder ? [{ id: "order", label: tr("Reorder columns"), onClick: onOrder }] : []),
+          { id: "star", label: pref.starred ? tr("Unstar board") : tr("Star board"), icon: <Star size={15} />, onClick: () => save.mutate({ ...pref, starred: !pref.starred }) },
+          { id: "archive", label: tr("Archive"), icon: <Archive size={15} />, onClick: () => setArchiveModalOpen(true) },
+        ]} />
+        <Button type="button" size="sm" className="ms-auto" onClick={onAdd}><Plus size={15} aria-hidden="true" />{tr("Add task")}</Button>
       </div>
-
-      {/* ─── Desktop Toolbar (Screen >= sm) ─── */}
-      <div className="hidden sm:flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 w-full">
-        {/* Left: Filter Controls */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-          <div className="w-44 md:w-52">
-            <Input
-              placeholder={tr("Filter cards...")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          <div className="w-32 md:w-36">
-            <Select
-              value={filterPriority}
-              onChange={(val) => setFilterPriority(val)}
-              size="sm"
-              options={[
-                { label: tr("All Priorities"), value: "all" },
-                { label: tr("Urgent"), value: "urgent" },
-                { label: tr("High"), value: "high" },
-                { label: tr("Medium"), value: "medium" },
-                { label: tr("Low"), value: "low" },
-              ]}
-            />
-          </div>
-
-          <div className="w-32 md:w-36">
-            <Select
-              placeholder={tr("All assignees")}
-              value={selectedAssignee || ""}
-              onChange={(v) => setAssignee(v || null)}
-              size="sm"
-              options={[
-                { value: "", label: tr("All assignees") },
-                ...assignees.map((a) => ({
-                  value: a.user_id,
-                  label: a.display_name,
-                })),
-              ]}
-            />
-          </div>
-
-          <div className="w-32 md:w-36">
-            <Select
-              placeholder={tr("All labels")}
-              value={selectedLabel || ""}
-              onChange={(v) => setLabel(v || null)}
-              size="sm"
-              options={[
-                { value: "", label: tr("All labels") },
-                ...labels.map((l) => ({ value: l.id, label: l.name })),
-              ]}
-            />
-          </div>
-
-          {hasActiveFilters && (
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={resetFilters}
-              className="text-xs text-muted-foreground hover:text-foreground h-8.5 px-2.5"
-            >
-              <X className="w-3.5 h-3.5 me-1" />{tr("Clear")}</Button>
-          )}
-        </div>
-
-        {/* Right: Board Preferences & Views */}
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <Button
-            variant="outline"
-            size="sm"
-            aria-label={tr("Star board")}
-            onClick={() =>
-              save.mutate({ ...pref, starred: !pref.starred })
-            }
-            className="h-8.5 px-2.5"
-          >
-            <Star
-              size={14}
-              className={
-                pref.starred ? "fill-warning text-warning" : ""
-              }
-            />
-          </Button>
-
-          <CustomSelect
-            className="w-36 md:w-40"
-            size="sm"
-            value={pref.grouping || "none"}
-            onChange={(grouping) => save.mutate({ ...pref, grouping })}
-            options={["none", "priority", "assignee", "epic"].map((value) => ({
-              value,
-              label: value === "none" ? tr("No swimlanes") : tr("Group by {value0}", { value0: uiLabel(value) }),
-            }))}
-          />
-
-          <CustomSelect
-            className="w-32 md:w-36"
-            size="sm"
-            value={pref.background || "petrol"}
-            onChange={(background) => save.mutate({ ...pref, background })}
-            options={themeOptions.map((t) => ({
-              value: t.value,
-              label: t.label,
-            }))}
-          />
-
-          <CustomSelect
-            className="w-32 md:w-36"
-            size="sm"
-            placeholder={tr("Saved views")}
-            options={views.map((v) => ({ value: v.id, label: v.name }))}
-            onChange={(id) => {
-              const view = views.find((v) => v.id === id);
-              if (view?.config_json) {
+      {!!filterChips.length && <div className="flex flex-wrap gap-1.5">
+        {filterChips.map((item, index) => <Button key={index} type="button" variant="secondary" size="sm" className="max-w-full"
+          aria-label={tr("Remove filter: {value0}", { value0: item.label })} onClick={item.remove}>
+          <span className="truncate" dir="auto">{item.label}</span><X size={13} aria-hidden="true" />
+        </Button>)}
+      </div>}
+      <Modal isOpen={savedViewsOpen} onClose={() => setSavedViewsOpen(false)} title={tr("Saved views")} size="sm">
+        <div className="space-y-3">
+          {views.length ? <CustomSelect label={tr("Saved views")} options={views.map(view => ({ value: view.id, label: view.name }))}
+            onChange={id => {
+              const view = views.find(item => item.id === id);
+              if (!view?.config_json) return;
+              try {
                 const config = JSON.parse(view.config_json);
                 setSearchQuery(config.search || "");
                 setFilterPriority(config.priority || "all");
                 setAssignee(config.assignee || null);
                 setLabel(config.label || null);
                 save.mutate(config);
+                setSavedViewsOpen(false);
+              } catch {
+                setSaveViewError(tr("Could not open saved view."));
               }
-            }}
-          />
-
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setSaveViewModalOpen(true)}
-          >
-            <Bookmark size={14} />{tr("Save view")}</Button>
-
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => setArchiveModalOpen(true)}
-            className="text-muted-foreground hover:text-primary"
-          >
-            <Archive size={14} />{tr("Archive")}</Button>
+            }} /> : <p className="text-sm text-muted-foreground">{tr("No saved views yet.")}</p>}
+          {saveViewError && <p role="alert" className="text-sm text-danger">{saveViewError}</p>}
+          <Button type="button" variant="outline" onClick={() => { setSavedViewsOpen(false); setSaveViewError(""); setSaveViewModalOpen(true); }}>{tr("Save view")}</Button>
         </div>
-      </div>
+      </Modal>
 
       {/* ─── Mobile Filters Modal ─── */}
       <Modal
@@ -411,15 +183,16 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             <div className="flex flex-wrap gap-1.5">
               {[
                 { value: "all", label: tr("All") },
-                { value: "urgent", label: tr("🔴 Urgent") },
-                { value: "high", label: tr("🟠 High") },
-                { value: "medium", label: tr("🟡 Medium") },
-                { value: "low", label: tr("🟢 Low") },
+                { value: "urgent", label: tr("Urgent") },
+                { value: "high", label: tr("High") },
+                { value: "medium", label: tr("Medium") },
+                { value: "low", label: tr("Low") },
               ].map((p) => (
-                <button
+                <Button
                   key={p.value}
                   type="button"
                   onClick={() => setFilterPriority(p.value)}
+                  variant="ghost" aria-pressed={filterPriority === p.value}
                   className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
                     filterPriority === p.value
                       ? "bg-primary text-primary-foreground font-semibold shadow-xs"
@@ -427,7 +200,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
                   }`}
                 >
                   {p.label}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -503,10 +276,9 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
                 { value: "priority", label: tr("Priority") },
                 { value: "epic", label: tr("Epic") },
               ].map((opt) => (
-                <button
+                <Button
                   key={opt.value}
-                  type="button"
-                  onClick={() => save.mutate({ ...pref, grouping: opt.value })}
+                  type="button" variant="ghost" aria-pressed={(pref.grouping || "none") === opt.value} onClick={() => save.mutate({ ...pref, grouping: opt.value })}
                   className={`p-2 rounded-xl text-xs font-medium text-center transition-all ${
                     (pref.grouping || "none") === opt.value
                       ? "bg-primary text-primary-foreground font-semibold shadow-xs"
@@ -514,7 +286,7 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
                   }`}
                 >
                   {opt.label}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -524,11 +296,10 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
             <span className="text-xs font-semibold text-foreground block">{tr("Background Theme")}</span>
             <div className="grid grid-cols-3 gap-1.5">
               {themeOptions.map((t) => (
-                <button
+                <Button
                   key={t.value}
-                  type="button"
-                  onClick={() => save.mutate({ ...pref, background: t.value })}
-                  className={`p-2 rounded-xl text-[11px] font-medium flex items-center gap-1.5 transition-all border ${
+                  type="button" variant="ghost" aria-pressed={(pref.background || "petrol") === t.value} onClick={() => save.mutate({ ...pref, background: t.value })}
+                  className={`h-auto min-h-11 p-2 rounded-xl text-[11px] font-medium flex items-center gap-1.5 transition-all border ${
                     (pref.background || "petrol") === t.value
                       ? "border-primary bg-primary/10 text-primary font-semibold"
                       : "border-[var(--nexa-divider)] bg-[var(--nexa-surface-l1)] text-muted-foreground"
@@ -538,8 +309,8 @@ export const BoardToolbar: React.FC<BoardToolbarProps> = ({ projectId }) => {
                     className="w-3 h-3 rounded-full shrink-0 shadow-2xs border border-white/20"
                     style={{ backgroundColor: t.color }}
                   />
-                  <span className="truncate">{t.label.split(" ")[0]}</span>
-                </button>
+                  <span className="break-words">{t.label}</span>
+                </Button>
               ))}
             </div>
           </div>

@@ -31,6 +31,7 @@ export interface ModalProps {
   contentClassName?: string;
   hideHeaderClose?: boolean;
   closeButtonClassName?: string;
+  initialFocusRef?: React.RefObject<HTMLElement | null>;
 }
 
 export const Modal = ({
@@ -45,6 +46,7 @@ export const Modal = ({
   contentClassName,
   hideHeaderClose = false,
   closeButtonClassName,
+  initialFocusRef,
 }: ModalProps) => {
   useUiLocale();
   const modalId = useId();
@@ -78,7 +80,7 @@ export const Modal = ({
       ).filter((e) => e.getClientRects().length > 0);
     const frame = requestAnimationFrame(() => {
       if (modalStack.at(-1) === modalId)
-        (focusable()[0] || dialogRef.current)?.focus();
+        (initialFocusRef?.current || focusable()[0] || dialogRef.current)?.focus();
     });
     const handler = (e: KeyboardEvent) => {
       if (modalStack.at(-1) !== modalId) return;
@@ -124,10 +126,10 @@ export const Modal = ({
         document.body.style.overflow = previousBodyOverflow;
       if (previousFocus?.isConnected) previousFocus.focus();
     };
-  }, [isOpen, modalId, isMobile]);
+  }, [isOpen, modalId, isMobile, initialFocusRef]);
 
   if (!isOpen) return null;
-  if (isMobile) return <NativeBottomSheet open={isOpen} onClose={onClose} title={title} description={description} header={header} contentClassName={contentClassName}>{children}</NativeBottomSheet>;
+  if (isMobile) return <NativeBottomSheet open={isOpen} onClose={onClose} title={title} description={description} header={header} contentClassName={contentClassName} initialFocusRef={initialFocusRef}>{children}</NativeBottomSheet>;
 
   const sizeClasses = {
     sm: "max-w-sm",

@@ -11,7 +11,10 @@ import {
   ThumbsUp,
   Eye,
   FileText,
+  GripVertical,
+  MoreHorizontal,
 } from "lucide-react";
+import { Button, Dropdown } from "@/components/ui";
 import { PriorityBadge } from "@/components/common/PriorityBadge";
 import { LabelBadge } from "@/components/common/LabelBadge";
 import { UserAvatar } from "@/components/common/UserAvatar";
@@ -24,9 +27,11 @@ interface CardItemProps {
   preview?: boolean;
   boardDragging?: boolean;
   laneId?: string;
+  highlighted?: boolean;
+  onMove?: () => void;
 }
 
-export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, boardDragging = false, laneId }) => {
+export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, boardDragging = false, laneId, highlighted, onMove }) => {
   useUiLocale();
   const now = useNow();
   const openCardModal = useUiStore((s) => s.openCardModal);
@@ -35,6 +40,7 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
     attributes,
     listeners,
     setNodeRef,
+    setActivatorNodeRef,
     transform,
     transition,
     isDragging,
@@ -54,20 +60,20 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
     opacity: isDragging ? 0.35 : 1,
   };
 
+  const hasMetadata = card.priority !== "no_priority" || card.story_points != null || card.due_date ||
+    card.checklist_total > 0 || card.comments_count > 0 || (card.votes_count ?? 0) > 0 || card.is_watched || card.assignees.length > 0;
   const stale = now - new Date(card.updated_at).getTime() > 14 * 86400000;
   const hasCoverColor = card.cover_url && card.cover_url.startsWith("#");
   const hasCoverImage = card.cover_url && !card.cover_url.startsWith("#");
 
   return (
-    <div
+    <article
       ref={setNodeRef}
       data-card-id={card.id}
       data-drag-preview={preview ? "" : undefined}
       style={style}
-      {...attributes}
-      {...listeners}
-      onClick={preview ? undefined : () => openCardModal(card.id)}
-      className="bg-[var(--nexa-surface-l1)] rounded-xl shadow-[var(--nexa-elevation-subtle)] hover:ring-1 hover:ring-primary/40 cursor-grab active:cursor-grabbing transition-all group overflow-hidden"
+      aria-hidden={preview || undefined}
+      className={`rounded-xl bg-[var(--nexa-surface-l1)] overflow-hidden border border-[var(--nexa-divider)] group focus-within:ring-1 focus-within:ring-primary/60 ${highlighted ? "ring-2 ring-primary/60" : ""}`}
     >
       {/* Trello Card Cover */}
       {hasCoverColor && (
@@ -89,9 +95,9 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
 
       <div className="p-3 space-y-2">
         {/* Labels & Template Indicator */}
-        <div className="flex flex-wrap items-center gap-1">
+        {(card.is_template || card.labels.length > 0) && <div className="flex flex-wrap items-center gap-1">
           {card.is_template && (
-            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-[var(--nexa-brand-surface)] text-primary flex items-center gap-1">
+            <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded bg-[var(--nexa-brand-surface)] text-primary flex items-center gap-1">
               <FileText className="w-2.5 h-2.5" />{tr("Template")}</span>
           )}
           {card.labels &&
@@ -99,20 +105,33 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
             card.labels.map((lbl) => (
               <LabelBadge key={lbl.id} name={lbl.name} color={lbl.color} />
             ))}
-        </div>
+        </div>}
 
         {stale && (
-          <span className="text-[10px] text-warning">{tr("No updates for 14+ days")}</span>
+          <span className="text-[11px] text-warning">{tr("No updates for 14+ days")}</span>
         )}
         {/* Title */}
-        <h4 dir="auto" className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors leading-snug">
-          {card.title}
-        </h4>
+        <div className="flex items-start gap-1">
+          <h4 className="min-w-0 flex-1">
+            {preview ? <span dir="auto" className="break-words text-sm font-semibold">{card.title}</span> :
+              <Button type="button" variant="ghost" onClick={() => openCardModal(card.id)}
+                className="h-auto min-h-11 w-full justify-start px-1 py-1 text-start text-sm font-semibold leading-relaxed">
+                <span dir="auto" className="min-w-0 break-words [overflow-wrap:anywhere]">{card.title}</span>
+              </Button>}
+          </h4>
+          {!preview && <div className="flex shrink-0 items-center">
+            <Button type="button" variant="ghost" size="icon" ref={setActivatorNodeRef} {...attributes} {...listeners}
+              className="size-11 sm:size-8 touch-none cursor-grab p-1 text-foreground/75"
+              aria-label={tr("Drag task: {title}", { title: card.title })}><GripVertical size={16} aria-hidden="true" /></Button>
+            {onMove && <Dropdown ariaLabel={tr("Task actions: {title}", { title: card.title })}
+              trigger={<MoreHorizontal size={16} aria-hidden="true" />} items={[{ id: "move", label: tr("Move to column"), onClick: onMove }]} />}
+          </div>}
+        </div>
 
         {/* Meta badges & assignees */}
-        <div className="flex items-center justify-between gap-2 pt-1 border-t border-[var(--nexa-divider)]">
+        {hasMetadata && <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
           <div className="flex items-center gap-1.5 text-muted-foreground text-xs flex-wrap">
-            <PriorityBadge priority={card.priority} />
+            {card.priority !== "no_priority" && <PriorityBadge priority={card.priority} />}
 
             {/* Story Points */}
             {card.story_points !== undefined && card.story_points !== null && (
@@ -142,14 +161,14 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
             {card.comments_count > 0 && (
               <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
                 <MessageSquare className="w-3 h-3" />
-                {card.comments_count}
+                {formatNumber(card.comments_count)}
               </span>
             )}
 
             {(card.votes_count ?? 0) > 0 && (
               <span className="flex items-center gap-1 text-[11px] text-warning font-medium">
                 <ThumbsUp className="w-3 h-3 fill-current" />
-                {card.votes_count}
+                {formatNumber(card.votes_count ?? 0)}
               </span>
             )}
 
@@ -165,7 +184,7 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
 
           {/* Assignees */}
           {card.assignees && card.assignees.length > 0 && (
-            <div className="flex items-center -space-x-1.5 overflow-hidden shrink-0">
+            <div className="flex flex-wrap items-center gap-0.5">
               {card.assignees.map((assignee) => (
                 <UserAvatar
                   key={assignee.user_id}
@@ -176,8 +195,8 @@ export const CardItem: React.FC<CardItemProps> = ({ card, preview = false, board
               ))}
             </div>
           )}
-        </div>
+        </div>}
       </div>
-    </div>
+    </article>
   );
 };

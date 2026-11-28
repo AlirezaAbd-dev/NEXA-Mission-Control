@@ -1,5 +1,5 @@
-import { tr, useUiLocale } from "@/i18n";
-import { useState, type ReactNode } from "react";
+import { formatNumber, tr, useUiLocale } from "@/i18n";
+import { useState } from "react";
 import { Button, Modal, CustomSelect } from "@/components/ui";
 import { useProject } from "@/hooks/project/useProject";
 import { useProductivity } from "@/hooks/productivity/useProductivity";
@@ -14,7 +14,7 @@ interface Mirror {
   status: string;
   priority: string;
 }
-export function MirroredTasks({ projectId, actions }: { projectId: string; actions?: ReactNode }) {
+export function MirroredTasks({ projectId, isOpen, onOpen, onClose }: { projectId: string; isOpen: boolean; onOpen: () => void; onClose: () => void }) {
   useUiLocale();
   const { data: project } = useProject(projectId),
     { data: mirrors = [] } = useProductivity<Mirror[]>(
@@ -22,40 +22,24 @@ export function MirroredTasks({ projectId, actions }: { projectId: string; actio
     ),
     { data: work = [] } = useProductivity<WorkCard[]>(
       `workspaces/${project?.workspace_id}/work`,
-      !!project?.workspace_id,
+      isOpen && !!project?.workspace_id,
     ),
     save = useProductivityMutation(),
     open = useUiStore((s) => s.openCardModal);
-  const [modal, setModal] = useState(false),
-    [source, setSource] = useState("");
+  const [source, setSource] = useState("");
   return (
-    <section className="min-w-0 space-y-2 shrink-0">
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          <h2 className="text-xs uppercase font-semibold text-slate-500">{tr("Mirrored tasks")}</h2>
-          <Button size="sm" variant="ghost" onClick={() => setModal(true)}>{tr("Mirror a task")}</Button>
-        </div>
-        {actions && <div className="shrink-0">{actions}</div>}
-      </div>
-      {!!mirrors.length && (
-        <div className="flex gap-3 overflow-x-auto">
-          {mirrors.map((m) => (
-            <Button
-              key={m.id}
-              variant="outline"
-              onClick={() => open(m.card_id)}
-            >
-              {m.title} · {m.project_name} · {m.status}
-            </Button>
-          ))}
-        </div>
-      )}
-      <Modal
-        isOpen={modal}
-        onClose={() => setModal(false)}
-        title={tr("Mirror a task from another project")}
-      >
+    <>
+      {!!mirrors.length && <Button type="button" size="sm" variant="ghost" onClick={onOpen}>{tr("Mirrored tasks")} · {formatNumber(mirrors.length)}</Button>}
+      <Modal isOpen={isOpen} onClose={onClose} title={tr("Mirrored tasks")}>
         <div className="space-y-4">
+          {!!mirrors.length && <ul className="space-y-1">
+            {mirrors.map(mirror => <li key={mirror.id}>
+              <Button type="button" variant="outline" className="h-auto min-h-11 w-full justify-start py-2 text-start"
+                onClick={() => { onClose(); open(mirror.card_id); }}>
+                <span className="min-w-0 break-words" dir="auto">{mirror.title} · {mirror.project_name} · {mirror.status}</span>
+              </Button>
+            </li>)}
+          </ul>}
           <p className="text-sm text-slate-500">{tr("This displays the same task here. Edits update its source everywhere; its workflow stays in the source project. Viewers also need access to that project.")}</p>
           <CustomSelect
             searchable
@@ -77,12 +61,12 @@ export function MirroredTasks({ projectId, actions }: { projectId: string; actio
                   path: `projects/${projectId}/mirrors`,
                   data: { name: "Mirrored task", card_id: source },
                 },
-                { onSuccess: () => setModal(false) },
+                { onSuccess: () => { setSource(""); onClose(); } },
               )
             }
           >{tr("Add mirror")}</Button>
         </div>
       </Modal>
-    </section>
+    </>
   );
 }
