@@ -18,12 +18,14 @@ export interface DropdownProps {
   items: DropdownItem[];
   align?: "left" | "right";
   className?: string;
+  ariaLabel?: string;
 }
 export function Dropdown({
   trigger,
   items,
   align = "right",
   className,
+  ariaLabel,
 }: DropdownProps) {
   useUiLocale();
   return (
@@ -31,7 +33,7 @@ export function Dropdown({
       <DropdownTrigger
         showChevron={false}
         className="border-0 p-1 shadow-none bg-transparent"
-        aria-label={tr("Open actions")}
+        aria-label={ariaLabel || tr("Open actions")}
       >
         {trigger}
       </DropdownTrigger>

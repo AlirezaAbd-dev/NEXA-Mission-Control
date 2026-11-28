@@ -857,11 +857,14 @@ html, body, #root { max-inline-size: 100%; }
   button:active, [role="button"]:active { scale: .98; }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   [data-mobile-popup] > * { position: relative !important; inset: auto !important; inline-size: 100% !important; max-inline-size: 100% !important; max-block-size: none !important; transform: none !important; }
   [data-mobile-popup] [data-floating-overlay] { position: relative !important; inset: auto !important; inline-size: 100% !important; max-inline-size: 100% !important; max-block-size: none !important; box-shadow: none !important; }
   [data-mobile-popup] .fixed.inset-0 { display: none; }
   [data-mobile-popup] input { font-size: 16px !important; }
+}
+
+@media (max-width: 767px) {
   [data-responsive-table] { display: block; min-inline-size: 0 !important; inline-size: 100%; }
   [data-responsive-table] thead { display: none; }
   [data-responsive-table] tbody { display: grid; gap: 1rem; inline-size: 100%; }

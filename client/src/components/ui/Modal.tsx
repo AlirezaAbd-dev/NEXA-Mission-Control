@@ -48,7 +48,7 @@ export const Modal = ({
 }: ModalProps) => {
   useUiLocale();
   const modalId = useId();
-  const isMobile = useMobileViewport();
+  const isMobile = useMobileViewport("(max-width: 1023px)");
   const stackPosition = useSyncExternalStore(
     subscribe,
     () => modalStack.indexOf(modalId),

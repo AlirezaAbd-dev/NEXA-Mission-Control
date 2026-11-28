@@ -18,7 +18,7 @@ export function useSavePreferences(projectId: string) {
         data,
       );
       cache.invalidateQueries({
-        queryKey: QUERY_KEYS.enterprise.resource(projectId, "starred"),
+        predicate: query => query.queryKey[0] === "enterprise" && query.queryKey[2] === "starred",
       });
     },
   });

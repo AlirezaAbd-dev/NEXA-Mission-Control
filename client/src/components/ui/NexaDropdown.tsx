@@ -152,7 +152,7 @@ export function DropdownContent({
   minWidth?: string;
 }) {
   useUiLocale();
-  const isMobile = useMobileViewport();
+  const isMobile = useMobileViewport("(max-width: 1023px)");
 
   const { open, setOpen, contentId, triggerId } = useDropdownContext();
   useMenuKeyboard(open, triggerId, contentId, () => setOpen(false));
@@ -497,7 +497,7 @@ export function Select({
   size?: "default" | "sm";
 }) {
   useUiLocale();
-  const isMobile = useMobileViewport();
+  const isMobile = useMobileViewport("(max-width: 1023px)");
 
   const [open, setOpen] = useState(false);
   const triggerId = useId();

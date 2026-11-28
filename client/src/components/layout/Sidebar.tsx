@@ -1,73 +1,51 @@
-import { tr, useUiLocale } from "@/i18n";
-import { CustomSelect } from "@/components/ui/CustomSelect";
-import { StarredBoards } from "@/features/views/StarredBoards";
+import { normalizeSearch, tr, useUiLocale } from "@/i18n";
 import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
-import { NavLink, useParams, useNavigate, useLocation } from "react-router";
-import {
-  Kanban,
-  ListTodo,
-  GanttChartSquare,
-  CalendarDays,
-  TableProperties,
-  Plus,
-  Settings,
-  LayoutDashboard,
-  Inbox,
-  NotebookPen,
-  X,
-  Zap,
-  BarChart3,
-  Layers,
-  Shield,
-  PanelLeftClose,
-  PanelLeftOpen,
-} from "lucide-react";
+import { Link, NavLink, useParams, useNavigate, useLocation } from "react-router";
+import { Plus, Settings, LayoutDashboard, Inbox, NotebookPen, PanelLeftClose, MoreHorizontal, Star, FolderOpen } from "lucide-react";
 import { NexaLogo } from "@/components/common/NexaLogo";
+import { DirectionalIcon } from "@/components/ui/DirectionalIcon";
+import { NativeBottomSheet } from "@/components/ui/NativeBottomSheet";
+import { useMobileViewport } from "@/hooks/useMobileViewport";
 import { useUiStore } from "@/stores/ui.store";
+import { useAuthStore } from "@/stores/auth.store";
 import { useActiveWorkspace } from "@/hooks/workspace/useActiveWorkspace";
 import { useProjects } from "@/hooks/project/useProjects";
-import { Modal, Button, Input, Textarea } from "@/components/ui";
 import { useCreateProject } from "@/hooks/project/useCreateProject";
 import { useCreateWorkspace } from "@/hooks/workspace/useCreateWorkspace";
-import { cn } from "@/lib/utils";
+import { useEnterpriseResource } from "@/hooks/enterprise/useEnterpriseResource";
+import { readWorkView, readRecentProjects, rememberProject } from "@/lib/projectNavigation";
+import { apiError } from "@/lib/apiError";
+import { Modal, Button, Input, Textarea, CustomSelect, Dropdown } from "@/components/ui";
 
+const navStyle = ({ isActive }: { isActive: boolean }) =>
+  "flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-primary " +
+  (isActive ? "bg-primary/10 text-primary font-semibold" : "text-foreground/75 hover:bg-muted hover:text-foreground");
 export const Sidebar = () => {
-  const locale = useUiLocale();
-  const isRtl = locale === "fa";
-  const { projectId } = useParams<{
-    projectId?: string;
-  }>();
+  useUiLocale();
+  const { projectId } = useParams<{ projectId?: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const sidebarOpen = useUiStore((s) => s.sidebarOpen);
-  const sidebarCollapsed = useUiStore((s) => s.sidebarCollapsed);
-  const toggleSidebarCollapsed = useUiStore((s) => s.toggleSidebarCollapsed);
-
-  const [hoveredTooltip, setHoveredTooltip] = useState<{
-    label: string;
-    rect: DOMRect;
-  } | null>(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.innerWidth < 1024) {
-      useUiStore.getState().setSidebarOpen(false);
-    }
-  }, [location.pathname]);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(min-width: 1024px)");
-    const onChange = () => {
-      useUiStore.getState().setSidebarOpen(mq.matches);
-    };
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-
+  const isMobile = useMobileViewport("(max-width: 1023px)");
+  const sidebarOpen = useUiStore(s => s.sidebarOpen);
+  const collapsed = useUiStore(s => s.sidebarCollapsed);
+  const toggleCollapsed = useUiStore(s => s.toggleSidebarCollapsed);
+  const closeSidebar = () => useUiStore.getState().setSidebarOpen(false);
+  const userId = useAuthStore(s => s.user?.id);
   const { workspaces, currentWorkspace, selectWorkspace } = useActiveWorkspace();
-  const { data: projects = [] } = useProjects(currentWorkspace?.id);
-  const currentProject =
-    projects.find((p) => p.id === projectId) || projects[0];
+  const projectsQuery = useProjects(currentWorkspace?.id);
+  const projects = projectsQuery.data || [];
+  const { data: starred = [] } = useEnterpriseResource<{ id: string; name: string }[]>(projects[0]?.id || "", "starred");
+  const starredIds = new Set(starred.map(project => project.id));
+  const recent = readRecentProjects(userId, currentWorkspace?.id);
+  const rank = (id: string) => recent.includes(id) ? recent.indexOf(id) : 999;
+  const ordered = [...projects].sort((a, b) => Number(starredIds.has(b.id)) - Number(starredIds.has(a.id)) || rank(a.id) - rank(b.id) || a.name.localeCompare(b.name));
+  const visibleProjects = ordered.slice(0, 6);
+  const currentProject = projects.find(project => project.id === projectId);
+  if (currentProject && !visibleProjects.some(project => project.id === currentProject.id)) visibleProjects.push(currentProject);
+  useEffect(() => { if (currentProject) rememberProject(userId, currentWorkspace?.id, currentProject.id); }, [userId, currentWorkspace?.id, currentProject]);
+  const [browseOpen, setBrowseOpen] = useState(false);
+  const [projectSearch, setProjectSearch] = useState("");
+  useEffect(() => { if (isMobile) useUiStore.getState().setSidebarOpen(false); }, [location.pathname, isMobile]);
 
   const [createProjectOpen, setCreateProjectOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
@@ -84,13 +62,6 @@ export const Sidebar = () => {
 
   const createProjectMutation = useCreateProject(currentWorkspace?.id || "");
   const createWorkspaceMutation = useCreateWorkspace();
-
-  const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1024;
-  const isExpanded = !sidebarCollapsed || (sidebarOpen && !isDesktop);
-
-  useEffect(() => {
-    if (isExpanded) setHoveredTooltip(null);
-  }, [isExpanded]);
 
   const handleCreateProject = async () => {
     if (!newProjectName.trim()) {
@@ -115,7 +86,7 @@ export const Sidebar = () => {
       setNewProjectVisibility("public");
     } catch (err: any) {
       setProjectError(
-        err?.response?.data?.error?.message || "Failed to create project",
+        apiError(err),
       );
     }
   };
@@ -137,394 +108,81 @@ export const Sidebar = () => {
       navigate(`/w/${ws.id}`);
     } catch (err: any) {
       setWorkspaceError(
-        err?.response?.data?.error?.message || "Failed to create workspace",
+        apiError(err),
       );
     }
   };
 
-  const navItemClass = ({ isActive }: { isActive: boolean }) =>
-    cn(
-      "relative flex min-h-10 items-center gap-2.5 rounded-xl px-3 py-2 text-xs sm:text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40",
-      !isExpanded && "justify-center px-2",
-      isActive
-        ? "bg-muted font-semibold text-primary"
-        : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
-    );
-
-  const tooltipHandlers = (label: string) =>
-    isExpanded
-      ? {}
-      : {
-          onMouseEnter: (e: React.MouseEvent<HTMLElement>) =>
-            setHoveredTooltip({
-              label,
-              rect: e.currentTarget.getBoundingClientRect(),
-            }),
-          onMouseLeave: () => setHoveredTooltip(null),
-          onFocus: (e: React.FocusEvent<HTMLElement>) =>
-            setHoveredTooltip({
-              label,
-              rect: e.currentTarget.getBoundingClientRect(),
-            }),
-          onBlur: () => setHoveredTooltip(null),
-        };
-
-  return (
-    <>
-      {/* Mobile Drawer Backdrop */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/45 backdrop-blur-md z-40 lg:hidden animate-in fade-in duration-200"
-          onClick={() => useUiStore.getState().setSidebarOpen(false)}
-        />
-      )}
-
-      <aside
-        data-nexa-sidebar=""
-        className={cn(
-          "fixed inset-y-0 start-0 z-50 flex w-[280px] flex-col bg-sidebar select-none transition-[width,transform] duration-300 motion-reduce:transition-none lg:z-40 max-lg:shadow-2xl",
-          sidebarOpen
-            ? "translate-x-0"
-            : "max-lg:pointer-events-none max-lg:invisible max-lg:-translate-x-full max-lg:rtl:translate-x-full",
-        )}
-      >
-        {/* Brand Header */}
-        {isExpanded ? (
-          <div className="flex h-16 shrink-0 items-center justify-between px-4 border-b border-[var(--nexa-divider)]">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <NexaLogo size={34} className="shrink-0" />
-              <div className="min-w-0">
-                <h2 className="text-sm font-bold text-foreground truncate">
-                  {currentWorkspace?.name || "NEXA"}
-                </h2>
-                <span className="text-[10px] text-primary font-semibold tracking-wider uppercase block">
-                  {tr("Mission Control")}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={toggleSidebarCollapsed}
-                className="hidden h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg hover:bg-muted/80 hover:text-foreground text-muted-foreground transition-colors lg:flex"
-                aria-label={tr("Collapse sidebar")}
-                title={tr("Collapse sidebar")}
-              >
-                <PanelLeftClose className="h-4.5 w-4.5 rtl:rotate-180" />
-              </button>
-              <button
-                type="button"
-                onClick={() => useUiStore.getState().setSidebarOpen(false)}
-                title={tr("Close sidebar")}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors lg:hidden cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="hidden h-16 shrink-0 items-center justify-center border-b border-[var(--nexa-divider)] lg:flex">
-            <button
-              type="button"
-              onClick={toggleSidebarCollapsed}
-              {...tooltipHandlers(tr("Expand sidebar"))}
-              className="group relative flex h-11 w-11 cursor-pointer items-center justify-center rounded-2xl transition-all duration-300 hover:bg-muted/80 text-muted-foreground hover:text-primary"
-              aria-label={tr("Expand sidebar")}
-            >
-              <div className="flex items-center justify-center transition-all duration-200 group-hover:scale-75 group-hover:opacity-0 group-hover:invisible pointer-events-none">
-                <NexaLogo size={32} />
-              </div>
-              <div className="absolute inset-0 flex items-center justify-center opacity-0 scale-75 invisible transition-all duration-200 group-hover:opacity-100 group-hover:scale-100 group-hover:visible pointer-events-none text-primary">
-                <PanelLeftOpen className="h-5 w-5 rtl:rotate-180" />
-              </div>
-            </button>
-          </div>
-        )}
-
-        {/* Navigation List */}
-        <div
-          className={cn(
-            "flex-1 overflow-y-auto space-y-5 scrollbar-thin",
-            isExpanded ? "p-3" : "p-2",
-          )}
-        >
-          {/* Workspace Switcher & Hub */}
-          <div className="space-y-2 border-b border-[var(--nexa-divider)] pb-3">
-            {isExpanded && (
-              <>
-                <div className="flex items-center justify-between px-1">
-                  <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                    {tr("Workspace")}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setWorkspaceError(null);
-                      setCreateWorkspaceOpen(true);
-                    }}
-                    title={tr("Create Workspace")}
-                    className="text-muted-foreground hover:text-primary p-1 rounded-lg hover:bg-muted transition-colors cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <CustomSelect
-                  value={currentWorkspace?.id}
-                  options={workspaces.map((w) => ({ value: w.id, label: w.name }))}
-                  onChange={(id) => {
-                    selectWorkspace(id);
-                    navigate(`/w/${id}`);
-                  }}
-                  placeholder={tr("Select workspace…")}
-                  size="sm"
-                />
-              </>
-            )}
-
-            <div className="pt-1 space-y-1">
-              <NavLink
-                to={`/w/${currentWorkspace?.id}`}
-                end
-                className={navItemClass}
-                {...tooltipHandlers(tr("Workspace Overview"))}
-              >
-                <LayoutDashboard className="w-4 h-4 shrink-0" />
-                {isExpanded && (
-                  <span className="truncate">{tr("Workspace Overview")}</span>
-                )}
-              </NavLink>
-
-              <NavLink
-                to={`/w/${currentWorkspace?.id}/work`}
-                className={navItemClass}
-                {...tooltipHandlers(tr("Planner & Work Hub"))}
-              >
-                <Inbox className="w-4 h-4 shrink-0" />
-                {isExpanded && (
-                  <span className="truncate">{tr("Planner & Work Hub")}</span>
-                )}
-              </NavLink>
-
-              <NavLink
-                to={currentWorkspace?.id ? `/w/${currentWorkspace.id}/notes` : "/notes"}
-                className={navItemClass}
-                {...tooltipHandlers(tr("Notes"))}
-              >
-                <NotebookPen className="w-4 h-4 shrink-0" />
-                {isExpanded && <span className="truncate">{tr("Notes")}</span>}
-              </NavLink>
-            </div>
-          </div>
-
-          {isExpanded && <StarredBoards projectId={currentProject?.id || ""} />}
-
-          {/* Projects list */}
-          {isExpanded && (
-            <div>
-              <div className="flex items-center justify-between px-2 mb-2">
-                <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                  {tr("Projects")}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProjectError(null);
-                    setCreateProjectOpen(true);
-                  }}
-                  className="text-muted-foreground hover:text-primary p-1 rounded-lg hover:bg-muted transition-colors cursor-pointer"
-                  title={tr("Create Project")}
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-              </div>
-
-              <div className="space-y-1">
-                {projects.length === 0 ? (
-                  <div className="px-3 py-2 text-xs text-muted-foreground italic">
-                    {tr("No projects yet")}
-                  </div>
-                ) : (
-                  projects.map((proj) => {
-                    const isActive = currentProject?.id === proj.id;
-                    return (
-                      <button
-                        type="button"
-                        key={proj.id}
-                        onClick={() => navigate(`/p/${proj.id}/board`)}
-                        className={cn(
-                          "w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors text-start cursor-pointer",
-                          isActive
-                            ? "bg-muted text-primary"
-                            : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
-                        )}
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span
-                            className="w-2.5 h-2.5 rounded-full shrink-0"
-                            style={{ backgroundColor: proj.color || "var(--color-primary)" }}
-                          />
-                          <span className="truncate">{proj.name}</span>
-                        </div>
-                        <span className="text-[10px] font-mono text-muted-foreground shrink-0 uppercase">
-                          {proj.identifier}
-                        </span>
-                      </button>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Current project view tabs */}
-          {currentProject && (
-            <div className="space-y-4">
-              <div>
-                {isExpanded && (
-                  <div className="px-2 mb-2">
-                    <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                      {tr("Views (")}{currentProject.identifier})
-                    </span>
-                  </div>
-                )}
-
-                <div className="space-y-1">
-                  <NavLink
-                    to={`/p/${currentProject.id}/board`}
-                    className={navItemClass}
-                    {...tooltipHandlers(tr("Kanban Board"))}
-                  >
-                    <Kanban className="w-4 h-4 shrink-0" />
-                    {isExpanded && <span className="truncate">{tr("Kanban Board")}</span>}
-                  </NavLink>
-
-                  <NavLink
-                    to={`/p/${currentProject.id}/backlog`}
-                    className={navItemClass}
-                    {...tooltipHandlers(tr("Backlog & Sprints"))}
-                  >
-                    <ListTodo className="w-4 h-4 shrink-0" />
-                    {isExpanded && <span className="truncate">{tr("Backlog & Sprints")}</span>}
-                  </NavLink>
-
-                  <NavLink
-                    to={`/p/${currentProject.id}/timeline`}
-                    className={navItemClass}
-                    {...tooltipHandlers(tr("Timeline"))}
-                  >
-                    <GanttChartSquare className="w-4 h-4 shrink-0" />
-                    {isExpanded && <span className="truncate">{tr("Timeline")}</span>}
-                  </NavLink>
-
-                  <NavLink
-                    to={`/p/${currentProject.id}/calendar`}
-                    className={navItemClass}
-                    {...tooltipHandlers(tr("Calendar"))}
-                  >
-                    <CalendarDays className="w-4 h-4 shrink-0" />
-                    {isExpanded && <span className="truncate">{tr("Calendar")}</span>}
-                  </NavLink>
-
-                  <NavLink
-                    to={`/p/${currentProject.id}/list`}
-                    className={navItemClass}
-                    {...tooltipHandlers(tr("List View"))}
-                  >
-                    <TableProperties className="w-4 h-4 shrink-0" />
-                    {isExpanded && <span className="truncate">{tr("List View")}</span>}
-                  </NavLink>
-                </div>
-              </div>
-
-              {/* Enterprise Features */}
-              <div>
-                {isExpanded && (
-                  <div className="px-2 mb-2">
-                    <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
-                      {tr("Enterprise & Ops")}
-                    </span>
-                  </div>
-                )}
-                <div className="space-y-1">
-                  <NavLink
-                    to={`/p/${currentProject.id}/insights`}
-                    className={navItemClass}
-                    {...tooltipHandlers(tr("Insights"))}
-                  >
-                    <BarChart3 className="w-4 h-4 shrink-0" />
-                    {isExpanded && <span className="truncate">{tr("Insights")}</span>}
-                  </NavLink>
-
-                  <NavLink
-                    to={`/p/${currentProject.id}/automation`}
-                    className={navItemClass}
-                    {...tooltipHandlers(tr("Automation"))}
-                  >
-                    <Zap className="w-4 h-4 shrink-0" />
-                    {isExpanded && <span className="truncate">{tr("Automation")}</span>}
-                  </NavLink>
-
-                  <NavLink
-                    to={`/p/${currentProject.id}/service-desk`}
-                    className={navItemClass}
-                    {...tooltipHandlers(tr("Service Desk"))}
-                  >
-                    <Layers className="w-4 h-4 shrink-0" />
-                    {isExpanded && <span className="truncate">{tr("Service Desk")}</span>}
-                  </NavLink>
-
-                  <NavLink
-                    to={`/p/${currentProject.id}/governance`}
-                    className={navItemClass}
-                    {...tooltipHandlers(tr("Project Governance"))}
-                  >
-                    <Shield className="w-4 h-4 shrink-0" />
-                    {isExpanded && <span className="truncate">{tr("Project Governance")}</span>}
-                  </NavLink>
-                </div>
-              </div>
-            </div>
-          )}
+  const renderProjectLink = (project: (typeof projects)[number]) => <Link key={project.id} onClick={() => { setBrowseOpen(false); if (isMobile) closeSidebar(); }} to={`/p/${project.id}/${readWorkView(userId, project.id)}`}
+            aria-current={project.id === projectId ? "page" : undefined}
+            className={navStyle({ isActive: project.id === projectId })}>
+            {starredIds.has(project.id) ? <Star size={16} className="shrink-0 fill-current text-primary" aria-label={tr("Starred project")} /> : <FolderOpen size={17} className="shrink-0" />}
+            <span dir="auto" className="truncate">{project.name}</span>
+          </Link>;
+  const navigation = <>
+    <header className="shrink-0 border-b border-border p-3 space-y-3">
+      <div className="hidden lg:flex items-center justify-between gap-2 px-1">
+        <div className="flex items-center gap-2 min-w-0"><NexaLogo size={25} /><span className="font-semibold text-sm truncate">{tr("Mission Control")}</span></div>
+        <Button variant="ghost" size="icon" aria-label={tr("Collapse sidebar")} onClick={toggleCollapsed} className="min-h-11 min-w-11"><DirectionalIcon icon={PanelLeftClose} size={17} /></Button>
+      </div>
+      <div className="flex items-center gap-1">
+        <CustomSelect className="min-w-0 flex-1" searchable value={currentWorkspace?.id}
+          options={workspaces.map(workspace => ({ value: workspace.id, label: workspace.name }))}
+          ariaLabel={tr("Switch workspace")} placeholder={tr("Select workspace…")}
+          onChange={id => { selectWorkspace(id); navigate(`/w/${id}`); if (isMobile) closeSidebar(); }} />
+        <Dropdown ariaLabel={tr("Workspace actions")} trigger={<MoreHorizontal size={18} />}
+          items={[{ id: "new-workspace", label: tr("Create Workspace"), icon: <Plus size={16} />, onClick: () => { setWorkspaceError(null); setCreateWorkspaceOpen(true); } }]} />
+      </div>
+    </header>
+    <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain p-3 space-y-6">
+      <nav onClick={() => { if (isMobile) closeSidebar(); }} aria-label={tr("Workspace navigation")} className="space-y-1">
+        <NavLink to={currentWorkspace ? `/w/${currentWorkspace.id}` : "/"} end className={navStyle}><LayoutDashboard size={18} /><span>{tr("Overview")}</span></NavLink>
+        {currentWorkspace && <NavLink to={`/w/${currentWorkspace.id}/work`} className={navStyle}><Inbox size={18} /><span>{tr("Work")}</span></NavLink>}
+        <NavLink to={currentWorkspace ? `/w/${currentWorkspace.id}/notes` : "/notes"} className={navStyle}><NotebookPen size={18} /><span>{tr("Notes")}</span></NavLink>
+      </nav>
+      <section aria-label={tr("Projects")}>
+        <div className="flex items-center justify-between gap-2 ps-3 mb-1">
+          <h2 className="text-xs font-semibold text-foreground/75">{tr("Projects")}</h2>
+          <Button variant="ghost" size="icon" disabled={!currentWorkspace} aria-label={tr("Create Project")} onClick={() => { setProjectError(null); setCreateProjectOpen(true); }} className="min-h-11 min-w-11"><Plus size={17} /></Button>
         </div>
-
-        {/* Bottom Settings Link */}
-        <div className="p-3 border-t border-[var(--nexa-divider)]">
-          <NavLink
-            to="/settings"
-            className={navItemClass}
-            {...tooltipHandlers(tr("Settings"))}
-          >
-            <Settings className="w-4 h-4 shrink-0" />
-            {isExpanded && <span>{tr("Settings")}</span>}
-          </NavLink>
-        </div>
+        {projectsQuery.isLoading && <div role="status" className="space-y-2 px-3"><span className="sr-only">{tr("Loading projects…")}</span>{[0, 1, 2].map(i => <div key={i} className="h-11 rounded-xl bg-muted animate-pulse" />)}</div>}
+        {projectsQuery.error && <div role="alert" className="px-3 text-sm space-y-2"><p>{apiError(projectsQuery.error)}</p><Button variant="outline" size="sm" onClick={() => void projectsQuery.refetch()}>{tr("Retry")}</Button></div>}
+        {!projectsQuery.isLoading && !projectsQuery.error && !projects.length && <p className="px-3 py-2 text-sm text-foreground/75">{tr("No projects yet")}</p>}
+        <nav aria-label={tr("Project navigation")} className="space-y-1">
+          {visibleProjects.map(renderProjectLink)}
+        </nav>
+        {!!projects.length && <Button variant="ghost" size="sm" onClick={() => { setProjectSearch(""); setBrowseOpen(true); }} className="w-full min-h-11 justify-start mt-1 text-foreground/75">{tr("Browse projects…")}</Button>}
+      </section>
+    </div>
+    <footer className="shrink-0 border-t border-border p-3 pb-[max(.75rem,env(safe-area-inset-bottom))]">
+      <NavLink to="/settings" onClick={() => { if (isMobile) closeSidebar(); }} className={navStyle}><Settings size={18} /><span>{tr("Settings")}</span></NavLink>
+    </footer>
+  </>;
+  return <>
+    {isMobile ? (
+      sidebarOpen && <NativeBottomSheet open onClose={closeSidebar} title={tr("Navigation")} contentClassName="p-0 pb-0 flex flex-col h-[75dvh]">{navigation}</NativeBottomSheet>
+    ) : (
+      <aside data-nexa-sidebar="" aria-label={tr("Main navigation")} className="fixed inset-y-0 start-0 z-40 hidden min-h-0 flex-col overflow-hidden text-foreground lg:flex">
+        {collapsed ? (
+          <nav aria-label={tr("Workspace navigation")} className="flex h-full flex-col items-center gap-2 p-3">
+            <Button variant="ghost" size="icon" className="min-h-11 min-w-11" onClick={toggleCollapsed} aria-label={tr("Expand sidebar")} title={tr("Expand sidebar")}><NexaLogo size={25} /></Button>
+            <NavLink to={currentWorkspace ? `/w/${currentWorkspace.id}` : "/"} end className={navStyle} title={tr("Overview")} aria-label={tr("Overview")}><LayoutDashboard size={18} /></NavLink>
+            {currentWorkspace && <NavLink to={`/w/${currentWorkspace.id}/work`} className={navStyle} title={tr("Work")} aria-label={tr("Work")}><Inbox size={18} /></NavLink>}
+            <NavLink to={currentWorkspace ? `/w/${currentWorkspace.id}/notes` : "/notes"} className={navStyle} title={tr("Notes")} aria-label={tr("Notes")}><NotebookPen size={18} /></NavLink>
+            {!!projects.length && <Button variant="ghost" size="icon" className="min-h-11 min-w-11" aria-label={tr("Browse projects")} title={tr("Browse projects")} onClick={() => { setProjectSearch(""); setBrowseOpen(true); }}><FolderOpen size={18} /></Button>}
+            <div className="mt-auto"><NavLink to="/settings" className={navStyle} title={tr("Settings")} aria-label={tr("Settings")}><Settings size={18} /></NavLink></div>
+          </nav>
+        ) : navigation}
       </aside>
-
-      {/* Collapsed Rail Tooltip */}
-      {hoveredTooltip &&
-        !isExpanded &&
-        typeof document !== "undefined" &&
-        createPortal(
-          <div
-            role="tooltip"
-            data-nexa-tooltip-surface=""
-            className="pointer-events-none fixed z-[100] w-max rounded-xl px-3 py-1.5 text-xs font-medium"
-            style={{
-              top: hoveredTooltip.rect.top + hoveredTooltip.rect.height / 2,
-              left: isRtl
-                ? hoveredTooltip.rect.left - 8
-                : hoveredTooltip.rect.right + 8,
-              transform: isRtl ? "translate(-100%, -50%)" : "translateY(-50%)",
-            }}
-          >
-            {hoveredTooltip.label}
-          </div>,
-          document.body,
-        )}
-
-      {/* Create Project Modal */}
+    )}
+    <Modal isOpen={browseOpen} onClose={() => setBrowseOpen(false)} title={tr("Browse projects")} description={tr("Search all projects in this workspace.")}>
+      <Input aria-label={tr("Find a project")} placeholder={tr("Find a project")} value={projectSearch} onChange={event => setProjectSearch(event.target.value)} autoFocus />
+      <nav aria-label={tr("Projects")} className="mt-3 max-h-[55dvh] overflow-y-auto overscroll-y-contain space-y-1">
+        {ordered.filter(project => normalizeSearch(project.name + " " + project.identifier).includes(normalizeSearch(projectSearch))).map(renderProjectLink)}
+      </nav>
+      {!ordered.some(project => normalizeSearch(project.name + " " + project.identifier).includes(normalizeSearch(projectSearch))) && <p className="py-6 text-center text-sm text-foreground/75">{tr("No projects match your search.")}</p>}
+    </Modal>
+      {/* Create Project Modal with custom error validation */}
       <Modal
         isOpen={createProjectOpen}
         onClose={() => setCreateProjectOpen(false)}
@@ -575,21 +233,17 @@ export const Sidebar = () => {
               variant="secondary"
               size="sm"
               onClick={() => setCreateProjectOpen(false)}
-            >
-              {tr("Cancel")}
-            </Button>
+            >{tr("Cancel")}</Button>
             <Button
               size="sm"
               onClick={handleCreateProject}
               isLoading={createProjectMutation.isPending}
-            >
-              {tr("Create Project")}
-            </Button>
+            >{tr("Create Project")}</Button>
           </div>
         </div>
       </Modal>
 
-      {/* Create Workspace Modal */}
+      {/* Create Workspace Modal with custom error validation */}
       <Modal
         isOpen={createWorkspaceOpen}
         onClose={() => setCreateWorkspaceOpen(false)}
@@ -611,19 +265,14 @@ export const Sidebar = () => {
               variant="secondary"
               size="sm"
               onClick={() => setCreateWorkspaceOpen(false)}
-            >
-              {tr("Cancel")}
-            </Button>
+            >{tr("Cancel")}</Button>
             <Button
               size="sm"
               onClick={handleCreateWorkspace}
               isLoading={createWorkspaceMutation.isPending}
-            >
-              {tr("Create Workspace")}
-            </Button>
+            >{tr("Create Workspace")}</Button>
           </div>
         </div>
       </Modal>
-    </>
-  );
+  </>;
 };

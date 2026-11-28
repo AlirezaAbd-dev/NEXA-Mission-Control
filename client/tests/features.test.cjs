@@ -36,6 +36,40 @@ function load(path, clock = Date) {
   return module.exports;
 }
 
+test("project navigation remembers only valid work views for the same user and project", () => {
+  const { readWorkView, saveWorkView, projectSection } = load("src/lib/projectNavigation.ts");
+  const values = new Map();
+  const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+  saveWorkView("alice", "project-a", "calendar", storage);
+  assert.equal(readWorkView("alice", "project-a", storage), "calendar");
+  assert.equal(readWorkView("bob", "project-a", storage), "board");
+  assert.equal(readWorkView("alice", "project-b", storage), "board");
+  saveWorkView("alice", "project-a", "governance", storage);
+  assert.equal(readWorkView("alice", "project-a", storage), "calendar");
+  values.set("mission_control_view:alice:project-a", "https://unexpected.example");
+  assert.equal(readWorkView("alice", "project-a", storage), "board");
+  const unavailable = { getItem() { throw new Error("Storage denied"); }, setItem() { throw new Error("Storage denied"); } };
+  assert.equal(readWorkView("alice", "project-a", unavailable), "board");
+  assert.doesNotThrow(() => saveWorkView("alice", "project-a", "list", unavailable));
+  assert.equal(projectSection("/p/project-a/timeline", "project-a"), "timeline");
+  assert.equal(projectSection("/projects/project-a/board", "project-a"), "board");
+  assert.equal(projectSection("/p/project-b/calendar", "project-a"), "");
+  assert.equal(projectSection("/settings", "project-a"), "");
+});
+
+test("recent projects are bounded, deduplicated and isolated by account and workspace", () => {
+  const { readRecentProjects, rememberProject } = load("src/lib/projectNavigation.ts");
+  const values = new Map();
+  const storage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+  for (let i = 0; i < 9; i++) rememberProject("alice", "team-a", "project-" + i, storage);
+  rememberProject("alice", "team-a", "project-6", storage);
+  assert.equal(JSON.stringify(readRecentProjects("alice", "team-a", storage)), JSON.stringify(["project-6", "project-8", "project-7", "project-5", "project-4", "project-3"]));
+  assert.equal(readRecentProjects("bob", "team-a", storage).length, 0);
+  assert.equal(readRecentProjects("alice", "team-b", storage).length, 0);
+  values.set("mission_control_recent:alice:team-a", "not json");
+  assert.equal(readRecentProjects("alice", "team-a", storage).length, 0);
+});
+
 test("Persian UI translation interpolates values without translating user content", () => {
   const i18n = load("src/i18n/index.ts");
   try {

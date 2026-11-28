@@ -66,7 +66,7 @@ export function SearchableSelect({
   initialLabel,
 }: SearchableSelectProps) {
   useUiLocale();
-  const isMobile = useMobileViewport();
+  const isMobile = useMobileViewport("(max-width: 1023px)");
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [asyncOptions, setAsyncOptions] = useState<SearchableSelectOption[]>(

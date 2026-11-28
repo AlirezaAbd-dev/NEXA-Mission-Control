@@ -107,6 +107,8 @@ volumes:
 
 ## 🎯 Features at a Glance
 
+- **[Focused navigation](docs/NAVIGATION.md)**: Workspace sidebar, unified favorites and recent projects, searchable project browsing, grouped project tools, and remembered Work views on desktop and mobile.
+
 - **[English and Persian UI](docs/LOCALIZATION.md)**: Saved language preference, RTL layouts, Persian typography, localized numbers and Gregorian dates, with responsive mobile sheets and task lists.
 
 ### 📋 Versatile Project Views
