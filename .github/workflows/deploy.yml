@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feature/mission-control-navigation
     tags:
       - 'v*.*.*'
   workflow_dispatch:
@@ -84,7 +83,7 @@ jobs:
   deploy:
     name: Deploy to Production VPS
     needs: build-and-push
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '[build only]')
     runs-on: self-hosted
 
     steps:
